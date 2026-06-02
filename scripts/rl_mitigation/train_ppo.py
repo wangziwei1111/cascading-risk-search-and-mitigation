@@ -2,14 +2,7 @@ from __future__ import annotations
 
 import argparse
 
-import yaml
-
-from ._bootstrap import add_src_to_path
-
-ROOT = add_src_to_path()
-
-from rl_mitigation.cases import make_ieee14_case
-from rl_mitigation.envs import CascadeMitigationEnv
+from ._common import ROOT, load_config, make_ieee14_env_from_config
 from rl_mitigation.rl.ppo_clip import train_ppo_clip
 
 
@@ -20,18 +13,10 @@ def main():
     parser.add_argument("--smoke", action="store_true")
     parser.add_argument("--steps", type=int, default=60000)
     args = parser.parse_args()
-    with open(ROOT / args.config, encoding="utf-8") as f:
-        cfg = yaml.safe_load(f)
+    cfg = load_config(args.config)
     ppo = cfg.get("ppo", {})
     steps = min(args.steps, 2048) if args.smoke else args.steps
-    env = CascadeMitigationEnv(
-        make_ieee14_case(),
-        seed=cfg.get("seed", 0),
-        alpha=cfg.get("alpha", 0.1),
-        max_generations=cfg.get("max_generations", 10),
-        use_action_mask=ppo.get("use_action_mask", True),
-        backend=cfg.get("backend", "pypower_ac"),
-    )
+    env = make_ieee14_env_from_config(cfg)
     pretrained = ROOT / "results" / "rl_mitigation" / "ieee14" / "pretrain" / "policy_pretrained_torch.pt"
     if ppo.get("use_do_nothing_pretrain", True) and not pretrained.exists():
         print(f"Warning: {pretrained} not found; run pretrain_do_nothing first for paper-style initialization.")

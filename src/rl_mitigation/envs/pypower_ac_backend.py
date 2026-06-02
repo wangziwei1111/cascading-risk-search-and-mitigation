@@ -16,15 +16,28 @@ from .powerflow_result import PowerFlowResult
 class PypowerACBackend:
     """AC power-flow backend based on PYPOWER's MATPOWER case14."""
 
-    def __init__(self, case: dict, seed: int = 0, default_rate_a: float = 100.0):
+    def __init__(
+        self,
+        case: dict,
+        seed: int = 0,
+        rate_a_mode: str = "scaled_from_base_flow",
+        rate_a_scale: float = 1.15,
+        min_rate_a_mw: float = 20.0,
+        default_rate_a_mw: float = 100.0,
+        use_original_rate_a: bool = False,
+    ):
         self.case = case
         self.rng = np.random.default_rng(seed)
-        self.default_rate_a = float(default_rate_a)
+        self.rate_a_mode = "original" if use_original_rate_a else rate_a_mode
+        self.rate_a_scale = float(rate_a_scale)
+        self.min_rate_a_mw = float(min_rate_a_mw)
+        self.default_rate_a = float(default_rate_a_mw)
         self.base_ppc = case14()
         self.lines = [(int(row[F_BUS]) - 1, int(row[T_BUS]) - 1) for row in self.base_ppc["branch"]]
         if len(self.lines) != case["num_lines"]:
             raise ValueError(f"PYPOWER case14 has {len(self.lines)} branches, expected {case['num_lines']}")
         self.base_load_mw = float(np.sum(self.base_ppc["bus"][:, PD]))
+        self.calibrated_rate_a = self._build_rate_a()
 
     def solve(self, line_status: np.ndarray, load_scale: float = 1.0, gen_scale: float = 1.0) -> PowerFlowResult:
         line_status = np.asarray(line_status, dtype=np.int8).copy()
@@ -42,8 +55,7 @@ class PypowerACBackend:
         if not bool(success):
             return self._failed_result(line_status, island_records)
         branch = result["branch"]
-        rate_a = branch[:, RATE_A].astype(float)
-        rate_a = np.where(rate_a > 0, rate_a, self.default_rate_a)
+        rate_a = self.calibrated_rate_a
         branch_p_from = branch[:, PF].astype(float)
         branch_p_to = branch[:, PT].astype(float)
         relative_flow = np.maximum(np.abs(branch_p_from), np.abs(branch_p_to)) / rate_a
@@ -62,6 +74,21 @@ class PypowerACBackend:
             island_count=len(island_records),
             island_records=island_records,
         )
+
+    def _build_rate_a(self) -> np.ndarray:
+        original = self.base_ppc["branch"][:, RATE_A].astype(float).copy()
+        if self.rate_a_mode == "original":
+            return np.where(original > 0, original, self.default_rate_a)
+        if self.rate_a_mode == "default_if_zero":
+            return np.where(original > 0, original, self.default_rate_a)
+        if self.rate_a_mode != "scaled_from_base_flow":
+            raise ValueError(f"Unknown rate_a_mode: {self.rate_a_mode}")
+        ppc = copy.deepcopy(self.base_ppc)
+        result, success = runpf(ppc, ppoption(VERBOSE=0, OUT_ALL=0))
+        if not bool(success):
+            return np.where(original > 0, original, self.default_rate_a)
+        base_abs_flow = np.maximum(np.abs(result["branch"][:, PF]), np.abs(result["branch"][:, PT]))
+        return np.maximum(self.min_rate_a_mw, self.rate_a_scale * base_abs_flow).astype(float)
 
     def _apply_island_balance(self, ppc: dict, line_status: np.ndarray, load_scale: float, gen_scale: float) -> tuple[dict, list[dict]]:
         island_records = build_island_records(self.case, line_status, load_scale=load_scale, gen_scale=gen_scale)

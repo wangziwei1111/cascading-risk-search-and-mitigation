@@ -4,14 +4,7 @@ import argparse
 import csv
 from itertools import product
 
-import yaml
-
-from ._bootstrap import add_src_to_path
-
-ROOT = add_src_to_path()
-
-from rl_mitigation.cases import make_ieee14_case
-from rl_mitigation.envs import CascadeMitigationEnv
+from ._common import ROOT, load_config, make_ieee14_env_from_config
 from rl_mitigation.rl.ppo_clip import train_ppo_clip
 
 
@@ -20,20 +13,14 @@ def main():
     parser.add_argument("--config", default="configs/rl_mitigation/ieee14_gridsearch.yaml")
     parser.add_argument("--steps", type=int, default=1024)
     args = parser.parse_args()
-    with open(ROOT / args.config, encoding="utf-8") as f:
-        cfg = yaml.safe_load(f)
+    cfg = load_config(args.config)
     grid = cfg.get("grid", {})
     ppo = cfg.get("ppo", {})
     out = ROOT / "results" / "rl_mitigation" / "ieee14" / "gridsearch_logs" / "gridsearch_summary.csv"
     out.parent.mkdir(parents=True, exist_ok=True)
     rows = []
     for lr, ent in product(grid.get("learning_rate", [1e-3]), grid.get("entropy_coef", [0.001])):
-        env = CascadeMitigationEnv(
-            make_ieee14_case(),
-            seed=cfg.get("seed", 0),
-            use_action_mask=ppo.get("use_action_mask", True),
-            backend=cfg.get("backend", "pypower_ac"),
-        )
+        env = make_ieee14_env_from_config(cfg)
         _, log_rows = train_ppo_clip(
             env,
             total_steps=args.steps,
