@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+*.egg-info/
+results/**/*.pt
+results/**/*.npz
+results/**/*.pkl
+results/**/*.csv
+results/**/*.png
+results/**/*.pdf
+!results/gcn_search/**

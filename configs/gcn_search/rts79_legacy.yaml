@@ -1,0 +1,6 @@
+module: gcn_search_legacy_rts79
+source: current_workspace_migration
+entry_points:
+  train: python -m scripts.gcn_search.train_gcn
+  evaluate: python -m scripts.gcn_search.evaluate_search
+  figures: python -m scripts.gcn_search.make_figures

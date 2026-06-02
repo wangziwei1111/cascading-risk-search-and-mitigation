@@ -1,0 +1,840 @@
+
+
+===== PAGE 1 =====
+814 IEEE TRANSACTIONS ON POWER SYSTEMS, VOL. 24, NO. 2, MA Y 2009
+An Improved OPA Model and
+Blackout Risk Assessment
+Shengwei Mei, Senior Member , IEEE, Fei He, Xuemin Zhang, Shengyu Wu, and Gang Wang
+Abstract—The ORNL-PSerc-Alaska (OPA) model is a blackout
+model proposed by researchers at Oak Ridge National Labora-
+tory (ORNL), Power System Engineering Research Center of
+Wisconsin University (PSerc), and Alaska University (Alaska). Al-
+though the OPA model is a landmark study, it has two limitations.
+First, there is a signiﬁcant difference between simulation and
+practice in transmission line outage and update; and second, the
+simulation of cascading failure and the probability distribution
+of blackout size are in general not accurate enough. Hence, an
+improved OPA model is proposed in this paper to address these
+limitations. The proposed model contains two layers of iteration.
+The inner iteration describes the fast dynamics of the system and
+considers the inﬂuence of power ﬂow, dispatching, automation,
+relay protection, and so on. The outer iteration describes the slow
+overall system evolution and is concerned with the update of the
+power grid, operation modes and planning. Such a model can be
+applied to practical large-scale systems. Furthermore, based on
+the Value at Risk (V aR) and Conditional Value at Risk (CVaR),
+two new complementary blackout risk indices are deﬁned, which
+reveal critical characteristics of blackouts and are used to evaluate
+security levels of power systems. The effectiveness of the improved
+OPA model is veriﬁed by the simulations concerning the Northeast
+Power Grid of China.
+Index T erms—Cascading failure, CVaR, OPA model, VaR.
+I. I NTRODUCTION
+M
+ODERN power systems are becoming highly intercon-
+nected. This is especially important in China where fuel
+energy resources are located in the western inner land and most
+of the generated electricity is consumed in the major cities in the
+east coast. Therefore, a nation-wide interconnection has been
+promoted by the State Power Grid Company. Despite the eco-
+nomic beneﬁts, power system interconnection gives rise to sev-
+eral potential problems, e.g., the high probability of cascading
+failure. Such problems have drawn special attention after some
+large-scale blackouts in recent years. In this context, methods
+based on the complex system theory have become promising in
+the analysis of power system blackouts [1]–[5].
+Several models have been proposed in order to study the
+cascading failure, such as CASCADE model [6], Branching
+process model [7], Hidden failure model [8]–[10], OPA model
+Manuscript received June 27, 2008; revised November 01, 2008. Current ver-
+sion published April 22, 2009. This work was supported in part by the Special
+Fund of National Basic Research Program of China (No. 2004CB217902) and
+National Natural Science Foundation (No. 50525721, No. 50595411). Paper no.
+TPWRS-00489-2008.
+The authors are with the State Key Laboratory of Power Systems, Department
+of Electrical Engineering, Tsinghua University, 100084 Beijing, China (e-mail:
+meishengwei@mail.tsinghua.edu.cn).
+Color versions of one or more of the ﬁgures in this paper are available online
+at http://ieeexplore.ieee.org.
+Digital Object Identiﬁer 10.1109/TPWRS.2009.2016521
+[11], and the Manchester model [12]. These models capture the
+salient features of cascading failures from different angles. The
+CASCADE model and the Branching process model focus on
+the network characteristics of power systems and as a result are
+less concerned about other aspects. The Hidden failure model
+is based on the hidden failure theory and simulates cascading
+failures after disturbances. The OPA model is built upon the
+Self-Organized Criticality (SOC) theory, contains two different
+time scale dynamics, i.e., power ﬂow dynamics and power grid
+growth dynamics, and reveals the complexity and criticality
+of power systems. All the models mentioned above are based
+on dc ﬂows, while the Manchester model is based on ac ﬂows.
+Similar to the Hidden failure model, the Manchester model is
+adopted to simulate the cascading failure, but cannot be used to
+simulate power system evolutions.
+Among these models, we focus on the OPA model, which is
+a novel and powerful tool in studying power system evolution.
+Paper [13] implements the OPA model in simple networks with
+regular structures and concludes that a power-dependent tail ex-
+ists in the probability distribution function (pdf) of the size of
+blackouts. Paper [14] discovers two critical points, which were
+further studied in [15]. Motivated by the results in [14] and [15],
+the authors of [16] carried out the study on the complex dy-
+namics of blackouts. By combining the OPA model with the
+Manchester model, a new model was proposed in [17] where the
+dc power ﬂow in the OPA model was replaced by the ac power
+ﬂow as used in the Manchester model. Later the model in [17]
+was further developed in [18] to include a voltage stability anal-
+ysis function. Although models with ac ﬂows are more accurate
+than the OPA model, they are limited to the study of small-scale
+systems due to the amount of the calculation involved. In addi-
+tion, they cannot deal with the shortcomings of the OPA model,
+among which the most salient one is the critical difference be-
+tween the simulation and operation in practical systems, such as
+the outage and update of transmission lines.
+In this paper, an improved OPA model is proposed, which
+considers the effect of dispatching, automation, relay protection
+and other important elements to make this model more prac-
+tical than the OPA model. Meanwhile, it continues to use the dc
+power ﬂow. Therefore, the improved OPA model leads to efﬁ-
+cient computation and is applicable to large-scale systems. It is
+worth mentioning that some steps of this model are inspired by
+the Hidden failure model.
+The rest of this paper is arranged as follows. First, we present
+the improved OPA model. We investigate in detail the inﬂuence
+of dispatching, automation, communication, relay protection,
+operation modes and planning. A comparison between simula-
+tion results of the OPA model and those of the improved OPA
+model is also discussed. Second, we introduce two indices, the
+0885-8950/$25.00 © 2009 IEEE
+Authorized licensed use limited to: Xian Jiaotong University. Downloaded on May 11,2026 at 07:16:32 UTC from IEEE Xplore.  Restrictions apply. 
+
+===== PAGE 2 =====
+MEI et al.: AN IMPROVED OPA MODEL AND BLACKOUT RISK ASSESSMENT 815
+V alue at Risk (V aR) and the Conditional V alue at Risk (CV aR),
+which describe the blackout risk quantitatively. Then the cas-
+cading failure process in the Northeast Power Grid of China
+(NPGC) with 570 buses is studied using this improved model.
+Also by applying this model to the NPGC, we investigate the re-
+lationship between power system parameters and blackout sizes,
+estimate the pdf curves, and calculate the V aR and CV aR in-
+dices. Finally, conclusions are drawn in Section VII.
+II. S
+UMMARY OF THE OPA MODEL
+It was observed in the OPA model [11] that the slow load
+increase tends to reduce the margins of transmission lines and
+hence increases the risk of cascading failure and blackouts. On
+the other hand, it was assumed that effective operating policies,
+timely maintenance and well-designed controls, as responses
+to blackouts, may increase the margins of transmission lines.
+So the OPA model contains two layers of iterations, the inner
+iteration is concerned with the fast dynamics which simulate
+the power ﬂow while the outer iteration cares about the slow
+dynamics which simulate the growth of power grid such as the
+increase of generation and load and the update of transmission
+lines.
+As is well known, the OPA model is developed by using the
+SOC theory. There are two kinds of variables inﬂuencing the
+evolution of power systems. One acts slowly and gently, and
+the other acts quickly and ﬁercely. When the system under the
+inﬂuence of these two kinds of variables evolves into a crit-
+ical condition, a very small disturbance could result in an un-
+predictable disaster. Scholars have used the OPA model to ﬁnd
+out the “critical condition” of power systems. But as discussed
+below, two parts of the OPA model are inconsistent with prac-
+tical systems, which undermine the credibility of results derived
+using the OPA model.
+The ﬁrst part lies in the line outage simulation. In the OPA
+model, the power ﬂow of every transmission line is bounded by
+its limit due to dc OPF algorithm. On the other hand, the lines,
+whose power ﬂows exceed a certain proportion of the limits,
+are considered overloaded and should be tripped. Such an im-
+plementation of tripping lines under limits corresponds to the
+unwanted operation of relay protection and rarely happens in
+practice.
+The second part lies in the update of the transmission line.
+Traditional OPA models fail to incorporate the function of plan-
+ning department thoroughly. The main idea of those models
+[11], [13]–[16] is to increase the transmission capacity of the
+lines which are in outage in the inner iteration. In other words,
+the line will not be updated until they are tripped. Paper [19]
+tried to strengthen the network by increasing the operating mar-
+gins of stressed lines according to the current slow dynamics.
+In practical systems, however, the transmission lines are up-
+dated based on the load forecasting, i.e., the future slow dy-
+namics. Therefore, the effect of planning based on load fore-
+casting should be considered in the model.
+III. I
+MPROVED OPA MODEL
+A. Introduction of the Improved Model
+Aiming to solve the problems in the traditional OPA model
+as discussed in the last section, an improved OPA model is pro-
+posed in this section. This improved model also has a two-loop
+structure. The inner loop is the fast dynamics process, which
+simulates power ﬂow and cascading failure. Compared to the
+inner iteration of the OPA model, the improved OPA model con-
+siders the effects of dispatch, relay protection and automation,
+etc., and thus reﬂects the practical systems more faithfully.
+The outer one is the slow dynamic process, which simulates
+the evolution of the power systems. Compared to the outer itera-
+tion of the OPA model, the improved model simulates the inﬂu-
+ence of the effects of planning and operation modes. The time
+unit of the slow dynamics is usually taken as one day on which
+the fast dynamics is activated. The process of the improved OPA
+model can be described as follows.
+Step 1)
+, initialization.
+Step 2) The fast dynamics process on day
+ . Calculate the
+amount of load shedding.
+Step 3) The slow dynamics process.
+ .I f
+ ,
+stop the program; otherwise, go to Step 2.
+Now we introduce the mathematical description of the model.
+Suppose there are
+ buses and
+ lines. Let
+ be the active
+power injected at bus
+ on day
+ , and
+ is the
+vector of active power injections on day
+ .
+The generator set and load set are denoted by
+ and
+ re-
+spectively. The maximum power limit for generator
+ on day k
+is
+ , then
+(1)
+There is no power loss in dc ﬂow model, so the power balance
+equation is
+(2)
+Let
+ be the active power ﬂow on line
+ on day
+ .
+is the power ﬂow of
+ lines on day
+ . The line
+ﬂows must satisfy
+(3)
+where
+ models the transmission limit on line
+ on day
+ .
+There is a linear relationship in dc ﬂow model between power
+injections and line ﬂows on day
+(4)
+where the matrix
+ represents the network constraints and can
+be calculated easily [8], [11].
+Generation and load should be regulated to maintain stability.
+Notice that, generation re-dispatch is much preferred than load
+shedding. So
+should be determined by the following opti-
+mization problem:
+(5)
+Authorized licensed use limited to: Xian Jiaotong University. Downloaded on May 11,2026 at 07:16:32 UTC from IEEE Xplore.  Restrictions apply. 
+
+===== PAGE 3 =====
+816 IEEE TRANSACTIONS ON POWER SYSTEMS, VOL. 24, NO. 2, MA Y 2009
+where
+ is the demand power at bus
+ on day
+ . Since only
+is supplied, the amount of load
+ is shed.
+ is the
+generation cost coefﬁcient for generator
+ . The coefﬁcient
+ is
+the economic loss coefﬁcient for the load
+ , and it is always set
+as a large number, so that load shedding is much more expensive
+than generation redispatch.
+B. Flowchart of the Improved OPA Model
+The ﬂowchart of the improved OPA model is shown in Fig. 1.
+C. Fast Dynamics
+Since the Hidden failure model represents the cascading
+failure of power systems more accurately than the OPA model,
+we can exploit the Hidden failure model in the fast dynamics of
+the improved OPA model. The fast dynamics is implemented
+in the following steps.
+Step 1) Consider day
+. The generator capacity, output
+of generators and the load are determined by the
+slow dynamics (see slow dynamics for details). The
+outage probability of every transmission line is set
+to be
+to simulate accidental faults.
+Step 2) Calculate the dc power ﬂow. The grid may be sep-
+arated into several islands because of the outage of
+some lines. Regulation of generation and load is nec-
+essary to eliminate the unbalanced power of some is-
+lands. The regulation strategy in this paper is as fol-
+lows. If the total generation is greater than the total
+load, the output of every generator is decreased pro-
+portional to their initial condition in Step 1. If the
+total generation is less than the total load, the output
+of every generator is increased according to their re-
+serve capacities. If the total generation capacity is
+less than the total load, load shedding will be imple-
+mented in every load node proportional to its load
+amount.
+Step 3) If there are some lines with ﬂow beyond the limit,
+then go to step 4. If not, exit the fast dynamics.
+Step 4) Calculate the optimization problem (5). In practice,
+dispatching center may be disrupted due to some
+contingencies, such as communication interruption
+and the breakdown of the EMS. In the improved
+OPA model, the failure rate of dispatching centre is
+denoted by
+, which is the probability that the
+optimization program is not calculated. If optimiza-
+tion program is not implemented or convergent, go
+to Step 5. Otherwise, exit the fast dynamics process.
+Step 5) The probability of tripping overloaded lines is set to
+(obviously, in this case the probability of failure
+to operate relay protection is
+ ). The probability
+of tripping normal lines is
+ , where
+the parameter
+ is the base probability of unwanted
+operation of relay protection,
+ is the load
+rate of the transmission line, and
+ is the
+to the power of n. We choose
+because the higher the load rate is, the larger the
+probability of unwanted operation is. If there are
+outage lines, go back to Step 2; if not, exit the fast
+dynamics.
+Fig. 1. Flowchart of the improved OPA model.
+D. Slow Dynamics
+The slow dynamics process of the improved OPA model is as
+follows.
+Step 1) Multiply all loads by a ﬁxed parameter
+ which
+is the average daily rate of increase in electricity
+demand
+(6)
+where
+ is the power demand at Bus
+ on day
+ .
+Step 2) Increase the generator capacity at the same rate as
+the power demand
+(7)
+where
+ is the generator capacity at Bus
+ on
+day
+ .
+Step 3) According to the power demand and the generator
+capacity above, calculate the power ﬂow (that is the
+operation mode of the next day), and update the
+transmission line which will be overloaded in the
+next day. Step 3 simulates the effects of the oper-
+ating and the planning. It is implemented in a sub-
+program:
+Authorized licensed use limited to: Xian Jiaotong University. Downloaded on May 11,2026 at 07:16:32 UTC from IEEE Xplore.  Restrictions apply. 
+
+===== PAGE 4 =====
+MEI et al.: AN IMPROVED OPA MODEL AND BLACKOUT RISK ASSESSMENT 817
+Fig. 2. Pdf of the load shed.
+a) Calculate the dc power ﬂow. If there are not any
+overloaded lines, go to Step 3e, otherwise go to
+Step 3b.
+b) Calculate the dc OPF (the same as in OPA
+model). Some transmission lines may not be
+adequate, and some loads need to be shed. If
+loads are shed, go to Step 3c, otherwise, go to
+Step 3e.
+c) Restore the shed loads. Each generator in-
+creases its output proportional to its genera-
+tion, so the power could be balanced.
+d) Calculate the dc power ﬂow.
+e) Rebuild the lines whose
+is larger
+than
+ , the load rate of weak lines. This step
+simulates the department of planning. We up-
+date the transmission lines following the OPA
+model:
+(8)
+where
+ is the rate of increase in transmission
+capacity,
+ is the impedance of the transmis-
+sion line
+ on day
+ .
+E. Advantages of Improved OPA Model Over OPA Model
+The OPA model and the improved OPA model are applied
+to the NPGC system to compare the effectiveness of these two
+models.
+The pdf curve of the load shedding amount is shown on a
+log-log plot in Fig. 2, where the horizontal axis indicates the
+blackout size and the vertical axis is the corresponding pdf. No-
+tice that we deﬁne probability distribution function as
+(9)
+The procedure of calculating pdf is as follows: First, set the
+bin width of a continuous variable
+ . Then, count the number
+of days that the load shedding amount falls into one bin. The
+probability is calculated by the corresponding days divided by
+the total number of days. Finally, pdf is obtained through the
+cumulative probability distribution by (9). To draw a continuous
+pdf curve, piecewise cubic Hermite interpolation is used. The
+parameters are determined as follows.
+1)
+Let
+ , which is more than ﬁve years.
+2) The daily rate of increase in electricity demand
+The total load of the NPGC was 18394 MW in July 2005
+[20], and 2140 [21] MW in July 2006, so the annual rate of
+increase in electricity demand is about 16.45%. Then the
+daily rate of increase in electricity demand is
+.
+3) The probability of accident
+There were 178 accidents in NPGC in 2003 [22]. There
+are about 700 transmission lines (Here we consider trans-
+formers as lines). So the probability of accident is
+.
+4) The probability of unwanted operation and failure to op-
+erate of the relay protection
+In practical systems, the probability of unwanted opera-
+tions and failures of the relay protection are less than 0.01,
+so set
+, and
+ .
+5) Other parameters
+Let
+ , namely the failure rate of the dispatching
+center is assumed to be 5%.
+Let
+, and this means that the lines will be updated
+when its ﬂow exceeds 90% of its transmission capacity.
+Let
+. This parameter must be larger than
+ .
+From Fig. 2, one could conclude that the number of blackouts
+by the OPA model is much larger than the one by the improved
+OPA model. This is because the outage and upgrade criteria of
+transmission lines are different. In the former 600 days, there are
+22 blackouts in the OPA model while 14 in the improved model,
+mainly due to the ﬁrst difference. In the latter 1400 days, there
+are 463 blackouts in the OPA model while 56 in the improved
+model, mainly due to the second difference.
+The improved model is more convincing compared to the
+OPA model. This is because in reality, no more than ten black-
+outs happen in this grid within one year, which is much closer to
+the outcome by the improved model. In addition, the blackout
+size distribution of the improved model agrees approximately
+with a power law with exponent of about
+, and this
+value agrees with the statistical analysis of the historical data,
+[5].
+IV . VAR AND CVAR
+The pdf curve is easy to understand, but it cannot be used
+to evaluate the blackout risk of the system quantitatively. The
+V aR and the CV aR are deﬁned in this paper to overcome this
+shortcoming.
+A. V aR
+In order to evaluate the investment risk, J. P. Morgan com-
+pany proposed the V aR when they were developing the Riskmet-
+rics System [23]. Now V aR becomes the most popular theory in
+the ﬁnancial analysis. The V aR is the abbreviation of V alue-at-
+Risk that is developed based on the theory of probability statis-
+tics. It indicates the largest loss with the conﬁdence level
+in a
+certain period. The mathematical deﬁnition of V aR is
+(10)
+Authorized licensed use limited to: Xian Jiaotong University. Downloaded on May 11,2026 at 07:16:32 UTC from IEEE Xplore.  Restrictions apply. 
+
+===== PAGE 5 =====
+818 IEEE TRANSACTIONS ON POWER SYSTEMS, VOL. 24, NO. 2, MA Y 2009
+Fig. 3. V aR.
+Fig. 4. Long tail.
+where
+ is the conﬁdence level,
+ is the loss in a certain pe-
+riod. Here the
+ is computed with the conﬁdence coefﬁ-
+cient
+ . If the probability density function
+ is known, the
+V aR could be calculated by
+(11)
+Combining formulation (9), it is easy to see
+(12)
+The sketch of V aR is shown in Fig. 3.
+In the ﬁgure, y-axis denotes the pdf. The V aR is concerned
+with not only the size but also the probability. It is easy to un-
+derstand and calculate, and it can be used to evaluate the risk of
+different systems. Furthermore, the V aR changes with the con-
+ﬁdence level
+.
+The V aR has two shortcomings. One is that it does not satisfy
+the Coherent Axiom [24], [25]; the other is that the tail-loss mea-
+surement is not sufﬁcient. It is known that the V aR is a fractile
+with a certain conﬁdence coefﬁcient, so it is unable to indicate
+the loss beyond the V aR, especially when the pdf has a fat tail or
+a long tail (power law). Unfortunately, the long tail is an impor-
+tant characteristic of complex systems in critical conditions and
+the pdfs of power systems always have long tails as indicated in
+Fig. 4.
+Fig. 5. Northeast power grid of China (500 kV).
+Obviously, the risk of the normal distribution is smaller than
+the risk of the power law distribution. But the V aR at the conﬁ-
+dence level
+ of these two cases are the same.
+B. CV aR
+Rockafeller and Uryasev proposed the CV aR to deal with the
+shortcomings of the V aR [26]. The CV aR is the abbreviation of
+the Conditional V alue-at-Risk, and it is also called Mean Excess
+Loss, Mean Shortfall, or Tail V aR. It is the conditional mean
+with a certain conﬁdence coefﬁcient. The mathematical deﬁni-
+tion of the CV aR is
+(13)
+where
+ is the blackout size and
+ is probability density func-
+tion of the blackout size.
+The blackout size
+ and
+ could be obtained easily based
+on the improved OPA model. So the V aR and CV aR can be cal-
+culated easily.
+Take blackout data from North America during 1996–2002
+for example, if
+ , then
+ MW,
+MW. This implies that there is 95%
+conﬁdent that a cascading failure would not result in a blackout
+size larger than 5840 MW power of lost. The expected value of
+blackout size larger than 5840 MW is 385 MW.
+V. C
+ASCADING FAILURE IN THE IMPROVED OPA MODEL
+From the SOC perspective, when a complex system evolves
+to a critical condition, the result of disturbances could not be
+predicted and any small disturbance may result in an unpre-
+dictable disaster. We present the progress of a cascading failure
+which begins with a small disturbance simulated by the im-
+proved model. Before that, we introduce the NPGC brieﬂy.
+The NPGC consists of four parts, which are Heilongjiang
+province, Jilin province, Liaoning province and the north of
+Inner Mongolia municipality. There are about 500 transmission
+Authorized licensed use limited to: Xian Jiaotong University. Downloaded on May 11,2026 at 07:16:32 UTC from IEEE Xplore.  Restrictions apply. 
+
+===== PAGE 6 =====
+MEI et al.: AN IMPROVED OPA MODEL AND BLACKOUT RISK ASSESSMENT 819
+Fig. 6. Northeast power grid of China.
+Fig. 7. Stage 0 and Stage 1 of the cascading failure.
+lines, more than 300 transformers, 250 substations, and about
+200 generators. In our study, we consider 500- and 220-kV
+transmission lines and substations which correspond to a
+570-bus system. Fig. 5 is the connection diagram of 500-kV
+transmission lines and substations.
+Fig. 6 is the detailed network connection related to this sim-
+ulation with irrelevant parts simply represented by panes.
+In this system, most of the hydropower plants are located in
+the east, and most of the thermal power plants are located in the
+west and Heilongjiang province. The major consumers are in the
+middle and south of the Liaoning province. Hence, the power is
+transmitted from the west and the east to the middle and from
+the north to the south.
+The process of a large-scale cascading failure is summarized
+in Table I. Figs. 7–10 demonstrate the six stages of the cascading
+failure.
+Fig. 8. Stage 2 of the cascading failure.
+Fig. 9. Stage 3 of the cascading failure.
+The triggering event of this large-scale cascading failure was
+an outage transformer of L YS in Liaoning province. The outage
+of that transformer led to the overload of the neighboring equip-
+ments. The dispatching centre didn’t notice these problems, due
+to a certain failure rate of dispatching centre, and thus did not
+take prompt actions. As a result, all of these equipments are
+tripped. This led the system to Stage 2, in which substation DTS
+was separated and all the loads connected to it were shed. In
+Stage 3, the fault propagates to Jilin province and the system was
+split into several islands. The Inner Mongolia municipality was
+involved to this cascading failure in Stage 4. In the last stage,
+the dispatching centre noticed the situation and responded. After
+regulating the generations and actively shedding some loads, the
+cascading failure ended.
+This cascading failure began with an outage transformer, and
+ended with 21.8% loads shed and more than 80 lines (consider
+transformers as lines) outage. Though it is a simulated cascading
+Authorized licensed use limited to: Xian Jiaotong University. Downloaded on May 11,2026 at 07:16:32 UTC from IEEE Xplore.  Restrictions apply. 
+
+===== PAGE 7 =====
+820 IEEE TRANSACTIONS ON POWER SYSTEMS, VOL. 24, NO. 2, MA Y 2009
+TABLE I
+OUTAGED LINES AND TRANSFOMERS AND THE LOADS SHED OF EVERY STEP
+Fig. 10. Stage 4 and Stage 5 of the cascading failure.
+failure and did not happen in NPGC, it is possible to happen in
+practical systems as the North America blackout in 2003. Note
+that this simulation is similar to the North America blackout to
+some extent and is helpful for us to further study the cascading
+failure.
+From the above instance, we could see that a small distur-
+bance could cause an unpredictable disaster. That is, in SOC
+theory, the system has come to the criticality point.
+Fig. 11. Pdf curve with different /24and /40/49/0/12/41.
+VI. I NFLUENCE OF SOME PARAMETERS
+In this section, we investigate the inﬂuence of some parame-
+ters on the blackout distribution using the V aR and CV aR. The
+set of parameters in Section III are called initial parameters for
+convenience.
+A. Probability of Unwanted Operation and Failure to Operate
+of Relay Protection
+Three probability distribution curves are shown in Fig. 11.
+They are with different parameters.
+1) The initial parameters;
+Authorized licensed use limited to: Xian Jiaotong University. Downloaded on May 11,2026 at 07:16:32 UTC from IEEE Xplore.  Restrictions apply. 
+
+===== PAGE 8 =====
+MEI et al.: AN IMPROVED OPA MODEL AND BLACKOUT RISK ASSESSMENT 821
+TABLE II
+VAR AND THE CVARW ITH DIFFERENT /24AND /40/49/0/12/41
+Fig. 12. Pdf curve with different /22.
+TABLE III
+VAR AND THE CVARW ITH DIFFERENT /22
+2) All the other parameters are the same as the initial param-
+eters except the probability of unwanted operation of relay
+protection
+which is 0.01.
+3) All the other parameters are the same as the initial param-
+eters except the probability of failure to operate of relay
+protection
+which is 0.01.
+Let
+ , then the V aR and CV aR are listed in Table II.
+Table II shows that if
+ and
+ become larger, the cas-
+cading failure is more serious, and the blackout risk is bigger.
+Notice that the model could not simulate the short-circuit fault
+after failure to operate relay protection. So the result underesti-
+mates the risk of the failure to operate relay protection.
+B. Rate of Increase in Transmission Capacity
+Fig. 12 shows two curves with different parameters.
+1) The initial parameters;
+2) All the other parameters are the same as the initial parame-
+ters except the rate of increase in transmission capacity
+which is 1.05.
+Let
+ , V aR and CV aR are listed in Table III.
+Table III shows that increasing
+ could reduce blackouts, es-
+pecially large-scale blackouts. Note that the pdf curve agrees
+approximately with a power law with
+ being 1.005 and that it
+obeys exponential distribution when
+ is 1.05. The system is not
+in critical condition, and it is safer in SOC theory.
+TABLE IV
+VAR AND THE CVARW ITH DIFFERENT DISTRIBUTION OF THE LOAD
+Fig. 13. Pdf curve with different distribution of the load.
+After increasing
+ to 1.05, the V aR becomes a little larger
+and the CV aR becomes smaller. This indicates that, increasing
+has no effect on the small-scale blackouts, but could reduce
+large-scale ones. This can be explained as follows: the reason of
+small-scale fault is the outage of the transmission line, and the
+rebuild of the transmission lines has nothing to do with it. The
+reason of the large-scale fault is the cascading failure, and the
+rebuild of the transmission line is signiﬁcant in mitigating the
+risk.
+C. Distribution of Loads
+The inﬂuence of load distribution is investigated in this sec-
+tion. We consider two distribution strategies.
+Distribution 1—The real distribution of loads.
+Distribution 2—Decrease the load in LiaoNing province, and
+increase the load in JiLin province and HeiLongJiang province.
+So the active power is balanced on-site, avoiding transmitting
+over long distance.
+Let
+, the V aR and the CV aR are listed in Table IV.
+Table IV shows that the number of blackouts and blackout
+risk decrease when the active power is balanced on-site. Notice
+that the blackout distribution is approximately a power law with
+exponent of about
+ with load distribution 1, and about
+with load distribution 2. From SOC perspective, dis-
+tribution 2 is safer than distribution 1 because the smaller the
+slope is, the less the probability of large-scale blackouts is.
+Interconnected power systems make the different regions sup-
+port each other in case faults take place. However, if vast power
+is transmitted over long distance, the outage of the tie line is
+fatal. Once the power is balanced on-site, the tie-line is light-
+loaded and different regions could support each other in contin-
+gencies, in which case the system becomes safer.
+Authorized licensed use limited to: Xian Jiaotong University. Downloaded on May 11,2026 at 07:16:32 UTC from IEEE Xplore.  Restrictions apply. 
+
+===== PAGE 9 =====
+822 IEEE TRANSACTIONS ON POWER SYSTEMS, VOL. 24, NO. 2, MA Y 2009
+Fig. 14. Pdf curve with different /34.
+TABLE V
+VAR AND THE CVARW ITH DIFFERENT /34
+Fig. 15. Pdf curve with different /17.
+D. Maximum Load Rate of Weak Line
+Fig. 14 shows two curves with different parameters:
+i) the initial parameters;
+ii) all the other parameters are the same as the initial param-
+eters except
+ is 0.9.
+Let
+ , V aR and CV aR are listed in Table V.
+The above table shows that the growth in
+ could increase
+the occurrence of large-scale faults, while the total number of
+blackouts doesn’t decrease. This is because if
+ becomes larger,
+the system will not be upgraded in time, and small-scale black-
+outs may develop into large-scale ones. Hence, the department
+of planning is important.
+E. Failure Rate of Dispatching Centre
+Fig. 15 shows two curves with different parameters:
+1) the initial parameters;
+TABLE VI
+VAR AND THE CVARW ITH DIFFERENT /17
+2) all the other parameters are the same as the initial parame-
+ters except that
+ is 0.15.
+Let
+ , the V aR and the CV aR are listed in Table VI.
+Table V shows that the dispatching centre is an important de-
+partment, so the department of automation and communication
+must provide a reliable environment for dispatchers.
+VII. C ONCLUSION
+This paper summarizes the advantages and disadvantages
+of the existing blackout models. An improved OPA model
+is proposed to overcome some disadvantages of the existing
+models. The proposed model can be applied to large-scale
+systems, and take into consideration the inﬂuence of the effects
+of dispatching, automation, communication, relay protection,
+operation mode and planning. Furthermore, based on the V aR
+and the CV aR, we are able to evaluate blackout risks quanti-
+tatively. The V aR and the CV aR are calculated with various
+choices of parameters, for which appropriate risk mitigation
+measures are investigated. The effectiveness of the improved
+OPA model has been veriﬁed by the simulation results of the
+NPGC.
+We are currently working on the further development of the
+proposed model to incorporate more comprehensive descrip-
+tions of the modes of important features, e.g., the practical op-
+eration of the planning department. While there is still room
+to improve the proposed model, the theoretical and simulation
+study in this paper has gained new insight into the mechanism
+of blackouts in inter-connected large scale power systems.
+R
+EFERENCES
+[1] B. A. Carreras et al., “Evidence for self-organized criticality in a time
+series of electric power system blackouts,” in Proc. 34th Annu. Hawaii
+Int. Conf. System Sciences , Jan. 2001, pp. 705–709.
+[2] B. A. Carreras et al., “Initial evidence for self-organized criticality in
+electric power system blackouts,” in Proc. Hawaii Int. Conf. System
+Science, Maui, HI, Jan. 4–7, 2000.
+[3] B. A. Carreras et al., “Blackout mitigation assessment in power trans-
+mission systems,” in Proc. 36th Annu. Hawaii Int. Conf. System Sci-
+ences, HI, 2003, pp. 65–74.
+[4] J. Chen, J. S. Thorp, and M. Parashar, “Analysis of electric power
+system distrurbance data,” in Proc. 34th Annu. Hawaii Int. Conf.
+System Sciences, HI, Jan. 2001, pp. 52–58.
+[5] W. Xiaofeng et al. , “Failure analysis on China power grid based on
+power law,” J. Control Theory Appl. , no. 3, pp. 1–4, 2006.
+[6] I. Dobson, B. A. Carreras, and D. E. Newman, “A probabilistic loading-
+dependent model of cascading failure and possible implications for
+blackouts,” in Proc. 36th Annu. Hawaii Int. Conf. System Sciences, Jan.
+2003, pp. 65–74.
+[7] I. Dobson, B. A. Carreras, and D. E. Newman, “Branching process
+models for the exponetially increasing portions of cascading failure
+blackouts,” in Proc. 38th Annu. Hawaii Int. Conf. System Sciences , HI,
+Jan. 2005.
+[8] J. Chen, J. S. Thorp, and I. Dobson, “Cascading dynamics and miti-
+gation assessment in power system disturbances via a hidden failure
+model.,” Int. J. Elect. Power Energy Syst. , vol. 27, no. 4, pp. 318–326,
+2005.
+Authorized licensed use limited to: Xian Jiaotong University. Downloaded on May 11,2026 at 07:16:32 UTC from IEEE Xplore.  Restrictions apply. 
+
+===== PAGE 10 =====
+MEI et al.: AN IMPROVED OPA MODEL AND BLACKOUT RISK ASSESSMENT 823
+[9] S. Tamaronglak, “Analysis of power system disturbances due to relay
+hidden failures,” Ph.D. dissertation, Virginia Poly. and State Univ.,
+Blacksburg, V A, 1994.
+[10] A. G. Phadeke and J. S. Thorp, “Expose hidden failures to prevent cas-
+cading outages,” IEEE Comput. Appl. Power , vol. 9, no. 3, pp. 20–23,
+1996.
+[11] I. Dobson, B. A. Carreras, and V. E. Lynch, “An initial model for com-
+plex dynamics in electric power system blackouts,” inProc. 34th Annu.
+Hawaii Int. Conf. System Sciences , HI, 2001, pp. 710–718.
+[12] D. P. Nedic et al., “Criticality in a cascading failure blackout model,”
+in Proc. 15th Power Systems Computation Conf., Liege, Belgium, Aug.
+2005.
+[13] B. A. Carreras et al., “Modeling blackout dynamics in power transmis-
+sion networks with simple structure,” in Proc. 34th Annu. Hawaii Int.
+Conf. System Sciences , HI, 2001, pp. 719–727.
+[14] B. A. Carreras, V. E. Lynch, D. E. Newman, and I. Dobson, “Dynamics,
+criticality and self-organization in a model for blackouts in power trans-
+mission systems,” in Proc. 35th Annu. Hawaii Int. Conf. System Sci-
+ences, HI, 2002.
+[15] B. A. Carreras et al., “Critical points and transition in an electric power
+transmission model for cascading failure blackouts,” Chaos, vol. 12,
+no. 4, pp. 985–993, 2002.
+[16] B. A. Carreras et al., “Complex dynamics of blackouts in power trans-
+mission systems,” Chaos, vol. 14, no. 3, pp. 643–652, 2004.
+[17] S. Mei et al. , “Blackout model based on OPF and its self-organized
+criticality,” in Proc. 25th Chinese Control Conf. , Harbin, China, Aug.
+7–11, 2006, pp. 1662–1668.
+[18] S. Mei, Y. Ni, G. Wang, and W. Shengyu, “A study of self-organized
+criticality of power system under cascading failures based on AC-OPF
+with voltage stability margin,” IEEE Trans. Power Syst. , accepted for
+publication.
+[19] D. E. Newman, B. A. Carreras, V. E. Lynch, and I. Dobson, “The im-
+pact of various upgrade strategies on the long-term dynamics and ro-
+bustness of the transmission grid,” in Proc. Electricity Transmission in
+Deregulated Markets, Conf. at Carnegie Melon University, Pittsburgh,
+PA, Dec. 2004.
+[20] The Operation Mode of Northeast Power Grid of China in 2006, North-
+east China Power Grid Co. Ltd., in Chinese.
+[21] The Operation Mode of Northeast Power Grid of China in 2007, North-
+east China Power Grid Co. Ltd., in Chinese.
+[22] The Operation Mode of Northeast Power Grid of China in 2004, North-
+east China Power Grid Co. Ltd., in Chinese.
+[23] J. P. Morgan, RiskMetrics—Technical Document. New Y ork,
+Reuters, 1996.
+[24] P. Artzner et al. , “Thinking coherently,” J. Risk , vol. 10, no. 11, pp.
+68–71, 1997.
+[25] P. Artzner et al., “Coherent measures of risk,” Math. Fin., vol. 9, no. 3,
+pp. 203–228, 1999.
+[26] R. T. Rockafellar and S. Uryasev, “Optimization of conditional
+value-at-risk,” J. Risk, vol. 2, no. 3, pp. 21–41, 2000.
+Shengwei Mei (SM’05) received the B.S. degree
+in mathematics from Xinjiang University, Urumqi,
+China, the M.S. degree in operations research
+from Tsinghua University, Beijing, China, and the
+Ph.D. degree in automatic control from the Chinese
+Academy of Sciences, Beijing, in 1984, 1989, and
+1996, respectively.
+He is currently a Professor at Tsinghua University.
+His research interests include power system analysis
+and control.
+Fei He is currently pursuing the Ph.D. degree at Tsinghua University, Beijing,
+China.
+His research interests include the analysis and control of power systems.
+Xuemin Zhang is an Assistant Professor at Tsinghua University, Beijing,
+China. Her research interests include the analysis and control of power systems.
+Shengyu Wu is currently pursuing the Ph.D. degree at Tsinghua University,
+Beijing, China.
+His research interests include the analysis and control of power systems.
+Gang Wang is currently pursuing the Ph.D. degree at Tsinghua University, Bei-
+jing, China.
+His research interests include the analysis and control of power systems.
+Authorized licensed use limited to: Xian Jiaotong University. Downloaded on May 11,2026 at 07:16:32 UTC from IEEE Xplore.  Restrictions apply. 

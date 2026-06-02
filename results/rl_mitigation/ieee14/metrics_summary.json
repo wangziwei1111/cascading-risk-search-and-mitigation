@@ -1,0 +1,8 @@
+{
+  "episodes": 10,
+  "policies": [
+    "agent",
+    "do_nothing"
+  ],
+  "mean_negative_return": 0.0
+}

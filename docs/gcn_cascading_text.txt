@@ -1,0 +1,1056 @@
+
+
+===== PAGE 1 =====
+1304 IEEE TRANSACTIONS ON CONTROL OF NETWORK SYSTEMS, VOL. 8, NO. 3, SEPTEMBER 2021
+Searching for Critical Power System Cascading
+Failures With Graph Convolutional Network
+Y uxiao Liu , Student Member, IEEE , Ning Zhang , Senior Member, IEEE ,D a nW u , Member, IEEE ,
+Audun Botterud, Member, IEEE , Rui Y ao , Senior Member, IEEE , and Chongqing Kang , Fellow, IEEE
+Abstract—Power system cascading failures become
+more time variant and complex because of the increas-
+ing network interconnection and higher renewable energy
+penetration. High computational cost is the main obsta-
+cle for a more frequent online cascading failure search,
+which is essential to improve system security. We propose
+a more efﬁcient search framework with the aid of a graph
+convolutional network (GCN) to identify as many critical
+cascading failures as possible with limited attempts. The
+complex mechanism of cascading failures can be well cap-
+tured by training a GCN ofﬂine. Subsequently, the search
+for critical cascading failures can be signiﬁcantly accel-
+erated with the aid of the trained GCN model. We further
+enable the interpretability of the GCN model by a layerwise
+relevance propagation algorithm. The proposed method is
+tested on both the IEEE RTS-79 test system and China’s
+Henan Province power system. The results show that the
+GCN-guided method can not only accelerate the search of
+critical cascading failures, but also reveal the reasons for
+predicting the potential cascading failures.
+Index Terms —Cascading failures, graph convolutional
+network (GCN), learning, power systems, security assess-
+ment.
+I. I NTRODUCTION
+I
+N INTERCONNECTED power systems, some local failures
+can yield subsequent failures which may eventually lead to
+severe damage to the system. This sequence of failures is referred
+to as the “cascading failure.” Searching for the critical cascading
+failure paths (the ordered failure of a sequence of components)
+Manuscript received May 12, 2020; revised May 13, 2020 and Novem-
+ber 9, 2020; accepted February 9, 2021. Date of publication March 3,
+2021; date of current version September 17, 2021. The work of Y uxiao
+Liu, Ning Zhang, and Chongqing Kang is supported in part by the
+National Science Foundation of China under Grant U1766212, and in
+part by the Tsinghua University Initiative Scientiﬁc Research Program
+under Grant 20193080026. The work of Rui Y ao is supported by DOE
+Ofﬁce of Science under Grant DE-AC02-06CH11357. Recommended
+by Associate Editor P . Cheng. (Corresponding author: Ning Zhang.)
+Y uxiao Liu, Ning Zhang, and Chongqing Kang are with the
+Department of Electrical Engineering, Tsinghua University , Beijing
+100084, China, and are also with the International Joint Labora-
+tory on Low Carbon Clean Energy Innovation, Tsinghua Univer-
+sity , Beijing 100084, China (e-mail: liuyuxiao16@mails.tsinghua.edu.cn;
+ningzhang@tsinghua.edu.cn; cqkang@tsinghua.edu.cn).
+Dan Wu and Audun Botterud are with the Laboratory of Information
+and Decision Systems, Massachusetts Institute of T echnology , Cam-
+bridge, MA 02139 USA (e-mail: danwumit@mit.edu; audunb@mit.edu).
+Rui Y ao is with Energy Systems, Argonne National Laboratory ,
+Lemont, IL 60439 USA (e-mail: yaorui.thu@gmail.com).
+Digital Object Identiﬁer 10.1109/TCNS.2021.3063333
+is of great importance for securing the operation conditions.
+Once some critical cascading failure paths are detected, various
+preventive strategies can be applied, such as redispatching the
+generators to decrease the power-ﬂow of high risk branches,
+strengthening the transmission lines inspection, increasing the
+generation reserves, etc. [1], [2]. With the increasing intercon-
+nection of power networks and the penetration of stochastic
+renewable generation, cascading failure paths become more
+time variant and complex [3], [4]. Therefore, the cascading
+failure search calls for a more frequent online calculation to
+safeguard reliable operation of the power system. However,
+the high computational cost, from the “curse of combinatorial
+dimensionality” of the contingencies, is the major obstacle to-
+ward an online cascading failure search. For a power system
+with N components, the number of N −k contingencies is
+N !/(N −k)!, if the sequence matters [1].
+Efforts have been made regarding the efﬁcient analysis of
+cascading failures. One approach is to modify the random
+sampling strategies of components’ failures so that more severe
+paths could be detected within fewer samples. Such techniques
+include the importance sampling method [5], [6]; the splitting
+method [7], [8]; the random chemistry method [9]; etc. Although
+these methods can signiﬁcantly improve the sampling efﬁciency
+compared to random sampling, they still suffer from duplicated
+simulations of the same cascading paths. To avoid duplicated
+simulations, some methods model the cascading failures simu-
+lation as a Markov chain search problem. Y aoet al.[10] proposed
+the risk estimation index to quantify the priority of each search
+attempt. Liu et al. [11] accelerated the cascading failure sim-
+ulation by simplifying multiple related dc optimal power-ﬂow
+(OPF) problems into afﬁne calculation problems. Nonetheless,
+the Markov chain search still suffers from high computational
+complexity from the large search space of network cascading
+failures. The authors in [12] and [13] analytically computed the
+disturbance value (or the redistribution of power-ﬂow) caused
+by a failure to replace the power-ﬂow calculation. Similarly,
+some analytical vulnerability indexes based on centrality [14]
+and complex network theory [15] were also proposed. Such
+analytical indexes provide an efﬁcient way for vulnerability
+analysis, but they cannot well capture the islanding or redispatch
+events in the whole cascading failure procedure. Some other
+approaches used statistical methods to explore the interactions
+among the components in the power systems, such as the in-
+ﬂuence graph model [16], [17] and the interaction model [18],
+[19]. Although such methods can extract some key rules from
+2325-5870 © 2021 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission.
+See https://www.ieee.org/publications/rights/index.html for more information.
+Authorized licensed use limited to: Xian Jiaotong University. Downloaded on May 08,2026 at 08:58:21 UTC from IEEE Xplore.  Restrictions apply. 
+
+===== PAGE 2 =====
+LIU et al.: SEARCHING FOR CRITICAL POWER SYSTEM CASCADING FAILURES 1305
+the simulation data, the statistical models are still too simple
+to accurately represent the power system cascading failures.
+For example, under different operation conditions (e.g., load
+patterns and branch ﬂow patterns), the interactions among the
+same components are different. However, the above statistical
+models cannot capture such difference. Because of the complex
+mechanism of cascading failures, it still remains a challenging
+problem to effectively search for the cascading failure paths that
+result in load shedding.
+Recently, some machine learning models are proposed to cap-
+ture the complex mechanism of cascading failures. The models
+learn the mapping from simulated power system operational
+data to the vulnerability of the components, thereby acceler-
+ating the an online cascading failure search. Several different
+machine learning models have been investigated recently, such
+as the deep neural network (DNN) [20], the convolutional neural
+network (CNN) [21], [22]; the decorrelated neural network
+ensembles [23]; and the Q-learning model [24], [25]. Some of
+the aforementioned methods train the machine learning model
+to directly predict whether the systems are stable or not under
+certain contingencies [16], [20], [21], [23]; while others only use
+the machine learning model to guide the search with the physical
+models (e.g., the power-ﬂow-based model) [24], [25]. Two vital
+problems remain to be addressed to build better machine learning
+models. One challenge is that the number of model parameters
+increases signiﬁcantly with the size of the power system, making
+the training process time-consuming and prone to overﬁtting.
+Another challenge is the lack of interpretability of machine
+learning models that hinders the practical applications in power
+systems [26]. It is necessary for the power system operators to
+check the logic of the models and to understand the underlying
+factors that cause cascading failures.
+To address the aforementioned problems, we propose a graph
+convolutional network (GCN) [27], [28]-based approach for an
+efﬁcient online search of critical cascading failures. The GCN
+model takes advantage of the fact that the mechanism of cascad-
+ing failures is highly related to the topology of the power system,
+e.g., the failure of a branch will more likely result in the load
+shedding of the nearby buses, or the increase of a bus load will
+more likely trigger the protection relays of the nearby branches,
+etc. The proposed GCN approach uses a graphical model to learn
+this mechanism and theoretically requires far fewer parameters
+than other machine learning models (DNN or CNN) [20], [22].
+To increase the interpretability of the model, we tailor the model
+inputs into four types of factors: 1) the topology of the network;
+2) the impact of the protection relays; 3) the branch ﬂow; and
+4) the amount of load consumption. Furthermore, we explain
+the GCN model by a layerwise relevance propagation (LRP)
+algorithm [29] and quantify the contribution factors of model
+predictions. To the best of the authors’ knowledge, this article
+is the ﬁrst to implement the interpretability of GCN models in
+power grid analysis. The proposed algorithms can identify the
+contributing factors that cause the cascading failures, and these
+results could help manage the power system to mitigate the dam-
+age. Further, the proposed method can identify the components
+failures of both the initial failures and the cascade failures. All
+of the failures are in an ordered sequence, which is different
+Fig. 1. Framework of power system cascading failure search over
+different states S.
+from some previous works that identify some simultaneous
+failures [6], [9], [10], [30]. The contributions of this work are as
+follows.
+1) We propose a GCN-based search framework to identify as
+many critical cascading failures as possible with limited
+attempts, which enables an efﬁcient online deployment to
+better protect the power system.
+2) The proposed GCN model links the power network topol-
+ogy with the structure of neural networks and can learn
+the complex power system cascading failure mechanism
+within a smaller model parameter space.
+3) We implement the LRP algorithm to enable the inter-
+pretability of the GCN model so as to narrow down the
+contributing factors to the cascading failures.
+The remainder of this article is organized as follows. Section II
+introduces the power system cascading failure simulation and
+search strategy used in this work. In Section III, we propose the
+GCN model and its interpretation method for the cascading fail-
+ure search. Thereafter, the case study is presented in Section IV.
+Finally, Section V draws the conclusions.
+II. P OWER SYSTEM CASCADING FAILURE SEARCH
+A. Framework of Cascading Failure Search
+The framework of power system cascading failure search is
+shown in Fig. 1. The purpose of this work is to ﬁgure out more
+cascading paths that result in load shedding in a certain number
+of online search attempts. First, we generate the power system
+cascading failure path ofﬂine as training samples. We then train
+a GCN model that maps from the current operational state to
+the vulnerabilities of each component. We combine the trained
+GCN model and selected physical rules as the guidance in the
+online cascading failure search, where the components with high
+vulnerabilities are searched with priorities. The interpretable
+results of why certain components are predicted with high
+vulnerabilities are also provided by the method.
+B. Power System Cascading Failures Simulation
+In this work, we simulate the power system cascading fail-
+ures based on the ORNL-PSerc-Alaska (OPA) [31]–[33] model,
+Authorized licensed use limited to: Xian Jiaotong University. Downloaded on May 08,2026 at 08:58:21 UTC from IEEE Xplore.  Restrictions apply. 
+
+===== PAGE 3 =====
+1306 IEEE TRANSACTIONS ON CONTROL OF NETWORK SYSTEMS, VOL. 8, NO. 3, SEPTEMBER 2021
+which is widely adopted and developed in [7], [10], [11], [25],
+[34]. The OPA model simulates the cascading failures triggered
+by branch failures in the power system. Two types of failures
+are considered. One type is caused by random events such as
+sagging and tree contact. The other type is triggered by the action
+of protection relays once the branch ﬂow exceeds the preset
+threshold. In this work, we simulate a limited number of random
+failures (the ﬁrst type), while we simulate all of the protection
+relay actions once they happen. The OPA model applied in this
+work can be summarized as follows.
+1) Step 1: Set a positive integer value R, so that we only
+consider the cases of no more than R random failures.
+Run the OPF.1 given the initial load proﬁle.
+2) Step 2: If the number of random branch failures is less
+than the preset value R, randomly disconnect a branch as
+the initial failure. Else, end the simulation.
+3) Step 3: Run the power-ﬂow. Disconnect the branch that
+triggers the protection relays and run Step 3 again. If the
+network separates into islands, conduct load shedding for
+the islands which have a lack of generation.
+4) Step 4: Redispatch the system with the objective to mini-
+mize the total load shedding and with the constraints of the
+system security rules (e.g., the branch ﬂow constraints).
+Run Step 2.
+Note that the OPA model is implemented as an indicative test
+bed, which is not the main focus of this work. The proposed OPA
+model is different from the original one [31]. The original OPA
+model randomly disconnects the overloaded branches, while our
+model disconnects the lines that exceed a threshold and trigger
+the protection relays. We use a deterministic way to disconnect
+the branches according to the method in [34], which models the
+action of protection relays.
+C. Branch Vulnerabilities to Guide the Search
+When simulating the cascading failures, the major computa-
+tional burden comes from the combinatorial explosion in Step
+2, i.e., we have to disconnect every branch that may fail and
+simulate every possible case. To ease the computational burden,
+we train a model that guides the search in Step 2 . That is, we
+provide a priority on the search order at Step 2, given the current
+operational state. To this end, we organize the data into input
+XGCN and output yGCN to train the GCN model
+yGCN = f (XGCN). (1)
+The input XGCN is the current operational state (e.g. the load,
+the branch ﬂow, the current branch failures, etc.,) and the output
+yGCN is a Boolean vector that quantiﬁes the vulnerability of the
+branches. The kth variable of the vector yGCN
+k is a binary value
+representing whether the load shedding occurs after disconnect-
+ing branch k (0-without load shedding, 1-load shedding).
+Afterwards, we adopt some physical rules to assist the GCN
+model. We calculate the value of line outage distribution factors
+1Note that we use the dc power-ﬂow in accordance with [32], [33]. There is
+no limitation to extend this framework to ac power-ﬂow.
+(LODF) [35], [36]. For a system with N buses, we have
+Dk
+m = Xk
+m/xm
+1−Xk
+k/xk
+,X k
+m = MT
+mXMk (2)
+where Dk
+m denotes the additional branch ﬂow in branch m (as
+a fraction of the initial branch ﬂow in branch k) after the outage
+of branch k, xk is the branch reactance of branch k, X is the
+N ×N nodal reactance matrix, Xk
+m is the (m,k) variable in the
+X matrix, and Mk is a N × 1 vector for branch k from bus i to
+busj
+Mk =
+[
+0
+1
+... 1
+i
+... -1
+j
+... 0
+N
+] T
+. (3)
+After the outage of branch k, the vulnerability of branch k can
+be quantiﬁed by the total branch ﬂow in branch m as a fraction
+of its long term maximum branch ﬂow Lmax
+m
+αk
+m = |Lm +Dk
+mLk|/Lmax
+m (4)
+where Lm/Lk denotes the branch ﬂow of branch m and
+branch k, respectively. When αk
+m exceeds the protection relay
+threshold β, the protection relay will disconnect the branch m.
+When the system separates into islands, the denominator of (2)
+(1−Xk
+k/xk) is 0. In this case, we set αk
+m to another value to
+avoid a numerical problem. We set αk
+m = βbecause βalready
+reaches the threshold to trigger the protection relays after the
+power-ﬂow redistribution, which is large enough to represent
+the vulnerability of branch k
+ˆαk
+m =
+{
+αk
+m 1−Xk
+k/xk ̸=0
+β 1−Xk
+k/xk =0 . (5)
+Then, we deﬁne the vulnerability vector based on physical rules
+as yP , with the kth variable as
+yP
+k =m a x
+m
+ˆαk
+m. (6)
+Equations (5) and (6) denote that the protection relay (of branch
+m with the largest ˆαk
+m) will take action or the system will
+separate once yP
+k exceeds β. Larger yP
+k intuitively implies that
+the failure of branchk maybe more likely to incur load shedding.
+Hence, yP
+k serves as a fast yet not accurate factor to quantify
+the branch vulnerabilities. Finally, we guide the online search
+of cascading failures by both the vulnerabilities learned by the
+GCN yGCN and the vulnerabilities from physical rules yP .
+D. Online Search Algorithm
+The online search model only differs from the OPA model
+in the term of the order to disconnect the branches in Step 2 ,
+so that we can detect the cascading failures that result in load
+shedding more efﬁciently. That is, we calculate theyGCN and yP
+before running Step 2. Every time we run Step 2, we ﬁrst discon-
+nect the branch that yGCN
+k =1 , then we disconnect the branch
+from the largest yP
+k to the smallest yP
+k . The above approach
+is a hybrid search method of machine learning and physical
+rules, which shows promising performance in case studies. The
+aforementioned process is formulated in Algorithm 1. Note that
+Algorithm 1 can detect both the initial failures than can the
+cascades. The initial failures are detected by the value of yGCN
+Authorized licensed use limited to: Xian Jiaotong University. Downloaded on May 08,2026 at 08:58:21 UTC from IEEE Xplore.  Restrictions apply. 
+
+===== PAGE 4 =====
+LIU et al.: SEARCHING FOR CRITICAL POWER SYSTEM CASCADING FAILURES 1307
+Algorithm 1: The Online Search Algorithm.
+1: Step 1*: Run the DCOPF given the initial load proﬁle;
+2: Step 2*: Use the GCN and physical rules to guide the
+search;
+3: while the number of random branch failures is less
+than a preset value R, do
+4: calculate yGCN with (1);
+5: for all yGCN
+k =1 , do
+6: disconnect the branch k and run the Step 3 and
+Step 4 of the OPA model in Section II-B; run
+Step 2* to simulate the next failure;
+7: end for
+8: calculate yP with (2)–(6);
+9: for all yP
+k from the largest to the smallest, do
+10: disconnect the branch k and run the Step 3 and
+Step 4 of the OPA model in Section II-B; run
+Step 2* to simulate the next failure;
+11: end for
+12: end while
+13: Step 3*: Output all the cascading paths that cause load
+shedding.
+and yP . The cascades are detected by running the power-ﬂow
+and disconnecting the branch that triggers the protection relays
+(the Step 3 in Section II-B). The search algorithm can not only
+obtain the cascading paths that cause load shedding, but also
+output the load shedding location and amount.
+III. G RAPH CONVOLUTIONAL NETWORK
+A. Learning on Graphs
+We focus on how to build the model that maps from the
+current operational state to the vulnerability of the branches,
+as formulated in (1). The operational data of the power system
+are physically represented and correlated in the form of graphs.
+The mechanism of cascading failures is also closely related to
+the graphical structure of the system. Therefore, we choose the
+GCN model over the DNN model [20] and the CNN model [22]
+because it is designed to capture such graph structured mecha-
+nisms. The basic layers of the DNN model, the CNN model, and
+the GCN model are shown in Fig. 2. The above layers consist of
+a group of nodes. The nodes in the next layer take the weighted
+summation of the nodes in the previous layer. The layers mainly
+differ in the way that they take the weighted summation among
+different range of nodes in the previous layer. The layers in DNN,
+CNN, and GCN take the weighted summation of all the nodes,
+the neighboring nodes in Euclidean domain, and the neighbor-
+ing nodes in graph domain, respectively. Beneﬁting from the
+structure of the graph convolutional layer, the GCN model can
+better capture the dependence and relationships represented by
+graphs.
+B. Design of GCN Structure
+For clarity, we use “bus” and “branch” to represent the power
+network, while we use “node” and “edge” to represent the graph
+in GCN. The traditional GCN models make classiﬁcation or
+Fig. 2. Demonstration of three types of layers. (a) Fully connected
+layer in DNN model. (b) Convolutional layer in CNN model. (c) Graph
+convolutional layer in GCN model.
+Fig. 3. Illustration of the network-graph mapping, where branches in
+the power network are transformed to nodes in the graph.
+regression on nodes, but we search for the vulnerable branches
+in our framework. Hence, we conduct a network-graph mapping
+as demonstrated in Fig. 3, where the data organized in branches
+are transformed to the data organized in nodes. The two nodes
+in the graph domain are connected when the two branches in
+the power network domain have common buses. For a power
+network with L branches, the graph domain has L nodes. The
+input of the GCN model can be formulated as
+XGCN =[ x1 ... xc ... xC ] (7)
+whereC is the number of input features, andxc is aL× 1 vector.
+The GCN model to guide the cascading failure search is
+depicted in Fig. 4, which maps fromXGCN to yGCN. It consists of
+two graph convolutional layers and a fully connected layer with
+softmax output. The graph convolutional layer [28] takes the
+weighted average of the neighboring nodes in the graph domain
+and output a certain number of L× 1 vectors (e.g., F vectors).
+The f th output vector is given by
+ygraph
+f =
+C∑
+c=1
+Gcf xc +bf 1 (8a)
+Gcf =
+KGCN∑
+k=0
+wcf kA
+k
+(8b)
+wherewcf k is the learnable weight parameter,bf is the learnable
+constant parameter, 1 is the all-ones L× 1 vector, Gcf is the
+L×L graph ﬁlter, A = D−1/2AD−1/2 is the normalization
+of the graph adjacency matrix A, and D is the diagonal degree
+matrix of the graph withDii = ∑
+j Aij . Equation (8a) indicates
+that the output of the graph convolutional layer is the summation
+of inputs over graph ﬁlters. Equation (8b) indicates that the graph
+ﬁlter Gcf can extract the relationship within K hops (or K
+neighborhood) in a graph.
+Authorized licensed use limited to: Xian Jiaotong University. Downloaded on May 08,2026 at 08:58:21 UTC from IEEE Xplore.  Restrictions apply. 
+
+===== PAGE 5 =====
+1308 IEEE TRANSACTIONS ON CONTROL OF NETWORK SYSTEMS, VOL. 8, NO. 3, SEPTEMBER 2021
+Fig. 4. Structure of the proposed GCN model.
+The rectiﬁed linear unit (Relu) layer serves as the activation
+function that adds nonlinearity to the neural network. It will
+output the positive part of the inputs
+yRelu =m a x ( 0, xRelu) (9)
+where xRelu and yRelu are the input and output vectors of the
+Relu layer, respectively.
+The output dimension through the graph convolutional layer
+and the Relu layer is L×F . In one single node, the output can
+be transformed as aF × 1 vector. We add a fully connected layer
+yfully = Wxfully +b (10)
+where xfully and yfully are the input and output vectors of the
+fully connected layer, W is the learnable weights parameters,
+andb is the learnable constant parameter. In (10),yfully is aL× 2
+vector that consists of the variables representing the conditions
+for each node k: yfully
+k1 for normal condition and yfully
+k2 for load
+shedding. The classiﬁcation result is either a normal condition
+or load shedding with a larger value of yfully
+ki .
+We then introduce the softmax function to provide the prob-
+ability of the ﬁnal classiﬁcation result
+ysoft
+ki = eyfully
+ki
+eyfully
+k1 +eyfully
+k2
+,i =1 , 2. (11)
+The classiﬁcation error is set as the negative log-likelihood
+(NLL)
+Lnll
+k = −w1yGCN
+k logysoft
+k1 −w2(1−yGCN
+k )l o gysoft
+k2 (12)
+where Lnll
+k is the NLL of the kth output, yGCN
+k is the ground
+truth output as introduced in (1), andw1 andw2 are the weights to
+different classes. As the output has less value-1 (load shedding)
+than value-0 (without load shedding), we assign w1 >w 2 to
+learn from the biased sample.
+C. Parameter Space of GCN
+We analyze the parameter space required to learn the cas-
+cading failure mechanism by comparing the basic layers of
+T ABLE I
+PARAMETER SPAC E O FTHREE TYPES OF LA YERS
+the DNN model, the CNN model, and the GCN model again.
+The comparison of the parameter space of the fully connected
+layer in the DNN model, the convolutional layer in the CNN
+model, and the graph convolutional layer in the GCN model are
+shown in Table I. We assume the number of neurons of the fully
+connected layer is NDNN, the kernel size of the convolutional
+layer is KCNN ×KCNN , and the number of hops of the graph
+convolutional layer is KGCN. See [20] and [22] for modeling
+details of the DNN and the CNN, respectively.
+In Table I, NDNN is proportional to the number of buses in a
+power system. KCNN and KGCN denote how many neighboring
+nodes to extract the feature from, which is far fewer than the
+number ofNDNN. The neighboring nodes in convolutional layers
+may not be the neighboring buses in the power network, thus
+NCNN should be larger than NGCN to extract the feature of
+neighboring buses. For the power system of Henan province
+that has 730 buses and 1571 branches, the N 2
+DNN is more than
+3× 107,t h eN 2
+CNN is 64, and the NGCN is only 3. The case of
+Henan province will be introduced in detail in Section IV -B. To
+summarize, regarding the cascading failure learning problem,
+the graph convolutional layer has the smallest feature space that
+is efﬁcient to train.
+D. Interpretability of the Model
+To increase the interpretability of the proposed GCN model,
+we ﬁrst tailor the input of our model into four parts with physical
+interpretations, and then we calculate the contribution factors of
+the inputs by an LRP algorithm.
+In detail, the input of the model is a L× 4 matrix
+XGCN =
+[
+xt xp xb xl]
+. (13)
+Authorized licensed use limited to: Xian Jiaotong University. Downloaded on May 08,2026 at 08:58:21 UTC from IEEE Xplore.  Restrictions apply. 
+
+===== PAGE 6 =====
+LIU et al.: SEARCHING FOR CRITICAL POWER SYSTEM CASCADING FAILURES 1309
+In (13), xt is a Boolean vector that represents the effects of
+current system topology (or the initial failures) on the cascading
+failures, with 0 for the operational state and 1 for outage of a
+branch; xp is a vector that represents the effects of protection
+relays, the value is the ratio of absolute branch ﬂow to the protec-
+tion relay threshold branch ﬂow (thekth value isLk/βLmax
+k ); xb
+is the absolute branch ﬂow vector; and xl represents the larger
+load value between the two buses that the branch is connected
+to. So far, we have organized our inputs into four aspects: 1)
+topology; 2) protection relay; 3) branch ﬂow; and 4) the bus
+load. To quantify the contribution factors of these four inputs, we
+implement the LRP algorithm that was proposed to explain the
+CNN model [37]. The LRP decomposes the output value into a
+combination of the model inputs. The decomposed values, a.k.a.
+the relevance scores, quantify the contribution of the inputs to
+the output. The process transforms the relevance scores of the
+next layerRd+1
+i to the relevance scores of the previous layerRd
+i ,
+such that the sum of each relevance scores of each layer equals
+the output value
+y = ··· =
+∑
+i∈layerd+1
+Rd+1
+i =
+∑
+i∈layerd
+Rd
+i = ··· =
+∑
+i∈layer1
+R1
+i. (14)
+We decompose the relevance scores of the next layer by the
+weights of the positive inputsz+
+ij from all the connected neurons
+of the previous layer
+Rd
+i =
+∑
+j∈i
+z+
+ij∑
+i′∈j z+
+i′ j
+Rd+1
+j (15)
+where ∑
+j∈i sums over the neurons in layer d +1 that are
+connected to neuron i, ∑
+i′∈j sums over the neurons in layer
+d that is connected with neuron j, and z+
+ij =m a x (xiwij, 0) is
+the positive part of the input from neuron i to neuron j.W e
+decompose the relevance scores by the weight of positive parts
+to compute the excitatory effects on the output of each layer.
+Recall that the Relu activation function only outputs the positive
+parts of the input, so that only positive input can contribute to a
+larger output (or have excitatory effects) of the Relu activation
+function. We only compute the excitatory effects to focus on the
+factors that incur the load shedding. In this work, we calculate
+the relevance scores corresponding to the output that determines
+the prediction of load shedding. For example, we calculate the
+factors that incur the load shedding after the failure of branch k.
+In this case, according to the proposed GCN model, we decom-
+pose the output corresponding to the load shedding prediction,
+which is yfully
+k1 . That is, the y in (14) is yfully
+k1 in (10).
+IV . CASE STUDIES
+A. IEEE RTS-79 T est System
+The IEEE RTS-79 test system contains 24 buses and
+38 branches with a peak load of 2850 MW and a total genera-
+tion capacity of 3405 MW [38]. Eight-thousand scenarios [the
+XGCN ∼yGCN pair described in (1)] are generated as the train-
+ing dataset, to consider the cases of different load proﬁles and
+different initial contingencies. To model the load uncertainty,
+we multiply a random factor drawn uniformly over the interval
+[0.9, 1.1] to the load of every bus. To simulate a more severe
+result, the actual load of each scenario from [38] is enlarged by
+a factor of 1.1. In this work, we consider N-2 contingencies as
+the random initial failures. The simulation of cascading failures
+is carried out using MA TLAB 2018b, Cplex 12.9 [39], and
+Matpower 6.0 [40] on a standard PC with an Intel ⃝R CoreTM
+i7-8550 U CPU running at 1.80 GHz and 32.0 GB of RAM.
+The proposed GCN model is implemented by Pytorch 1.3 [41].
+The hyper-parameters of the GCN model are tuned by ﬁve-fold
+cross-validation [42], where we tune the hyperparameters by
+grid search and choosing the hyper-parameters with the best
+performance on the cross-validation set. The hyperparameters
+of the GCN model are tuned by 20% of the training data.
+We set the number of hops KGCN =3 , the ratio of training
+weight w1/w2 =2 0, and the number of the output vectors of
+the ﬁrst and the second graph convolutional layer as F1 =1 6
+andF2 =4 , respectively.
+We use the Adam optimizer [43] to train the proposed GCN
+model, which is implemented by Pytorch 1.3 [41]. One the one
+hand, the Adam optimizer uses the moving average of gradient
+to prevent oscillations during iterations. On the other hand, it
+rescales the gradient so that the gradient of each variables are
+normalize to one or minus one. We refer to [43] for more details
+on Adam optimizer. The model is trained using 20 epochs and
+a batch size of 32 with the learning rate of 0.005.
+We implement a set of newly generated load proﬁles to test
+different cascading failure online search methods. Each com-
+pared method only differs from the Algorithm 1 in the orders to
+disconnect the branches in Step 2*.
+1) Rand: The branches are disconnected randomly.
+2) PFW: The branches are disconnected from the largest
+power-ﬂow value to the smallest power-ﬂow value. It
+is the deterministic form of the power-ﬂow weighted
+method proposed in [25].
+3) LODF: The branches are disconnected by the value of yP
+described in (2)–(6), from the largest value to the smallest
+value. The LODF-based method and its derivatives are
+widely used to search the cascading failures [10], [13].
+4) GCN: Algorithm 1 proposed in this work.
+We present the number of detected cascading failure paths
+that incurs load shedding in Fig. 5 . After exhaustive search,
+there are 22 cascading failure paths that incur load shedding.
+The longest path has seven branch failures. The proposed GCN
+method can detect all the paths after only 50 search attempts,
+while method LODF, PFW, and Rand detect all the paths after
+1101, 1485, and 1477 search attempts, respectively. Hence, the
+proposed GCN method has clearly higher search efﬁciency than
+all other compared methods.
+We then show the interpretability of the model by the proposed
+LRP method, which presents the relevance scores of the inputs to
+a certain output. The relevance scores are the contribution factors
+of the inputs to the load shedding events. We use “L” for branch
+and “B” for bus. From the above 22 cascading failure paths, we
+analyze the case with initial failures L10→L5. That is, we show
+the relevance scores to the 5th output of vector yGCN, under
+the power system states where L10 is already disconnected, as
+is depicted in Fig. 6. A direct physical explanation of the load
+Authorized licensed use limited to: Xian Jiaotong University. Downloaded on May 08,2026 at 08:58:21 UTC from IEEE Xplore.  Restrictions apply. 
+
+===== PAGE 7 =====
+1310 IEEE TRANSACTIONS ON CONTROL OF NETWORK SYSTEMS, VOL. 8, NO. 3, SEPTEMBER 2021
+Fig. 5. Number of detected cascading failure paths that incurs load
+shedding as a function of search attempts: the case of IEEE RTS-79
+test system.
+Fig. 6. Relevance scores for each inputs of the GCN model that trig-
+gers the load shedding for the initial failures L10 →L5. (a) Bar graph. (b)
+T opological graph that represents a part of the IEEE RTS-79 system.
+shedding is that the disconnection of L10 and L5 will result in the
+islanding and load shedding of B6. The relevance scores inFig. 6
+can well explain the above inference. The load shedding in this
+case mainly results from the initial failure of L10 (the topology
+of L10), the increasing load of B6 (the load corresponding to
+L5 and L10), and the increasing branch ﬂow from B2 to B6
+(the branch ﬂow of L5). Note that some factors are not directly
+related to the load shedding, but they are related to the factors
+that directly cause the load shedding. For example, the protection
+of L5 is not directly related to the load shedding of B6, but the
+increase of the branch ﬂow / protection threshold ratio is closely
+related with the branch ﬂow of L5. We cannot simply remove
+Fig. 7. Relevance scores for each inputs of the GCN model that trig-
+gers the load shedding for the initial failures L27 →L2. The topology is
+only a part of the IEEE RTS-79 system.
+the protection vector xp from the inputs, because it will serve as
+an independent determinant as will be shown in the next case.
+The above interpretation results can be directly inferred from
+the topology of the system. To further demonstrate the in-
+terpretability of the LRP algorithm, we analyze a cascading
+failures case that is less apparent. The relevance scores to the
+2nd output of vector yGCN, under the power system states that
+L27 is already disconnected (L27 →L2), is depicted in Fig. 7 .
+The disconnection of L27 and L2 will not trigger any islanding
+conditions, but the load in B3 relies only on the transmission
+line of L6. The branch ﬂow of L6 will exceed the maximum
+value. Subsequently, the re-dispatching process will decrease
+the branch ﬂow of L6 and causes the load shedding of B3. The
+relevance scores in Fig. 7 can also well explain this process. The
+load shedding in this case mainly results from the initial failure
+of L27 (the topology of L27), the increasing load of B3 (the
+load corresponding to L7), and the branch ﬂow limits of L6 (the
+protection of L6). The above cases show that the major contribu-
+tion factors of the prediction results correspond to the physical
+inference of the cascading failures. The interpretation method
+can explore some less obvious factors (e.g., the protection of L6
+in Fig. 7 ) that incurs the load shedding. Still, the contribution
+factors also includes some indirect factors (e.g., the protection
+of L5 in Fig. 6), which suggests that operators should be more
+careful or should update the model when the operation pattern
+changes.
+B. Power System of Henan Province
+The power system of Henan province considered in this work
+is a 500–220 kV power system. After external network equiva-
+lence, the power system contains 730 buses and 1571 branches.
+To consider a more severe circumstance, we enlarge the actual
+load proﬁles of Henan province by a factor of 1.1, and we reduce
+all the maximum branch ﬂow thresholds by a factor of 0.8. Since
+the load shedding events are more rare in the Henan province
+case, we increase the ratio of training weight to w1/w2 = 800.
+50 000 scenarios are generated as the training dataset to model
+different load proﬁles and different initial contingencies. The
+model is trained with 40 epochs and a batch size of 256. All
+other experiment settings, including the cascading failures data
+Authorized licensed use limited to: Xian Jiaotong University. Downloaded on May 08,2026 at 08:58:21 UTC from IEEE Xplore.  Restrictions apply. 
+
+===== PAGE 8 =====
+LIU et al.: SEARCHING FOR CRITICAL POWER SYSTEM CASCADING FAILURES 1311
+Fig. 8. Number of detected cascading failure paths that incurs load
+shedding as a function of (a) search attempts and (b) computation time.
+generation and the model training processes, are the same with
+the IEEE RTS-79 test system. We ﬁrst use the power system of
+Henan province to test the prediction accuracy of the proposed
+GCN model, compared to the DNN and CNN model men-
+tioned above. We generate 10 000 new scenarios as the testing
+dataset. The DNN, CNN, and the GCN models are trained and
+tested under the same training and testing datasets, respectively.
+The DNN model has three fully connected layers with 4 ˜L,
+L, and L output neurons, respectively. The CNN model has
+two convolutional layers with one fully connected layer. The
+kernel size of the two convolutional layers are 3× 3× 16 and
+3× 3× 4, respectively. All of the models implement the Relu
+activation function. Since the number of samples from different
+classes is unbalanced, a high total prediction accuracy may not
+be conducive to an efﬁcient search of cascading failures. We
+therefore implement different indexes to evaluate the prediction
+result. We ﬁrst introduce the confusion matrix in Table II.
+Several indexes are introduced as follows: [44]
+1) total accuracy: (a +d)/(a +b +c +d);
+2) hit rate: d/(b +d);
+3) cover rate: d/(c +d).
+The calculated values of the above indexes of DNN, CNN,
+and GCN model are listed in Table III. Note that the prediction
+T ABLE II
+CONFUSION MAT R I X
+T ABLE III
+COMP ARISON OF DNN, CNN, AND GCN MODELS
+of the load shedding events is not the ﬁnal result, but acts as
+a guidance for the search for cascading failures that will be
+implemented by physical models, as shown in Algorithm 1.
+The total accuracy reﬂects the prediction results of both the
+cases with and without load shedding. In practice, however,
+the prediction of load shedding events is more related to the
+search efﬁciency of cascading failures. The hit rate measures
+how well the predicted load shedding events hit the actual load
+shedding. The cover rate is the ratio of predicted load shedding
+events to all the load shedding events. A small hit rate will result
+in useless search attempts, while a small cover rate will miss
+some cascading failure events so that many additional search
+attempts are required to compensate for the missing events. From
+Table III, the proposed GCN model has the best performance not
+only in the total accuracy, but also in terms of the hit rate and
+the cover rate.
+Next, we present the search efﬁciency on a set of new load
+proﬁles of the power system of Henan province. The search
+performance of method Rand, PFW, LODF, and GCN are shown
+in Fig. 8. We demonstrate the detected cascading failure paths
+as a function of both search attempts and computation time.
+An exhaustive search identiﬁes 86 cascading failure paths that
+incur load shedding. The longest path has 23 branch failures.
+The proposed GCN method can detect all the paths after 2160
+search attempts or 1040 seconds, while methods LODF and PFW
+detect all the paths after 34 822 and 38 608 search attempts,
+or 19 850 and 22 031 seconds, respectively. Method Rand can
+only ﬁnd a small proportion of all the paths in the given search
+attempts. The LODF and the PFW method have a high search
+efﬁciency at the ﬁrst few search attempts, but require a high
+number of search attempts to detect the remaining cascading
+failure paths that incur load shedding. This is because some of
+the load shedding events can be easily detected by the physical
+rules (e.g., the islanding conditions), while the rest of the events
+are complex and cannot be detected by explicit physical rules.
+The above results indicate that the proposed GCN based method
+has a high efﬁciency in searching for the load shedding events
+caused by cascading failures. It can accelerate the search of all
+the critical cascading failure paths from more than ﬁve hours to
+around 30 minutes.
+Authorized licensed use limited to: Xian Jiaotong University. Downloaded on May 08,2026 at 08:58:21 UTC from IEEE Xplore.  Restrictions apply. 
+
+===== PAGE 9 =====
+1312 IEEE TRANSACTIONS ON CONTROL OF NETWORK SYSTEMS, VOL. 8, NO. 3, SEPTEMBER 2021
+V. C ONCLUSION
+Our work provides a GCN-based approach to conduct online
+search for the power system cascading failures with high efﬁ-
+ciency. The proposed method links the power network topology
+with the structure of neural networks and therefore yields a
+smaller parameter space to predict the load shedding events
+caused by cascading failures. We also provide an LRP algo-
+rithm to uncover the reasons for predicting the cascading failure
+events. Case studies on the IEEE RTS-79 test system and on
+China’s Henan province power system validate the superiority of
+the method. 1) The GCN model has a better prediction accuracy
+than benchmark neural network models. 2) The GCN-based
+cascading search method has a higher efﬁciency in detecting
+the load shedding events caused by cascading failures. 3) The
+prediction results of the GCN model are interpretable, enabling
+the user to check the logic of the model and uncover the factors
+that cause the cascading failures. Overall, the proposed method
+enables an efﬁcient and interpretable online cascading failure
+search that can contribute to a reliable operation of power
+systems.
+REFERENCES
+[1] M. V aiman et al., “Risk assessment of cascading outages: Methodologies
+and challenges,” IEEE Trans. Power Syst. , vol. 27, no. 2, pp. 631–641,
+May 2012.
+[2] D. Bienstock, Electrical Transmission System Cascades and Vulnerability:
+An Operations Research Viewpoint, vol. 22. Philadelphia, PA, USA:
+SIAM, 2015.
+[3] H. Haes Alhelou, M. E. Hamedani-Golshan, T. C. Njenda, and P . Siano,
+“A survey on power system blackout and cascading events: Research
+motivations and challenges,” Energies, vol. 12, no. 4, 2019, Art. no. 682.
+[4] M. H. Athari and Z. Wang, “Impacts of wind power uncertainty on grid
+vulnerability to cascading overload failures,”IEEE Trans. Sustain. Energy,
+vol. 9, no. 1, pp. 128–137, Jan. 2018.
+[5] Q. Chen and L. Mili, “Composite power system vulnerability evaluation
+to cascading failures using importance sampling and antithetic variates,”
+IEEE Trans. Power Syst., vol. 28, no. 3, pp. 2321–2330, Aug. 2013.
+[6] P . Henneaux and P .-E. Labeau, “Improving monte carlo simulation efﬁ-
+ciency of level-I blackout probabilistic risk assessment,” inProc. Int. Conf.
+Probabilistic Methods Appl. Power Syst., 2014, pp. 1–6.
+[7] J. Kim, J. A. Bucklew, and I. Dobson, “Splitting method for speedy
+simulation of cascading blackouts,” IEEE Trans. Power Syst. , vol. 28,
+no. 3, pp. 3010–3017, Aug. 2013.
+[8] S.-P. Wang, A. Chen, C.-W. Liu, C.-H. Chen, J. Shortle, and J.-Y. Wu,
+“Efﬁcient splitting simulation for blackout analysis,” IEEE Trans. Power
+Syst., vol. 30, no. 4, pp. 1775–1783, Jul. 2015.
+[9] M. J. Eppstein and P . D. Hines, “A “random chemistry” algorithm for iden-
+tifying collections of multiple contingencies that initiate cascading fail-
+ure,” IEEE Trans. Power Syst., vol. 27, no. 3, pp. 1698–1705, Aug. 2012.
+[10] R. Y ao et al. , “Risk assessment of multi-timescale cascading outages
+based on Markovian tree search,” IEEE Trans. Power Syst., vol. 32, no. 4,
+pp. 2887–2900, Jul. 2017.
+[11] Y . Liu, Y . Wang, P . Y ong, N. Zhang, C. Kang, and D. Lu, “Fast power sys-
+tem cascading failure path searching with high wind power penetration,”
+IEEE Trans. Sustain. Energy, vol. 11, no. 4, pp. 2274–2283, Oct. 2020.
+[12] S. Soltan, D. Mazauric, and G. Zussman, “Analysis of failures in power
+grids,” IEEE Control Netw. Syst., vol. 4, no. 2, pp. 288–300, Jun. 2017.
+[13] S. Soltan, A. Loh, and G. Zussman, “Analyzing and quantifying the effect
+of k-line failures in power grids,” IEEE Control Netw. Syst., vol. 5, no. 3,
+pp. 1424–1433, Sep. 2018.
+[14] A. Dwivedi and X. Y u, “A maximum-ﬂow-based complex network ap-
+proach for power system vulnerability analysis,”IEEE Trans. Ind. Inform.,
+vol. 9, no. 1, pp. 81–88, Feb. 2013.
+[15] X. Wei, S. Gao, T. Huang, E. Bompard, R. Pi, and T. Wang, “Com-
+plex network-based cascading faults graph for the analysis of transmis-
+sion network vulnerability,” IEEE Trans. Ind. Inform. , vol. 15, no. 3,
+pp. 1265–1276, Mar. 2019.
+[16] P . D. Hines, I. Dobson, and P . Rezaei, “Cascading power outages propagate
+locally in an inﬂuence graph that is not the actual grid topology,” IEEE
+Trans. Power Syst., vol. 32, no. 2, pp. 958–967, Mar. 2017.
+[17] K. Zhou, I. Dobson, Z. Wang, A. Roitershtein, and A. P . Ghosh, “A
+Markovian inﬂuence graph formed from utility line outage data to mitigate
+large cascades,” IEEE Trans. Power Syst., vol. 35, no. 4, pp. 3224–3235,
+Jul. 2020.
+[18] J. Qi, K. Sun, and S. Mei, “An interaction model for simulation and
+mitigation of cascading failures,” IEEE Trans. Power Syst., vol. 30, no. 2,
+pp. 804–819, Mar. 2015.
+[19] W. Ju, J. Qi, and K. Sun, “Simulation and analysis of cascading failures on
+an npcc power system test bed,” in Proc. IEEE Power Energy Soc., 2015,
+pp. 1–5.
+[20] F. Li and Y . Du, “From Alphago to power system AI: What engineers can
+learn from solving the most complex board game,” IEEE Power Energy
+Mag., vol. 16, no. 2, pp. 76–84, Mar./Apr. 2018.
+[21] Y . Du, F. F. Li, J. Li, and T. Zheng, “Achieving 100x acceleration for n-1
+contingency screening with uncertain scenarios using deep convolutional
+neural network,” IEEE Trans. Power Syst., vol. 34, no. 4, pp. 3303–3305,
+Jul. 2019.
+[22] J.-M. H. Arteaga, F. Hancharou, F. Thams, and S. Chatzivasileiadis,
+“Deep learning for power system security assessment,” inProc. 13th IEEE
+PowerTech, 2019, pp. 1–6.
+[23] Y . Jia, Z. Xu, L. L. Lai, and K. P . Wong, “Risk-based power system security
+analysis considering cascading outages,”IEEE Trans. Ind. Inform., vol. 12,
+no. 2, pp. 872–882, Apr. 2016.
+[24] J. Y an, H. He, X. Zhong, and Y . Tang, “Q-learning-based vulnerability
+analysis of smart grid against sequential topology attacks,” IEEE Trans.
+Inf. F orensics Secur ., vol. 12, no. 1, pp. 200–210, Jan. 2017.
+[25] Z. Zhang, S. Huang, Y . Chen, S. Mei, R. Y ao, and K. Sun, “An online
+search method for representative risky fault chains based on reinforcement
+learning and knowledge transfer,” IEEE Trans. Power Syst., vol. 35, no. 3,
+pp. 1856–1867, May 2020.
+[26] J. Cremer, I. Konstantelos, and G. Strbac, “From optimization-based
+machine learning to interpretable security rules for operation,”IEEE Trans.
+Power Syst., vol. 34, no. 5, pp. 3826–3836, Sep. 2019.
+[27] Z. Wu, S. Pan, F. Chen, G. Long, C. Zhang, and P . S. Y u, “A comprehensive
+survey on graph neural networks,” IEEE Trans. Neural Netw. Learn. Syst.,
+2020.
+[28] J. Du, S. Zhang, G. Wu, J. M. Moura, and S. Kar, “Topology adaptive
+graph convolutional networks,” 2017, arXiv:1710.10370.
+[29] F. Baldassarre and H. Azizpour, “Explainability techniques for graph
+convolutional networks,” 2019, arXiv:1905.13686.
+[30] P . Rezaei, P . D. Hines, and M. J. Eppstein, “Estimating cascading failure
+risk with random chemistry,” IEEE Trans. Power Syst. , vol. 30, no. 5,
+pp. 2726–2735, Sep. 2015.
+[31] I. Dobson, B. Carreras, V . Lynch, and D. Newman, “An initial model
+for complex dynamics in electric power system blackouts,” in Proc. 34th
+Annu. Hawaii Int. Conf. Syst. Sci. , 2001, pp. 2017–2017.
+[32] B. A. Carreras, V . E. Lynch, I. Dobson, and D. E. Newman, “Complex
+dynamics of blackouts in power transmission systems,” Chaos: Interdis-
+ciplinary J. Nonlinear Sci. , vol. 14, no. 3, pp. 643–652, 2004.
+[33] H. Ren, I. Dobson, and B. A. Carreras, “Long-term effect of the n-
+1 criterion on cascading line outages in an evolving power transmis-
+sion grid,” IEEE Trans. Power Syst. , vol. 23, no. 3, pp. 1217–1225,
+Aug. 2008.
+[34] S. Mei, F. He, X. Zhang, S. Wu, and G. Wang, “An improved OPA model
+and blackout risk assessment,” IEEE Trans. Power Syst. , vol. 24, no. 2,
+pp. 814–823, May 2009.
+[35] T. Guler, G. Gross, and M. Liu, “Generalized line outage distribution
+factors,” IEEE Trans. Power Syst., vol. 22, no. 2, pp. 879–881, May 2007.
+[36] D. A. Tejada-Arango, P . Sánchez-Martın, and A. Ramos, “Security con-
+strained unit commitment using line outage distribution factors,” IEEE
+Trans. Power Syst., vol. 33, no. 1, pp. 329–337, Jan. 2018.
+[37] S. Bach, A. Binder, G. Montavon, F. Klauschen, K.-R. Müller, and W.
+Samek, “On pixel-wise explanations for non-linear classiﬁer decisions by
+layer-wise relevance propagation,”PLoS One, vol. 10, no. 7, 2015, Art. no.
+e0130140.
+[38] Probability Methods Subcommittee, “IEEE reliability test system,” IEEE
+Trans. Power App. Syst., vol. PAS-98, no. 6, pp. 2047–2054, Nov. 1979.
+[39] T. S. Manuals, “Cplex document,” 2019. [Online]. Available: https://www.
+ibm.com/products/ilog-cplex-optimization-studio.
+[40] R. D. Zimmerman, C. E. Murillo-Sánchez, and R. J. Thomas, “Matpower:
+Steady-state operations, planning, and analysis tools for power systems
+research and education,”IEEE Trans. Power Syst., vol. 26, no. 1, pp. 12–19,
+Feb. 2011.
+Authorized licensed use limited to: Xian Jiaotong University. Downloaded on May 08,2026 at 08:58:21 UTC from IEEE Xplore.  Restrictions apply. 
+
+===== PAGE 10 =====
+LIU et al.: SEARCHING FOR CRITICAL POWER SYSTEM CASCADING FAILURES 1313
+[41] A. Paszke et al. , “Pytorch: An imperative style, high-performance
+deep learning library,” in Proc. Adv. Neural Inf. Process. Syst. , 2019,
+pp. 8024–8035.
+[42] G. J. McLachlan, K.-A. Do, and C. Ambroise, Analyzing Microarray Gene
+Expression Data, vol. 422. Hoboken, NJ, USA: Wiley, 2005.
+[43] D. P . Kingma and J. Ba, “Adam: A method for stochastic optimization,”
+2014, arXiv:1412.6980.
+[44] D. M. Powers, “Evaluation: From precision, recall and F-measure to ROC,
+informedness, markedness and correlation,” 2011, arXiv:2010.16061.
+Y uxiao Liu (Student Member, IEEE) received
+the B.S. degree in 2016 from Electrical Engi-
+neering Department, Tsinghua University , Bei-
+jing, China, where he is currently working to-
+ward the Ph.D. degree in electrical engineering.
+He was also a Visiting Student Researcher
+with the Laboratory for Information and Decision
+Systems, Massachusetts Institute of T echnol-
+ogy , Cambridge, MA, USA. His research inter-
+ests include data-driven power grid analysis and
+power system cascading failures modeling.
+Ning Zhang (Senior Member, IEEE) received
+the B.S. and Ph.D. degrees from the Electrical
+Engineering Department, Tsinghua University ,
+Beijing, China, in 2007 and 2012, respectively .
+He is now an Associate Professor with Ts-
+inghua University , Beijing. His research interests
+include multiple energy systems integration, re-
+newable energy , and power system planning
+and operation.
+Dan Wu (Member, IEEE) received the B.S. de-
+gree in electrical engineering and automation
+from the Huazhong University of Science and
+T echnology , Wuhan, China, in 2012, the M.S.
+and Ph.D. degrees from the University of Wis-
+consin Madison, Madison, WI, USA, in 2014 and
+2017, respectively .
+He was a Postdoctoral Associate with
+the Mechanical Engineering Department, Mas-
+sachusetts Institute of T echnology (MIT), Cam-
+bridge, MA, USA, from 2017 to 2018, and now
+is a Postdoctoral Associate with the Laboratory for Information and De-
+cision Systems, MIT . His research interests include nonlinear dynamics
+and optimization, electric power system analysis, natural gas networks,
+interdependent complex systems, algebraic and topological methods in
+engineering applications.
+Audun Botterud (Member, IEEE) received the
+M.Sc. degree in industrial engineering and the
+Ph.D. degree in electrical power engineering,
+both from the Norwegian University of Science
+and T echnology , T rondheim, Norway , in 1997
+and 2004, respectively .
+He is a Principal Research Scientist with the
+Laboratory for Information and Decision Sys-
+tems, Massachusetts Institute of T echnology ,
+Cambridge, MA, USA, and with the Energy
+Systems Division, Argonne National Laboratory ,
+Lemont, IL, USA. He was previously with SINTEF Energy Research,
+T rondheim. His research interests include power systems, electricity
+markets, energy economics, grid integration of renewable energy , en-
+ergy storage, and stochastic optimization.
+Rui Yao (Senior Member, IEEE) received the
+B.S. degree (with distinction) and the Ph.D. de-
+gree in electrical engineering from Tsinghua
+University , Beijing, China, in 2011 and 2016,
+respectively .
+He was a Postdoctoral Research Associate
+with the University of T ennessee, Knoxville, TN,
+USA, during 2016–2018. He is currently a Post-
+doctoral Appointee with Argonne National Lab-
+oratory , Lemont, IL, USA. His research interests
+include power system modeling and stability
+analysis, resilience modeling and assessment, and high-performance
+computational methodologies.
+Chongqing Kang (Fellow, IEEE) received the
+Ph.D. degree from the Department of Electri-
+cal Engineering, Tsinghua University , Beijing,
+China, in 1997.
+He is currently a Professor with Tsinghua
+University . His research interests include power
+system planning, power system operation, re-
+newable energy , low carbon electricity technol-
+ogy , and load forecasting.
+Authorized licensed use limited to: Xian Jiaotong University. Downloaded on May 08,2026 at 08:58:21 UTC from IEEE Xplore.  Restrictions apply. 

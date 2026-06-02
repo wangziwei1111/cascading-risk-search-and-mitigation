@@ -1,0 +1,15 @@
+case: ieee14
+state: line_status_plus_relative_line_flow
+total_steps: 60000
+learning_rate: 0.001
+gamma: 1.0
+entropy_coef: 0.001
+policy_clip: 0.2
+value_clip: 0.2
+n_steps: 1024
+alpha: 0.1
+max_generations: 10
+policy_hidden_layers: [64, 64]
+value_hidden_layers: [64, 8]
+chronics: surrogate_week_5min
+powerflow_backend: dc_debug_surrogate
