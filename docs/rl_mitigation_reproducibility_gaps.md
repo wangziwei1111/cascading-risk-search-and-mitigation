@@ -12,7 +12,8 @@
 
 - 当前正式后端为 PYPOWER/MATPOWER `case14` 的 AC 潮流。
 - 论文环境可能基于 grid2op 或其内部系统参数；PYPOWER case14 的 generator、branch rating、负荷分布、保护逻辑可能不完全一致。
-- PYPOWER `case14` 原始 branch `rateA` 很大，若后续需要产生更丰富的过载传播，应在文档化前提下做容量缩放实验。
+- PYPOWER `case14` 原始 branch `rateA` 很大。当前使用 `scaled_from_base_flow` 做容量校准，使 IEEE14 小系统中能观察到过载和级联传播。
+- `scaled_from_base_flow` 是文档化的小系统压力校准，不是论文原始容量参数。
 - 某些随机断线组合会使 AC 潮流矩阵奇异；环境将其视为 `pf_failed=True`，并触发论文奖励中的潮流失败惩罚。
 
 ## 孤岛处理差异
@@ -26,6 +27,13 @@
 - 当前已实现 PyTorch PPO-clip、GAE、action mask、value clipping、entropy regularization 和 checkpoint。
 - 正式 60000 步训练脚本已提供，但本轮 Codex 验证主要跑 smoke 训练。
 - 论文的随机种子、采样初始状态集合和完整 chronics 不可得，因此不能声称训练曲线数值完全一致。
+
+## 初始故障与评估差异
+
+- 当前每个 episode 从 N-1 和共同母线 N-2 初始故障池中采样。
+- before/after 评估已经使用同一批场景比较 do-nothing 和 PPO agent。
+- 该场景池仍基于 PYPOWER case14 拓扑，不等同于论文原始 grid2op 场景池。
+- Figure 8 生存函数已按 do-nothing 和 PPO agent 分开计算，但只能称为方法机制复现。
 
 ## surrogate 后端说明
 

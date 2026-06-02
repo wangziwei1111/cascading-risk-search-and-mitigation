@@ -21,9 +21,15 @@ IEEE14 小系统实验默认使用：
 
 ```yaml
 backend: pypower_ac
+initial_outages:
+  mode: sampled
+powerflow:
+  rate_a_mode: scaled_from_base_flow
 ```
 
 `pypower_ac` 后端基于 PYPOWER/MATPOWER `case14` 做 AC 潮流，动作空间对应 20 条 branch：`A=0` 为 do-nothing，`A=i` 为主动断开第 `i` 条 branch。
+
+每个 episode 默认从 N-1 和共同母线 N-2 初始故障池中随机采样一个场景，同时从 surrogate chronics 中抽取负荷/发电快照。线路容量默认使用 `scaled_from_base_flow` 校准，使 IEEE14 小系统在部分初始故障下出现可观测过载和级联传播。该容量校准是小系统机制复现实验设置，不等同于论文原始系统参数。
 
 `surrogate` 后端仍保留，但只用于 debug：
 
@@ -39,8 +45,10 @@ backend: surrogate
 python -m scripts.rl_mitigation.pretrain_do_nothing --case ieee14 --config configs/rl_mitigation/ieee14_ppo.yaml
 python -m scripts.rl_mitigation.train_ppo --case ieee14 --config configs/rl_mitigation/ieee14_ppo.yaml --smoke --steps 2048
 python -m scripts.rl_mitigation.train_ppo --case ieee14 --config configs/rl_mitigation/ieee14_ppo.yaml
+python -m scripts.rl_mitigation.calibrate_ieee14_cascade_scenarios --config configs/rl_mitigation/ieee14_ppo.yaml
 python -m scripts.rl_mitigation.evaluate_policy --case ieee14 --episodes 100 --with-agent --without-agent
 python -m scripts.rl_mitigation.make_figures --case ieee14
+python -m scripts.rl_mitigation.list_high_risk_ieee14_scenarios --config configs/rl_mitigation/ieee14_ppo.yaml --top-k 50
 pytest tests/rl_mitigation -q
 ```
 
@@ -59,13 +67,26 @@ results/rl_mitigation/ieee14/checkpoints/
   best.pt
 
 results/rl_mitigation/ieee14/eval/
+  eval_scenarios_seed0_episodes100.json
   eval_before_after_100.csv
   metrics_summary_100.json
 
 results/rl_mitigation/ieee14/figures/
+  fig7_learning_curves_gridsearch.png/pdf/csv
   fig_ieee14_learning_curve_smoke.png/pdf/csv
   fig_ieee14_survival_negative_return_100.png/pdf/csv
+
+results/rl_mitigation/ieee14/calibration/
+  cascade_scenario_stats.csv
+  cascade_scenario_summary.json
+
+results/rl_mitigation/ieee14/high_risk/
+  high_risk_scenarios_top50.csv
 ```
+
+before/after 评估会先生成固定场景列表，再让 do-nothing 和 PPO agent 在同一批 scenario_id 上运行，保证比较公平。Figure 8 生存函数按 `do_nothing` 和 `agent` 分开计算和绘制，不混合两类策略。
+
+高风险场景清单仅服务后续论文分析和未来与 GCN 风险搜索模块串联；本轮没有实现 GCN-RL 联合闭环。
 
 ## 论文写作边界
 

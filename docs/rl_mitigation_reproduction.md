@@ -57,6 +57,14 @@ backend: pypower_ac
 - 若 `rateA=0` 或缺失，则使用文档化的默认容量。
 - 若 AC 潮流不收敛，返回 `converged=False`，环境记录 `pf_failed=True` 并终止 episode。
 
+线路容量支持三种模式：
+
+- `original`：使用 PYPOWER 原始 `rateA`，缺失时用默认容量。
+- `default_if_zero`：原始 `rateA>0` 时保留，`rateA=0` 时用默认容量。
+- `scaled_from_base_flow`：先运行无故障 AC 潮流，再用 `rateA_i=max(min_rate_a_mw, rate_a_scale * base_abs_flow_i)` 校准容量。
+
+当前 IEEE14 默认使用 `scaled_from_base_flow` 和 `rate_a_scale=1.15`，用于让小系统在 N-1/N-2 初始故障下产生可观测过载传播。该设置不是论文原始容量。
+
 `SurrogatePowerFlowBackend` 仍保留，但只用于 debug，不作为 IEEE14 正式小系统实验默认后端。
 
 ## 孤岛识别与发电负荷平衡
@@ -79,6 +87,29 @@ backend: pypower_ac
 - 发电过剩：按容量比例下调发电。
 
 每次主动断线或随机过载跳闸后，都会重新执行孤岛处理，再运行潮流。
+
+## 初始故障采样
+
+IEEE14 默认配置：
+
+```yaml
+initial_outages:
+  mode: sampled
+  include_n_minus_1: true
+  include_common_bus_n_minus_2: true
+  fixed: []
+```
+
+`mode=fixed` 使用固定初始故障，`mode=sampled` 每个 episode 从 N-1 和共同母线 N-2 池中采样，`mode=none` 仅用于 debug。
+
+每个 episode 的 info、cascade trace、训练日志和评估 CSV 都记录：
+
+- `initial_outages`
+- `initial_outage_type`
+- `initial_outage_order`
+- `chronic_index`
+- `load_scale`
+- `gen_scale`
 
 ## PPO-clip
 
@@ -138,6 +169,14 @@ python -m scripts.rl_mitigation.train_ppo --case ieee14 --config configs/rl_miti
 python -m scripts.rl_mitigation.evaluate_policy --case ieee14 --episodes 100 --with-agent --without-agent
 ```
 
+评估会先生成：
+
+```text
+results/rl_mitigation/ieee14/eval/eval_scenarios_seed0_episodes100.json
+```
+
+然后让 do-nothing 和 PPO agent 在同一批场景上运行，保证 before/after 比较公平。
+
 画图入口：
 
 ```bash
@@ -147,6 +186,36 @@ python -m scripts.rl_mitigation.make_figures --case ieee14
 ## Figure 对应关系
 
 - 论文 Figure 7 方法机制复现：`fig_ieee14_learning_curve_smoke.png/pdf/csv`。
-- 论文 Figure 8 方法机制复现：`fig_ieee14_survival_negative_return_100.png/pdf/csv`。
+- 论文 Figure 7 gridsearch 方法机制复现：`fig7_learning_curves_gridsearch.png/pdf/csv`。
+- 论文 Figure 8 方法机制复现：`fig_ieee14_survival_negative_return_100.png/pdf/csv`，其中 do-nothing 和 PPO agent 分开计算生存函数。
 
 这些图不能声称数值完全复现论文，只能用于 IEEE14 小系统机制复现与毕业论文实验流程展示。
+
+## 场景校准与高风险清单
+
+容量校准脚本：
+
+```bash
+python -m scripts.rl_mitigation.calibrate_ieee14_cascade_scenarios --config configs/rl_mitigation/ieee14_ppo.yaml
+```
+
+输出：
+
+```text
+results/rl_mitigation/ieee14/calibration/cascade_scenario_stats.csv
+results/rl_mitigation/ieee14/calibration/cascade_scenario_summary.json
+```
+
+高风险场景脚本：
+
+```bash
+python -m scripts.rl_mitigation.list_high_risk_ieee14_scenarios --config configs/rl_mitigation/ieee14_ppo.yaml --top-k 50
+```
+
+输出：
+
+```text
+results/rl_mitigation/ieee14/high_risk/high_risk_scenarios_top50.csv
+```
+
+该清单可用于后续与 GCN 模块做论文层面的分析衔接，但本轮不实现 GCN-RL 联合闭环。
