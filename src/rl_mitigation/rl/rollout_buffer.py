@@ -24,14 +24,24 @@ class RolloutBuffer:
         self.values.append(float(value))
         self.masks.append(np.asarray(mask, dtype=bool))
 
-    def compute_returns_advantages(self, gamma: float = 1.0, gae_lambda: float = 0.95):
+    def compute_returns_advantages(
+        self,
+        gamma: float = 1.0,
+        gae_lambda: float = 0.95,
+        last_value: float = 0.0,
+        last_done: bool = True,
+    ):
         rewards = np.asarray(self.rewards, dtype=np.float32)
-        values = np.asarray(self.values + [0.0], dtype=np.float32)
+        bootstrap = 0.0 if last_done else float(last_value)
+        values = np.asarray(self.values + [bootstrap], dtype=np.float32)
         dones = np.asarray(self.dones, dtype=np.float32)
         advantages = np.zeros_like(rewards)
         last_gae = 0.0
         for t in reversed(range(len(rewards))):
-            next_non_terminal = 1.0 - dones[t]
+            if t == len(rewards) - 1:
+                next_non_terminal = 0.0 if last_done else 1.0
+            else:
+                next_non_terminal = 1.0 - dones[t]
             delta = rewards[t] + gamma * values[t + 1] * next_non_terminal - values[t]
             last_gae = delta + gamma * gae_lambda * next_non_terminal * last_gae
             advantages[t] = last_gae

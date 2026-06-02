@@ -70,22 +70,30 @@ def train_ppo_clip(
     buffer = RolloutBuffer()
     log_rows = []
     obs, info = env.reset(seed=seed)
+    last_done = False
     episode = 0
     best_return = None
     step = 0
     while step < total_steps:
         buffer.clear()
+        sampled_invalid_action_count = 0
+        valid_action_counts = []
         for _ in range(min(n_steps, total_steps - step)):
             mask = info.get("action_mask", np.ones(env.action_space_n, dtype=bool))
+            mask_arr = np.asarray(mask, dtype=bool)
+            valid_action_counts.append(int(mask_arr.sum()))
             obs_t = torch.tensor(obs, dtype=torch.float32).unsqueeze(0)
-            mask_t = torch.tensor(mask, dtype=torch.bool).unsqueeze(0)
+            mask_t = torch.tensor(mask_arr, dtype=torch.bool).unsqueeze(0)
             with torch.no_grad():
                 action_t, log_prob_t, _, value_t = model.act(obs_t, mask_t)
             action = int(action_t.item())
+            if not mask_arr[action]:
+                sampled_invalid_action_count += 1
             next_obs, reward, done, _, next_info = env.step(action)
-            buffer.add(obs, action, float(log_prob_t.item()), reward, done, float(value_t.item()), mask)
+            buffer.add(obs, action, float(log_prob_t.item()), reward, done, float(value_t.item()), mask_arr)
             step += 1
             obs, info = next_obs, next_info
+            last_done = done
             if done:
                 episode += 1
                 log_rows.append(_episode_log_row(step, episode, info))
@@ -95,10 +103,24 @@ def train_ppo_clip(
                     if checkpoint_dir:
                         save_checkpoint(model, str(Path(checkpoint_dir) / "best.pt"), step, best_return)
                 obs, info = env.reset(seed=int(rng.integers(0, 1_000_000)))
+                last_done = False
             if step >= total_steps:
                 break
-        returns, advantages = buffer.compute_returns_advantages(gamma=gamma, gae_lambda=gae_lambda)
+        if last_done:
+            last_value = 0.0
+        else:
+            with torch.no_grad():
+                last_value = float(model.value(torch.tensor(obs, dtype=torch.float32).unsqueeze(0)).item())
+        returns, advantages = buffer.compute_returns_advantages(
+            gamma=gamma,
+            gae_lambda=gae_lambda,
+            last_value=last_value,
+            last_done=last_done,
+        )
         metrics = _update(model, optimizer, buffer, returns, advantages, clip_range, value_clip, entropy_coef, batch_size, epochs)
+        metrics["mask_enabled"] = bool(getattr(env, "use_action_mask", False))
+        metrics["mean_valid_action_count"] = float(np.mean(valid_action_counts)) if valid_action_counts else 0.0
+        metrics["sampled_invalid_action_count"] = int(sampled_invalid_action_count)
         if log_rows:
             log_rows[-1].update(metrics)
         if checkpoint_dir:
@@ -163,6 +185,9 @@ def _episode_log_row(step: int, episode: int, info: dict) -> dict:
         "initial_outage_type": info.get("initial_outage_type", ""),
         "initial_outage_order": info.get("initial_outage_order", 0),
         "chronic_index": info.get("chronic_index", -1),
+        "mask_enabled": info.get("action_mask") is not None,
+        "mean_valid_action_count": 0.0,
+        "sampled_invalid_action_count": 0,
         "policy_loss": 0.0,
         "value_loss": 0.0,
         "entropy": 0.0,
@@ -180,7 +205,8 @@ def _write_logs(rows: list[dict], path: str):
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     fieldnames = [
         "step", "episode", "episode_return", "negative_return", "initial_outages",
-        "initial_outage_type", "initial_outage_order", "chronic_index", "policy_loss", "value_loss",
+        "initial_outage_type", "initial_outage_order", "chronic_index", "mask_enabled",
+        "mean_valid_action_count", "sampled_invalid_action_count", "policy_loss", "value_loss",
         "entropy", "approx_kl", "clip_fraction", "num_generations", "num_line_outages",
         "load_shed_MW", "num_proactive_actions", "num_invalid_actions",
     ]
