@@ -159,6 +159,10 @@ def _episode_log_row(step: int, episode: int, info: dict) -> dict:
         "episode": episode,
         "episode_return": info.get("episode_return", 0.0),
         "negative_return": info.get("negative_return", 0.0),
+        "initial_outages": ",".join(str(x) for x in info.get("initial_outages", [])),
+        "initial_outage_type": info.get("initial_outage_type", ""),
+        "initial_outage_order": info.get("initial_outage_order", 0),
+        "chronic_index": info.get("chronic_index", -1),
         "policy_loss": 0.0,
         "value_loss": 0.0,
         "entropy": 0.0,
@@ -175,7 +179,8 @@ def _episode_log_row(step: int, episode: int, info: dict) -> dict:
 def _write_logs(rows: list[dict], path: str):
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     fieldnames = [
-        "step", "episode", "episode_return", "negative_return", "policy_loss", "value_loss",
+        "step", "episode", "episode_return", "negative_return", "initial_outages",
+        "initial_outage_type", "initial_outage_order", "chronic_index", "policy_loss", "value_loss",
         "entropy", "approx_kl", "clip_fraction", "num_generations", "num_line_outages",
         "load_shed_MW", "num_proactive_actions", "num_invalid_actions",
     ]
