@@ -4,6 +4,7 @@ import argparse
 import csv
 
 import matplotlib.pyplot as plt
+import yaml
 
 from ._bootstrap import add_src_to_path
 
@@ -17,7 +18,10 @@ from rl_mitigation.plotting.plot_survival import plot_survival_by_policy
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--case", default="ieee14")
+    parser.add_argument("--config", default="configs/rl_mitigation/ieee14_ppo.yaml")
     args = parser.parse_args()
+    with open(ROOT / args.config, encoding="utf-8") as f:
+        cfg = yaml.safe_load(f)
     base = ROOT / "results" / "rl_mitigation" / "ieee14"
     figures = base / "figures"
     figures.mkdir(parents=True, exist_ok=True)
@@ -43,8 +47,10 @@ def main():
         rows,
         str(figures / "fig_ieee14_survival_negative_return_100.png"),
         str(figures / "fig_ieee14_survival_negative_return_100.pdf"),
+        yscale=cfg.get("figures", {}).get("survival_yscale", "linear"),
     )
     _write_survival_data(rows, figures / "fig_ieee14_survival_negative_return_100.csv")
+    _write_captions(figures)
     print(f"Figures written to {figures}")
 
 
@@ -92,7 +98,7 @@ def _plot_gridsearch_curves(log_dir, figures):
         for step, value in zip(steps, smooth):
             combined_rows.append({"setting": label, "step": step, "smoothed_episode_return": value})
     plt.xlabel("Training step")
-    plt.ylabel("EMA episode return")
+    plt.ylabel("EMA episode return (smoke)")
     plt.legend(fontsize=7)
     plt.tight_layout()
     plt.savefig(figures / "fig7_learning_curves_gridsearch.png", dpi=200)
@@ -111,6 +117,17 @@ def _ema(values, alpha=0.2):
         cur = value if cur is None else alpha * value + (1.0 - alpha) * cur
         out.append(cur)
     return out
+
+
+def _write_captions(figures):
+    (figures / "figure_caption_suggestions_zh.md").write_text(
+        "# 中文图名建议\n\n"
+        "- 图x IEEE14小系统PPO训练回报曲线（smoke，EMA平滑）\n"
+        "- 图x IEEE14小系统PPO超参数网格搜索训练回报曲线（smoke，EMA平滑）\n"
+        "- 图x IEEE14小系统缓解前后负回报生存函数对比\n"
+        "- 图x IEEE14小系统高风险初始故障场景统计\n",
+        encoding="utf-8",
+    )
 
 
 if __name__ == "__main__":

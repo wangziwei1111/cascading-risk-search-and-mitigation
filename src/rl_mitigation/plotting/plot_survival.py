@@ -22,8 +22,8 @@ def plot_survival(values, out_png: str, out_pdf: str | None = None):
     plt.close()
 
 
-def plot_survival_by_policy(rows: list[dict], out_png: str, out_pdf: str | None = None):
-    labels = {"do_nothing": "do-nothing", "agent": "PPO agent"}
+def plot_survival_by_policy(rows: list[dict], out_png: str, out_pdf: str | None = None, yscale: str = "linear"):
+    labels = {"do_nothing": "before / do-nothing", "agent": "after / PPO agent"}
     plt.figure(figsize=(6, 4), facecolor="white")
     for policy in ["do_nothing", "agent"]:
         vals = sorted(float(row["negative_return"]) for row in rows if row.get("policy") == policy)
@@ -32,8 +32,10 @@ def plot_survival_by_policy(rows: list[dict], out_png: str, out_pdf: str | None 
         xs = vals
         ys = [1.0 - i / len(vals) for i in range(len(vals))]
         plt.step(xs, ys, where="post", label=labels.get(policy, policy))
-    plt.xlabel("Negative return")
-    plt.ylabel("P(NegativeReturn > x)")
+    plt.xlabel("Negative reward")
+    plt.ylabel("Probability greater than")
+    if yscale in {"log", "linear"}:
+        plt.yscale(yscale)
     plt.legend()
     plt.tight_layout()
     Path(out_png).parent.mkdir(parents=True, exist_ok=True)

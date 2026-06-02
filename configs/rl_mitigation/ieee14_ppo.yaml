@@ -40,3 +40,6 @@ ppo:
   value_hidden_layers: [64, 8]
   use_action_mask: true
   use_do_nothing_pretrain: true
+
+figures:
+  survival_yscale: linear
