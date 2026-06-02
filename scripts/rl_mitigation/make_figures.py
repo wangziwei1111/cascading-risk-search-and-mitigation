@@ -46,6 +46,10 @@ def main():
     _plot_action_improvement(base, figures)
     _plot_oracle_survival(base, figures, cfg)
     _plot_policy_action_probability(base, figures)
+    _plot_training_ablation(base, figures)
+    _plot_test_policy_survival(base, figures, cfg)
+    _plot_improvable_subset(base, figures)
+    _plot_oracle_gap_vs_ppo_gap(base, figures)
     _write_captions(figures)
     print(f"Figures written to {figures}")
 
@@ -114,7 +118,9 @@ def _ema(values, alpha=0.2):
 
 
 def _plot_action_improvement(base, figures):
-    summary = base / "action_value_scan" / "action_value_summary.json"
+    summary = base / "action_value_scan" / "test_action_value_summary.json"
+    if not summary.exists():
+        summary = base / "action_value_scan" / "action_value_summary.json"
     if not summary.exists():
         return
     with open(summary, encoding="utf-8") as f:
@@ -137,7 +143,7 @@ def _plot_action_improvement(base, figures):
 
 
 def _plot_oracle_survival(base, figures, cfg):
-    matches = sorted((base / "eval").glob("eval_do_nothing_agent_oracle_*.csv"))
+    matches = sorted((base / "eval").glob("*eval_do_nothing_agent_oracle*.csv"))
     if not matches:
         return
     rows = _read_csv(matches[-1])
@@ -175,6 +181,101 @@ def _plot_policy_action_probability(base, figures):
         writer.writeheader()
         for row in rows:
             writer.writerow({k: row[k] for k in ["scenario_id", "prob_do_nothing", "max_nonzero_action_prob", "entropy", "argmax_action"]})
+
+
+def _plot_training_ablation(base, figures):
+    path = base / "ablation" / "training_ablation_summary.csv"
+    if not path.exists():
+        return
+    rows = [row for row in _read_csv(path) if row["eval_mode"] == "deterministic"]
+    if not rows:
+        return
+    labels = [row["variant"].replace("ppo_", "").replace("_init", "") for row in rows]
+    values = [float(row["mean_negative_return"]) for row in rows]
+    plt.figure(figsize=(7, 4), facecolor="white")
+    plt.bar(labels, values)
+    plt.ylabel("Mean negative return")
+    plt.xticks(rotation=20, ha="right")
+    plt.tight_layout()
+    plt.savefig(figures / "fig_training_ablation_negative_return.png", dpi=200)
+    plt.savefig(figures / "fig_training_ablation_negative_return.pdf")
+    plt.close()
+    _write_csv(rows, figures / "fig_training_ablation_negative_return.csv")
+
+
+def _plot_test_policy_survival(base, figures, cfg):
+    rows = []
+    for path in sorted((base / "eval").glob("test_eval_*.csv")):
+        if "stochastic" in path.name or "before_after" in path.name or "do_nothing_agent_oracle" in path.name:
+            continue
+        rows.extend(_read_csv(path))
+    if not rows:
+        return
+    plot_survival_by_policy(
+        rows,
+        str(figures / "fig_policy_survival_test_split.png"),
+        str(figures / "fig_policy_survival_test_split.pdf"),
+        yscale=cfg.get("figures", {}).get("survival_yscale", "linear"),
+    )
+    _write_survival_data(rows, figures / "fig_policy_survival_test_split.csv")
+
+
+def _plot_improvable_subset(base, figures):
+    path = base / "analysis" / "improvable_subset_summary.csv"
+    if not path.exists():
+        return
+    rows = [row for row in _read_csv(path) if row["subset"] == "improvable"]
+    if not rows:
+        return
+    plt.figure(figsize=(7, 4), facecolor="white")
+    plt.bar([row["policy"] for row in rows], [float(row["mean_negative_return"]) for row in rows])
+    plt.ylabel("Mean negative return")
+    plt.xticks(rotation=25, ha="right")
+    plt.tight_layout()
+    plt.savefig(figures / "fig_improvable_subset_bar.png", dpi=200)
+    plt.savefig(figures / "fig_improvable_subset_bar.pdf")
+    plt.close()
+    _write_csv(rows, figures / "fig_improvable_subset_bar.csv")
+
+
+def _plot_oracle_gap_vs_ppo_gap(base, figures):
+    summary_path = base / "action_value_scan" / "test_action_value_summary.json"
+    ppo_path = base / "eval" / "test_eval_ppo_oracle_bc_init_deterministic.csv"
+    dn_path = base / "eval" / "test_eval_do_nothing.csv"
+    if not (summary_path.exists() and ppo_path.exists() and dn_path.exists()):
+        return
+    with open(summary_path, encoding="utf-8") as f:
+        action_summary = json.load(f)
+    oracle_gap = {str(row["scenario_id"]): float(row["improvement"]) for row in action_summary.get("scenario_improvements", [])}
+    ppo = {str(row["scenario_id"]): row for row in _read_csv(ppo_path)}
+    dn = {str(row["scenario_id"]): row for row in _read_csv(dn_path)}
+    points = []
+    for sid in sorted(set(ppo) & set(dn) & set(oracle_gap)):
+        points.append({
+            "scenario_id": sid,
+            "oracle_improvement": oracle_gap[sid],
+            "ppo_improvement": float(dn[sid]["negative_return"]) - float(ppo[sid]["negative_return"]),
+        })
+    if not points:
+        return
+    plt.figure(figsize=(5, 5), facecolor="white")
+    plt.scatter([p["oracle_improvement"] for p in points], [p["ppo_improvement"] for p in points], s=18)
+    plt.xlabel("One-step oracle improvement")
+    plt.ylabel("PPO oracle-BC init improvement")
+    plt.tight_layout()
+    plt.savefig(figures / "fig_oracle_gap_vs_ppo_gap.png", dpi=200)
+    plt.savefig(figures / "fig_oracle_gap_vs_ppo_gap.pdf")
+    plt.close()
+    _write_csv(points, figures / "fig_oracle_gap_vs_ppo_gap.csv")
+
+
+def _write_csv(rows, path):
+    if not rows:
+        return
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
 
 
 def _write_captions(figures):
