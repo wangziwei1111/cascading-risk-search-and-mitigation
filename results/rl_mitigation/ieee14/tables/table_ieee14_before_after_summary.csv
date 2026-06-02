@@ -1,0 +1,3 @@
+policy,episodes,mean_negative_return,p95_negative_return,mean_num_generations,mean_num_line_outages,mean_load_shed_MW,mean_load_shed_ratio,mean_num_proactive_actions,mean_num_invalid_actions,pf_failed_ratio
+agent,100,80.15971463770576,108.8733071385792,1.17,4.77,11.604456391394137,0.0448048509320237,0.0,0.0,0.77
+do_nothing,100,80.15971463770576,108.8733071385792,1.17,4.77,11.604456391394137,0.0448048509320237,0.0,0.0,0.77
