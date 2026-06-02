@@ -1,0 +1,1476 @@
+[
+  {
+    "scenario_id": 0,
+    "seed": 511821,
+    "chronic_index": 953,
+    "load_scale": 1.2117975950241089,
+    "gen_scale": 0.8295400738716125,
+    "initial_outages": [
+      0
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 1,
+    "seed": 950463,
+    "chronic_index": 1522,
+    "load_scale": 1.0508216619491577,
+    "gen_scale": 1.0158605575561523,
+    "initial_outages": [
+      6
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 2,
+    "seed": 144159,
+    "chronic_index": 70,
+    "load_scale": 1.193069577217102,
+    "gen_scale": 0.9980867505073547,
+    "initial_outages": [
+      1,
+      4
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 3,
+    "seed": 948649,
+    "chronic_index": 1659,
+    "load_scale": 0.8236029148101807,
+    "gen_scale": 1.0306035280227661,
+    "initial_outages": [
+      7
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 4,
+    "seed": 311831,
+    "chronic_index": 502,
+    "load_scale": 0.9623645544052124,
+    "gen_scale": 1.0543272495269775,
+    "initial_outages": [
+      5
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 5,
+    "seed": 423326,
+    "chronic_index": 1751,
+    "load_scale": 0.9044577479362488,
+    "gen_scale": 0.9508879780769348,
+    "initial_outages": [
+      17
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 6,
+    "seed": 827702,
+    "chronic_index": 550,
+    "load_scale": 0.8681042790412903,
+    "gen_scale": 1.0687402486801147,
+    "initial_outages": [
+      7,
+      8
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 7,
+    "seed": 409199,
+    "chronic_index": 518,
+    "load_scale": 0.8731944561004639,
+    "gen_scale": 1.0156975984573364,
+    "initial_outages": [
+      3,
+      8
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 8,
+    "seed": 549593,
+    "chronic_index": 1297,
+    "load_scale": 1.0374733209609985,
+    "gen_scale": 0.8812584280967712,
+    "initial_outages": [
+      18
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 9,
+    "seed": 27559,
+    "chronic_index": 172,
+    "load_scale": 1.0450313091278076,
+    "gen_scale": 0.9020652174949646,
+    "initial_outages": [
+      15,
+      16
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 10,
+    "seed": 753513,
+    "chronic_index": 1745,
+    "load_scale": 0.9064006209373474,
+    "gen_scale": 1.0101999044418335,
+    "initial_outages": [
+      8,
+      14
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 11,
+    "seed": 538143,
+    "chronic_index": 1689,
+    "load_scale": 0.7431557178497314,
+    "gen_scale": 1.1705660820007324,
+    "initial_outages": [
+      6,
+      8
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 12,
+    "seed": 329731,
+    "chronic_index": 1648,
+    "load_scale": 0.8114327788352966,
+    "gen_scale": 0.9904215335845947,
+    "initial_outages": [
+      15,
+      16
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 13,
+    "seed": 788428,
+    "chronic_index": 912,
+    "load_scale": 1.098281979560852,
+    "gen_scale": 1.0393102169036865,
+    "initial_outages": [
+      9,
+      12
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 14,
+    "seed": 303194,
+    "chronic_index": 249,
+    "load_scale": 0.833864152431488,
+    "gen_scale": 0.9380390048027039,
+    "initial_outages": [
+      8
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 15,
+    "seed": 453497,
+    "chronic_index": 250,
+    "load_scale": 0.8817729353904724,
+    "gen_scale": 1.01352858543396,
+    "initial_outages": [
+      2
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 16,
+    "seed": 134041,
+    "chronic_index": 1969,
+    "load_scale": 0.7921097874641418,
+    "gen_scale": 0.9469942450523376,
+    "initial_outages": [
+      12,
+      18
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 17,
+    "seed": 403112,
+    "chronic_index": 772,
+    "load_scale": 1.0073423385620117,
+    "gen_scale": 1.0202200412750244,
+    "initial_outages": [
+      1,
+      9
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 18,
+    "seed": 203455,
+    "chronic_index": 1822,
+    "load_scale": 1.1037362813949585,
+    "gen_scale": 1.0500602722167969,
+    "initial_outages": [
+      3
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 19,
+    "seed": 262313,
+    "chronic_index": 1012,
+    "load_scale": 1.1280995607376099,
+    "gen_scale": 1.0143970251083374,
+    "initial_outages": [
+      3,
+      5
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 20,
+    "seed": 750364,
+    "chronic_index": 39,
+    "load_scale": 1.0577208995819092,
+    "gen_scale": 0.9034227728843689,
+    "initial_outages": [
+      1,
+      6
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 21,
+    "seed": 280408,
+    "chronic_index": 125,
+    "load_scale": 1.1736570596694946,
+    "gen_scale": 0.9550750255584717,
+    "initial_outages": [
+      2,
+      4
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 22,
+    "seed": 485190,
+    "chronic_index": 1004,
+    "load_scale": 1.1231744289398193,
+    "gen_scale": 0.8935579657554626,
+    "initial_outages": [
+      2,
+      4
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 23,
+    "seed": 980737,
+    "chronic_index": 235,
+    "load_scale": 0.8551406860351562,
+    "gen_scale": 0.9974195957183838,
+    "initial_outages": [
+      0,
+      1
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 24,
+    "seed": 961657,
+    "chronic_index": 1510,
+    "load_scale": 1.044352412223816,
+    "gen_scale": 1.0671693086624146,
+    "initial_outages": [
+      3,
+      6
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 25,
+    "seed": 724789,
+    "chronic_index": 185,
+    "load_scale": 0.9726113677024841,
+    "gen_scale": 1.0148345232009888,
+    "initial_outages": [
+      3,
+      6
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 26,
+    "seed": 541226,
+    "chronic_index": 590,
+    "load_scale": 0.9785823225975037,
+    "gen_scale": 1.0611616373062134,
+    "initial_outages": [
+      16,
+      19
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 27,
+    "seed": 276891,
+    "chronic_index": 1864,
+    "load_scale": 1.1008180379867554,
+    "gen_scale": 1.0005638599395752,
+    "initial_outages": [
+      7,
+      14
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 28,
+    "seed": 160652,
+    "chronic_index": 1463,
+    "load_scale": 0.8773466944694519,
+    "gen_scale": 0.9353708028793335,
+    "initial_outages": [
+      9,
+      12
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 29,
+    "seed": 969925,
+    "chronic_index": 650,
+    "load_scale": 1.228739619255066,
+    "gen_scale": 0.8689534068107605,
+    "initial_outages": [
+      0
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 30,
+    "seed": 516068,
+    "chronic_index": 848,
+    "load_scale": 0.8600304126739502,
+    "gen_scale": 1.025020956993103,
+    "initial_outages": [
+      0,
+      1
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 31,
+    "seed": 115865,
+    "chronic_index": 590,
+    "load_scale": 0.9785823225975037,
+    "gen_scale": 1.0611616373062134,
+    "initial_outages": [
+      16,
+      19
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 32,
+    "seed": 623489,
+    "chronic_index": 855,
+    "load_scale": 0.8972408175468445,
+    "gen_scale": 0.9731782674789429,
+    "initial_outages": [
+      17
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 33,
+    "seed": 776683,
+    "chronic_index": 918,
+    "load_scale": 1.066620945930481,
+    "gen_scale": 1.0808707475662231,
+    "initial_outages": [
+      3,
+      7
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 34,
+    "seed": 613003,
+    "chronic_index": 731,
+    "load_scale": 1.1620957851409912,
+    "gen_scale": 1.0586553812026978,
+    "initial_outages": [
+      11,
+      18
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 35,
+    "seed": 917297,
+    "chronic_index": 1557,
+    "load_scale": 1.095913290977478,
+    "gen_scale": 0.9860675930976868,
+    "initial_outages": [
+      6,
+      9
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 36,
+    "seed": 39592,
+    "chronic_index": 861,
+    "load_scale": 0.8696582317352295,
+    "gen_scale": 1.0184803009033203,
+    "initial_outages": [
+      12,
+      19
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 37,
+    "seed": 528589,
+    "chronic_index": 1448,
+    "load_scale": 0.8243540525436401,
+    "gen_scale": 0.8871027231216431,
+    "initial_outages": [
+      10
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 38,
+    "seed": 459335,
+    "chronic_index": 1758,
+    "load_scale": 0.9733259677886963,
+    "gen_scale": 1.1481832265853882,
+    "initial_outages": [
+      3,
+      7
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 39,
+    "seed": 62349,
+    "chronic_index": 742,
+    "load_scale": 1.1029703617095947,
+    "gen_scale": 0.979539692401886,
+    "initial_outages": [
+      6,
+      8
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 40,
+    "seed": 641328,
+    "chronic_index": 921,
+    "load_scale": 1.117799997329712,
+    "gen_scale": 1.045155644416809,
+    "initial_outages": [
+      0,
+      3
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 41,
+    "seed": 852632,
+    "chronic_index": 1552,
+    "load_scale": 1.0687153339385986,
+    "gen_scale": 0.9371761083602905,
+    "initial_outages": [
+      5,
+      6
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 42,
+    "seed": 592941,
+    "chronic_index": 433,
+    "load_scale": 1.2297632694244385,
+    "gen_scale": 0.9860855340957642,
+    "initial_outages": [
+      18,
+      19
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 43,
+    "seed": 260097,
+    "chronic_index": 1621,
+    "load_scale": 0.8764361143112183,
+    "gen_scale": 0.9866844415664673,
+    "initial_outages": [
+      8,
+      16
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 44,
+    "seed": 839881,
+    "chronic_index": 694,
+    "load_scale": 1.2131905555725098,
+    "gen_scale": 0.8498659729957581,
+    "initial_outages": [
+      0,
+      1
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 45,
+    "seed": 509495,
+    "chronic_index": 1172,
+    "load_scale": 0.9128367304801941,
+    "gen_scale": 0.9905345439910889,
+    "initial_outages": [
+      4
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 46,
+    "seed": 510888,
+    "chronic_index": 1358,
+    "load_scale": 0.8314526081085205,
+    "gen_scale": 0.9462288022041321,
+    "initial_outages": [
+      12
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 47,
+    "seed": 753030,
+    "chronic_index": 1977,
+    "load_scale": 0.8074033856391907,
+    "gen_scale": 0.960487961769104,
+    "initial_outages": [
+      17
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 48,
+    "seed": 147922,
+    "chronic_index": 109,
+    "load_scale": 1.1852350234985352,
+    "gen_scale": 1.0876226425170898,
+    "initial_outages": [
+      12,
+      19
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 49,
+    "seed": 819626,
+    "chronic_index": 1098,
+    "load_scale": 0.7591348886489868,
+    "gen_scale": 1.0731658935546875,
+    "initial_outages": [
+      17
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 50,
+    "seed": 683286,
+    "chronic_index": 139,
+    "load_scale": 1.1866786479949951,
+    "gen_scale": 1.0827707052230835,
+    "initial_outages": [
+      10,
+      12
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 51,
+    "seed": 787096,
+    "chronic_index": 1531,
+    "load_scale": 1.0726451873779297,
+    "gen_scale": 1.0184073448181152,
+    "initial_outages": [
+      18
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 52,
+    "seed": 191616,
+    "chronic_index": 1760,
+    "load_scale": 0.9811785817146301,
+    "gen_scale": 0.9446844458580017,
+    "initial_outages": [
+      7,
+      13
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 53,
+    "seed": 802364,
+    "chronic_index": 1119,
+    "load_scale": 0.8369135856628418,
+    "gen_scale": 0.9102708697319031,
+    "initial_outages": [
+      3,
+      8
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 54,
+    "seed": 191323,
+    "chronic_index": 721,
+    "load_scale": 1.187831163406372,
+    "gen_scale": 1.0016767978668213,
+    "initial_outages": [
+      15,
+      17
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 55,
+    "seed": 81552,
+    "chronic_index": 966,
+    "load_scale": 1.2126058340072632,
+    "gen_scale": 0.9719693660736084,
+    "initial_outages": [
+      5,
+      6
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 56,
+    "seed": 855226,
+    "chronic_index": 443,
+    "load_scale": 1.165567398071289,
+    "gen_scale": 1.0687780380249023,
+    "initial_outages": [
+      14,
+      16
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 57,
+    "seed": 861283,
+    "chronic_index": 1345,
+    "load_scale": 0.8480276465415955,
+    "gen_scale": 1.0113775730133057,
+    "initial_outages": [
+      15,
+      17
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 58,
+    "seed": 876537,
+    "chronic_index": 1693,
+    "load_scale": 0.758303701877594,
+    "gen_scale": 0.9117891192436218,
+    "initial_outages": [
+      9,
+      10
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 59,
+    "seed": 471909,
+    "chronic_index": 626,
+    "load_scale": 1.1480779647827148,
+    "gen_scale": 1.0216174125671387,
+    "initial_outages": [
+      6,
+      8
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 60,
+    "seed": 274048,
+    "chronic_index": 1244,
+    "load_scale": 1.1211299896240234,
+    "gen_scale": 1.0686476230621338,
+    "initial_outages": [
+      11,
+      18
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 61,
+    "seed": 7091,
+    "chronic_index": 1853,
+    "load_scale": 1.119249939918518,
+    "gen_scale": 1.0320358276367188,
+    "initial_outages": [
+      18,
+      19
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 62,
+    "seed": 645720,
+    "chronic_index": 1689,
+    "load_scale": 0.7431557178497314,
+    "gen_scale": 1.1705660820007324,
+    "initial_outages": [
+      16
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 63,
+    "seed": 719909,
+    "chronic_index": 510,
+    "load_scale": 0.91342693567276,
+    "gen_scale": 0.9907800555229187,
+    "initial_outages": [
+      5,
+      6
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 64,
+    "seed": 835569,
+    "chronic_index": 832,
+    "load_scale": 0.8631207942962646,
+    "gen_scale": 0.9471675753593445,
+    "initial_outages": [
+      9
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 65,
+    "seed": 281877,
+    "chronic_index": 2012,
+    "load_scale": 0.8526560068130493,
+    "gen_scale": 0.9870720505714417,
+    "initial_outages": [
+      6
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 66,
+    "seed": 215218,
+    "chronic_index": 947,
+    "load_scale": 1.168786883354187,
+    "gen_scale": 1.159590244293213,
+    "initial_outages": [
+      7,
+      13
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 67,
+    "seed": 639331,
+    "chronic_index": 1396,
+    "load_scale": 0.7726818323135376,
+    "gen_scale": 0.9758315682411194,
+    "initial_outages": [
+      3
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 68,
+    "seed": 805054,
+    "chronic_index": 1702,
+    "load_scale": 0.7607541084289551,
+    "gen_scale": 0.9972465634346008,
+    "initial_outages": [
+      8,
+      15
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 69,
+    "seed": 963670,
+    "chronic_index": 1969,
+    "load_scale": 0.7921097874641418,
+    "gen_scale": 0.9469942450523376,
+    "initial_outages": [
+      10,
+      17
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 70,
+    "seed": 150524,
+    "chronic_index": 1804,
+    "load_scale": 1.0471974611282349,
+    "gen_scale": 1.0718952417373657,
+    "initial_outages": [
+      11
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 71,
+    "seed": 482212,
+    "chronic_index": 85,
+    "load_scale": 1.1825886964797974,
+    "gen_scale": 0.991707980632782,
+    "initial_outages": [
+      7,
+      13
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 72,
+    "seed": 894715,
+    "chronic_index": 695,
+    "load_scale": 1.2324434518814087,
+    "gen_scale": 1.0162298679351807,
+    "initial_outages": [
+      1,
+      9
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 73,
+    "seed": 422716,
+    "chronic_index": 1606,
+    "load_scale": 0.9691594839096069,
+    "gen_scale": 1.1418867111206055,
+    "initial_outages": [
+      12,
+      19
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 74,
+    "seed": 589502,
+    "chronic_index": 1160,
+    "load_scale": 0.8773791790008545,
+    "gen_scale": 1.0257763862609863,
+    "initial_outages": [
+      14,
+      15
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 75,
+    "seed": 24490,
+    "chronic_index": 1796,
+    "load_scale": 1.087664008140564,
+    "gen_scale": 1.021103858947754,
+    "initial_outages": [
+      5,
+      7
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 76,
+    "seed": 673459,
+    "chronic_index": 987,
+    "load_scale": 1.1548411846160889,
+    "gen_scale": 1.0163390636444092,
+    "initial_outages": [
+      5,
+      6
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 77,
+    "seed": 919088,
+    "chronic_index": 913,
+    "load_scale": 1.0979995727539062,
+    "gen_scale": 1.0694928169250488,
+    "initial_outages": [
+      8,
+      14
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 78,
+    "seed": 826825,
+    "chronic_index": 1916,
+    "load_scale": 0.9732741117477417,
+    "gen_scale": 1.0935994386672974,
+    "initial_outages": [
+      5,
+      7
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 79,
+    "seed": 885520,
+    "chronic_index": 936,
+    "load_scale": 1.1587892770767212,
+    "gen_scale": 0.9494021534919739,
+    "initial_outages": [
+      9,
+      10
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 80,
+    "seed": 660355,
+    "chronic_index": 147,
+    "load_scale": 1.1808416843414307,
+    "gen_scale": 0.98993980884552,
+    "initial_outages": [
+      12
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 81,
+    "seed": 245552,
+    "chronic_index": 540,
+    "load_scale": 0.882165253162384,
+    "gen_scale": 0.9850046038627625,
+    "initial_outages": [
+      9,
+      12
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 82,
+    "seed": 768516,
+    "chronic_index": 1369,
+    "load_scale": 0.8261246681213379,
+    "gen_scale": 0.883009135723114,
+    "initial_outages": [
+      3,
+      8
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 83,
+    "seed": 211674,
+    "chronic_index": 1791,
+    "load_scale": 1.034643530845642,
+    "gen_scale": 1.0572848320007324,
+    "initial_outages": [
+      9,
+      10
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 84,
+    "seed": 831274,
+    "chronic_index": 1757,
+    "load_scale": 0.9160411953926086,
+    "gen_scale": 1.016300916671753,
+    "initial_outages": [
+      3,
+      8
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 85,
+    "seed": 62717,
+    "chronic_index": 634,
+    "load_scale": 1.1852248907089233,
+    "gen_scale": 0.9764968752861023,
+    "initial_outages": [
+      0,
+      1
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 86,
+    "seed": 825487,
+    "chronic_index": 1556,
+    "load_scale": 1.0975837707519531,
+    "gen_scale": 1.1314808130264282,
+    "initial_outages": [
+      5
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 87,
+    "seed": 164507,
+    "chronic_index": 928,
+    "load_scale": 1.1199921369552612,
+    "gen_scale": 0.9869266152381897,
+    "initial_outages": [
+      3,
+      8
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 88,
+    "seed": 375146,
+    "chronic_index": 293,
+    "load_scale": 0.9671446681022644,
+    "gen_scale": 1.057191014289856,
+    "initial_outages": [
+      16,
+      19
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 89,
+    "seed": 316738,
+    "chronic_index": 1526,
+    "load_scale": 1.0717604160308838,
+    "gen_scale": 0.9082368016242981,
+    "initial_outages": [
+      2
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 90,
+    "seed": 691337,
+    "chronic_index": 63,
+    "load_scale": 1.1314500570297241,
+    "gen_scale": 0.9314979910850525,
+    "initial_outages": [
+      5,
+      6
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 91,
+    "seed": 178571,
+    "chronic_index": 1500,
+    "load_scale": 0.9992184042930603,
+    "gen_scale": 0.9177373647689819,
+    "initial_outages": [
+      2,
+      5
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 92,
+    "seed": 396256,
+    "chronic_index": 1129,
+    "load_scale": 0.8010395765304565,
+    "gen_scale": 0.9116357564926147,
+    "initial_outages": [
+      0
+    ],
+    "initial_outage_type": "N-1",
+    "initial_outage_order": 1,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 93,
+    "seed": 5824,
+    "chronic_index": 1010,
+    "load_scale": 1.116752028465271,
+    "gen_scale": 1.039270281791687,
+    "initial_outages": [
+      4,
+      6
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 94,
+    "seed": 262494,
+    "chronic_index": 1279,
+    "load_scale": 1.0555572509765625,
+    "gen_scale": 1.0370368957519531,
+    "initial_outages": [
+      9,
+      11
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 95,
+    "seed": 421188,
+    "chronic_index": 1117,
+    "load_scale": 0.8260026574134827,
+    "gen_scale": 0.9220001697540283,
+    "initial_outages": [
+      8,
+      16
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 96,
+    "seed": 105921,
+    "chronic_index": 1229,
+    "load_scale": 1.0890966653823853,
+    "gen_scale": 1.0384423732757568,
+    "initial_outages": [
+      16,
+      19
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 97,
+    "seed": 633159,
+    "chronic_index": 734,
+    "load_scale": 1.0734490156173706,
+    "gen_scale": 1.028533697128296,
+    "initial_outages": [
+      3,
+      8
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 98,
+    "seed": 380424,
+    "chronic_index": 1546,
+    "load_scale": 1.0572782754898071,
+    "gen_scale": 1.1166061162948608,
+    "initial_outages": [
+      5,
+      7
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  },
+  {
+    "scenario_id": 99,
+    "seed": 725293,
+    "chronic_index": 49,
+    "load_scale": 1.079019546508789,
+    "gen_scale": 0.9412317872047424,
+    "initial_outages": [
+      15,
+      17
+    ],
+    "initial_outage_type": "common_bus_N-2",
+    "initial_outage_order": 2,
+    "initial_outage_mode": "sampled",
+    "split": "val"
+  }
+]

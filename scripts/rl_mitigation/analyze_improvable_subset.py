@@ -14,8 +14,9 @@ def main():
     parser.add_argument("--split", default="test")
     parser.add_argument("--eval-dir", default="results/rl_mitigation/ieee14/eval")
     parser.add_argument("--summary-file", default="results/rl_mitigation/ieee14/action_value_scan/test_action_value_summary.json")
+    parser.add_argument("--eval-mode", choices=["deterministic", "stochastic"], default="deterministic")
     args = parser.parse_args()
-    rows = _load_eval_rows(ROOT / args.eval_dir, args.split)
+    rows = _load_eval_rows(ROOT / args.eval_dir, args.split, args.eval_mode)
     with open(ROOT / args.summary_file, encoding="utf-8") as f:
         action_summary = json.load(f)
     improvable = set(str(x) for x in action_summary.get("improvable_scenario_ids", []))
@@ -43,10 +44,12 @@ def main():
     print(f"Improvable subset analysis written to {out_dir}")
 
 
-def _load_eval_rows(eval_dir: Path, split: str) -> list[dict]:
+def _load_eval_rows(eval_dir: Path, split: str, eval_mode: str) -> list[dict]:
     rows = []
     for path in sorted(eval_dir.glob(f"{split}_eval_*.csv")):
         if "before_after" in path.name or "do_nothing_agent_oracle" in path.name:
+            continue
+        if any(mode in path.name for mode in ["deterministic", "stochastic"]) and eval_mode not in path.name:
             continue
         with open(path, newline="", encoding="utf-8") as f:
             rows.extend(csv.DictReader(f))

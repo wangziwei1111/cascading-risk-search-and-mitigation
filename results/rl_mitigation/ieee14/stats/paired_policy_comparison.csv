@@ -1,0 +1,17 @@
+policy_a,policy_b,metric,mean_diff,median_diff,bootstrap_ci_low,bootstrap_ci_high,improved_ratio,worse_ratio,tie_ratio,num_scenarios
+ppo_do_nothing_init,do_nothing,negative_return,0.004999999999999716,0.0,0.0009999999999999432,0.009024999999999464,0.0,0.05,0.95,100
+ppo_do_nothing_init,do_nothing,num_generations,0.0,0.0,0.0,0.0,0.0,0.0,1.0,100
+ppo_do_nothing_init,do_nothing,num_line_outages,0.05,0.0,0.01,0.09024999999999977,0.0,0.05,0.95,100
+ppo_do_nothing_init,do_nothing,load_shed_MW,0.0,0.0,0.0,0.0,0.0,0.0,1.0,100
+ppo_oracle_bc_init,do_nothing,negative_return,24.91485841195679,-2.8554466451491862,15.956965615317301,34.37585903553185,0.59,0.41,0.0,100
+ppo_oracle_bc_init,do_nothing,num_generations,-0.2,0.0,-0.28,-0.13,0.2,0.0,0.8,100
+ppo_oracle_bc_init,do_nothing,num_line_outages,-2.01,-2.0,-2.62025,-1.4,0.57,0.4,0.03,100
+ppo_oracle_bc_init,do_nothing,load_shed_MW,-15.426017086863517,0.0,-20.962144970060887,-10.289043175855278,0.42,0.0,0.58,100
+one_step_oracle,do_nothing,negative_return,-8.125141588043212,-2.8554466451491862,-13.269375458858162,-4.276841064288552,0.6,0.0,0.4,100
+one_step_oracle,do_nothing,num_generations,-0.2,0.0,-0.28,-0.13,0.2,0.0,0.8,100
+one_step_oracle,do_nothing,num_line_outages,-2.41,-2.0,-2.95,-1.87975,0.57,0.0,0.43,100
+one_step_oracle,do_nothing,load_shed_MW,-15.426017086863517,0.0,-20.962144970060887,-10.289043175855278,0.42,0.0,0.58,100
+ppo_oracle_bc_init,ppo_do_nothing_init,negative_return,24.90985841195679,-2.8554466451491862,15.948015615317306,34.37470903553186,0.59,0.37,0.04,100
+ppo_oracle_bc_init,ppo_do_nothing_init,num_generations,-0.2,0.0,-0.28,-0.13,0.2,0.0,0.8,100
+ppo_oracle_bc_init,ppo_do_nothing_init,num_line_outages,-2.06,-2.0,-2.67,-1.45,0.57,0.36,0.07,100
+ppo_oracle_bc_init,ppo_do_nothing_init,load_shed_MW,-15.426017086863517,0.0,-20.962144970060887,-10.289043175855278,0.42,0.0,0.58,100

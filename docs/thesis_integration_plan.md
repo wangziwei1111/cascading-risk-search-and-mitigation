@@ -31,3 +31,18 @@ risk identification -> risk mitigation
 ```
 
 The GCN module can prioritize dangerous scenarios for offline study and stress testing. The RL module can then learn a real-time intervention policy under those or broader cascade scenarios. The current repository keeps them separate so each contribution remains explainable in the thesis while still supporting later integration.
+## IEEE14 Learning-Ablation Integration
+
+For the thesis, report the IEEE14 results in three clearly separated layers:
+
+1. Main reproduction layer: PYPOWER IEEE14, MDP state/action definition, invalid-action mask, PPO training, and sampled N-1/common-bus N-2 contingencies.
+2. Diagnostic upper-bound layer: action value scan and one-step oracle. These support the statement that the environment has mitigation opportunity, not that a deployable RL policy has solved it.
+3. Enhanced-experiment layer: oracle BC initialization, training ablation, paired statistics, and improvable-subset analysis. These are diagnostic additions and should not be attributed to the original paper.
+
+Current split-level action scan results are suitable for the thesis methodology section:
+
+- train: `better_action_ratio=0.6333`, `mean_best_improvement=8.3791`
+- val: `better_action_ratio=0.5600`, `mean_best_improvement=8.2059`
+- test: `better_action_ratio=0.6000`, `mean_best_improvement=8.1251`
+
+The current smoke ablation should be described cautiously. It demonstrates the comparison workflow and shows that one-step oracle is beneficial, but it does not yet justify a blanket claim that PPO has learned a stable mitigation policy on the whole test split.

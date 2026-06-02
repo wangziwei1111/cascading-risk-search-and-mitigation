@@ -29,7 +29,7 @@ def main():
     parser.add_argument("--smoke", action="store_true")
     args = parser.parse_args()
     steps = min(args.train_steps, 2048) if args.smoke else args.train_steps
-    eval_episodes = min(args.eval_episodes, 50) if args.smoke else args.eval_episodes
+    eval_episodes = args.eval_episodes
     _ensure_inputs(args.config, eval_episodes)
     _run([sys.executable, "-m", "scripts.rl_mitigation.evaluate_policy", "--config", args.config, "--split", "test", "--episodes", str(eval_episodes), "--without-agent"])
     _run([sys.executable, "-m", "scripts.rl_mitigation.evaluate_oracle_policy", "--config", args.config, "--split", "test", "--episodes", str(eval_episodes)])

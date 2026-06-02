@@ -1,0 +1,25 @@
+{
+  "num_train_scenarios": 300,
+  "num_bc_samples": 185,
+  "num_samples": 185,
+  "min_improvement": 1.0,
+  "action_distribution": {
+    "14": 80,
+    "1": 36,
+    "8": 16,
+    "16": 2,
+    "2": 14,
+    "9": 1,
+    "5": 5,
+    "3": 7,
+    "7": 4,
+    "6": 11,
+    "10": 4,
+    "11": 2,
+    "4": 2,
+    "20": 1
+  },
+  "mean_train_improvement": 13.562533302734222,
+  "mean_prob_best_action_after_bc": 0.2627216577529907,
+  "mean_entropy_after_bc": 1.9363763332366943
+}

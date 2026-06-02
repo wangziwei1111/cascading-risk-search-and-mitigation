@@ -121,3 +121,20 @@ python -m scripts.rl_mitigation.diagnose_policy_actions --config configs/rl_miti
 ```
 
 2026-06-02 的 100 episode smoke 结果显示 `better_action_ratio=0.650`、`oracle_gap=6.0947`，说明当前 IEEE14 环境存在优于 do-nothing 的单步主动断线动作；`one_step_oracle` 只作为诊断上界，不能当作部署策略或论文原始结果复现。
+## IEEE14 学习机制对比实验
+
+新增 `train/val/test` 固定场景划分、split 版 action scan、oracle BC 初始化、三组 PPO 初始化消融、paired stats 和可改善子集分析。推荐烟雾复现实验命令：
+
+```bash
+python -m scripts.rl_mitigation.run_ieee14_learning_pipeline --config configs/rl_mitigation/ieee14_ppo.yaml --smoke --train-steps 2048 --eval-episodes 100
+```
+
+当前 100 个 test 场景结果显示：`better_action_ratio=0.600`，`mean_best_improvement=8.1251`。oracle BC 数据只来自 train split：300 个 train 场景中筛出 185 个 BC 样本，不能使用 test split 做 BC。
+
+结果边界：
+
+- 原论文机制复现主线：MDP 状态、do-nothing 动作、invalid action mask、PPO 训练、随机 N-1/N-2 初始故障、PYPOWER IEEE14 小系统。
+- 诊断上界：action value scan、one-step oracle。
+- 增强实验：oracle BC 初始化、可改善子集分析、training ablation。
+
+不要把 oracle BC 说成原论文方法；它只用于回答“训练机制是否能学到 oracle 暗示的缓解动作”。

@@ -294,3 +294,29 @@ python -m scripts.rl_mitigation.evaluate_policy --case ieee14 --episodes 100 --w
 - `fig_policy_action_probability.png/pdf/csv`
 
 这些诊断图同样不能声称数值完全复现论文 Figure 7/8，只能用于 IEEE14 小系统机制复现、训练诊断和毕业论文实验可信度说明。
+## IEEE14 学习机制对比实验补充
+
+本轮新增 train/val/test 固定场景划分：
+
+```text
+results/rl_mitigation/ieee14/scenarios/train_scenarios_seed0_episodes300.json
+results/rl_mitigation/ieee14/scenarios/val_scenarios_seed1_episodes100.json
+results/rl_mitigation/ieee14/scenarios/test_scenarios_seed2_episodes100.json
+```
+
+oracle BC 只能使用 train split；调参应看 val split；最终论文主结果只报告 test split。split action scan 的当前结果为：
+
+- train: `better_action_ratio=0.6333`, `mean_best_improvement=8.3791`
+- val: `better_action_ratio=0.5600`, `mean_best_improvement=8.2059`
+- test: `better_action_ratio=0.6000`, `mean_best_improvement=8.1251`
+
+训练机制对比入口：
+
+```bash
+python -m scripts.rl_mitigation.run_ieee14_training_ablation --config configs/rl_mitigation/ieee14_ppo.yaml --smoke --train-steps 2048 --eval-episodes 100
+python -m scripts.rl_mitigation.compute_ieee14_paired_stats --eval-mode deterministic
+python -m scripts.rl_mitigation.analyze_improvable_subset --eval-mode deterministic
+python -m scripts.rl_mitigation.run_ieee14_learning_pipeline --config configs/rl_mitigation/ieee14_ppo.yaml --smoke --train-steps 2048 --eval-episodes 100
+```
+
+必须区分三类结果：原论文机制复现主线包括 MDP、action mask、PPO、随机 N-1/N-2、PYPOWER IEEE14；诊断上界包括 action value scan 和 one-step oracle；增强实验包括 oracle BC 初始化、可改善子集分析和 training ablation。oracle BC 不是原论文方法。

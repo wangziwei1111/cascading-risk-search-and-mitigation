@@ -21,9 +21,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--eval-dir", default="results/rl_mitigation/ieee14/eval")
     parser.add_argument("--split", default="test")
+    parser.add_argument("--eval-mode", choices=["deterministic", "stochastic"], default="deterministic")
     args = parser.parse_args()
     eval_dir = ROOT / args.eval_dir
-    rows = _load_eval_rows(eval_dir, args.split)
+    rows = _load_eval_rows(eval_dir, args.split, args.eval_mode)
     stats = []
     policies = {row["policy"] for row in rows}
     for policy_a, policy_b in DEFAULT_COMPARISONS:
@@ -39,10 +40,12 @@ def main():
     print(f"Paired stats written to {csv_path}")
 
 
-def _load_eval_rows(eval_dir: Path, split: str) -> list[dict]:
+def _load_eval_rows(eval_dir: Path, split: str, eval_mode: str) -> list[dict]:
     rows = []
     for path in sorted(eval_dir.glob(f"{split}_eval_*.csv")):
         if "before_after" in path.name or "do_nothing_agent_oracle" in path.name:
+            continue
+        if any(mode in path.name for mode in ["deterministic", "stochastic"]) and eval_mode not in path.name:
             continue
         with open(path, newline="", encoding="utf-8") as f:
             rows.extend(csv.DictReader(f))

@@ -57,3 +57,14 @@ IEEE14 AC 潮流环境下的 PPO 实时缓解复现实验
 完全复现论文 Figure 7/8 数值结果
 完全复现论文原始 grid2op 环境
 ```
+## 2026-06-02 Learning-Ablation Boundary
+
+The new IEEE14 learning-ablation pipeline separates three categories of evidence:
+
+- Paper-mechanism reproduction: MDP state/action design, invalid-action masking, PPO training, sampled N-1/common-bus N-2 contingencies, and PYPOWER IEEE14.
+- Diagnostic upper bounds: exhaustive initial action value scans and one-step oracle policy.
+- Enhanced experiments beyond the paper: oracle behavior-cloning initialization, improvable-subset analysis, and training initialization ablations.
+
+Oracle BC must not be described as part of the original paper method. It uses train-split action-scan labels only and is included to diagnose whether PPO fine-tuning can exploit mitigation actions that the one-step oracle reveals.
+
+Current split-level action scans show mitigation opportunity on the held-out test split (`better_action_ratio=0.600`, `mean_best_improvement=8.1251`), but smoke PPO variants do not yet support a broad claim of stable RL mitigation on all test scenarios without paired-stat evidence.

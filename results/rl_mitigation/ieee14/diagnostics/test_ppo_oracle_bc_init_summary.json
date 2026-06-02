@@ -1,0 +1,12 @@
+{
+  "mean_prob_do_nothing": 0.017212941572070123,
+  "median_prob_do_nothing": 0.01597645692527294,
+  "mean_entropy": 2.2948613500595094,
+  "argmax_do_nothing_ratio": 0.0,
+  "nonzero_action_argmax_ratio": 1.0,
+  "top_nonzero_actions_frequency": {
+    "14": 94,
+    "1": 4,
+    "8": 2
+  }
+}
