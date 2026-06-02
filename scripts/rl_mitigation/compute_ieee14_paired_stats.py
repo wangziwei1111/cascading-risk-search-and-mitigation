@@ -11,8 +11,13 @@ from rl_mitigation.evaluation.paired_stats import paired_metric_stats
 DEFAULT_COMPARISONS = [
     ("ppo_do_nothing_init", "do_nothing"),
     ("ppo_oracle_bc_init", "do_nothing"),
+    ("oracle_bc_positive_only", "do_nothing"),
+    ("oracle_bc_full", "do_nothing"),
+    ("safe_oracle_bc_full", "do_nothing"),
     ("one_step_oracle", "do_nothing"),
     ("ppo_oracle_bc_init", "ppo_do_nothing_init"),
+    ("safe_oracle_bc_full", "oracle_bc_full"),
+    ("oracle_bc_full", "oracle_bc_positive_only"),
 ]
 DEFAULT_METRICS = ["negative_return", "num_generations", "num_line_outages", "load_shed_MW"]
 

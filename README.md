@@ -138,3 +138,24 @@ python -m scripts.rl_mitigation.run_ieee14_learning_pipeline --config configs/rl
 - 增强实验：oracle BC 初始化、可改善子集分析、training ablation。
 
 不要把 oracle BC 说成原论文方法；它只用于回答“训练机制是否能学到 oracle 暗示的缓解动作”。
+
+## Safe Oracle-BC Full 诊断
+
+新增 `oracle_bc_full` 和 `safe_oracle_bc_full`：
+
+- `oracle_bc_full` 对 train split 全部 scenario 生成标签：可改善场景学 best action，不可改善场景学 do-nothing。
+- `oracle_bc_positive_only` 保留为消融反例，它缺少 do-nothing 负样本，容易盲目主动断线。
+- `safe_oracle_bc_full` 使用 val split 调出的概率门控，只在主动动作概率和 margin 达标时执行非零动作。
+
+入口：
+
+```bash
+python -m scripts.rl_mitigation.run_ieee14_safe_bc_pipeline --config configs/rl_mitigation/ieee14_ppo.yaml --eval-episodes 100
+```
+
+报告：
+
+```text
+results/rl_mitigation/ieee14/reports/ieee14_safe_bc_pipeline_report.md
+results/rl_mitigation/ieee14/tables/table_policy_multi_metric_test_summary.csv
+```

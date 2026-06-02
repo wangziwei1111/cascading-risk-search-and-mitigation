@@ -79,7 +79,9 @@ def _write_report(args, episodes):
     positive = _read_json(base / "pretrain" / "oracle_bc_positive_only_diagnostics.json")
     selected = _read_json(base / "ablation" / "safe_policy_threshold_selected.json")
     multi = _read_csv(base / "tables" / "table_policy_multi_metric_test_summary.csv")
+    paired = _read_csv(base / "stats" / "paired_policy_comparison.csv")
     safe = next((row for row in multi if row["policy"] == "safe_oracle_bc_full"), {})
+    safe_pair = next((row for row in paired if row["policy_a"] == "safe_oracle_bc_full" and row["policy_b"] == "do_nothing" and row["metric"] == "negative_return"), {})
     lines = [
         "# IEEE14 Safe Oracle-BC Pipeline Report",
         "",
@@ -88,6 +90,7 @@ def _write_report(args, episodes):
         f"2. full oracle BC 是否降低 non-improvable 误动作：full dataset 包含 {full.get('num_non_improvable')} 个 do-nothing 标签，mean_prob_do_nothing_on_non_improvable={full.get('mean_prob_do_nothing_on_non_improvable', 0.0):.4f}。",
         f"3. safe gate 是否进一步降低误动作：val 选择 active_prob_threshold={selected.get('active_prob_threshold')}, margin_threshold={selected.get('margin_threshold')}。",
         f"4. safe_oracle_bc_full test mean_negative_return={float(safe.get('mean_negative_return', 0.0)):.4f}, pf_failed_ratio={float(safe.get('pf_failed_ratio', 0.0)):.4f}。",
+        f"   paired negative_return direction={safe_pair.get('direction', 'n/a')}, mean_diff={float(safe_pair.get('mean_diff', 0.0)):.4f}, CI=[{float(safe_pair.get('bootstrap_ci_low', 0.0)):.4f}, {float(safe_pair.get('bootstrap_ci_high', 0.0)):.4f}]。",
         "5. 改善是否集中在 improvable/high-risk 子集：见 analysis/improvable_subset_summary.csv。",
         "6. 这不属于原论文方法；属于 oracle 辅助初始化和安全门控诊断增强。",
         "7. 毕业论文应表述为增强实验，不应声称原论文 PPO 已稳定学到缓解策略。",

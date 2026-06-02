@@ -46,3 +46,13 @@ Current split-level action scan results are suitable for the thesis methodology 
 - test: `better_action_ratio=0.6000`, `mean_best_improvement=8.1251`
 
 The current smoke ablation should be described cautiously. It demonstrates the comparison workflow and shows that one-step oracle is beneficial, but it does not yet justify a blanket claim that PPO has learned a stable mitigation policy on the whole test split.
+
+## Safe Oracle-BC Wording
+
+Use the following three-layer wording:
+
+1. Paper-mechanism reproduction: the implementation covers MDP state, full action space, do-nothing, action mask, PPO, N-1/N-2 initial contingencies, and a PYPOWER IEEE14 cascade environment. Plain PPO is not yet stably better than do-nothing on the held-out test split.
+2. Diagnostic upper bound: action value scan and one-step oracle show that active line opening has mitigation potential in the environment.
+3. Enhanced experiments: oracle_bc_full and safe gate are diagnostic additions. If they improve selected metrics or subsets, write that oracle-assisted initialization and safety gating reveal mitigation potential under enhanced supervision; do not describe them as the original paper method.
+
+The thesis should avoid the claim “PPO significantly mitigates cascade risk” unless paired test-split statistics support it. A safer claim is: “The IEEE14 environment contains actionable mitigation opportunities, while plain PPO remains difficult to train; oracle-assisted and safe-gated diagnostics help identify where mitigation is possible.”

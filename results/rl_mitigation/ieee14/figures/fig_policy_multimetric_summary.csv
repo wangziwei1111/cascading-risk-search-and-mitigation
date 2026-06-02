@@ -1,0 +1,9 @@
+policy,split,eval_mode,episodes,mean_negative_return,p95_negative_return,pf_failed_ratio,mean_num_generations,mean_num_line_outages,mean_load_shed_MW,mean_load_shed_ratio,mean_num_proactive_actions,improved_ratio_negative_return,worse_ratio_negative_return,improved_ratio_line_outages,improved_ratio_load_shed
+do_nothing,test,deterministic,100,75.18514158804321,109.17012452317752,0.72,1.2,4.7,15.783319732427596,0.06093945842636138,0.0,0,0,0,0
+one_step_oracle,test,deterministic,100,67.06,100.1,0.67,1.0,2.29,0.3573026455640793,0.0013795468940698042,0.6,0.6,0,0.57,0.42
+oracle_bc_full,test,deterministic,100,73.61977943607849,105.97181348834211,0.72,1.19,3.39,2.766959857940674,0.010683242694751637,0.28,0.28,0,0.27,0.25
+oracle_bc_positive_only,test,deterministic,100,100.1,100.1,1,1.0,2.69,0.3573026455640793,0.0013795468940698042,1.0,0.59,0.41,0.57,0.42
+ppo_do_nothing_init,test,deterministic,100,75.1901415880432,109.17012452317752,0.72,1.2,4.75,15.783319732427596,0.06093945842636138,0.05,0,0.05,0,0
+ppo_oracle_bc_init,test,deterministic,100,100.1,100.1,1,1.0,2.69,0.3573026455640793,0.0013795468940698042,1.0,0.59,0.41,0.57,0.42
+ppo_random_init,test,deterministic,100,78.36826868901316,107.23333013528463,0.76,1.14,4.95,12.669115628659725,0.04891550435775956,1.14,0.27,0.73,0.18,0.22
+safe_oracle_bc_full,test,deterministic,100,74.29057815113192,107.8533384354516,0.72,1.2,3.92,6.250983098089695,0.024135069876794188,0.13,0.13,0,0.13,0.13

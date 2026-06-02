@@ -1,0 +1,7 @@
+{
+  "active_prob_threshold": 0.2,
+  "margin_threshold": 0.05,
+  "mean_negative_return": 77.19004113269008,
+  "mean_num_proactive_actions": 0.16,
+  "worse_scenario_ratio_vs_do_nothing": 0.0
+}

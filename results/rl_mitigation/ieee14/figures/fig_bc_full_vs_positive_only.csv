@@ -1,0 +1,5 @@
+policy,subset,episodes,mean_negative_return,mean_improvement_vs_do_nothing,improved_ratio_vs_do_nothing,mean_num_generations,mean_num_line_outages,mean_load_shed_MW,mean_num_proactive_actions
+oracle_bc_full,improvable,60,101.03296572679749,2.608936919941201,0.4666666666666667,1.3166666666666667,4.583333333333333,4.016095353960991,0.4666666666666667
+oracle_bc_positive_only,improvable,60,100.1,3.541902646738686,0.9833333333333333,1.0,2.75,0.0,1.0
+oracle_bc_full,non_improvable,40,32.5,0.0,0,1.0,1.6,0.8932566139101983,0.0
+oracle_bc_positive_only,non_improvable,40,100.1,-67.6,0,1.0,2.6,0.8932566139101983,1.0

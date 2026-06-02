@@ -1,7 +1,7 @@
 {
   "episodes": 100,
   "policies": [
-    "ppo_oracle_bc_init"
+    "ppo_do_nothing_init"
   ],
-  "mean_negative_return": 96.53968385817112
+  "mean_negative_return": 90.78153285368542
 }

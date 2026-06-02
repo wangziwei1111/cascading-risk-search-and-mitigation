@@ -320,3 +320,21 @@ python -m scripts.rl_mitigation.run_ieee14_learning_pipeline --config configs/rl
 ```
 
 必须区分三类结果：原论文机制复现主线包括 MDP、action mask、PPO、随机 N-1/N-2、PYPOWER IEEE14；诊断上界包括 action value scan 和 one-step oracle；增强实验包括 oracle BC 初始化、可改善子集分析和 training ablation。oracle BC 不是原论文方法。
+
+## Safe Oracle-BC Full 诊断增强
+
+positive-only oracle BC 只保留 `best_improvement >= min_improvement` 的主动动作样本，会让模型缺少“不可改善场景应该 do-nothing”的负样本，因此容易在 non-improvable 场景盲目主动断线。当前默认改为 `oracle_bc_full`：
+
+- train split 每个 scenario 都进入 BC 数据集；
+- 可改善场景标注 best action；
+- 不可改善或改善低于阈值的场景标注 `action=0`；
+- positive-only 版本保留为 `oracle_bc_positive_only`，仅用于消融和反例说明。
+
+safe gate 只在非零动作概率超过阈值、且相对 do-nothing 有足够 margin 时执行主动动作。阈值只允许在 val split 上调参，test split 只用于最终报告。当前 safe pipeline 输出见：
+
+```text
+results/rl_mitigation/ieee14/reports/ieee14_safe_bc_pipeline_report.md
+results/rl_mitigation/ieee14/tables/table_policy_multi_metric_test_summary.csv
+```
+
+论文表述应写为：普通 PPO 尚未在 test split 上稳定优于 do-nothing；action scan 和 one-step oracle 证明任务存在可缓解空间；oracle_bc_full 与 safe gate 是诊断增强实验，不属于原论文方法。
