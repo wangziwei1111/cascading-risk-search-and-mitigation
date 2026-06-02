@@ -11,6 +11,7 @@
 ## 潮流与环境差异
 
 - 当前正式后端为 PYPOWER/MATPOWER `case14` 的 AC 潮流。
+- IEEE14 环境元数据也已统一为 PYPOWER `case14` 来源。
 - 论文环境可能基于 grid2op 或其内部系统参数；PYPOWER case14 的 generator、branch rating、负荷分布、保护逻辑可能不完全一致。
 - PYPOWER `case14` 原始 branch `rateA` 很大。当前使用 `scaled_from_base_flow` 做容量校准，使 IEEE14 小系统中能观察到过载和级联传播。
 - `scaled_from_base_flow` 是文档化的小系统压力校准，不是论文原始容量参数。

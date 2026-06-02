@@ -20,6 +20,8 @@ The RL module solves:
 How should we intervene after the danger starts?
 ```
 
+当前 IEEE14 RL 实验已形成独立最小流水线：容量校准、do-nothing 预训练、PPO-clip smoke 训练、同场景 before/after 评估、高风险场景清单、Figure 7/8 图表和论文表格导出。下一阶段才考虑把 GCN 搜索出的高风险故障路径输入 RL 模块做联合评估。
+
 ## Combined Framework
 
 The two modules jointly form:

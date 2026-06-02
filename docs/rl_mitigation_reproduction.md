@@ -48,7 +48,9 @@ generation 0 初始故障不计 reward；潮流不收敛时 episode 终止，并
 backend: pypower_ac
 ```
 
-`PypowerACBackend` 使用 PYPOWER/MATPOWER `case14`：
+IEEE14 系统参数统一来自 PYPOWER/MATPOWER `case14`。`make_ieee14_case()` 默认从 `pypower.case14()` 自动抽取 bus、branch、load、generator 和原始 branch rateA，避免环境元数据与 AC 潮流后端不一致。
+
+`PypowerACBackend` 使用相同的 PYPOWER/MATPOWER `case14`：
 
 - 14 个 bus。
 - 20 条 branch。
@@ -127,6 +129,8 @@ initial_outages:
 - GAE，默认 `gae_lambda=0.95`。
 - checkpoint 保存到 `results/rl_mitigation/ieee14/checkpoints/`。
 - CSV 日志保存到 `results/rl_mitigation/ieee14/train_logs/ppo_clip_train.csv`。
+- rollout 因 `n_steps` 截断但 episode 未结束时，GAE 使用 critic 的 `last_value` 进行 bootstrap。
+- 训练日志记录 `mask_enabled`、`mean_valid_action_count` 和 `sampled_invalid_action_count`。
 
 ## do-nothing PyTorch 预训练
 
@@ -181,6 +185,24 @@ results/rl_mitigation/ieee14/eval/eval_scenarios_seed0_episodes100.json
 
 ```bash
 python -m scripts.rl_mitigation.make_figures --case ieee14
+```
+
+最小实验流水线：
+
+```bash
+python -m scripts.rl_mitigation.run_ieee14_minimal_pipeline --config configs/rl_mitigation/ieee14_ppo.yaml --episodes 100 --smoke-steps 2048
+```
+
+论文表格导出：
+
+```bash
+python -m scripts.rl_mitigation.export_ieee14_thesis_tables
+```
+
+结果完整性检查：
+
+```bash
+python -m scripts.rl_mitigation.check_ieee14_results_integrity
 ```
 
 ## Figure 对应关系
