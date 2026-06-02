@@ -12,6 +12,7 @@ ROOT = add_src_to_path()
 from rl_mitigation.cases import make_ieee14_case
 from rl_mitigation.envs import CascadeMitigationEnv
 from rl_mitigation.evaluation.evaluate_agent import run_policy, save_eval_csv
+from rl_mitigation.evaluation.scenarios import generate_eval_scenarios, save_scenarios
 from rl_mitigation.rl.ppo_clip import load_checkpoint
 from rl_mitigation.rl.torch_networks import TorchActorCritic
 
@@ -40,11 +41,14 @@ def main():
     policy_path = ROOT / "results" / "rl_mitigation" / "ieee14" / "checkpoints" / "latest.pt"
     if policy_path.exists():
         model = load_checkpoint(str(policy_path))
+    scenario_path = ROOT / "results" / "rl_mitigation" / "ieee14" / "eval" / f"eval_scenarios_seed{cfg.get('seed', 0)}_episodes{episodes}.json"
+    scenarios = generate_eval_scenarios(env, episodes=episodes, seed=cfg.get("seed", 0))
+    save_scenarios(scenarios, str(scenario_path))
     rows = []
     if args.with_agent or not args.without_agent:
-        rows.extend(run_policy(env, episodes=episodes, model=model, with_agent=True))
+        rows.extend(run_policy(env, episodes=episodes, model=model, with_agent=True, scenarios=scenarios))
     if args.without_agent or not args.with_agent:
-        rows.extend(run_policy(env, episodes=episodes, model=model, with_agent=False))
+        rows.extend(run_policy(env, episodes=episodes, model=model, with_agent=False, scenarios=scenarios))
     out_dir = ROOT / "results" / "rl_mitigation" / "ieee14" / "eval"
     out = out_dir / ("eval_10_smoke.csv" if args.smoke else f"eval_before_after_{episodes}.csv")
     save_eval_csv(rows, str(out))

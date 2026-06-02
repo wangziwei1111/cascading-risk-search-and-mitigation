@@ -9,11 +9,13 @@ from .metrics import summarize_episode
 from ..rl.torch_networks import torch
 
 
-def run_policy(env, episodes: int = 10, model=None, with_agent: bool = False, seed: int = 0):
+def run_policy(env, episodes: int = 10, model=None, with_agent: bool = False, seed: int = 0, scenarios: list[dict] | None = None):
     rows = []
     rng = np.random.default_rng(seed)
-    for ep in range(episodes):
-        obs, info = env.reset(seed=int(rng.integers(0, 1_000_000)))
+    scenario_list = scenarios if scenarios is not None else [None] * episodes
+    for ep, scenario in enumerate(scenario_list[:episodes]):
+        reset_seed = int(scenario.get("seed", rng.integers(0, 1_000_000))) if scenario else int(rng.integers(0, 1_000_000))
+        obs, info = env.reset(seed=reset_seed, options={"scenario": scenario} if scenario else None)
         total = 0.0
         done = False
         last_info = info
@@ -34,6 +36,7 @@ def run_policy(env, episodes: int = 10, model=None, with_agent: bool = False, se
             total += float(reward)
         row = summarize_episode(total, last_info)
         row["episode"] = ep
+        row["scenario_id"] = scenario.get("scenario_id", ep) if scenario else ep
         row["policy"] = "agent" if with_agent else "do_nothing"
         rows.append(row)
     return rows

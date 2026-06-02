@@ -2,14 +2,15 @@ from __future__ import annotations
 
 import argparse
 import csv
+from pathlib import Path
 
 from ._bootstrap import add_src_to_path
 
 ROOT = add_src_to_path()
 
-from rl_mitigation.evaluation.survival import survival_curve
+from rl_mitigation.evaluation.survival import survival_by_policy
 from rl_mitigation.plotting.plot_learning_curves import plot_learning_curve
-from rl_mitigation.plotting.plot_survival import plot_survival
+from rl_mitigation.plotting.plot_survival import plot_survival_by_policy
 
 
 def main():
@@ -27,19 +28,21 @@ def main():
     )
     _copy_learning_data(train_csv, figures / "fig_ieee14_learning_curve_smoke.csv")
 
-    values = []
     eval_csv = base / "eval" / "eval_before_after_100.csv"
     if not eval_csv.exists():
         eval_csv = base / "eval" / "eval_10_smoke.csv"
+    if not (base / "checkpoints" / "latest.pt").exists():
+        print("Warning: PPO checkpoint not found; survival plot may compare an untrained agent.")
+    rows = []
     if eval_csv.exists():
         with open(eval_csv, newline="", encoding="utf-8") as f:
-            values = [float(row["negative_return"]) for row in csv.DictReader(f)]
-    plot_survival(
-        values or [0.0],
+            rows = list(csv.DictReader(f))
+    plot_survival_by_policy(
+        rows,
         str(figures / "fig_ieee14_survival_negative_return_100.png"),
         str(figures / "fig_ieee14_survival_negative_return_100.pdf"),
     )
-    _write_survival_data(values or [0.0], figures / "fig_ieee14_survival_negative_return_100.csv")
+    _write_survival_data(rows, figures / "fig_ieee14_survival_negative_return_100.csv")
     print(f"Figures written to {figures}")
 
 
@@ -59,13 +62,12 @@ def _copy_learning_data(src, dst):
             })
 
 
-def _write_survival_data(values, dst):
-    xs, ys = survival_curve(values)
+def _write_survival_data(rows, dst):
+    survival_rows = survival_by_policy(rows)
     with open(dst, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["negative_return", "survival_probability"])
+        writer = csv.DictWriter(f, fieldnames=["policy", "negative_return", "survival_probability"])
         writer.writeheader()
-        for x, y in zip(xs, ys):
-            writer.writerow({"negative_return": float(x), "survival_probability": float(y)})
+        writer.writerows(survival_rows)
 
 
 if __name__ == "__main__":
