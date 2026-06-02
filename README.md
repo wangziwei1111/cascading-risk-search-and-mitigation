@@ -1,92 +1,76 @@
 # Cascading Risk Search and Mitigation
 
-This repository is an independent reproduction workspace for a thesis project on power-system cascading failure risk identification and real-time mitigation.
-
-## Scope
-
-The project contains two connected but non-substitutable modules:
-
-- `src/gcn_search`: identifies which N-k cascading outage paths are dangerous.
-- `src/rl_mitigation`: decides how to intervene after a cascade starts, using do-nothing or one proactive line trip per generation.
-
-Together they form a risk identification to risk mitigation defense workflow.
-
-## Repository Status
-
-`git` and `gh` were not available in the current Codex environment, so this directory has been created locally without a remote. To publish later:
-
-```bash
-git init
-git add .
-git commit -m "Initialize cascading risk search and mitigation reproduction"
-gh repo create cascading-risk-search-and-mitigation --private --source . --push
-```
-
-## Layout
+公开仓库地址：
 
 ```text
-configs/              Experiment configuration
-docs/                 Reproduction notes and thesis integration docs
-scripts/              Command-line entry points
-src/gcn_search/       Migrated GCN critical path search work
-src/rl_mitigation/    RL cascade mitigation implementation
-tests/rl_mitigation/  Unit and smoke tests
-results/              Reproduction outputs
+https://github.com/wangziwei1111/cascading-risk-search-and-mitigation
 ```
 
-## GCN Search Module
+本仓库用于硕士毕业设计中的“电力系统连锁故障风险识别与实时缓解”代码复现和后续整合。
 
-Migrated RTS79/GCN reproduction scripts are preserved under:
+## 模块关系
 
-```text
-src/gcn_search/legacy_rts79/
+- `src/gcn_search/`：GCN 关键连锁故障路径搜索模块，回答“哪些故障路径危险”。
+- `src/rl_mitigation/`：RL 实时级联故障缓解模块，回答“故障开始传播后如何实时干预”。
+
+二者不是替代关系，而是“风险识别 -> 风险缓解”的前后衔接关系。本轮开发只升级 `src/rl_mitigation/`，不做 IEEE118，也不做 GCN-RL 闭环。
+
+## RL 模块当前状态
+
+IEEE14 小系统实验默认使用：
+
+```yaml
+backend: pypower_ac
 ```
 
-Available wrapper commands:
+`pypower_ac` 后端基于 PYPOWER/MATPOWER `case14` 做 AC 潮流，动作空间对应 20 条 branch：`A=0` 为 do-nothing，`A=i` 为主动断开第 `i` 条 branch。
+
+`surrogate` 后端仍保留，但只用于 debug：
+
+```yaml
+backend: surrogate
+```
+
+正式 IEEE14 小系统复现实验不应默认使用 surrogate。
+
+## 关键命令
 
 ```bash
-python -m scripts.gcn_search.train_gcn
-python -m scripts.gcn_search.evaluate_search
-python -m scripts.gcn_search.make_figures
-```
-
-Existing GCN reports and copied result assets are under `docs/` and `results/gcn_search/`.
-
-## RL Mitigation Module
-
-The RL module implements the paper-facing MDP skeleton:
-
-- State: `S_t = [l_1, ..., l_n, rho_1, ..., rho_n]`.
-- Action: `0` for do-nothing, `i` for proactively opening line `i`.
-- Reward: includes cascade continuation, power-flow failure, proactive action penalty, new line outages, and load shedding.
-- Invalid action mask: do-nothing is always valid; already opened lines are invalid.
-- Cascade environment: Gymnasium-style `reset`, `step`, `get_action_mask`, and `render_cascade`.
-
-Required commands:
-
-```bash
-python -m scripts.rl_mitigation.run_ieee5_dp --config configs/rl_mitigation/ieee5_dp.yaml
 python -m scripts.rl_mitigation.pretrain_do_nothing --case ieee14 --config configs/rl_mitigation/ieee14_ppo.yaml
-python -m scripts.rl_mitigation.train_ppo --case ieee14 --config configs/rl_mitigation/ieee14_ppo.yaml
-python -m scripts.rl_mitigation.train_gridsearch_ieee14 --config configs/rl_mitigation/ieee14_gridsearch.yaml
-python -m scripts.rl_mitigation.evaluate_policy --case ieee14 --episodes 1000 --with-agent --without-agent
-python -m scripts.rl_mitigation.make_figures --case ieee14
-```
-
-Quick smoke commands:
-
-```bash
 python -m scripts.rl_mitigation.train_ppo --case ieee14 --config configs/rl_mitigation/ieee14_ppo.yaml --smoke --steps 2048
-python -m scripts.rl_mitigation.evaluate_policy --case ieee14 --episodes 10 --smoke
+python -m scripts.rl_mitigation.train_ppo --case ieee14 --config configs/rl_mitigation/ieee14_ppo.yaml
+python -m scripts.rl_mitigation.evaluate_policy --case ieee14 --episodes 100 --with-agent --without-agent
+python -m scripts.rl_mitigation.make_figures --case ieee14
 pytest tests/rl_mitigation -q
 ```
 
-## Thesis Figure Name Suggestions
+## 主要输出
 
-- Figure 7 reproduction: `IEEE14 PPO训练回报曲线`
-- Figure 8 reproduction: `IEEE14负回报生存函数对比`
-- IEEE5 DP figures: `IEEE5无缓解级联传播示意图`, `IEEE5主动缓解级联传播示意图`
+```text
+results/rl_mitigation/ieee14/pretrain/
+  states_actions.npz
+  policy_pretrained_torch.pt
 
-## Reproducibility Note
+results/rl_mitigation/ieee14/train_logs/
+  ppo_clip_train.csv
 
-The current IEEE14 implementation is a runnable surrogate reproduction framework. It does not claim exact numerical reproduction of the paper because the paper's original chronics, random seeds, and full AC-islanding implementation are not available in this workspace. Differences are tracked in `docs/rl_mitigation_reproducibility_gaps.md`.
+results/rl_mitigation/ieee14/checkpoints/
+  latest.pt
+  best.pt
+
+results/rl_mitigation/ieee14/eval/
+  eval_before_after_100.csv
+  metrics_summary_100.json
+
+results/rl_mitigation/ieee14/figures/
+  fig_ieee14_learning_curve_smoke.png/pdf/csv
+  fig_ieee14_survival_negative_return_100.png/pdf/csv
+```
+
+## 论文写作边界
+
+当前版本可称为“IEEE14 小系统方法机制复现”或“IEEE14 小系统复现实验框架”。由于论文原始 chronics、随机种子和 grid2op 环境细节不可得，不应声称数值完全复现论文 Figure 7/8。差异记录见：
+
+```text
+docs/rl_mitigation_reproducibility_gaps.md
+```

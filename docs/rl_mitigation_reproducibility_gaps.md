@@ -1,27 +1,50 @@
-# RL Mitigation Reproducibility Gaps
+# RL 缓解模块复现差异记录
 
-The current implementation is a runnable reproduction framework, not an exact numerical reproduction.
+当前版本已经从 debug/surrogate 框架升级为 IEEE14 小系统 AC 潮流 + PPO-clip 复现框架，但仍不能声称完全数值复现论文。
 
-## Data Gaps
+## 数据差异
 
-- The original paper's IEEE14 one-week 5-minute generation and load chronics are not available in this workspace.
-- The repository uses deterministic surrogate chronics with daily load variation, weekly variation, and wind variability.
+- 论文原始 IEEE14 一周 5 分钟发电/负荷 chronics 当前不可得。
+- 本仓库使用 surrogate chronics，包含日内负荷波动、周尺度波动和风电波动。
+- 因 chronics 不一致，训练回报曲线和负回报生存函数不能与论文 Figure 7/8 做逐点数值对齐。
 
-## Power-Flow Gaps
+## 潮流与环境差异
 
-- The environment currently uses `SurrogatePowerFlowBackend`, a deterministic debug backend that redistributes outage stress to connected lines.
-- A production reproduction should add a pandapower or pypower AC backend with explicit islanding and generator-load balancing.
+- 当前正式后端为 PYPOWER/MATPOWER `case14` 的 AC 潮流。
+- 论文环境可能基于 grid2op 或其内部系统参数；PYPOWER case14 的 generator、branch rating、负荷分布、保护逻辑可能不完全一致。
+- PYPOWER `case14` 原始 branch `rateA` 很大，若后续需要产生更丰富的过载传播，应在文档化前提下做容量缩放实验。
+- 某些随机断线组合会使 AC 潮流矩阵奇异；环境将其视为 `pf_failed=True`，并触发论文奖励中的潮流失败惩罚。
 
-## IEEE5 Gaps
+## 孤岛处理差异
 
-- The IEEE5 case is a mechanism reproduction with 5 buses, 2 generators, 3 loads, and 8 lines.
-- It should not be described as exact paper-parameter reproduction unless the paper's full parameters are imported.
+- 当前已实现连通分量识别和发电/负荷平衡。
+- 负荷切除和发电下调采用比例规则。
+- 若论文原环境有更细粒度的机组爬坡、无功约束或保护动作，本仓库当前未完全覆盖。
 
-## PPO Gaps
+## PPO 差异
 
-- The current PPO trainer is a smoke-capable actor-critic/PPO-style implementation for proving wiring, logs, masking, and artifacts.
-- For final paper-level experiments, replace or extend it with full clipped PPO batching and long-run training across all chronics and sampled contingencies.
+- 当前已实现 PyTorch PPO-clip、GAE、action mask、value clipping、entropy regularization 和 checkpoint。
+- 正式 60000 步训练脚本已提供，但本轮 Codex 验证主要跑 smoke 训练。
+- 论文的随机种子、采样初始状态集合和完整 chronics 不可得，因此不能声称训练曲线数值完全一致。
 
-## Claims Boundary
+## surrogate 后端说明
 
-Do not claim exact reproduction of the paper's numeric figures until the original data, AC backend, random seeds, and environment settings are matched.
+- `SurrogatePowerFlowBackend` 仍保留，仅用于 debug。
+- IEEE14 正式小系统复现实验默认后端为 `pypower_ac`。
+- 不应把 surrogate 结果写成论文正式复现实验结果。
+
+## 可接受表述
+
+可以表述为：
+
+```text
+IEEE14 小系统方法机制复现
+IEEE14 AC 潮流环境下的 PPO 实时缓解复现实验
+```
+
+不应表述为：
+
+```text
+完全复现论文 Figure 7/8 数值结果
+完全复现论文原始 grid2op 环境
+```
