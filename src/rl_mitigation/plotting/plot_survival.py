@@ -23,9 +23,18 @@ def plot_survival(values, out_png: str, out_pdf: str | None = None):
 
 
 def plot_survival_by_policy(rows: list[dict], out_png: str, out_pdf: str | None = None, yscale: str = "linear"):
-    labels = {"do_nothing": "before / do-nothing", "agent": "after / PPO agent"}
+    labels = {
+        "do_nothing": "do-nothing",
+        "agent": "PPO agent",
+        "ppo_agent": "PPO agent",
+        "one_step_oracle": "one-step oracle",
+    }
+    preferred_order = ["do_nothing", "agent", "ppo_agent", "one_step_oracle"]
+    policies = [p for p in preferred_order if any(row.get("policy") == p for row in rows)]
+    other_policies = {row.get("policy") for row in rows if row.get("policy")} - set(policies)
+    policies.extend(sorted(other_policies))
     plt.figure(figsize=(6, 4), facecolor="white")
-    for policy in ["do_nothing", "agent"]:
+    for policy in policies:
         vals = sorted(float(row["negative_return"]) for row in rows if row.get("policy") == policy)
         if not vals:
             continue

@@ -8,6 +8,7 @@ from statistics import mean
 import numpy as np
 
 from ._common import ROOT, load_config, make_ieee14_env_from_config
+from rl_mitigation.evaluation.action_value import scan_scenario_actions
 
 
 def main():
@@ -15,6 +16,7 @@ def main():
     parser.add_argument("--config", default="configs/rl_mitigation/ieee14_ppo.yaml")
     parser.add_argument("--episodes", type=int, default=100)
     parser.add_argument("--scales", default="1.05,1.10,1.15,1.20,1.30")
+    parser.add_argument("--include-action-scan", action="store_true")
     args = parser.parse_args()
     base_cfg = load_config(args.config)
     rows = []
@@ -24,7 +26,10 @@ def main():
         cfg["powerflow"]["rate_a_scale"] = scale
         env = make_ieee14_env_from_config(cfg)
         episode_rows = [_run_do_nothing_episode(env, seed=i) for i in range(args.episodes)]
-        rows.append(_summarize(scale, episode_rows))
+        summary_row = _summarize(scale, episode_rows)
+        if args.include_action_scan:
+            summary_row.update(_action_scan_summary(env, args.episodes))
+        rows.append(summary_row)
     out_dir = ROOT / "results" / "rl_mitigation" / "ieee14" / "calibration"
     out_dir.mkdir(parents=True, exist_ok=True)
     csv_path = out_dir / "cascade_scenario_stats.csv"
@@ -36,6 +41,11 @@ def main():
     summary = {"recommended_rate_a_scale": recommended["rate_a_scale"], "candidates": rows}
     with open(out_dir / "cascade_scenario_summary.json", "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)
+    if args.include_action_scan:
+        with open(out_dir / "cascade_action_calibration_summary.csv", "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=list(rows[0]))
+            writer.writeheader()
+            writer.writerows(rows)
     print(f"Calibration written to {out_dir}; recommended rate_a_scale={recommended['rate_a_scale']}")
 
 
@@ -74,6 +84,40 @@ def _summarize(scale: float, rows: list[dict]) -> dict:
         "mean_load_shed_MW": mean(row["load_shed_MW"] for row in rows),
         "negative_return_mean": mean(neg),
         "negative_return_p95": float(np.percentile(neg, 95)),
+    }
+
+
+def _action_scan_summary(env, episodes: int) -> dict:
+    improvements = []
+    dn_values = []
+    oracle_values = []
+    for seed in range(episodes):
+        _, info = env.reset(seed=seed)
+        scenario = {
+            "scenario_id": seed,
+            "seed": seed,
+            "chronic_index": info["chronic_index"],
+            "load_scale": info["load_scale"],
+            "gen_scale": info["gen_scale"],
+            "initial_outages": info["initial_outages"],
+            "initial_outage_type": info["initial_outage_type"],
+            "initial_outage_order": info["initial_outage_order"],
+            "initial_outage_mode": info["initial_outage_mode"],
+        }
+        rows = scan_scenario_actions(env, scenario)
+        dn = next(row for row in rows if int(row["action"]) == 0)
+        valid = [row for row in rows if row.get("is_valid_action")]
+        best = min(valid or rows, key=lambda r: float(r["negative_return"]))
+        improvement = float(dn["negative_return"]) - float(best["negative_return"])
+        improvements.append(improvement)
+        dn_values.append(float(dn["negative_return"]))
+        oracle_values.append(float(best["negative_return"]))
+    return {
+        "improvable_scenario_ratio": mean(x > 1e-9 for x in improvements),
+        "mean_best_improvement": mean(improvements),
+        "oracle_mean_negative_return": mean(oracle_values),
+        "do_nothing_mean_negative_return": mean(dn_values),
+        "oracle_gap": mean(dn_values) - mean(oracle_values),
     }
 
 

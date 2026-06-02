@@ -15,7 +15,14 @@ def main():
         base / "train_logs" / "ppo_clip_train.csv",
         base / "checkpoints" / "latest.pt",
         base / "eval" / "eval_before_after_100.csv",
+        base / "eval" / "eval_before_after_100_stochastic.csv",
+        base / "eval" / "eval_do_nothing_agent_oracle_100.csv",
+        base / "action_value_scan" / "action_value_summary.json",
+        base / "diagnostics" / "policy_action_summary.json",
         base / "figures" / "fig_ieee14_survival_negative_return_100.png",
+        base / "figures" / "fig_action_improvement_distribution.png",
+        base / "figures" / "fig_oracle_vs_do_nothing_vs_agent_survival.png",
+        base / "figures" / "fig_policy_action_probability.png",
         base / "high_risk" / "high_risk_scenarios_top50.csv",
     ]
     errors = [f"missing: {path}" for path in required if not path.exists()]

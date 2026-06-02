@@ -9,7 +9,15 @@ from .metrics import summarize_episode
 from ..rl.torch_networks import torch
 
 
-def run_policy(env, episodes: int = 10, model=None, with_agent: bool = False, seed: int = 0, scenarios: list[dict] | None = None):
+def run_policy(
+    env,
+    episodes: int = 10,
+    model=None,
+    with_agent: bool = False,
+    seed: int = 0,
+    scenarios: list[dict] | None = None,
+    eval_mode: str = "deterministic",
+):
     rows = []
     rng = np.random.default_rng(seed)
     scenario_list = scenarios if scenarios is not None else [None] * episodes
@@ -26,7 +34,7 @@ def run_policy(env, episodes: int = 10, model=None, with_agent: bool = False, se
                     obs_t = torch.tensor(obs, dtype=torch.float32).unsqueeze(0)
                     mask_t = torch.tensor(mask, dtype=torch.bool).unsqueeze(0)
                     with torch.no_grad():
-                        action_t, _, _, _ = model.act(obs_t, mask_t, deterministic=True)
+                        action_t, _, _, _ = model.act(obs_t, mask_t, deterministic=(eval_mode == "deterministic"))
                     action = int(action_t.item())
                 else:
                     action = int(np.argmax(model.masked_logits(obs, mask)))

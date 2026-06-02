@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
 
 import numpy as np
 
@@ -28,6 +29,7 @@ def pretrain_do_nothing_actor(
     learning_rate: float = 1e-3,
     entropy_coef: float = 0.001,
     seed: int = 0,
+    target_do_nothing_prob: float = 0.60,
 ):
     torch.manual_seed(seed)
     states, actions = collect_random_states(env, n_states=n_states, seed=seed)
@@ -40,7 +42,8 @@ def pretrain_do_nothing_actor(
         ce = torch.nn.functional.cross_entropy(logits, y)
         probs = torch.softmax(logits, dim=-1)
         entropy = -(probs * torch.log(probs + 1e-8)).sum(dim=-1).mean()
-        loss = ce - entropy_coef * entropy
+        prob_penalty = (probs[:, 0].mean() - target_do_nothing_prob).pow(2)
+        loss = ce + prob_penalty - entropy_coef * entropy
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
@@ -48,4 +51,16 @@ def pretrain_do_nothing_actor(
     out.mkdir(parents=True, exist_ok=True)
     np.savez(out / "states_actions.npz", states=states, actions=actions)
     torch.save({"actor_state_dict": model.actor.state_dict(), "obs_dim": model.obs_dim, "action_dim": model.action_dim}, out / "policy_pretrained_torch.pt")
+    with torch.no_grad():
+        logits = model.actor(x)
+        probs = torch.softmax(logits, dim=-1)
+        entropy = -(probs * torch.log(probs + 1e-8)).sum(dim=-1).mean()
+        diagnostics = {
+            "mean_prob_do_nothing": float(probs[:, 0].mean().item()),
+            "mean_nonzero_action_prob": float(probs[:, 1:].mean().item()),
+            "entropy": float(entropy.item()),
+            "warning": bool(probs[:, 0].mean().item() > 0.8),
+        }
+    with open(out / "pretrain_diagnostics.json", "w", encoding="utf-8") as f:
+        json.dump(diagnostics, f, indent=2)
     return model, states, actions

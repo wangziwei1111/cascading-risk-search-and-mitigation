@@ -14,16 +14,18 @@ def main():
     args = parser.parse_args()
     cfg = load_config(args.config)
     ppo = cfg.get("ppo", {})
+    pretrain = cfg.get("pretrain", {})
     env = make_ieee14_env_from_config(cfg)
     out = ROOT / "results" / "rl_mitigation" / "ieee14" / "pretrain"
     pretrain_do_nothing_actor(
         env,
         output_dir=str(out),
-        n_states=args.states,
-        epochs=10,
+        n_states=pretrain.get("n_states", args.states),
+        epochs=pretrain.get("epochs", 5),
         learning_rate=ppo.get("learning_rate", 1e-3),
-        entropy_coef=ppo.get("entropy_coef", 0.001),
+        entropy_coef=pretrain.get("entropy_coef", 0.01),
         seed=cfg.get("seed", 0),
+        target_do_nothing_prob=pretrain.get("target_do_nothing_prob", 0.60),
     )
     print(f"PyTorch do-nothing pretraining artifacts written to {out}")
 

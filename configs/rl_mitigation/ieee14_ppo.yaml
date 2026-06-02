@@ -30,7 +30,7 @@ ppo:
   learning_rate: 1.0e-3
   gamma: 1.0
   gae_lambda: 0.95
-  entropy_coef: 0.001
+  entropy_coef: 0.01
   clip_range: 0.2
   value_clip: 0.2
   n_steps: 1024
@@ -40,6 +40,20 @@ ppo:
   value_hidden_layers: [64, 8]
   use_action_mask: true
   use_do_nothing_pretrain: true
+  deterministic_eval: false
+
+pretrain:
+  enabled: true
+  n_states: 2048
+  epochs: 5
+  entropy_coef: 0.01
+  target_do_nothing_prob: 0.60
+
+oracle_bc:
+  enabled: false
+  min_improvement: 1.0
+  entropy_coef: 0.01
+  epochs: 20
 
 figures:
   survival_yscale: linear

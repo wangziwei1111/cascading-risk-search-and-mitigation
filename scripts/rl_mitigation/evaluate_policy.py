@@ -25,6 +25,7 @@ def main():
     parser.add_argument("--without-agent", action="store_true")
     parser.add_argument("--smoke", action="store_true")
     parser.add_argument("--config", default="configs/rl_mitigation/ieee14_ppo.yaml")
+    parser.add_argument("--eval-mode", choices=["deterministic", "stochastic"], default="deterministic")
     args = parser.parse_args()
     with open(ROOT / args.config, encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
@@ -46,12 +47,15 @@ def main():
     save_scenarios(scenarios, str(scenario_path))
     rows = []
     if args.with_agent or not args.without_agent:
-        rows.extend(run_policy(env, episodes=episodes, model=model, with_agent=True, scenarios=scenarios))
+        rows.extend(run_policy(env, episodes=episodes, model=model, with_agent=True, scenarios=scenarios, eval_mode=args.eval_mode))
     if args.without_agent or not args.with_agent:
-        rows.extend(run_policy(env, episodes=episodes, model=model, with_agent=False, scenarios=scenarios))
+        rows.extend(run_policy(env, episodes=episodes, model=model, with_agent=False, scenarios=scenarios, eval_mode=args.eval_mode))
     out_dir = ROOT / "results" / "rl_mitigation" / "ieee14" / "eval"
-    out = out_dir / ("eval_10_smoke.csv" if args.smoke else f"eval_before_after_{episodes}.csv")
+    out = out_dir / ("eval_10_smoke.csv" if args.smoke else f"eval_before_after_{episodes}_{args.eval_mode}.csv")
+    legacy_out = out_dir / f"eval_before_after_{episodes}.csv"
     save_eval_csv(rows, str(out))
+    if args.eval_mode == "deterministic" and not args.smoke:
+        save_eval_csv(rows, str(legacy_out))
     summary = {
         "episodes": episodes,
         "policies": sorted(set(row["policy"] for row in rows)),
