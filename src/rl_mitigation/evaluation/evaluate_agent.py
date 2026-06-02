@@ -6,6 +6,7 @@ from pathlib import Path
 import numpy as np
 
 from .metrics import summarize_episode
+from ..rl.torch_networks import torch
 
 
 def run_policy(env, episodes: int = 10, model=None, with_agent: bool = False, seed: int = 0):
@@ -19,7 +20,14 @@ def run_policy(env, episodes: int = 10, model=None, with_agent: bool = False, se
         while not done:
             if with_agent and model is not None:
                 mask = last_info.get("action_mask", np.ones(env.action_space_n, dtype=bool))
-                action = int(np.argmax(model.masked_logits(obs, mask)))
+                if hasattr(model, "act"):
+                    obs_t = torch.tensor(obs, dtype=torch.float32).unsqueeze(0)
+                    mask_t = torch.tensor(mask, dtype=torch.bool).unsqueeze(0)
+                    with torch.no_grad():
+                        action_t, _, _, _ = model.act(obs_t, mask_t, deterministic=True)
+                    action = int(action_t.item())
+                else:
+                    action = int(np.argmax(model.masked_logits(obs, mask)))
             else:
                 action = 0
             obs, reward, done, _, last_info = env.step(action)
