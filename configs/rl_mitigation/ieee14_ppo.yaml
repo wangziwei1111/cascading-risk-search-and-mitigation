@@ -52,12 +52,20 @@ pretrain:
 oracle_bc:
   enabled: false
   use_for_ppo_init: false
+  mode: full
   train_split_scan: results/rl_mitigation/ieee14/action_value_scan/train_action_value_scan.csv
   train_scenarios: results/rl_mitigation/ieee14/scenarios/train_scenarios_seed0_episodes300.json
   min_improvement: 1.0
   entropy_coef: 0.01
   epochs: 30
   learning_rate: 1.0e-3
+
+safe_policy:
+  active_prob_threshold: 0.35
+  margin_threshold: 0.05
+  tune_on_val: true
+  active_prob_grid: [0.20, 0.30, 0.35, 0.40, 0.50]
+  margin_grid: [0.00, 0.05, 0.10, 0.20]
 
 figures:
   survival_yscale: linear

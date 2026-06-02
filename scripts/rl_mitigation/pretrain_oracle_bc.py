@@ -15,6 +15,7 @@ def main():
     parser.add_argument("--episodes", type=int, default=100)
     parser.add_argument("--scenario-file")
     parser.add_argument("--scan-file")
+    parser.add_argument("--mode", choices=["full", "positive_only"], default="full")
     args = parser.parse_args()
     cfg = load_config(args.config)
     base = ROOT / "results" / "rl_mitigation" / "ieee14"
@@ -36,6 +37,7 @@ def main():
         entropy_coef=oracle_cfg.get("entropy_coef", 0.01),
         learning_rate=oracle_cfg.get("learning_rate", 1e-3),
         seed=cfg.get("seed", 0),
+        mode=args.mode,
     )
     print(f"Oracle BC diagnostics: {diagnostics}")
 

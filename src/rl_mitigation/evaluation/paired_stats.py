@@ -35,6 +35,7 @@ def paired_metric_stats(rows: list[dict], policy_a: str, policy_b: str, metric: 
         "median_diff": float(np.median(diffs)),
         "bootstrap_ci_low": float(low),
         "bootstrap_ci_high": float(high),
+        "direction": _direction(float(low), float(high), metric),
         "improved_ratio": float(np.mean(improved)),
         "worse_ratio": float(np.mean(worse)),
         "tie_ratio": float(np.mean(ties)),
@@ -72,8 +73,23 @@ def _empty(policy_a: str, policy_b: str, metric: str) -> dict:
         "median_diff": 0.0,
         "bootstrap_ci_low": 0.0,
         "bootstrap_ci_high": 0.0,
+        "direction": "no_clear_difference",
         "improved_ratio": 0.0,
         "worse_ratio": 0.0,
         "tie_ratio": 0.0,
         "num_scenarios": 0,
     }
+
+
+def _direction(low: float, high: float, metric: str) -> str:
+    if metric in LOWER_IS_BETTER:
+        if high < 0:
+            return "policy_a_better"
+        if low > 0:
+            return "policy_a_worse"
+    else:
+        if low > 0:
+            return "policy_a_better"
+        if high < 0:
+            return "policy_a_worse"
+    return "no_clear_difference"

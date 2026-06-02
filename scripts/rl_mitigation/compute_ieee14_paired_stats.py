@@ -71,12 +71,16 @@ def _write_md(rows, path):
     if not rows:
         lines.append("No paired comparisons were available.")
     for row in rows:
-        stable = float(row["bootstrap_ci_low"]) < 0 < float(row["bootstrap_ci_high"])
-        conclusion = "not stable" if stable else "stable direction"
+        conclusion = {
+            "policy_a_better": "improved",
+            "policy_a_worse": "worse",
+            "no_clear_difference": "indistinguishable",
+        }.get(row.get("direction"), "indistinguishable")
         lines.append(
             f"- {row['policy_a']} vs {row['policy_b']} on {row['metric']}: "
             f"mean_diff={float(row['mean_diff']):.4f}, CI=[{float(row['bootstrap_ci_low']):.4f}, {float(row['bootstrap_ci_high']):.4f}], "
-            f"improved_ratio={float(row['improved_ratio']):.3f}, worse_ratio={float(row['worse_ratio']):.3f} ({conclusion})."
+            f"direction={row.get('direction')}, improved_ratio={float(row['improved_ratio']):.3f}, "
+            f"worse_ratio={float(row['worse_ratio']):.3f} ({conclusion})."
         )
     path.write_text("\n".join(lines), encoding="utf-8")
 

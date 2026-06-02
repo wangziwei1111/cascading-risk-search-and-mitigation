@@ -5,6 +5,7 @@ import csv
 import json
 
 import matplotlib.pyplot as plt
+import numpy as np
 import yaml
 
 from ._bootstrap import add_src_to_path
@@ -50,6 +51,10 @@ def main():
     _plot_test_policy_survival(base, figures, cfg)
     _plot_improvable_subset(base, figures)
     _plot_oracle_gap_vs_ppo_gap(base, figures)
+    _plot_bc_full_vs_positive_only(base, figures)
+    _plot_safe_gate_threshold_tuning(base, figures)
+    _plot_safe_policy_survival(base, figures, cfg)
+    _plot_policy_multimetric_summary(base, figures)
     _write_captions(figures)
     print(f"Figures written to {figures}")
 
@@ -267,6 +272,98 @@ def _plot_oracle_gap_vs_ppo_gap(base, figures):
     plt.savefig(figures / "fig_oracle_gap_vs_ppo_gap.pdf")
     plt.close()
     _write_csv(points, figures / "fig_oracle_gap_vs_ppo_gap.csv")
+
+
+def _plot_bc_full_vs_positive_only(base, figures):
+    path = base / "analysis" / "improvable_subset_summary.csv"
+    if not path.exists():
+        return
+    rows = [row for row in _read_csv(path) if row["policy"] in {"oracle_bc_positive_only", "oracle_bc_full"} and row["subset"] in {"improvable", "non_improvable"}]
+    if not rows:
+        return
+    labels = [f"{row['policy']}:{row['subset']}" for row in rows]
+    values = [float(row["mean_negative_return"]) for row in rows]
+    plt.figure(figsize=(8, 4), facecolor="white")
+    plt.bar(labels, values)
+    plt.ylabel("Mean negative return")
+    plt.xticks(rotation=25, ha="right")
+    plt.tight_layout()
+    plt.savefig(figures / "fig_bc_full_vs_positive_only.png", dpi=200)
+    plt.savefig(figures / "fig_bc_full_vs_positive_only.pdf")
+    plt.close()
+    _write_csv(rows, figures / "fig_bc_full_vs_positive_only.csv")
+
+
+def _plot_safe_gate_threshold_tuning(base, figures):
+    path = base / "ablation" / "safe_policy_threshold_tuning.csv"
+    selected_path = base / "ablation" / "safe_policy_threshold_selected.json"
+    if not path.exists():
+        return
+    rows = _read_csv(path)
+    labels = [f"{row['active_prob_threshold']}/{row['margin_threshold']}" for row in rows]
+    values = [float(row["mean_negative_return"]) for row in rows]
+    plt.figure(figsize=(8, 4), facecolor="white")
+    plt.plot(range(len(values)), values, marker="o", linewidth=1.2)
+    if selected_path.exists():
+        with open(selected_path, encoding="utf-8") as f:
+            selected = json.load(f)
+        selected_label = f"{selected['active_prob_threshold']}/{selected['margin_threshold']}"
+        if selected_label in labels:
+            idx = labels.index(selected_label)
+            plt.scatter([idx], [values[idx]], color="red", zorder=3, label="selected")
+            plt.legend()
+    plt.xticks(range(len(labels)), labels, rotation=45, ha="right", fontsize=7)
+    plt.ylabel("Val mean negative return")
+    plt.tight_layout()
+    plt.savefig(figures / "fig_safe_gate_threshold_tuning.png", dpi=200)
+    plt.savefig(figures / "fig_safe_gate_threshold_tuning.pdf")
+    plt.close()
+    _write_csv(rows, figures / "fig_safe_gate_threshold_tuning.csv")
+
+
+def _plot_safe_policy_survival(base, figures, cfg):
+    rows = []
+    keep = {"do_nothing", "one_step_oracle", "oracle_bc_full", "safe_oracle_bc_full"}
+    for path in sorted((base / "eval").glob("test_eval_*.csv")):
+        if "stochastic" in path.name or "do_nothing_agent_oracle" in path.name:
+            continue
+        cur = [row for row in _read_csv(path) if row["policy"] in keep]
+        rows.extend(cur)
+    if not rows:
+        return
+    plot_survival_by_policy(
+        rows,
+        str(figures / "fig_safe_policy_test_survival.png"),
+        str(figures / "fig_safe_policy_test_survival.pdf"),
+        yscale=cfg.get("figures", {}).get("survival_yscale", "linear"),
+    )
+    _write_survival_data(rows, figures / "fig_safe_policy_test_survival.csv")
+
+
+def _plot_policy_multimetric_summary(base, figures):
+    path = base / "tables" / "table_policy_multi_metric_test_summary.csv"
+    if not path.exists():
+        return
+    rows = _read_csv(path)
+    if not rows:
+        return
+    metrics = ["mean_negative_return", "pf_failed_ratio", "mean_num_line_outages", "mean_load_shed_MW", "mean_num_proactive_actions"]
+    policies = [row["policy"] for row in rows]
+    x = np.arange(len(policies))
+    plt.figure(figsize=(9, 4.8), facecolor="white")
+    for metric in metrics:
+        vals = np.asarray([float(row[metric]) for row in rows], dtype=float)
+        denom = max(vals.max() - vals.min(), 1e-9)
+        norm = (vals - vals.min()) / denom
+        plt.plot(x, norm, marker="o", linewidth=1.1, label=metric)
+    plt.xticks(x, policies, rotation=25, ha="right", fontsize=7)
+    plt.ylabel("Normalized metric")
+    plt.legend(fontsize=7)
+    plt.tight_layout()
+    plt.savefig(figures / "fig_policy_multimetric_summary.png", dpi=200)
+    plt.savefig(figures / "fig_policy_multimetric_summary.pdf")
+    plt.close()
+    _write_csv(rows, figures / "fig_policy_multimetric_summary.csv")
 
 
 def _write_csv(rows, path):

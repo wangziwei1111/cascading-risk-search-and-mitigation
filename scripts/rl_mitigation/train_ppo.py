@@ -55,7 +55,7 @@ def _pretrained_path(init: str):
     if init == "do_nothing":
         return base / "policy_pretrained_torch.pt"
     if init == "oracle_bc":
-        return base / "oracle_bc_policy.pt"
+        return base / "oracle_bc_full_policy.pt"
     return None
 
 
