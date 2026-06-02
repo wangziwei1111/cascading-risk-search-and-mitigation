@@ -12,7 +12,12 @@
       "mean_num_line_outages": 5.11,
       "mean_load_shed_MW": 13.42160153079033,
       "negative_return_mean": 86.4730877945711,
-      "negative_return_p95": 109.06182506255786
+      "negative_return_p95": 109.06182506255786,
+      "improvable_scenario_ratio": 0.63,
+      "mean_best_improvement": 9.310714519914045,
+      "oracle_mean_negative_return": 77.063,
+      "do_nothing_mean_negative_return": 86.37371451991405,
+      "oracle_gap": 9.310714519914043
     },
     {
       "rate_a_scale": 1.1,
@@ -25,7 +30,12 @@
       "mean_num_line_outages": 4.66,
       "mean_load_shed_MW": 11.070818652153015,
       "negative_return_mean": 79.97881789718633,
-      "negative_return_p95": 107.87562995546455
+      "negative_return_p95": 107.87562995546455,
+      "improvable_scenario_ratio": 0.58,
+      "mean_best_improvement": 8.00866483700351,
+      "oracle_mean_negative_return": 73.05799999999999,
+      "do_nothing_mean_negative_return": 81.0666648370035,
+      "oracle_gap": 8.008664837003508
     },
     {
       "rate_a_scale": 1.15,
@@ -38,7 +48,12 @@
       "mean_num_line_outages": 4.68,
       "mean_load_shed_MW": 13.64103443390131,
       "negative_return_mean": 78.0322837680967,
-      "negative_return_p95": 109.72955251282481
+      "negative_return_p95": 109.72955251282481,
+      "improvable_scenario_ratio": 0.55,
+      "mean_best_improvement": 7.871911076280562,
+      "oracle_mean_negative_return": 69.05499999999999,
+      "do_nothing_mean_negative_return": 76.92691107628056,
+      "oracle_gap": 7.871911076280568
     },
     {
       "rate_a_scale": 1.2,
@@ -51,7 +66,12 @@
       "mean_num_line_outages": 4.81,
       "mean_load_shed_MW": 15.930006832957268,
       "negative_return_mean": 78.22573004328386,
-      "negative_return_p95": 108.87195107509824
+      "negative_return_p95": 108.87195107509824,
+      "improvable_scenario_ratio": 0.49,
+      "mean_best_improvement": 9.337328649519275,
+      "oracle_mean_negative_return": 61.049,
+      "do_nothing_mean_negative_return": 70.38632864951927,
+      "oracle_gap": 9.337328649519272
     },
     {
       "rate_a_scale": 1.3,
@@ -64,7 +84,12 @@
       "mean_num_line_outages": 4.17,
       "mean_load_shed_MW": 13.815417625784875,
       "negative_return_mean": 69.55752174065907,
-      "negative_return_p95": 109.13123612386723
+      "negative_return_p95": 109.13123612386723,
+      "improvable_scenario_ratio": 0.43,
+      "mean_best_improvement": 5.071119844337694,
+      "oracle_mean_negative_return": 60.043,
+      "do_nothing_mean_negative_return": 65.1141198443377,
+      "oracle_gap": 5.071119844337694
     }
   ]
 }

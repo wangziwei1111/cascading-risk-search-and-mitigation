@@ -110,3 +110,14 @@ PPO-clip 已修正 rollout 截断时的 GAE bootstrap：若 rollout 因 `n_steps
 ```text
 docs/rl_mitigation_reproducibility_gaps.md
 ```
+## IEEE14 RL 诊断更新
+
+为解释 PPO agent 曾经与 do-nothing 完全一致的问题，仓库新增了动作价值扫描、one-step oracle 上界和策略动作概率诊断：
+
+```bash
+python -m scripts.rl_mitigation.scan_ieee14_action_values --config configs/rl_mitigation/ieee14_ppo.yaml --episodes 100
+python -m scripts.rl_mitigation.evaluate_oracle_policy --config configs/rl_mitigation/ieee14_ppo.yaml --episodes 100
+python -m scripts.rl_mitigation.diagnose_policy_actions --config configs/rl_mitigation/ieee14_ppo.yaml --episodes 100
+```
+
+2026-06-02 的 100 episode smoke 结果显示 `better_action_ratio=0.650`、`oracle_gap=6.0947`，说明当前 IEEE14 环境存在优于 do-nothing 的单步主动断线动作；`one_step_oracle` 只作为诊断上界，不能当作部署策略或论文原始结果复现。

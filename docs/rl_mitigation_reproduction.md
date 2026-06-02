@@ -241,3 +241,56 @@ results/rl_mitigation/ieee14/high_risk/high_risk_scenarios_top50.csv
 ```
 
 该清单可用于后续与 GCN 模块做论文层面的分析衔接，但本轮不实现 GCN-RL 联合闭环。
+
+## 当前 PPO==do-nothing 问题与新增诊断
+
+早期 100 episode 最小流水线曾出现 PPO agent 与 do-nothing 完全一致的现象：
+
+```text
+do_nothing negative_return = 80.1597
+agent negative_return = 80.1597
+agent proactive actions = 0
+```
+
+这不能直接解释为“主动断线无效”。当前版本新增了动作价值扫描、one-step oracle 诊断上界和策略动作概率诊断：
+
+```bash
+python -m scripts.rl_mitigation.scan_ieee14_action_values --config configs/rl_mitigation/ieee14_ppo.yaml --episodes 100
+python -m scripts.rl_mitigation.evaluate_oracle_policy --config configs/rl_mitigation/ieee14_ppo.yaml --episodes 100
+python -m scripts.rl_mitigation.diagnose_policy_actions --config configs/rl_mitigation/ieee14_ppo.yaml --episodes 100
+```
+
+- `scan_ieee14_action_values.py` 在同一批场景上枚举所有合法初始动作，输出 `action_value_scan_100.csv`、`action_value_summary.json`、动作改善分布图和最佳动作频率图。
+- `evaluate_oracle_policy.py` 比较 `do_nothing`、`ppo_agent`、`one_step_oracle`。其中 `one_step_oracle` 只作为诊断上界，不是可部署策略。
+- `diagnose_policy_actions.py` 记录初始状态的动作概率、entropy、do-nothing argmax 比例和 top action 频率，用于判断 PPO 是否仍坍缩到 do-nothing。
+
+2026-06-02 的 100 episode smoke 诊断显示：`better_action_ratio=0.650`，`oracle_gap=6.0947`，说明当前 IEEE14 + PYPOWER + N-1/N-2 + scaled_from_base_flow 环境里确实存在优于 do-nothing 的单步主动断线动作；若 PPO 仍接近 do-nothing，应优先归因于探索、预训练偏置、训练步数和奖励尺度，而不是归因于动作空间无改进可能。
+
+当前 do-nothing 预训练不再强制把策略完全压到 do-nothing，而是使用 `target_do_nothing_prob` 和 entropy regularization 保留探索空间。`pretrain_diagnostics.json` 记录 do-nothing 平均概率、非零动作平均概率和 entropy，用于判断预训练是否过度刚性。
+
+可选的 oracle 行为克隆初始化入口为：
+
+```bash
+python -m scripts.rl_mitigation.pretrain_oracle_bc --config configs/rl_mitigation/ieee14_ppo.yaml --episodes 100
+```
+
+该入口默认关闭，仅用于诊断或消融。使用它时必须说明 oracle BC 使用了动作扫描标签，不能把它和纯 PPO 训练混为一谈。
+
+`evaluate_policy.py` 支持确定性和随机评估：
+
+```bash
+python -m scripts.rl_mitigation.evaluate_policy --case ieee14 --episodes 100 --with-agent --without-agent --eval-mode deterministic
+python -m scripts.rl_mitigation.evaluate_policy --case ieee14 --episodes 100 --with-agent --without-agent --eval-mode stochastic
+```
+
+确定性和随机评估分别写入 `eval_before_after_100_deterministic.csv` 和 `eval_before_after_100_stochastic.csv`；确定性评估还保留兼容文件 `eval_before_after_100.csv`。
+
+最小流水线当前顺序为：容量校准并包含 action scan、固定评估场景生成、动作价值扫描、do-nothing 预训练、PPO smoke 训练、策略动作概率诊断、确定性/随机 before-after 评估、do-nothing/PPO/oracle 三策略评估、高风险场景列表、图表、论文表格、完整性检查和最终报告。
+
+新增图表包括：
+
+- `fig_action_improvement_distribution.png/pdf/csv`
+- `fig_oracle_vs_do_nothing_vs_agent_survival.png/pdf/csv`
+- `fig_policy_action_probability.png/pdf/csv`
+
+这些诊断图同样不能声称数值完全复现论文 Figure 7/8，只能用于 IEEE14 小系统机制复现、训练诊断和毕业论文实验可信度说明。

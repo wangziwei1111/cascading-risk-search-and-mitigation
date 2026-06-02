@@ -1,0 +1,826 @@
+{
+  "num_scenarios": 100,
+  "num_actions_per_scenario": 21,
+  "num_scenarios_with_better_action_than_do_nothing": 65,
+  "better_action_ratio": 0.65,
+  "mean_best_improvement": 6.09471463770577,
+  "median_best_improvement": 2.8554466451491862,
+  "max_best_improvement": 108.76142614027988,
+  "num_scenarios_where_do_nothing_is_best": 35,
+  "top10_improvable_scenarios": [
+    {
+      "scenario_id": "37",
+      "improvement": 108.76142614027988,
+      "best_action": 9,
+      "do_nothing_negative_return": 108.86142614027987,
+      "best_negative_return": 0.1
+    },
+    {
+      "scenario_id": "19",
+      "improvement": 104.96011577988489,
+      "best_action": 16,
+      "do_nothing_negative_return": 105.06011577988488,
+      "best_negative_return": 0.1
+    },
+    {
+      "scenario_id": "57",
+      "improvement": 101.88013266932448,
+      "best_action": 5,
+      "do_nothing_negative_return": 101.98013266932448,
+      "best_negative_return": 0.1
+    },
+    {
+      "scenario_id": "16",
+      "improvement": 12.74310901244668,
+      "best_action": 1,
+      "do_nothing_negative_return": 112.84310901244667,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "94",
+      "improvement": 11.87701663969024,
+      "best_action": 1,
+      "do_nothing_negative_return": 111.97701663969023,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "53",
+      "improvement": 10.863864826027694,
+      "best_action": 14,
+      "do_nothing_negative_return": 110.96386482602769,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "1",
+      "improvement": 9.8449801382734,
+      "best_action": 14,
+      "do_nothing_negative_return": 109.9449801382734,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "76",
+      "improvement": 8.999046106266391,
+      "best_action": 8,
+      "do_nothing_negative_return": 109.09904610626639,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "85",
+      "improvement": 8.751941859162145,
+      "best_action": 14,
+      "do_nothing_negative_return": 108.85194185916214,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "12",
+      "improvement": 7.878761451558873,
+      "best_action": 14,
+      "do_nothing_negative_return": 107.97876145155887,
+      "best_negative_return": 100.1
+    }
+  ],
+  "top10_best_actions": [
+    {
+      "action": 0,
+      "count": 35
+    },
+    {
+      "action": 14,
+      "count": 30
+    },
+    {
+      "action": 1,
+      "count": 16
+    },
+    {
+      "action": 2,
+      "count": 8
+    },
+    {
+      "action": 8,
+      "count": 4
+    },
+    {
+      "action": 3,
+      "count": 3
+    },
+    {
+      "action": 16,
+      "count": 1
+    },
+    {
+      "action": 9,
+      "count": 1
+    },
+    {
+      "action": 5,
+      "count": 1
+    },
+    {
+      "action": 7,
+      "count": 1
+    }
+  ],
+  "scenario_improvements": [
+    {
+      "scenario_id": "0",
+      "improvement": 3.82105608476769,
+      "best_action": 14,
+      "do_nothing_negative_return": 103.92105608476768,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "1",
+      "improvement": 9.8449801382734,
+      "best_action": 14,
+      "do_nothing_negative_return": 109.9449801382734,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "2",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "3",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": 100.0,
+      "best_negative_return": 100.0
+    },
+    {
+      "scenario_id": "4",
+      "improvement": 5.7704635334094405,
+      "best_action": 14,
+      "do_nothing_negative_return": 105.87046353340943,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "5",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "6",
+      "improvement": 1.8801326693244818,
+      "best_action": 1,
+      "do_nothing_negative_return": 101.98013266932448,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "7",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "8",
+      "improvement": 7.096555549458955,
+      "best_action": 14,
+      "do_nothing_negative_return": 107.19655554945895,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "9",
+      "improvement": 4.7770575499286,
+      "best_action": 14,
+      "do_nothing_negative_return": 104.8770575499286,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "10",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "11",
+      "improvement": 6.814702267605682,
+      "best_action": 14,
+      "do_nothing_negative_return": 106.91470226760568,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "12",
+      "improvement": 7.878761451558873,
+      "best_action": 14,
+      "do_nothing_negative_return": 107.97876145155887,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "13",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": 100.0,
+      "best_negative_return": 100.0
+    },
+    {
+      "scenario_id": "14",
+      "improvement": 3.82105608476769,
+      "best_action": 14,
+      "do_nothing_negative_return": 103.92105608476768,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "15",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "16",
+      "improvement": 12.74310901244668,
+      "best_action": 1,
+      "do_nothing_negative_return": 112.84310901244667,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "17",
+      "improvement": 7.737014009985074,
+      "best_action": 14,
+      "do_nothing_negative_return": 107.83701400998507,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "18",
+      "improvement": 2.8554466451491862,
+      "best_action": 8,
+      "do_nothing_negative_return": 102.95544664514918,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "19",
+      "improvement": 104.96011577988489,
+      "best_action": 16,
+      "do_nothing_negative_return": 105.06011577988488,
+      "best_negative_return": 0.1
+    },
+    {
+      "scenario_id": "20",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "21",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": 100.0,
+      "best_negative_return": 100.0
+    },
+    {
+      "scenario_id": "22",
+      "improvement": 2.8554466451491862,
+      "best_action": 2,
+      "do_nothing_negative_return": 102.95544664514918,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "23",
+      "improvement": 4.7770575499286,
+      "best_action": 1,
+      "do_nothing_negative_return": 104.8770575499286,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "24",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": 100.0,
+      "best_negative_return": 100.0
+    },
+    {
+      "scenario_id": "25",
+      "improvement": 5.872195290223772,
+      "best_action": 14,
+      "do_nothing_negative_return": 105.97219529022377,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "26",
+      "improvement": 6.723012864165099,
+      "best_action": 14,
+      "do_nothing_negative_return": 106.8230128641651,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "27",
+      "improvement": 4.890957163828219,
+      "best_action": 14,
+      "do_nothing_negative_return": 104.99095716382821,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "28",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "29",
+      "improvement": 1.0282212582878287,
+      "best_action": 14,
+      "do_nothing_negative_return": 101.12822125828782,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "30",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "31",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "32",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": 100.0,
+      "best_negative_return": 100.0
+    },
+    {
+      "scenario_id": "33",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "34",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "35",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "36",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "37",
+      "improvement": 108.76142614027988,
+      "best_action": 9,
+      "do_nothing_negative_return": 108.86142614027987,
+      "best_negative_return": 0.1
+    },
+    {
+      "scenario_id": "38",
+      "improvement": 3.861081542463367,
+      "best_action": 2,
+      "do_nothing_negative_return": 103.96108154246336,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "39",
+      "improvement": 3.82105608476769,
+      "best_action": 1,
+      "do_nothing_negative_return": 103.92105608476768,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "40",
+      "improvement": 5.870165919490859,
+      "best_action": 1,
+      "do_nothing_negative_return": 105.97016591949085,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "41",
+      "improvement": 2.8554466451491862,
+      "best_action": 2,
+      "do_nothing_negative_return": 102.95544664514918,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "42",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "43",
+      "improvement": 3.82105608476769,
+      "best_action": 2,
+      "do_nothing_negative_return": 103.92105608476768,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "44",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": 100.0,
+      "best_negative_return": 100.0
+    },
+    {
+      "scenario_id": "45",
+      "improvement": 4.7770575499286,
+      "best_action": 14,
+      "do_nothing_negative_return": 104.8770575499286,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "46",
+      "improvement": 5.723546641575126,
+      "best_action": 1,
+      "do_nothing_negative_return": 105.82354664157512,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "47",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "48",
+      "improvement": 3.8543596138250393,
+      "best_action": 1,
+      "do_nothing_negative_return": 103.95435961382503,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "49",
+      "improvement": 4.7770575499286,
+      "best_action": 14,
+      "do_nothing_negative_return": 104.8770575499286,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "50",
+      "improvement": 7.761420409515466,
+      "best_action": 1,
+      "do_nothing_negative_return": 107.86142040951546,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "51",
+      "improvement": 2.8554466451491862,
+      "best_action": 1,
+      "do_nothing_negative_return": 102.95544664514918,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "52",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "53",
+      "improvement": 10.863864826027694,
+      "best_action": 14,
+      "do_nothing_negative_return": 110.96386482602769,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "54",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": 100.0,
+      "best_negative_return": 100.0
+    },
+    {
+      "scenario_id": "55",
+      "improvement": 4.850463270232382,
+      "best_action": 1,
+      "do_nothing_negative_return": 104.95046327023238,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "56",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": 100.0,
+      "best_negative_return": 100.0
+    },
+    {
+      "scenario_id": "57",
+      "improvement": 101.88013266932448,
+      "best_action": 5,
+      "do_nothing_negative_return": 101.98013266932448,
+      "best_negative_return": 0.1
+    },
+    {
+      "scenario_id": "58",
+      "improvement": 2.8554466451491862,
+      "best_action": 14,
+      "do_nothing_negative_return": 102.95544664514918,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "59",
+      "improvement": 2.9886512783538137,
+      "best_action": 14,
+      "do_nothing_negative_return": 103.08865127835381,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "60",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": 100.0,
+      "best_negative_return": 100.0
+    },
+    {
+      "scenario_id": "61",
+      "improvement": 3.834569598281206,
+      "best_action": 8,
+      "do_nothing_negative_return": 103.9345695982812,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "62",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "63",
+      "improvement": 1.0046691347357068,
+      "best_action": 14,
+      "do_nothing_negative_return": 101.1046691347357,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "64",
+      "improvement": 1.8801326693244818,
+      "best_action": 14,
+      "do_nothing_negative_return": 101.98013266932448,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "65",
+      "improvement": 2.8554466451491862,
+      "best_action": 3,
+      "do_nothing_negative_return": 102.95544664514918,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "66",
+      "improvement": 1.8801326693244818,
+      "best_action": 14,
+      "do_nothing_negative_return": 101.98013266932448,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "67",
+      "improvement": 2.9886512783538137,
+      "best_action": 14,
+      "do_nothing_negative_return": 103.08865127835381,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "68",
+      "improvement": 7.007788187077907,
+      "best_action": 14,
+      "do_nothing_negative_return": 107.1077881870779,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "69",
+      "improvement": 2.8554466451491862,
+      "best_action": 1,
+      "do_nothing_negative_return": 102.95544664514918,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "70",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": 100.0,
+      "best_negative_return": 100.0
+    },
+    {
+      "scenario_id": "71",
+      "improvement": 4.788900951861237,
+      "best_action": 7,
+      "do_nothing_negative_return": 104.88890095186123,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "72",
+      "improvement": 4.7905710634421155,
+      "best_action": 3,
+      "do_nothing_negative_return": 104.89057106344211,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "73",
+      "improvement": 1.8801326693244818,
+      "best_action": 14,
+      "do_nothing_negative_return": 101.98013266932448,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "74",
+      "improvement": 2.931122320824855,
+      "best_action": 14,
+      "do_nothing_negative_return": 103.03112232082485,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "75",
+      "improvement": 7.788583336155483,
+      "best_action": 14,
+      "do_nothing_negative_return": 107.88858333615548,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "76",
+      "improvement": 8.999046106266391,
+      "best_action": 8,
+      "do_nothing_negative_return": 109.09904610626639,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "77",
+      "improvement": 2.8554466451491862,
+      "best_action": 1,
+      "do_nothing_negative_return": 102.95544664514918,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "78",
+      "improvement": 3.850399714111319,
+      "best_action": 2,
+      "do_nothing_negative_return": 103.95039971411131,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "79",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": 100.0,
+      "best_negative_return": 100.0
+    },
+    {
+      "scenario_id": "80",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "81",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "82",
+      "improvement": 2.8554466451491862,
+      "best_action": 2,
+      "do_nothing_negative_return": 102.95544664514918,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "83",
+      "improvement": 1.8801326693244818,
+      "best_action": 14,
+      "do_nothing_negative_return": 101.98013266932448,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "84",
+      "improvement": 1.8801326693244818,
+      "best_action": 3,
+      "do_nothing_negative_return": 101.98013266932448,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "85",
+      "improvement": 8.751941859162145,
+      "best_action": 14,
+      "do_nothing_negative_return": 108.85194185916214,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "86",
+      "improvement": 2.8554466451491862,
+      "best_action": 2,
+      "do_nothing_negative_return": 102.95544664514918,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "87",
+      "improvement": 5.837446255474745,
+      "best_action": 14,
+      "do_nothing_negative_return": 105.93744625547474,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "88",
+      "improvement": 2.8554466451491862,
+      "best_action": 1,
+      "do_nothing_negative_return": 102.95544664514918,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "89",
+      "improvement": 2.8554466451491862,
+      "best_action": 2,
+      "do_nothing_negative_return": 102.95544664514918,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "90",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "91",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "92",
+      "improvement": 5.829586223364402,
+      "best_action": 8,
+      "do_nothing_negative_return": 105.9295862233644,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "93",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "94",
+      "improvement": 11.87701663969024,
+      "best_action": 1,
+      "do_nothing_negative_return": 111.97701663969023,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "95",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": -0.0,
+      "best_negative_return": -0.0
+    },
+    {
+      "scenario_id": "96",
+      "improvement": 0.9196485546518431,
+      "best_action": 14,
+      "do_nothing_negative_return": 101.01964855465184,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "97",
+      "improvement": 2.8554466451491862,
+      "best_action": 1,
+      "do_nothing_negative_return": 102.95544664514918,
+      "best_negative_return": 100.1
+    },
+    {
+      "scenario_id": "98",
+      "improvement": 0.0,
+      "best_action": 0,
+      "do_nothing_negative_return": 100.0,
+      "best_negative_return": 100.0
+    },
+    {
+      "scenario_id": "99",
+      "improvement": 7.702264975236048,
+      "best_action": 1,
+      "do_nothing_negative_return": 107.80226497523604,
+      "best_negative_return": 100.1
+    }
+  ]
+}
