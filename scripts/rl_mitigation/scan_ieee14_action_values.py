@@ -40,7 +40,13 @@ def main():
 
 
 def _write_csv(rows, path):
-    fields = ["scenario_id", "initial_outages", "initial_outage_type", "chronic_index", "action", "action_type", "action_line", "is_valid_action", "episode_return", "negative_return", "num_generations", "num_line_outages", "load_shed_MW", "load_shed_ratio", "num_proactive_actions", "num_invalid_actions", "pf_failed", "cascade_trace_json"]
+    fields = [
+        "scenario_id", "initial_outages", "initial_outage_type", "initial_outage_order",
+        "chronic_index", "load_scale", "gen_scale", "action", "action_type",
+        "action_line", "is_valid_action", "episode_return", "negative_return",
+        "num_generations", "num_line_outages", "load_shed_MW", "load_shed_ratio",
+        "num_proactive_actions", "num_invalid_actions", "pf_failed", "cascade_trace_json",
+    ]
     with open(path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fields)
         writer.writeheader()
