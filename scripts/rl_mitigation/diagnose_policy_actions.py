@@ -4,11 +4,13 @@ import argparse
 import csv
 import json
 from collections import Counter
+from pathlib import Path
 
 import numpy as np
 
 from ._common import ROOT, load_config, make_ieee14_env_from_config
 from rl_mitigation.evaluation.scenarios import generate_eval_scenarios, load_scenarios, save_scenarios
+from rl_mitigation.evaluation.scenario_split import SPLIT_SEEDS, load_or_create_scenario_split
 from rl_mitigation.rl.ppo_clip import load_checkpoint
 from rl_mitigation.rl.torch_networks import TorchActorCritic, torch
 
@@ -17,29 +19,58 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="configs/rl_mitigation/ieee14_ppo.yaml")
     parser.add_argument("--episodes", type=int, default=100)
+    parser.add_argument("--split", choices=["train", "val", "test"])
+    parser.add_argument("--scenario-file")
+    parser.add_argument("--checkpoint")
+    parser.add_argument("--policy-name", default="ppo_agent")
     args = parser.parse_args()
     cfg = load_config(args.config)
     env = make_ieee14_env_from_config(cfg)
-    scenario_path = ROOT / "results" / "rl_mitigation" / "ieee14" / "eval" / f"eval_scenarios_seed{cfg.get('seed', 0)}_episodes{args.episodes}.json"
-    scenarios = load_scenarios(str(scenario_path)) if scenario_path.exists() else generate_eval_scenarios(env, args.episodes, cfg.get("seed", 0))
-    save_scenarios(scenarios, str(scenario_path))
-    ckpt = ROOT / "results" / "rl_mitigation" / "ieee14" / "checkpoints" / "latest.pt"
+    scenarios, label = _load_scenarios(env, cfg, args)
+    episodes = min(args.episodes, len(scenarios))
+    ckpt = _resolve_path(args.checkpoint) if args.checkpoint else ROOT / "results" / "rl_mitigation" / "ieee14" / "checkpoints" / "latest.pt"
     model = load_checkpoint(str(ckpt)) if ckpt.exists() else TorchActorCritic(env.observation_space_shape[0], env.action_space_n)
-    rows = [_diagnose_one(env, model, scenario) for scenario in scenarios[:args.episodes]]
+    rows = [_diagnose_one(env, model, scenario, args.policy_name) for scenario in scenarios[:episodes]]
     out_dir = ROOT / "results" / "rl_mitigation" / "ieee14" / "diagnostics"
     out_dir.mkdir(parents=True, exist_ok=True)
-    with open(out_dir / "policy_action_diagnostics.csv", "w", newline="", encoding="utf-8") as f:
+    prefix = f"{label}_{args.policy_name}" if label else "policy_action"
+    with open(out_dir / f"{prefix}_diagnostics.csv", "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=list(rows[0]))
         writer.writeheader()
         writer.writerows(rows)
     summary = _summary(rows)
-    with open(out_dir / "policy_action_summary.json", "w", encoding="utf-8") as f:
+    with open(out_dir / f"{prefix}_summary.json", "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)
-    _write_report(out_dir / "policy_diagnosis_report.md", summary)
+    if not label:
+        with open(out_dir / "policy_action_diagnostics.csv", "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=list(rows[0]))
+            writer.writeheader()
+            writer.writerows(rows)
+        with open(out_dir / "policy_action_summary.json", "w", encoding="utf-8") as f:
+            json.dump(summary, f, indent=2)
+    _write_report(out_dir / f"{prefix}_diagnosis_report.md", summary)
     print(f"Policy diagnostics written to {out_dir}; argmax_do_nothing_ratio={summary['argmax_do_nothing_ratio']:.3f}")
 
 
-def _diagnose_one(env, model, scenario):
+def _load_scenarios(env, cfg, args):
+    if args.scenario_file:
+        return load_scenarios(str(_resolve_path(args.scenario_file))), args.split or "custom"
+    if args.split:
+        scenarios, _ = load_or_create_scenario_split(
+            env,
+            ROOT / "results" / "rl_mitigation" / "ieee14" / "scenarios",
+            args.split,
+            {"train": 300, "val": 100, "test": 100}[args.split],
+            SPLIT_SEEDS[args.split],
+        )
+        return scenarios, args.split
+    scenario_path = ROOT / "results" / "rl_mitigation" / "ieee14" / "eval" / f"eval_scenarios_seed{cfg.get('seed', 0)}_episodes{args.episodes}.json"
+    scenarios = load_scenarios(str(scenario_path)) if scenario_path.exists() else generate_eval_scenarios(env, args.episodes, cfg.get("seed", 0))
+    save_scenarios(scenarios, str(scenario_path))
+    return scenarios, ""
+
+
+def _diagnose_one(env, model, scenario, policy_name="ppo_agent"):
     obs, info = env.reset(seed=int(scenario["seed"]), options={"scenario": scenario})
     mask = info["action_mask"]
     with torch.no_grad():
@@ -53,6 +84,8 @@ def _diagnose_one(env, model, scenario):
     entropy = -float(np.sum(probs * np.log(probs + 1e-12)))
     argmax_action = int(order[0])
     return {
+        "policy": policy_name,
+        "split": scenario.get("split", ""),
         "scenario_id": scenario["scenario_id"],
         "initial_outages": ",".join(str(x) for x in scenario["initial_outages"]),
         "initial_outage_type": scenario["initial_outage_type"],
@@ -97,6 +130,11 @@ def _write_report(path, summary):
         f"结论：{conclusion}\n",
         encoding="utf-8",
     )
+
+
+def _resolve_path(path: str) -> Path:
+    candidate = Path(path)
+    return candidate if candidate.is_absolute() else ROOT / candidate
 
 
 if __name__ == "__main__":

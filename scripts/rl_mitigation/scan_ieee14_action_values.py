@@ -11,32 +11,55 @@ import numpy as np
 from ._common import ROOT, load_config, make_ieee14_env_from_config
 from rl_mitigation.evaluation.action_value import scan_scenario_actions
 from rl_mitigation.evaluation.scenarios import generate_eval_scenarios, load_scenarios, save_scenarios
+from rl_mitigation.evaluation.scenario_split import SPLIT_SEEDS, load_or_create_scenario_split
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="configs/rl_mitigation/ieee14_ppo.yaml")
     parser.add_argument("--episodes", type=int, default=100)
+    parser.add_argument("--split", choices=["train", "val", "test"])
+    parser.add_argument("--scenario-file")
     args = parser.parse_args()
     cfg = load_config(args.config)
     env = make_ieee14_env_from_config(cfg)
+    scenarios, label = _load_scenarios(env, cfg, args)
+    rows = []
+    limit = len(scenarios) if args.split and not args.scenario_file else args.episodes
+    for scenario in scenarios[:limit]:
+        rows.extend(scan_scenario_actions(env, scenario))
+    out_dir = ROOT / "results" / "rl_mitigation" / "ieee14" / "action_value_scan"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    csv_path = out_dir / f"{label}_action_value_scan.csv" if label else out_dir / f"action_value_scan_{args.episodes}.csv"
+    _write_csv(rows, csv_path)
+    summary = _summarize(rows)
+    summary_path = out_dir / f"{label}_action_value_summary.json" if label else out_dir / "action_value_summary.json"
+    with open(summary_path, "w", encoding="utf-8") as f:
+        json.dump(summary, f, indent=2, ensure_ascii=False)
+    _plot_improvements(summary["scenario_improvements"], out_dir, label)
+    _plot_best_frequency(summary["top10_best_actions"], out_dir, label)
+    print(f"Action value scan written to {out_dir}; better_action_ratio={summary['better_action_ratio']:.3f}")
+
+
+def _load_scenarios(env, cfg, args):
+    if args.scenario_file:
+        scenarios = load_scenarios(str(ROOT / args.scenario_file if not Path(args.scenario_file).is_absolute() else args.scenario_file))
+        return scenarios, args.split or Path(args.scenario_file).name.split("_")[0]
+    if args.split:
+        counts = {"train": 300, "val": args.episodes, "test": args.episodes}
+        scenarios, _ = load_or_create_scenario_split(
+            env,
+            ROOT / "results" / "rl_mitigation" / "ieee14" / "scenarios",
+            args.split,
+            counts.get(args.split, args.episodes),
+            SPLIT_SEEDS[args.split],
+        )
+        return scenarios, args.split
     eval_dir = ROOT / "results" / "rl_mitigation" / "ieee14" / "eval"
     scenario_path = eval_dir / f"eval_scenarios_seed{cfg.get('seed', 0)}_episodes{args.episodes}.json"
     scenarios = load_scenarios(str(scenario_path)) if scenario_path.exists() else generate_eval_scenarios(env, args.episodes, cfg.get("seed", 0))
     save_scenarios(scenarios, str(scenario_path))
-    rows = []
-    for scenario in scenarios[:args.episodes]:
-        rows.extend(scan_scenario_actions(env, scenario))
-    out_dir = ROOT / "results" / "rl_mitigation" / "ieee14" / "action_value_scan"
-    out_dir.mkdir(parents=True, exist_ok=True)
-    csv_path = out_dir / f"action_value_scan_{args.episodes}.csv"
-    _write_csv(rows, csv_path)
-    summary = _summarize(rows)
-    with open(out_dir / "action_value_summary.json", "w", encoding="utf-8") as f:
-        json.dump(summary, f, indent=2, ensure_ascii=False)
-    _plot_improvements(summary["scenario_improvements"], out_dir)
-    _plot_best_frequency(summary["top10_best_actions"], out_dir)
-    print(f"Action value scan written to {out_dir}; better_action_ratio={summary['better_action_ratio']:.3f}")
+    return scenarios, ""
 
 
 def _write_csv(rows, path):
@@ -80,32 +103,36 @@ def _summarize(rows):
         "median_best_improvement": float(np.median(imps)),
         "max_best_improvement": float(np.max(imps)),
         "num_scenarios_where_do_nothing_is_best": sum(1 for row in improvements if row["best_action"] == 0),
+        "improvable_scenario_ids": [row["scenario_id"] for row in positive],
+        "non_improvable_scenario_ids": [row["scenario_id"] for row in improvements if row["improvement"] <= 1e-9],
         "top10_improvable_scenarios": sorted(positive, key=lambda r: r["improvement"], reverse=True)[:10],
         "top10_best_actions": sorted([{"action": k, "count": v} for k, v in freq.items()], key=lambda r: r["count"], reverse=True)[:10],
         "scenario_improvements": improvements,
     }
 
 
-def _plot_improvements(improvements, out_dir):
+def _plot_improvements(improvements, out_dir, label=""):
     vals = [row["improvement"] for row in improvements]
     plt.figure(figsize=(6, 4), facecolor="white")
     plt.hist(vals, bins=20)
     plt.xlabel("Best action improvement over do-nothing")
     plt.ylabel("Scenario count")
     plt.tight_layout()
-    plt.savefig(out_dir / "fig_action_improvement_distribution.png", dpi=200)
-    plt.savefig(out_dir / "fig_action_improvement_distribution.pdf")
+    prefix = f"{label}_" if label else ""
+    plt.savefig(out_dir / f"{prefix}fig_action_improvement_distribution.png", dpi=200)
+    plt.savefig(out_dir / f"{prefix}fig_action_improvement_distribution.pdf")
     plt.close()
 
 
-def _plot_best_frequency(actions, out_dir):
+def _plot_best_frequency(actions, out_dir, label=""):
     plt.figure(figsize=(6, 4), facecolor="white")
     plt.bar([str(row["action"]) for row in actions], [row["count"] for row in actions])
     plt.xlabel("Best initial action")
     plt.ylabel("Frequency")
     plt.tight_layout()
-    plt.savefig(out_dir / "fig_best_action_frequency.png", dpi=200)
-    plt.savefig(out_dir / "fig_best_action_frequency.pdf")
+    prefix = f"{label}_" if label else ""
+    plt.savefig(out_dir / f"{prefix}fig_best_action_frequency.png", dpi=200)
+    plt.savefig(out_dir / f"{prefix}fig_best_action_frequency.pdf")
     plt.close()
 
 
