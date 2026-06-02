@@ -1,15 +1,33 @@
 case: ieee14
-state: line_status_plus_relative_line_flow
-total_steps: 60000
-learning_rate: 0.001
-gamma: 1.0
-entropy_coef: 0.001
-policy_clip: 0.2
-value_clip: 0.2
-n_steps: 1024
+backend: pypower_ac
+seed: 0
 alpha: 0.1
 max_generations: 10
-policy_hidden_layers: [64, 64]
-value_hidden_layers: [64, 8]
-chronics: surrogate_week_5min
-powerflow_backend: dc_debug_surrogate
+
+chronics:
+  type: surrogate_week
+  resolution_minutes: 5
+  days: 7
+  load_daily_variation: true
+  load_weekly_variation: true
+  wind_variation: true
+
+initial_outages:
+  include_n_minus_1: true
+  include_common_bus_n_minus_2: true
+
+ppo:
+  total_steps: 60000
+  learning_rate: 1.0e-3
+  gamma: 1.0
+  gae_lambda: 0.95
+  entropy_coef: 0.001
+  clip_range: 0.2
+  value_clip: 0.2
+  n_steps: 1024
+  batch_size: 256
+  epochs: 10
+  policy_hidden_layers: [64, 64]
+  value_hidden_layers: [64, 8]
+  use_action_mask: true
+  use_do_nothing_pretrain: true

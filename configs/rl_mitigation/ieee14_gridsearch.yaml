@@ -1,4 +1,18 @@
 case: ieee14
-learning_rate: [0.001, 0.0001, 0.00001]
-entropy_coef: [0.1, 0.01, 0.001]
+backend: pypower_ac
+seed: 0
 steps_per_setting: 1024
+grid:
+  learning_rate: [0.001, 0.0001, 0.00001]
+  entropy_coef: [0.1, 0.01, 0.001]
+ppo:
+  gamma: 1.0
+  gae_lambda: 0.95
+  clip_range: 0.2
+  value_clip: 0.2
+  n_steps: 1024
+  batch_size: 256
+  epochs: 10
+  policy_hidden_layers: [64, 64]
+  value_hidden_layers: [64, 8]
+  use_action_mask: true

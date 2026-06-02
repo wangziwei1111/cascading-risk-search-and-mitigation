@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import numpy as np
 
-from .islanding import approximate_load_after_outages
+from .backend_factory import make_backend
 from .observations import build_observation
-from .powerflow_backend import SurrogatePowerFlowBackend
 from .reward import cascade_reward
+from ..chronics.generate_week_chronics import generate_week_chronics
 from ..rl.action_mask import action_mask, apply_invalid_action_policy
 
 
@@ -22,6 +22,8 @@ class CascadeMitigationEnv:
         max_generations: int = 10,
         seed: int | None = 0,
         use_action_mask: bool = False,
+        backend: str = "pypower_ac",
+        chronics: dict[str, np.ndarray] | None = None,
     ):
         self.case = case
         self.num_lines = int(case["num_lines"])
@@ -29,9 +31,13 @@ class CascadeMitigationEnv:
         self.alpha = float(alpha)
         self.max_generations = int(max_generations)
         self.use_action_mask = bool(use_action_mask)
+        self.backend_name = backend
         self.rng = np.random.default_rng(seed)
-        self.backend = SurrogatePowerFlowBackend(case["base_flows"], seed=seed or 0)
-        self.base_load = float(sum(load["p"] for load in case.get("loads", [])) or 1.0)
+        self.backend = make_backend(backend, case, seed=seed or 0)
+        self.chronics = chronics if chronics is not None else generate_week_chronics(seed=seed or 0)
+        self.episode_return = 0.0
+        self.num_proactive_actions = 0
+        self.num_invalid_actions = 0
         self.reset(seed=seed)
 
     @property
@@ -46,42 +52,59 @@ class CascadeMitigationEnv:
         if seed is not None:
             self.rng = np.random.default_rng(seed)
         self.generation = 0
+        self.done = False
+        self.trace: list[dict] = []
+        self.episode_return = 0.0
+        self.num_proactive_actions = 0
+        self.num_invalid_actions = 0
         self.line_status = np.ones(self.num_lines, dtype=np.int8)
         for idx in self.initial_outages:
             if 0 <= idx < self.num_lines:
                 self.line_status[idx] = 0
-        self.current_load = approximate_load_after_outages(self.base_load, self.line_status)
-        _, self.relative_flow = self.backend.solve(self.line_status, self.generation)
-        self.done = False
-        self.trace = []
-        return build_observation(self.line_status, self.relative_flow), {"action_mask": self.get_action_mask()}
+        self.load_scale, self.gen_scale = self._sample_chronic_scales()
+        self.last_pf = self._solve()
+        self.relative_flow = self.last_pf.relative_flow
+        self.current_load = self.last_pf.current_load_mw
+        info = self._info(pf_failed=not self.last_pf.converged)
+        return build_observation(self.line_status, self.relative_flow), info
 
     def get_action_mask(self) -> np.ndarray:
         return action_mask(self.line_status)
 
     def step(self, action: int):
         if self.done:
-            return build_observation(self.line_status, self.relative_flow), 0.0, True, False, {"cascade_trace": self.trace}
+            return build_observation(self.line_status, self.relative_flow), 0.0, True, False, self._info(pf_failed=False)
         previous_load = self.current_load
         effective_action, invalid = apply_invalid_action_policy(int(action), self.line_status, self.use_action_mask)
+        if invalid:
+            self.num_invalid_actions += 1
         proactive_line = None
         if effective_action > 0:
             proactive_line = effective_action - 1
             self.line_status[proactive_line] = 0
-        converged, flows = self.backend.solve(self.line_status, self.generation)
-        overloaded = [int(i) for i, rho in enumerate(flows) if self.line_status[i] and rho >= 1.0]
+            self.num_proactive_actions += 1
+
+        before_trip_pf = self._solve()
+        overloaded = [
+            int(i)
+            for i, rho in enumerate(before_trip_pf.relative_flow)
+            if self.line_status[i] and rho >= 1.0
+        ]
         tripped = []
-        for idx in overloaded:
-            rho = float(flows[idx])
-            beta = 1.0 if rho >= 1.5 else max(0.0, 2.0 * (rho - 1.0))
-            if self.rng.random() < beta:
-                self.line_status[idx] = 0
-                tripped.append(idx)
+        if before_trip_pf.converged:
+            for idx in overloaded:
+                beta = self._trip_probability(float(before_trip_pf.relative_flow[idx]))
+                if self.rng.random() < beta:
+                    self.line_status[idx] = 0
+                    tripped.append(idx)
+
         self.generation += 1
-        self.current_load = approximate_load_after_outages(self.base_load, self.line_status)
-        converged_after, self.relative_flow = self.backend.solve(self.line_status, self.generation)
-        pf_failed = not (converged and converged_after)
-        terminal = pf_failed or not tripped or self.generation >= self.max_generations
+        after_trip_pf = self._solve()
+        self.last_pf = after_trip_pf
+        self.relative_flow = after_trip_pf.relative_flow
+        self.current_load = after_trip_pf.current_load_mw
+        pf_failed = not (before_trip_pf.converged and after_trip_pf.converged)
+        terminal = pf_failed or len(tripped) == 0 or self.generation >= self.max_generations
         self.done = terminal
         reward = cascade_reward(
             terminal=terminal,
@@ -93,6 +116,7 @@ class CascadeMitigationEnv:
             current_load=self.current_load,
             generation=self.generation,
         )
+        self.episode_return += float(reward)
         record = {
             "generation": self.generation,
             "outaged_lines": np.where(self.line_status == 0)[0].astype(int).tolist(),
@@ -100,22 +124,55 @@ class CascadeMitigationEnv:
             "overloaded_lines": overloaded,
             "random_trips": tripped,
             "pf_converged": not pf_failed,
-            "load_shed_MW": self.base_load - self.current_load,
+            "load_shed_MW": after_trip_pf.load_shed_mw,
+            "load_shed_ratio": after_trip_pf.load_shed_ratio,
             "invalid_action": bool(invalid),
+            "island_records": after_trip_pf.island_records,
         }
         self.trace.append(record)
-        info = {
-            "cascade_trace": self.trace,
-            "num_generations": self.generation,
-            "num_line_outages": int((self.line_status == 0).sum()),
-            "load_shed_MW": self.base_load - self.current_load,
-            "load_shed_ratio": (self.base_load - self.current_load) / self.base_load,
-            "num_proactive_actions": sum(1 for row in self.trace if row["proactive_action"] is not None),
-            "num_invalid_actions": sum(1 for row in self.trace if row["invalid_action"]),
-            "pf_failed": pf_failed,
-            "action_mask": self.get_action_mask(),
-        }
-        return build_observation(self.line_status, self.relative_flow), reward, terminal, False, info
+        return build_observation(self.line_status, self.relative_flow), reward, terminal, False, self._info(pf_failed=pf_failed)
 
     def render_cascade(self) -> str:
         return "\n".join(str(row) for row in self.trace)
+
+    def _solve(self):
+        if self.backend_name in {"surrogate", "debug", "dc_debug_surrogate"}:
+            return self.backend.solve(self.line_status, generation=self.generation, load_scale=self.load_scale, gen_scale=self.gen_scale)
+        return self.backend.solve(self.line_status, load_scale=self.load_scale, gen_scale=self.gen_scale)
+
+    def _sample_chronic_scales(self) -> tuple[float, float]:
+        if not self.chronics:
+            return 1.0, 1.0
+        n = len(self.chronics.get("load_scale", [1.0]))
+        idx = int(self.rng.integers(0, max(1, n)))
+        load_scale = float(self.chronics.get("load_scale", np.ones(n))[idx])
+        gen_scale = float(self.chronics.get("gen_scale", np.ones(n))[idx])
+        return load_scale, gen_scale
+
+    @staticmethod
+    def _trip_probability(rho: float) -> float:
+        if rho >= 1.5:
+            return 1.0
+        if 1.0 <= rho < 1.5:
+            return 2.0 * (rho - 1.0)
+        return 0.0
+
+    def _info(self, pf_failed: bool) -> dict:
+        load_shed_mw = getattr(self.last_pf, "load_shed_mw", 0.0)
+        load_shed_ratio = getattr(self.last_pf, "load_shed_ratio", 0.0)
+        return {
+            "episode_return": self.episode_return,
+            "negative_return": -self.episode_return,
+            "num_generations": self.generation,
+            "num_line_outages": int((self.line_status == 0).sum()),
+            "load_shed_MW": load_shed_mw,
+            "load_shed_ratio": load_shed_ratio,
+            "num_proactive_actions": self.num_proactive_actions,
+            "num_invalid_actions": self.num_invalid_actions,
+            "pf_failed": bool(pf_failed),
+            "cascade_trace": self.trace,
+            "action_mask": self.get_action_mask(),
+            "backend": self.backend_name,
+            "island_count": getattr(self.last_pf, "island_count", 0),
+            "island_records": getattr(self.last_pf, "island_records", []),
+        }
