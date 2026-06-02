@@ -79,7 +79,8 @@ def train_ppo_clip(
         sampled_invalid_action_count = 0
         valid_action_counts = []
         for _ in range(min(n_steps, total_steps - step)):
-            mask = info.get("action_mask", np.ones(env.action_space_n, dtype=bool))
+            env_mask = info.get("action_mask", np.ones(env.action_space_n, dtype=bool))
+            mask = env_mask if getattr(env, "use_action_mask", False) else np.ones(env.action_space_n, dtype=bool)
             mask_arr = np.asarray(mask, dtype=bool)
             valid_action_counts.append(int(mask_arr.sum()))
             obs_t = torch.tensor(obs, dtype=torch.float32).unsqueeze(0)
