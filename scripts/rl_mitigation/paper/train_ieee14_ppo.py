@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import argparse
 
-from ._common import ROOT, load_config, make_paper_env
+from ._common import ROOT, MODE_DEFAULTS, load_config, make_paper_env, mode_suffix, normalize_mode
 from rl_mitigation.rl.ppo_clip import train_ppo_clip
 
 
@@ -10,24 +10,25 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="configs/rl_mitigation/paper/ieee14_paper_ppo.yaml")
     parser.add_argument("--smoke", action="store_true")
+    parser.add_argument("--mode", choices=["smoke", "medium", "formal"])
     parser.add_argument("--steps", type=int)
     parser.add_argument("--variant", default="proposed_pretrain_mask")
     parser.add_argument("--no-pretrain", action="store_true")
     parser.add_argument("--no-mask", action="store_true")
     args = parser.parse_args()
+    mode = normalize_mode(args.mode, args.smoke)
     cfg = load_config(args.config)
     cfg["ppo"]["use_action_mask"] = not args.no_mask
     cfg["ppo"]["use_do_nothing_pretrain"] = not args.no_pretrain
     env = make_paper_env(cfg)
     ppo = cfg["ppo"]
-    steps = args.steps or ppo.get("total_steps", 60000)
-    if args.smoke:
-        steps = min(steps, 2048)
+    steps = args.steps or MODE_DEFAULTS[mode]["steps"]
     base = ROOT / "results" / "rl_mitigation" / "paper" / "ieee14"
     pretrain = base / "pretrain" / "policy_pretrained_torch.pt"
     pretrained = str(pretrain) if ppo.get("use_do_nothing_pretrain", True) and pretrain.exists() else None
-    log = base / "train_logs" / f"{args.variant}{'_smoke' if args.smoke else ''}.csv"
-    ckpt = base / "checkpoints" / args.variant
+    suffix = mode_suffix(mode)
+    log = base / "train_logs" / f"{args.variant}{suffix}.csv"
+    ckpt = base / "checkpoints" / f"{args.variant}{suffix}"
     _, rows = train_ppo_clip(
         env,
         total_steps=steps,
@@ -52,4 +53,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

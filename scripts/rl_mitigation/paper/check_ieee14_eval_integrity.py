@@ -5,7 +5,7 @@ import csv
 import json
 from pathlib import Path
 
-from ._common import ROOT
+from ._common import ROOT, mode_suffix, normalize_mode, rel
 
 
 REQUIRED_POLICIES = {"do_nothing", "paper_proposed_policy"}
@@ -19,15 +19,20 @@ MATCH_FIELDS = {"initial_outages", "initial_outage_type", "chronic_index", "load
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--eval-csv", default="results/rl_mitigation/paper/ieee14/eval/eval_100_before_after_smoke.csv")
+    parser.add_argument("--mode", choices=["smoke", "medium", "formal"])
+    parser.add_argument("--suffix", choices=["smoke", "medium", "formal"])
     args = parser.parse_args()
+    inferred = "medium" if "_medium" in args.eval_csv else None
+    mode = normalize_mode(args.suffix or args.mode or inferred, "_smoke" in args.eval_csv)
     path = Path(args.eval_csv)
     if not path.is_absolute():
         path = ROOT / path
     rows = _read(path)
     result = check_rows(rows)
-    result["eval_csv"] = str(path)
+    result["source_eval_csv"] = rel(path)
     out = ROOT / "results" / "rl_mitigation" / "paper" / "ieee14" / "reports"
     out.mkdir(parents=True, exist_ok=True)
+    (out / f"ieee14_eval_integrity_check{mode_suffix(mode)}.json").write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
     (out / "ieee14_eval_integrity_check.json").write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
     if not result["passed"]:
         raise SystemExit(f"IEEE14 eval integrity failed: {result['errors'][:3]}")

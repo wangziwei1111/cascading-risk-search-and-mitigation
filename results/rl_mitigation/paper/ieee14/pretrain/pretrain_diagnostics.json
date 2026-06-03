@@ -2,15 +2,30 @@
   "before": {
     "mean_prob_do_nothing": 0.03791174292564392,
     "median_prob_do_nothing": 0.037775494158267975,
+    "p10_prob_do_nothing": 0.03510917350649834,
+    "p90_prob_do_nothing": 0.04044771194458008,
     "mean_entropy": 3.034634590148926,
     "mean_max_nonzero_prob": 0.06193084642291069
   },
   "after": {
-    "mean_prob_do_nothing": 0.07344046980142593,
-    "median_prob_do_nothing": 0.0752444937825203,
-    "mean_entropy": 3.028817653656006,
-    "mean_max_nonzero_prob": 0.05925650894641876
+    "mean_prob_do_nothing": 0.3802933096885681,
+    "median_prob_do_nothing": 0.39889290928840637,
+    "p10_prob_do_nothing": 0.2595197856426239,
+    "p90_prob_do_nothing": 0.42428648471832275,
+    "mean_entropy": 2.487924098968506,
+    "mean_max_nonzero_prob": 0.04686781391501427
   },
+  "mean_prob_do_nothing": 0.3802933096885681,
+  "median_prob_do_nothing": 0.39889290928840637,
+  "p10_prob_do_nothing": 0.2595197856426239,
+  "p90_prob_do_nothing": 0.42428648471832275,
+  "mean_entropy": 2.487924098968506,
+  "mean_max_nonzero_prob": 0.04686781391501427,
+  "random_action_probability": 0.047619047619047616,
   "target_do_nothing_prob": 0.6,
-  "warning": "pretraining is conservative; it should not collapse all probability mass to do-nothing"
+  "target_do_nothing_prob_min": 0.35,
+  "target_do_nothing_prob_max": 0.8,
+  "target_reached": true,
+  "warning": null,
+  "epochs_run": 17
 }

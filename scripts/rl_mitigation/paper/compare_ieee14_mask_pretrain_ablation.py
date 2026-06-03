@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from ._common import ROOT
+from ._common import ROOT, MODE_DEFAULTS, mode_suffix, normalize_mode
 
 
 VARIANTS = [
@@ -21,9 +21,11 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="configs/rl_mitigation/paper/ieee14_paper_ppo.yaml")
     parser.add_argument("--smoke", action="store_true")
+    parser.add_argument("--mode", choices=["smoke", "medium", "formal"])
     parser.add_argument("--steps", type=int, default=512)
     parser.add_argument("--eval-episodes", type=int, default=50)
-    parser.parse_args()
+    args = parser.parse_args()
+    mode = normalize_mode(args.mode, args.smoke)
     base = ROOT / "results" / "rl_mitigation" / "paper" / "ieee14"
     eval_rows = _read_latest_eval(base / "eval")
     out_dir = base / "ablation"
@@ -32,13 +34,22 @@ def main() -> None:
     for variant, use_pretrain, use_mask in VARIANTS:
         rows.append(_summary(variant, use_pretrain, use_mask, eval_rows))
     fields = list(rows[0])
-    with open(out_dir / "mask_pretrain_ablation.csv", "w", newline="", encoding="utf-8") as f:
+    suffix = mode_suffix(mode)
+    with open(out_dir / f"mask_pretrain_ablation{suffix}.csv", "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fields)
         writer.writeheader()
         writer.writerows(rows)
-    lines = ["# IEEE14 Mask/Pretrain Ablation", "", "This table is a paper-method ablation scaffold. It excludes oracle BC and safe gate.", ""]
+    lines = [
+        "# IEEE14 Mask/Pretrain Ablation",
+        "",
+        f"Mode: `{mode}`",
+        "",
+        "This table is a paper-method ablation scaffold. It excludes oracle BC and safe gate.",
+        "Variant D is the paper proposed combination: do-nothing pretrain + invalid action mask.",
+        "",
+    ]
     lines.extend(f"- {row['variant']}: mean negative return `{row['mean_negative_return']:.4f}`" for row in rows)
-    (out_dir / "mask_pretrain_ablation.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (out_dir / f"mask_pretrain_ablation{suffix}.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"IEEE14 mask/pretrain ablation summary written to {out_dir}")
 
 

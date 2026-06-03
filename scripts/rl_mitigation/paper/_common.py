@@ -17,6 +17,55 @@ from rl_mitigation.contingency.sampler import ContingencySampler
 from rl_mitigation.envs import CascadeMitigationEnv
 
 
+MODE_DEFAULTS = {
+    "smoke": {
+        "steps": 2048,
+        "eval_episodes": 100,
+        "gridsearch_steps": 512,
+        "pretrain_states": 512,
+        "ablation_steps": 512,
+        "ablation_eval_episodes": 50,
+    },
+    "medium": {
+        "steps": 20000,
+        "eval_episodes": 300,
+        "gridsearch_steps": 5000,
+        "pretrain_states": 2048,
+        "ablation_steps": 5000,
+        "ablation_eval_episodes": 100,
+    },
+    "formal": {
+        "steps": 60000,
+        "eval_episodes": 1000,
+        "gridsearch_steps": 60000,
+        "pretrain_states": 4096,
+        "ablation_steps": 60000,
+        "ablation_eval_episodes": 1000,
+    },
+}
+
+
+def normalize_mode(mode: str | None = None, smoke: bool = False) -> str:
+    if smoke:
+        return "smoke"
+    mode = mode or "formal"
+    if mode not in MODE_DEFAULTS:
+        raise ValueError(f"Unknown paper reproduction mode: {mode}")
+    return mode
+
+
+def mode_suffix(mode: str) -> str:
+    return "" if mode == "formal" else f"_{mode}"
+
+
+def rel(path: str | Path) -> str:
+    cur = Path(path)
+    try:
+        return cur.resolve().relative_to(ROOT.resolve()).as_posix()
+    except ValueError:
+        return cur.as_posix()
+
+
 def load_config(path: str | Path) -> dict:
     cur = Path(path)
     if not cur.is_absolute():

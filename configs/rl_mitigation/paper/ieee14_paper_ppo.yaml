@@ -35,7 +35,10 @@ ppo:
   use_do_nothing_pretrain: true
 pretrain:
   n_states: 2048
-  epochs: 5
+  epochs: 20
+  learning_rate: 1.0e-3
   entropy_coef: 0.01
   target_do_nothing_prob: 0.60
-
+  target_do_nothing_prob_min: 0.35
+  target_do_nothing_prob_max: 0.80
+  early_stop_when_target_reached: true

@@ -194,7 +194,7 @@ class CascadeMitigationEnv:
         if scenario is not None and "initial_outages" in scenario:
             self.initial_outages = [int(x) for x in scenario["initial_outages"]]
             self.initial_outage_mode = scenario.get("initial_outage_mode", self.initial_outage_mode)
-        elif self.initial_outage_mode == "sampled":
+        elif self.initial_outage_mode in {"sampled", "sampled_motif"}:
             self.initial_outages = list(self.contingency_sampler.sample_one())
         elif self.initial_outage_mode == "fixed":
             self.initial_outages = list(self.fixed_initial_outages)

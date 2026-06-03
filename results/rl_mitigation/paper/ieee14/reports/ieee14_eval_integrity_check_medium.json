@@ -7,5 +7,5 @@
     "paper_proposed_policy"
   ],
   "errors": [],
-  "source_eval_csv": "results/rl_mitigation/paper/ieee14/eval/eval_100_before_after_smoke.csv"
+  "source_eval_csv": "results/rl_mitigation/paper/ieee14/eval/eval_100_before_after_medium.csv"
 }

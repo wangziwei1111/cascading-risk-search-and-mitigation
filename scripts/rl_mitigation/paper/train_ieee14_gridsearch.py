@@ -7,7 +7,7 @@ import copy
 import matplotlib.pyplot as plt
 import yaml
 
-from ._common import ROOT, load_config, resolve, make_paper_env
+from ._common import ROOT, MODE_DEFAULTS, load_config, make_paper_env, mode_suffix, normalize_mode
 from rl_mitigation.rl.ppo_clip import train_ppo_clip
 
 
@@ -15,11 +15,13 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="configs/rl_mitigation/paper/ieee14_paper_gridsearch.yaml")
     parser.add_argument("--smoke", action="store_true")
+    parser.add_argument("--mode", choices=["smoke", "medium", "formal"])
     parser.add_argument("--steps", type=int, default=60000)
     args = parser.parse_args()
+    mode = normalize_mode(args.mode, args.smoke)
     grid = load_config(args.config)
     base_cfg = load_config(grid.get("base_config", "configs/rl_mitigation/paper/ieee14_paper_ppo.yaml"))
-    out = ROOT / "results" / "rl_mitigation" / "paper" / "ieee14" / "gridsearch" / ("smoke" if args.smoke else "formal")
+    out = ROOT / "results" / "rl_mitigation" / "paper" / "ieee14" / "gridsearch" / mode
     out.mkdir(parents=True, exist_ok=True)
     all_rows = []
     for lr in grid["learning_rates"]:
@@ -28,7 +30,7 @@ def main() -> None:
             cfg["ppo"]["learning_rate"] = float(lr)
             cfg["ppo"]["entropy_coef"] = float(ent)
             env = make_paper_env(cfg)
-            steps = min(args.steps, 2048) if args.smoke else args.steps
+            steps = args.steps if args.steps != 60000 else MODE_DEFAULTS[mode]["gridsearch_steps"]
             name = f"lr_{_fmt(lr)}_ent_{_fmt(ent)}"
             log = out / f"{name}.csv"
             _, rows = train_ppo_clip(
@@ -52,7 +54,7 @@ def main() -> None:
             for row in rows:
                 row["setting"] = name
                 all_rows.append(row)
-    _plot_grid(all_rows, ROOT / "results" / "rl_mitigation" / "paper" / "ieee14" / "figures", smoke=args.smoke)
+    _plot_grid(all_rows, ROOT / "results" / "rl_mitigation" / "paper" / "ieee14" / "figures", mode=mode)
     print(f"IEEE14 gridsearch logs written to {out}")
 
 
@@ -60,9 +62,9 @@ def _fmt(value) -> str:
     return f"{float(value):.0e}".replace("+", "")
 
 
-def _plot_grid(rows, figures, smoke: bool) -> None:
+def _plot_grid(rows, figures, mode: str) -> None:
     figures.mkdir(parents=True, exist_ok=True)
-    suffix = "_smoke" if smoke else ""
+    suffix = mode_suffix(mode)
     out_csv = figures / f"fig7_ieee14_learning_curves_gridsearch{suffix}.csv"
     with open(out_csv, "w", newline="", encoding="utf-8") as f:
         fields = sorted({k for row in rows for k in row})
@@ -76,7 +78,7 @@ def _plot_grid(rows, figures, smoke: bool) -> None:
             continue
         plt.plot([float(r["step"]) for r in cur], [float(r["episode_return"]) for r in cur], label=setting, linewidth=1.0)
     plt.xlabel("Training steps")
-    plt.ylabel("Episode return")
+    plt.ylabel(f"Episode return ({mode})")
     plt.legend(fontsize=7)
     plt.tight_layout()
     plt.savefig(figures / f"fig7_ieee14_learning_curves_gridsearch{suffix}.png", dpi=200)

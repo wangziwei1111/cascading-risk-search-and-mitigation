@@ -1,16 +1,15 @@
 from __future__ import annotations
 
 import argparse
-import shutil
-
-from .evaluate_ieee14_survival import main as survival_main
-from ._common import ROOT
+from ._common import ROOT, normalize_mode
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--smoke", action="store_true")
+    parser.add_argument("--mode", choices=["smoke", "medium", "formal"])
     args = parser.parse_args()
+    mode = normalize_mode(args.mode, args.smoke)
     base = ROOT / "results" / "rl_mitigation" / "paper" / "ieee14"
     figs = base / "figures"
     figs.mkdir(parents=True, exist_ok=True)
@@ -18,8 +17,9 @@ def main() -> None:
     caption = [
         "# IEEE14 Paper Figures",
         "",
-        "- Figure 7: grid-search learning curves. Smoke files include `_smoke` in the figure name.",
-        "- Figure 8: before/after negative-return survival function.",
+        f"- Current requested mode: `{mode}`.",
+        "- Figure 7: grid-search learning curves. Smoke/medium files include explicit suffixes.",
+        "- Figure 8: before/after negative-return survival function. Smoke/medium/formal files are separate.",
         "- No oracle, safe gate, or GCN-RL result is included in these paper figures.",
     ]
     (figs / "ieee14_paper_figures_readme.md").write_text("\n".join(caption) + "\n", encoding="utf-8")
@@ -28,4 +28,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

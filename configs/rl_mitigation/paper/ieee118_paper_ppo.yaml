@@ -10,7 +10,7 @@ powerflow:
   default_rate_a_mw: 100.0
   use_original_rate_a: false
 initial_outages:
-  mode: sampled
+  mode: sampled_motif
   include_n_minus_1: false
   include_common_bus_n_minus_2: true
   k_values: [2, 3, 4]

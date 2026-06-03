@@ -3,11 +3,12 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
 
-from ._common import ROOT
+from ._common import ROOT, mode_suffix, normalize_mode, rel
 
 
 KEY_METRICS = {
@@ -21,38 +22,58 @@ KEY_METRICS = {
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--eval-csv")
+    parser.add_argument("--suffix", choices=["smoke", "medium", "formal"])
+    parser.add_argument("--mode", choices=["smoke", "medium", "formal"])
+    parser.add_argument("--checkpoint")
+    parser.add_argument("--train-log")
     args = parser.parse_args()
+
+    inferred = "medium" if args.eval_csv and "_medium" in args.eval_csv else None
+    mode = normalize_mode(args.suffix or args.mode or inferred, bool(args.eval_csv and "_smoke" in args.eval_csv))
+    suffix = mode_suffix(mode)
     base = ROOT / "results" / "rl_mitigation" / "paper" / "ieee14"
+    checkpoint = Path(args.checkpoint) if args.checkpoint else base / "checkpoints" / f"proposed_pretrain_mask{suffix}" / "latest.pt"
+    train_log = Path(args.train_log) if args.train_log else base / "train_logs" / f"proposed_pretrain_mask{suffix}.csv"
     eval_path = _resolve_eval(base, args.eval_csv)
+
     rows = _read(eval_path) if eval_path and eval_path.exists() else []
     by_policy: dict[str, list[dict]] = {}
     for row in rows:
         by_policy.setdefault(row["policy"], []).append(row)
 
     report = {
-        "source_eval": str(eval_path) if eval_path else None,
+        "source_eval": rel(eval_path) if eval_path else None,
+        "source_eval_csv": rel(eval_path) if eval_path else None,
+        "source_checkpoint": rel(checkpoint),
+        "source_train_log": rel(train_log),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "num_scenarios": 0,
+        "num_rows": len(rows),
+        "mode": mode,
         "overall": "not_supported",
         "metrics": {},
         "checks": {},
         "plain_language_conclusion": "IEEE14 evaluation rows are missing or incomplete.",
         "recommended_thesis_wording": (
-            "当前仓库已复现论文MDP、动作空间、奖励函数、do-nothing初始化、"
-            "invalid action mask和PPO训练流程；性能结论需以claim check为准。"
+            "当前仓库已复现论文的MDP、动作空间、奖励函数、do-nothing初始化、"
+            "invalid action mask和PPO训练流程；性能结论必须以claim check为准。"
         ),
     }
+
     metric_rows: list[dict] = []
     if "do_nothing" in by_policy and "paper_proposed_policy" in by_policy:
         dn = _summary(by_policy["do_nothing"])
         pp = _summary(by_policy["paper_proposed_policy"])
         metric_rows = _metric_rows(dn, pp)
         checks = {f"{row['metric']}_supported": bool(row["supported"]) for row in metric_rows}
-        key_supported = [row["supported"] for row in metric_rows if row["metric"] in KEY_METRICS]
         report.update({
             "do_nothing": dn,
             "paper_proposed_policy": pp,
             "metrics": {row["metric"]: row for row in metric_rows},
             "checks": checks,
-            "overall": _overall(key_supported, [row["supported"] for row in metric_rows]),
+            "overall": _overall(metric_rows),
+            "num_scenarios": len({row.get("scenario_id") for row in rows}),
+            "num_rows": len(rows),
         })
         if report["overall"] == "fully_supported":
             conclusion = "当前IEEE14评估支持paper proposed PPO相对do-nothing的主要缓解效果。"
@@ -60,21 +81,25 @@ def main() -> None:
             conclusion = "性能结论未完全复现：部分指标改善，但关键指标未全部优于do-nothing。"
         else:
             conclusion = "性能结论未复现：关键缓解指标未优于do-nothing。"
-        if not report["metrics"]["mean_negative_return"]["supported"]:
-            conclusion += " 特别是mean negative return未降低。"
+        if report["metrics"]["mean_negative_return"]["direction"] != "improved":
+            conclusion += " 性能结论未完全复现，特别是mean negative return未降低。"
         report["plain_language_conclusion"] = conclusion
         report["recommended_thesis_wording"] = (
-            "在PYPOWER IEEE14替代环境下，仓库完成了论文机制复现和smoke训练验证；"
-            f"当前PPO缓解性能结论为{report['overall']}，不能写成完整数值复现。"
+            f"在PYPOWER IEEE14替代环境下，当前{mode}运行完成了论文机制复现；"
+            f"PPO缓解性能结论为{report['overall']}，不能写成完整数值复现。"
         )
 
     out = base / "reports"
     tables = base / "tables"
     out.mkdir(parents=True, exist_ok=True)
     tables.mkdir(parents=True, exist_ok=True)
-    (out / "ieee14_claim_check.json").write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+    payload = json.dumps(report, indent=2, ensure_ascii=False)
+    (out / f"ieee14_claim_check{suffix}.json").write_text(payload, encoding="utf-8")
+    (out / "ieee14_claim_check.json").write_text(payload, encoding="utf-8")
+    _write_md(report, out / f"ieee14_claim_check{suffix}.md")
     _write_md(report, out / "ieee14_claim_check.md")
     if metric_rows:
+        _write_metrics_csv(metric_rows, tables / f"table_ieee14_claim_metrics{suffix}.csv")
         _write_metrics_csv(metric_rows, tables / "table_ieee14_claim_metrics.csv")
     print(f"IEEE14 claim check written to {out}")
 
@@ -148,10 +173,17 @@ def _metric_rows(dn: dict, pp: dict) -> list[dict]:
     return rows
 
 
-def _overall(key_supported: list[bool], all_supported: list[bool]) -> str:
-    if key_supported and all(key_supported):
+def _overall(metric_rows: list[dict]) -> str:
+    rows = {row["metric"]: row for row in metric_rows}
+    key_improved = [
+        rows["mean_negative_return"]["direction"] == "improved",
+        rows["mean_num_line_outages"]["direction"] == "improved",
+        rows["mean_load_shed_MW"]["direction"] == "improved",
+    ]
+    pf_not_higher = rows["pf_failed_ratio"]["difference_proposed_minus_do_nothing"] <= 1e-9
+    if all(key_improved) and pf_not_higher:
         return "fully_supported"
-    if any(all_supported):
+    if any(key_improved):
         return "partially_supported"
     return "not_supported"
 
@@ -172,7 +204,11 @@ def _write_md(report: dict, path: Path) -> None:
     lines = [
         "# IEEE14 Paper Claim Check",
         "",
+        f"Mode: `{report['mode']}`",
         f"Overall: `{report['overall']}`",
+        f"source_eval_csv: `{report['source_eval_csv']}`",
+        f"source_checkpoint: `{report['source_checkpoint']}`",
+        f"source_train_log: `{report['source_train_log']}`",
         "",
         report["plain_language_conclusion"],
         "",
@@ -182,8 +218,8 @@ def _write_md(report: dict, path: Path) -> None:
         lines.extend(["", "| Metric | do-nothing | proposed | diff | direction | supported |", "|---|---:|---:|---:|---|---:|"])
         for row in report["metrics"].values():
             lines.append(
-                f"| {row['metric']} | {row['do_nothing_mean']:.4f} | {row['proposed_mean']:.4f} | "
-                f"{row['difference_proposed_minus_do_nothing']:.4f} | {row['direction']} | {row['supported']} |"
+                f"| {row['metric']} | {row['do_nothing_mean']:.6f} | {row['proposed_mean']:.6f} | "
+                f"{row['difference_proposed_minus_do_nothing']:.6f} | {row['direction']} | {row['supported']} |"
             )
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 

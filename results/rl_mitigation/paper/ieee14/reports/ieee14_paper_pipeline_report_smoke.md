@@ -1,17 +1,17 @@
 # IEEE14 Paper Pipeline Report
 
-Mode: `medium`
+Mode: `smoke`
 Config: `configs/rl_mitigation/paper/ieee14_paper_ppo.yaml`
-Training steps: `5000`
+Training steps: `2048`
 Eval episodes: `100`
 
 ## Sources
 
-- source_eval_csv: `results/rl_mitigation/paper/ieee14/eval/eval_100_before_after_medium.csv`
-- source_checkpoint: `results/rl_mitigation/paper/ieee14/checkpoints/proposed_pretrain_mask_medium/latest.pt`
-- source_train_log: `results/rl_mitigation/paper/ieee14/train_logs/proposed_pretrain_mask_medium.csv`
-- Figure 8: `results/rl_mitigation/paper/ieee14/figures/fig8_ieee14_negative_return_survival_medium.png`
-- Claim check: `results/rl_mitigation/paper/ieee14/reports/ieee14_claim_check_medium.json`
+- source_eval_csv: `results/rl_mitigation/paper/ieee14/eval/eval_100_before_after_smoke.csv`
+- source_checkpoint: `results/rl_mitigation/paper/ieee14/checkpoints/proposed_pretrain_mask_smoke/latest.pt`
+- source_train_log: `results/rl_mitigation/paper/ieee14/train_logs/proposed_pretrain_mask_smoke.csv`
+- Figure 8: `results/rl_mitigation/paper/ieee14/figures/fig8_ieee14_negative_return_survival_smoke.png`
+- Claim check: `results/rl_mitigation/paper/ieee14/reports/ieee14_claim_check_smoke.json`
 
 ## Do-Nothing Pretrain Diagnostics
 
@@ -40,4 +40,4 @@ Overall: `not_supported`
 
 性能结论未复现：关键缓解指标未优于do-nothing。 性能结论未完全复现，特别是mean negative return未降低。
 
-在PYPOWER IEEE14替代环境下，当前medium运行完成了论文机制复现；PPO缓解性能结论为not_supported，不能写成完整数值复现。
+在PYPOWER IEEE14替代环境下，当前smoke运行完成了论文机制复现；PPO缓解性能结论为not_supported，不能写成完整数值复现。

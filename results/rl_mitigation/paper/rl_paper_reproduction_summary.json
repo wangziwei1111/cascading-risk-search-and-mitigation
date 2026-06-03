@@ -1,5 +1,5 @@
 {
-  "smoke": true,
+  "smoke_or_mode": "smoke",
   "steps": {
     "ieee5_dp": {
       "status": "completed",
@@ -11,7 +11,7 @@
       "outputs": [
         "results/rl_mitigation/paper/ieee5/ieee5_dp_report.md"
       ],
-      "stdout": "IEEE5 DP paper artifacts written to C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\rl_mitigation\\paper\\ieee5\n"
+      "stdout_or_summary": "IEEE5 DP paper artifacts written to .\\results\\rl_mitigation\\paper\\ieee5\n"
     },
     "figure1_trace": {
       "status": "completed",
@@ -23,7 +23,7 @@
       "outputs": [
         "results/rl_mitigation/paper/figure1_trace/ieee14_example_trace.md"
       ],
-      "stdout": "Figure 1 trace written to C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\rl_mitigation\\paper\\figure1_trace\n"
+      "stdout_or_summary": "Figure 1 trace written to .\\results\\rl_mitigation\\paper\\figure1_trace\n"
     },
     "ieee14_paper_pipeline": {
       "status": "completed",
@@ -31,16 +31,17 @@
         "scripts.rl_mitigation.paper.run_ieee14_paper_pipeline",
         "--config",
         "configs/rl_mitigation/paper/ieee14_paper_ppo.yaml",
+        "--mode",
+        "smoke",
         "--steps",
         "2048",
         "--eval-episodes",
-        "100",
-        "--smoke"
+        "100"
       ],
       "outputs": [
-        "results/rl_mitigation/paper/ieee14/reports/ieee14_paper_pipeline_report.md"
+        "results/rl_mitigation/paper/ieee14/reports/ieee14_paper_pipeline_report_smoke.md"
       ],
-      "stdout": "Paper do-nothing pretraining written to C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\rl_mitigation\\paper\\ieee14\\pretrain\nIEEE14 paper PPO wrote 1808 episodes to C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\rl_mitigation\\paper\\ieee14\\train_logs\\proposed_pretrain_mask_smoke.csv\nIEEE14 paper eval written to C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\rl_mitigation\\paper\\ieee14\\eval\\eval_100_before_after_smoke.csv\nFigure 8 written to C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\rl_mitigation\\paper\\ieee14\\figures\nIEEE14 eval integrity check written to C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\rl_mitigation\\paper\\ieee14\\reports\nIEEE14 claim check written to C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\rl_mitigation\\paper\\ieee14\\reports\n"
+      "stdout_or_summary": "Paper do-nothing pretraining written to .\\results\\rl_mitigation\\paper\\ieee14\\pretrain\nIEEE14 paper PPO wrote 1792 episodes to .\\results\\rl_mitigation\\paper\\ieee14\\train_logs\\proposed_pretrain_mask_smoke.csv\nIEEE14 paper eval written to .\\results\\rl_mitigation\\paper\\ieee14\\eval\\eval_100_before_after_smoke.csv\nIEEE14 eval integrity check written to .\\results\\rl_mitigation\\paper\\ieee14\\reports\nFigure 8 written to .\\results\\rl_mitigation\\paper\\ieee14\\figures\nIEEE14 claim check written to .\\results\\rl_mitigation\\paper\\ieee14\\reports\n"
     },
     "ieee14_gridsearch": {
       "status": "completed",
@@ -48,39 +49,48 @@
         "scripts.rl_mitigation.paper.train_ieee14_gridsearch",
         "--config",
         "configs/rl_mitigation/paper/ieee14_paper_gridsearch.yaml",
+        "--mode",
+        "smoke",
         "--steps",
-        "512",
-        "--smoke"
+        "512"
       ],
       "outputs": [
         "results/rl_mitigation/paper/ieee14/figures/fig7_ieee14_learning_curves_gridsearch_smoke.png"
       ],
-      "stdout": "IEEE14 gridsearch logs written to C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\rl_mitigation\\paper\\ieee14\\gridsearch\\smoke\n"
+      "stdout_or_summary": "IEEE14 gridsearch logs written to .\\results\\rl_mitigation\\paper\\ieee14\\gridsearch\\smoke\n"
     },
     "ieee14_eval_integrity": {
       "status": "completed",
       "command": [
         "scripts.rl_mitigation.paper.check_ieee14_eval_integrity",
         "--eval-csv",
-        "results/rl_mitigation/paper/ieee14/eval/eval_100_before_after_smoke.csv"
+        "results/rl_mitigation/paper/ieee14/eval/eval_100_before_after_smoke.csv",
+        "--suffix",
+        "smoke"
       ],
       "outputs": [
-        "results/rl_mitigation/paper/ieee14/reports/ieee14_eval_integrity_check.json"
+        "results/rl_mitigation/paper/ieee14/reports/ieee14_eval_integrity_check_smoke.json"
       ],
-      "stdout": "IEEE14 eval integrity check written to C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\rl_mitigation\\paper\\ieee14\\reports\n"
+      "stdout_or_summary": "IEEE14 eval integrity check written to .\\results\\rl_mitigation\\paper\\ieee14\\reports\n"
     },
     "ieee14_claim_check": {
       "status": "completed",
       "command": [
         "scripts.rl_mitigation.paper.check_ieee14_paper_claims",
         "--eval-csv",
-        "results/rl_mitigation/paper/ieee14/eval/eval_100_before_after_smoke.csv"
+        "results/rl_mitigation/paper/ieee14/eval/eval_100_before_after_smoke.csv",
+        "--suffix",
+        "smoke",
+        "--checkpoint",
+        "results/rl_mitigation/paper/ieee14/checkpoints/proposed_pretrain_mask_smoke/latest.pt",
+        "--train-log",
+        "results/rl_mitigation/paper/ieee14/train_logs/proposed_pretrain_mask_smoke.csv"
       ],
       "outputs": [
-        "results/rl_mitigation/paper/ieee14/reports/ieee14_claim_check.json",
-        "results/rl_mitigation/paper/ieee14/tables/table_ieee14_claim_metrics.csv"
+        "results/rl_mitigation/paper/ieee14/reports/ieee14_claim_check_smoke.json",
+        "results/rl_mitigation/paper/ieee14/tables/table_ieee14_claim_metrics_smoke.csv"
       ],
-      "stdout": "IEEE14 claim check written to C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\rl_mitigation\\paper\\ieee14\\reports\n"
+      "stdout_or_summary": "IEEE14 claim check written to .\\results\\rl_mitigation\\paper\\ieee14\\reports\n"
     },
     "ieee14_mask_pretrain_ablation": {
       "status": "completed",
@@ -88,16 +98,17 @@
         "scripts.rl_mitigation.paper.compare_ieee14_mask_pretrain_ablation",
         "--config",
         "configs/rl_mitigation/paper/ieee14_paper_ppo.yaml",
-        "--smoke",
+        "--mode",
+        "smoke",
         "--steps",
         "512",
         "--eval-episodes",
         "50"
       ],
       "outputs": [
-        "results/rl_mitigation/paper/ieee14/ablation/mask_pretrain_ablation.csv"
+        "results/rl_mitigation/paper/ieee14/ablation/mask_pretrain_ablation_smoke.csv"
       ],
-      "stdout": "IEEE14 mask/pretrain ablation summary written to C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\rl_mitigation\\paper\\ieee14\\ablation\n"
+      "stdout_or_summary": "IEEE14 mask/pretrain ablation summary written to .\\results\\rl_mitigation\\paper\\ieee14\\ablation\n"
     },
     "ieee118_pretrain": {
       "status": "completed",
@@ -111,7 +122,7 @@
       "outputs": [
         "results/rl_mitigation/paper/ieee118/pretrain/pretrain_diagnostics.json"
       ],
-      "stdout": "IEEE118 paper pretrain written to C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\rl_mitigation\\paper\\ieee118\\pretrain\n"
+      "stdout_or_summary": "IEEE118 paper pretrain written to .\\results\\rl_mitigation\\paper\\ieee118\\pretrain\n"
     },
     "ieee118_ppo": {
       "status": "completed",
@@ -119,14 +130,14 @@
         "scripts.rl_mitigation.paper.train_ieee118_ppo",
         "--config",
         "configs/rl_mitigation/paper/ieee118_paper_ppo.yaml",
+        "--smoke",
         "--steps",
-        "2048",
-        "--smoke"
+        "2048"
       ],
       "outputs": [
         "results/rl_mitigation/paper/ieee118/train_logs/proposed_pretrain_mask_smoke.csv"
       ],
-      "stdout": "IEEE118 paper PPO wrote 1823 episodes to C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\rl_mitigation\\paper\\ieee118\\train_logs\\proposed_pretrain_mask_smoke.csv\n"
+      "stdout_or_summary": "IEEE118 paper PPO wrote 1823 episodes to .\\results\\rl_mitigation\\paper\\ieee118\\train_logs\\proposed_pretrain_mask_smoke.csv\n"
     },
     "ieee118_eval": {
       "status": "completed",
@@ -134,14 +145,14 @@
         "scripts.rl_mitigation.paper.evaluate_ieee118_paper_policy",
         "--config",
         "configs/rl_mitigation/paper/ieee118_paper_ppo.yaml",
+        "--smoke",
         "--episodes",
-        "100",
-        "--smoke"
+        "20"
       ],
       "outputs": [
         "results/rl_mitigation/paper/ieee118/eval/eval_20_before_after_smoke.csv"
       ],
-      "stdout": "IEEE118 paper eval written to C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\rl_mitigation\\paper\\ieee118\\eval\\eval_20_before_after_smoke.csv\n"
+      "stdout_or_summary": "IEEE118 paper eval written to .\\results\\rl_mitigation\\paper\\ieee118\\eval\\eval_20_before_after_smoke.csv\n"
     },
     "ieee118_figures": {
       "status": "completed",
@@ -152,9 +163,16 @@
       "outputs": [
         "results/rl_mitigation/paper/ieee118/figures/fig9_ieee118_learning_curve_pretrain_mask_vs_baseline_smoke.png"
       ],
-      "stdout": "IEEE118 paper figure interfaces written to C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\rl_mitigation\\paper\\ieee118\\figures\n"
+      "stdout_or_summary": "IEEE118 paper figure interfaces written to .\\results\\rl_mitigation\\paper\\ieee118\\figures\n"
     }
   },
   "main_result_dir": "results/rl_mitigation/paper",
-  "diagnostics_are_not_paper_results": true
+  "diagnostics_are_not_paper_results": true,
+  "claim_check_overall": "not_supported",
+  "source_eval_csv": "results/rl_mitigation/paper/ieee14/eval/eval_100_before_after_smoke.csv",
+  "figure_status": {
+    "figure7": "results/rl_mitigation/paper/ieee14/figures/fig7_ieee14_learning_curves_gridsearch_smoke.png",
+    "figure8": "results/rl_mitigation/paper/ieee14/figures/fig8_ieee14_negative_return_survival_smoke.png",
+    "ieee118_fig9_smoke": "results/rl_mitigation/paper/ieee118/figures/fig9_ieee118_learning_curve_pretrain_mask_vs_baseline_smoke.png"
+  }
 }
