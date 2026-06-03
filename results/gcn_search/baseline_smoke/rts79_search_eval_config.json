@@ -1,0 +1,7 @@
+{
+  "seed": 20260722,
+  "beta": 1.2,
+  "security_limit": 1.0,
+  "gcn_threshold": 0.5,
+  "random_seed": 20260512
+}

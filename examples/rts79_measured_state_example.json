@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-06-03T10:00:00+08:00",
+  "source": "smoke-test measured state example",
+  "branch_status": {
+    "L03": 0
+  },
+  "branch_flow_mw": {
+    "L01": 42.5,
+    "L02": -31.0,
+    "L10": 66.2,
+    "L27": 18.4
+  },
+  "bus_load_mw": {
+    "3": 190.0,
+    "6": 142.0,
+    "15": 210.0
+  },
+  "generator_output_mw": {
+    "1": 180.0,
+    "2": 120.0,
+    "7": 95.0
+  }
+}

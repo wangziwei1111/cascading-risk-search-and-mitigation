@@ -18,7 +18,7 @@ from rts79_cascade import (
     run_sequential_initial_outages_dcpf,
     simulate_cascade_path,
 )
-from train_rts79_paper_gcn import _fit_x_normalizer, _make_x_gcn, _normalize_x
+from train_rts79_paper_gcn import _fit_x_normalizer, _make_x_gcn, _make_x_gcn_physics, _normalize_x
 
 
 @dataclass(frozen=True)
@@ -35,6 +35,7 @@ class Step2StateDatasetConfig:
     load_random_high: float = 1.1
     relay_threshold_beta: float = 1.2
     security_limit: float = 1.0
+    feature_mode: str = "paper"
 
 
 def generate_step2_state_dataset(config: Step2StateDatasetConfig, output_dir: str | Path) -> dict:
@@ -52,7 +53,8 @@ def generate_step2_state_dataset(config: Step2StateDatasetConfig, output_dir: st
     for scenario_offset in range(config.num_scenarios):
         scenario_id = config.scenario_id_offset + scenario_offset + 1
         seed = config.first_seed + scenario_offset
-        checkpoint_path = checkpoint_dir / f"scenario_{scenario_id:04d}_step2_state_raw.npz"
+        suffix = "" if config.feature_mode == "paper" else f"_{config.feature_mode}"
+        checkpoint_path = checkpoint_dir / f"scenario_{scenario_id:04d}_step2_state_raw{suffix}.npz"
         if checkpoint_path.exists():
             print(f"[Step2断点续跑] scenario={scenario_id}/{config.num_scenarios} 已完成，跳过。")
             continue
@@ -68,7 +70,8 @@ def consolidate_step2_state_checkpoints(output_dir: str | Path, config: Step2Sta
 
     out = Path(output_dir)
     checkpoint_dir = out / "scenario_checkpoints"
-    checkpoint_paths = sorted(checkpoint_dir.glob("scenario_*_step2_state_raw.npz"))
+    suffix = "" if config.feature_mode == "paper" else f"_{config.feature_mode}"
+    checkpoint_paths = sorted(checkpoint_dir.glob(f"scenario_*_step2_state_raw{suffix}.npz"))
     if not checkpoint_paths:
         raise RuntimeError(f"没有找到 Step2-State 检查点: {checkpoint_dir}")
     samples: list[np.ndarray] = []
@@ -92,6 +95,8 @@ def consolidate_step2_state_checkpoints(output_dir: str | Path, config: Step2Sta
             records.append(
                 {
                     "state_id": state_offset,
+                    "feature_mode": config.feature_mode,
+                    "num_features": int(x_part.shape[2]),
                     "scenario_id": int(data["scenario_id"][local_idx]),
                     "seed": int(data["seed"][local_idx]),
                     "active_depth": int(data["active_depth"][local_idx]),
@@ -109,8 +114,9 @@ def consolidate_step2_state_checkpoints(output_dir: str | Path, config: Step2Sta
     normalizer = _fit_x_normalizer(x_raw)
     x_gcn = _normalize_x(x_raw, normalizer).astype(np.float32)
     sample_table = pd.DataFrame(records)
+    suffix = "" if config.feature_mode == "paper" else f"_{config.feature_mode}"
     np.savez(
-        out / "rts79_step2_state_dataset.npz",
+        out / f"rts79_step2_state_dataset{suffix}.npz",
         x_gcn=x_gcn,
         y_one_step=y_one_step,
         y_reachable=y_reachable,
@@ -122,11 +128,13 @@ def consolidate_step2_state_checkpoints(output_dir: str | Path, config: Step2Sta
         active_outage_sequence=sample_table["active_outage_sequence"].to_numpy(dtype=str),
     )
     sample_table.to_csv(out / "rts79_step2_state_sample_summary.csv", index=False, encoding="utf-8-sig")
-    (out / "rts79_step2_state_feature_normalizer.json").write_text(
+    (out / f"rts79_step2_state_feature_normalizer{suffix}.json").write_text(
         json.dumps(normalizer, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
     stats = {
+        "feature_mode": config.feature_mode,
+        "num_features": int(x_gcn.shape[2]),
         "num_states": int(x_gcn.shape[0]),
         "num_candidate_labels": int(loss_mask.sum()),
         "num_one_step_positive": int((y_one_step * loss_mask).sum()),
@@ -134,7 +142,7 @@ def consolidate_step2_state_checkpoints(output_dir: str | Path, config: Step2Sta
         "one_step_positive_ratio": float((y_one_step * loss_mask).sum() / max(loss_mask.sum(), 1)),
         "reachable_positive_ratio": float((y_reachable * loss_mask).sum() / max(loss_mask.sum(), 1)),
     }
-    (out / "rts79_step2_state_dataset_stats.json").write_text(
+    (out / f"rts79_step2_state_dataset_stats{suffix}.json").write_text(
         json.dumps({**asdict(config), **stats}, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
@@ -172,7 +180,7 @@ def _generate_one_scenario_checkpoint(scenario_id: int, seed: int, config: Step2
             f"local_state={local_state_id}, "
             f"active_sequence={_format_sequence(active_sequence)}"
         )
-        x_gcn = _make_x_gcn(state_case, config.relay_threshold_beta)
+        x_gcn = _make_state_x_gcn(state_case, config)
         y_one, y_reach, mask = _label_state(
             active_sequence=active_sequence,
             initial_config=initial_config,
@@ -197,6 +205,14 @@ def _generate_one_scenario_checkpoint(scenario_id: int, seed: int, config: Step2
         "active_depth": np.array(active_depth_values, dtype=np.int64),
         "active_outage_sequence": np.array(active_sequence_values, dtype=str),
     }
+
+
+def _make_state_x_gcn(case: dict, config: Step2StateDatasetConfig) -> np.ndarray:
+    if config.feature_mode == "paper":
+        return _make_x_gcn(case, config.relay_threshold_beta)
+    if config.feature_mode == "physics":
+        return _make_x_gcn_physics(case, config.relay_threshold_beta, security_limit=config.security_limit)
+    raise ValueError(f"Unsupported feature_mode: {config.feature_mode}")
 
 
 def _make_state_specs(base_case: dict, initial_config: Rts79InitialConfig, config: Step2StateDatasetConfig) -> list[tuple[tuple[str, ...], dict]]:
@@ -318,6 +334,35 @@ def main() -> None:
         max_active_depth=args.max_active_depth,
         relay_threshold_beta=args.beta,
         security_limit=args.security_limit,
+    )
+    if args.consolidate_only:
+        consolidate_step2_state_checkpoints(args.output_dir, config)
+    else:
+        generate_step2_state_dataset(config, args.output_dir)
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Generate RTS-79 Algorithm 1 Step2-state GCN dataset.")
+    parser.add_argument("--output-dir", default=str(Path("outputs") / "step2_state_dataset_preview"), help="Output directory.")
+    parser.add_argument("--num-scenarios", type=int, default=3, help="Number of load scenarios.")
+    parser.add_argument("--first-seed", type=int, default=20260750, help="First random seed.")
+    parser.add_argument("--max-active-depth", type=int, default=1, help="Maximum active outage depth included in states.")
+    parser.add_argument("--beta", type=float, default=1.2, help="Relay threshold beta.")
+    parser.add_argument("--security-limit", type=float, default=1.0, help="Redispatch security loading limit.")
+    parser.add_argument("--feature-mode", choices=["paper", "physics"], default="paper", help="GCN feature mode.")
+    parser.add_argument("--consolidate-only", action="store_true", help="Only consolidate existing checkpoints.")
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    config = Step2StateDatasetConfig(
+        num_scenarios=args.num_scenarios,
+        first_seed=args.first_seed,
+        max_active_depth=args.max_active_depth,
+        relay_threshold_beta=args.beta,
+        security_limit=args.security_limit,
+        feature_mode=args.feature_mode,
     )
     if args.consolidate_only:
         consolidate_step2_state_checkpoints(args.output_dir, config)

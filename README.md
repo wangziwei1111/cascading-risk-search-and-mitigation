@@ -30,12 +30,28 @@ Read first:
 docs/README_RTS79_REPRODUCTION.md
 docs/gcn_current_progress.md
 docs/gcn_search_reproduction.md
+docs/pio_gcn_method.md
 ```
 
 Key source code:
 
 ```text
 src/gcn_search/legacy_rts79/
+```
+
+PIO-GCN smoke entrypoints:
+
+```powershell
+python generate_rts79_step2_state_dataset.py --num-scenarios 1 --feature-mode physics
+python train_rts79_physics_gcn.py --dataset-npz <physics_dataset.npz> --epochs 1
+python evaluate_rts79_pio_gcn_topk.py --model <model.pt> --normalizer <normalizer.json> --top-k 20 50 100
+python run_pio_gcn_ablation.py --model <model.pt> --normalizer <normalizer.json>
+```
+
+Online measured-state input example:
+
+```text
+examples/rts79_measured_state_example.json
 ```
 
 Key reports and outputs:

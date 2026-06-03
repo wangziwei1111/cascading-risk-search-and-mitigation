@@ -249,3 +249,18 @@ runtime
 可以这样说：
 
 > 老师，目前已经完成 RTS-79 小系统的改进 OPA 连锁故障仿真器、Step2-State 数据集、reachable GCN 训练和路径级在线搜索。当前 GCN_path_prob 能在 5 个测试场景下平均 68.2 次搜索找全关键路径，而传统物理排序和随机搜索大约需要一千多次。现在的不足是模型还主要是离线排序器，没有显式加入物理约束，也没有用在线实测状态量更新。下一步我准备在现有框架上加入当前负荷、发电、线路潮流、支路状态等在线状态量，并加入容量约束、保护阈值、拓扑 mask 等物理约束，形成“物理约束在线 GCN + Top-K 小样本 OPA 验证”的快速计算框架。
+
+## 物理约束在线 GCN 改进进展
+
+已新增 `PIO-GCN PathRank` smoke 框架：
+
+- 新增 physics 特征：`_make_x_gcn_physics`；
+- 数据集生成支持 `feature_mode=paper/physics`，默认仍为 `paper`；
+- 新增 candidate probability mask 和物理约束损失；
+- 新增 physics-informed GCN 训练入口；
+- 新增 measured-state JSON 在线状态更新接口；
+- 新增 PIO-GCN Top-K 小样本仿真评估；
+- 新增 smoke 消融脚本；
+- 新增测试和验证日志。
+
+当前新增内容是可运行的第一轮工程框架，主要目的是验证接口、数据流和物理约束是否能闭环运行；正式性能结论仍应以后续更大训练集和更多场景评估为准。

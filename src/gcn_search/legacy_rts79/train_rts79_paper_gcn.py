@@ -265,11 +265,41 @@ def _make_x_gcn(case: dict, relay_threshold_beta: float) -> np.ndarray:
         f_bus = int(row[F_BUS])
         t_bus = int(row[T_BUS])
         rate_a = float(row[RATE_A])
-        flow = 0.0 if status == 0 else abs(float(row[PF]))
+        flow = 0.0 if status == 0 or len(row) <= PF else abs(float(row[PF]))
         features[idx, 0] = 1.0 if status == 0 else 0.0
         features[idx, 1] = flow / max(relay_threshold_beta * rate_a, 1e-8)
         features[idx, 2] = flow
         features[idx, 3] = max(bus_load_by_number[f_bus], bus_load_by_number[t_bus])
+    return features
+
+
+def _make_x_gcn_physics(case: dict, beta: float, security_limit: float = 1.0) -> np.ndarray:
+    branch = case["branch"]
+    bus = case["bus"]
+    bus_load_by_number = {int(row[BUS_I]): float(row[PD]) for row in bus}
+    features = np.zeros((branch.shape[0], len(_x_gcn_physics_feature_names())), dtype=np.float32)
+    for idx, row in enumerate(branch):
+        status = int(row[BR_STATUS])
+        f_bus = int(row[F_BUS])
+        t_bus = int(row[T_BUS])
+        rate_a = max(float(row[RATE_A]), 1e-8)
+        flow = 0.0 if status == 0 or len(row) <= PF else abs(float(row[PF]))
+        loading_ratio = flow / rate_a
+        is_online = 1.0 if status == 1 else 0.0
+        features[idx, 0] = 1.0 if status == 0 else 0.0
+        features[idx, 1] = flow / max(beta * rate_a, 1e-8)
+        features[idx, 2] = flow
+        features[idx, 3] = max(bus_load_by_number.get(f_bus, 0.0), bus_load_by_number.get(t_bus, 0.0))
+        features[idx, 4] = loading_ratio
+        features[idx, 5] = security_limit - loading_ratio
+        features[idx, 6] = beta - loading_ratio
+        features[idx, 7] = is_online
+        features[idx, 8] = is_online
+    if not np.isfinite(features).all():
+        raise ValueError("_make_x_gcn_physics produced NaN/Inf features.")
+    for binary_idx in (0, 7, 8):
+        if not np.isin(features[:, binary_idx], [0.0, 1.0]).all():
+            raise ValueError(f"Physics binary feature {binary_idx} must be 0/1.")
     return features
 
 
@@ -285,9 +315,9 @@ def _make_y_gcn_and_mask(group: pd.DataFrame, first_line: str) -> tuple[np.ndarr
 
 def _fit_x_normalizer(x: np.ndarray) -> dict:
     normalizer: dict[str, dict[str, float]] = {}
-    for idx, name in enumerate(_x_gcn_feature_names()):
+    for idx, name in enumerate(_feature_names_for_x(x)):
         values = x[:, :, idx]
-        if idx in {0}:
+        if name in {"branch_status_offline", "is_online", "is_candidate"} or idx == 0:
             normalizer[name] = {"mean": 0.0, "std": 1.0}
         else:
             normalizer[name] = {"mean": float(values.mean()), "std": float(max(values.std(), 1e-8))}
@@ -296,7 +326,7 @@ def _fit_x_normalizer(x: np.ndarray) -> dict:
 
 def _normalize_x(x: np.ndarray, normalizer: dict) -> np.ndarray:
     normalized = x.copy()
-    for idx, name in enumerate(_x_gcn_feature_names()):
+    for idx, name in enumerate(_feature_names_for_x(x)):
         normalized[:, :, idx] = (normalized[:, :, idx] - normalizer[name]["mean"]) / normalizer[name]["std"]
     return normalized
 
@@ -308,6 +338,28 @@ def _x_gcn_feature_names() -> list[str]:
         "x_b 支路潮流绝对值",
         "x_l 支路两端母线较大负荷",
     ]
+
+
+def _x_gcn_physics_feature_names() -> list[str]:
+    return [
+        "branch_status_offline",
+        "relay_loading_ratio",
+        "abs_flow",
+        "max_terminal_load",
+        "loading_ratio",
+        "security_margin",
+        "relay_margin",
+        "is_online",
+        "is_candidate",
+    ]
+
+
+def _feature_names_for_x(x: np.ndarray) -> list[str]:
+    if x.shape[2] == 4:
+        return _x_gcn_feature_names()
+    if x.shape[2] == len(_x_gcn_physics_feature_names()):
+        return _x_gcn_physics_feature_names()
+    return [f"feature_{idx}" for idx in range(x.shape[2])]
 
 
 def _build_branch_graph_adjacency(case: dict) -> np.ndarray:

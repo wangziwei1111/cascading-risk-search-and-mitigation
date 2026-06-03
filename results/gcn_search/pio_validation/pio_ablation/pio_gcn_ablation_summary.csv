@@ -1,0 +1,7 @@
+﻿method,feature_mode,use_mask,use_physics_loss,use_online_state,top_k,num_simulated_paths,num_critical_found,illegal_candidate_count,runtime_seconds,critical_path_recall,notes
+original_GCN_path_prob,paper,False,False,False,20,20,0,0,3.9302897453308105,,smoke-test proxy; methods share PIO evaluator unless noted
+physics_features_only,physics,False,False,False,20,20,0,0,3.70165753364563,,smoke-test proxy; methods share PIO evaluator unless noted
+physics_features_plus_mask,physics,True,False,False,20,20,0,0,3.6408562660217285,,smoke-test proxy; methods share PIO evaluator unless noted
+physics_informed_loss,physics,True,True,False,20,20,0,0,3.529662847518921,,smoke-test proxy; methods share PIO evaluator unless noted
+online_state_update,physics,True,False,True,20,20,1,0,3.3971946239471436,,smoke-test proxy; methods share PIO evaluator unless noted
+pio_gcn_topk,physics,True,False,False,20,20,0,0,3.5858325958251953,,smoke-test proxy; methods share PIO evaluator unless noted
