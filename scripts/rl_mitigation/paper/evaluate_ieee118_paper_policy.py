@@ -19,12 +19,7 @@ def main() -> None:
     env = make_paper_env(cfg)
     base = ROOT / "results" / "rl_mitigation" / "paper" / "ieee118"
     ckpt = base / "checkpoints" / "proposed_pretrain_mask" / "latest.pt"
-    model = None
-    if ckpt.exists():
-        try:
-            model = load_checkpoint(str(ckpt))
-        except RuntimeError:
-            model = None
+    model = load_checkpoint(str(ckpt)) if ckpt.exists() else None
     scenarios = generate_eval_scenarios(env, episodes=episodes, seed=cfg.get("seed", 0))
     rows = run_policy(env, episodes=episodes, model=model, with_agent=False, scenarios=scenarios)
     if model is not None:
