@@ -1,5 +1,15 @@
 # Thesis Integration Plan
 
+## Current Thesis Boundary Update
+
+For the current writing stage, prioritize the RL paper reproduction. The GCN-RL bridge and IEEE14 GCN risk-ranking extension are paused as thesis integration material, not paper-reproduction evidence.
+
+Recommended wording:
+
+```text
+The repository first reproduces the RL paper mechanism: MDP state/action/reward, do-nothing initialization, invalid-action masking, PPO training, IEEE5 DP, IEEE14 PPO, and an IEEE118 smoke framework. Diagnostics such as one-step oracle, oracle BC, safe gate, and GCN-RL bridge are reported separately and are not attributed to the original paper method.
+```
+
 ## Stage 1: GCN Critical Fault Path Search
 
 Role: rapidly identify high-risk N-k cascading failure paths.

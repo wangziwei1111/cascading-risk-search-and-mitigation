@@ -1,0 +1,9 @@
+{
+  "smoke": true,
+  "completed": [
+    "ieee5_dp",
+    "figure1_trace"
+  ],
+  "main_result_dir": "results/rl_mitigation/paper",
+  "diagnostics_are_not_paper_results": true
+}

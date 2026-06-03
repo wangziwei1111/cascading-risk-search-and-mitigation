@@ -1,5 +1,17 @@
 # RL 缓解模块复现差异记录
 
+## 2026-06-03 Paper Reproduction Boundary
+
+The current main line is the RL paper reproduction under `results/rl_mitigation/paper/`.
+
+Known gaps:
+
+- Original grid2op chronics and exact random scenario seeds are unavailable.
+- IEEE14 formal scripts support 60000 training steps and 1000 evaluation episodes, but the committed run is a smoke reproduction.
+- IEEE118 now has a PYPOWER case118 framework, complete action space, star/common-bus motif sampling, and smoke outputs. Full 600000-step IEEE118 training was not run in this round.
+- IEEE118 checkpoint loading now supports non-default hidden sizes, but the committed IEEE118 evaluation is still short smoke evidence.
+- Oracle, oracle BC, safe gate, action scan, and GCN-RL bridge are diagnostics/enhanced experiments only and are excluded from paper main results.
+
 当前版本已经从 debug/surrogate 框架升级为 IEEE14 小系统 AC 潮流 + PPO-clip 复现框架，但仍不能声称完全数值复现论文。
 
 ## 数据差异

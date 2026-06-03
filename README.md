@@ -1,5 +1,29 @@
 # Cascading Risk Search and Mitigation
 
+## Current Focus: RL Paper Reproduction
+
+The current main line is reproducing the reinforcement-learning paper:
+
+```text
+Real-Time Cascade Mitigation in Power Systems Using Influence Graph Improved by Reinforcement Learning
+```
+
+GCN-RL coupling is paused for the paper-reproduction stage. The paper main results are kept under:
+
+```text
+results/rl_mitigation/paper/
+```
+
+Diagnostic and enhanced analyses are not paper results. Action-value scans, one-step oracle, oracle BC, safe gate, and GCN-RL bridge outputs must be described only as diagnostics or extra experiments, not as the original PPO method. See:
+
+```text
+docs/rl_paper_reproduction_status.md
+docs/rl_paper_figure_index.md
+docs/rl_mitigation_extra_diagnostics.md
+```
+
+Current IEEE14 smoke claim check is cautious: the PYPOWER IEEE14 substitute environment reproduces the MDP/training mechanism, but the PPO mitigation performance claim is only partially supported and should not be overstated.
+
 公开仓库地址：
 
 ```text

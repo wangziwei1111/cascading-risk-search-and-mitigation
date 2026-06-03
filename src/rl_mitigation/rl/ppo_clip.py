@@ -32,9 +32,28 @@ def save_checkpoint(model: TorchActorCritic, path: str, step: int, best_score: f
 
 def load_checkpoint(path: str) -> TorchActorCritic:
     data = torch.load(path, map_location="cpu")
-    model = TorchActorCritic(data["obs_dim"], data["action_dim"])
-    model.load_state_dict(data["model_state_dict"])
+    state = data["model_state_dict"]
+    model = TorchActorCritic(
+        data["obs_dim"],
+        data["action_dim"],
+        policy_hidden=_infer_hidden_layers(state, "actor"),
+        value_hidden=_infer_hidden_layers(state, "critic"),
+    )
+    model.load_state_dict(state)
     return model
+
+
+def _infer_hidden_layers(state: dict, prefix: str) -> list[int]:
+    widths = []
+    idx = 0
+    while f"{prefix}.{idx}.weight" in state:
+        out_dim = int(state[f"{prefix}.{idx}.weight"].shape[0])
+        next_idx = idx + 2
+        if f"{prefix}.{next_idx}.weight" not in state:
+            break
+        widths.append(out_dim)
+        idx = next_idx
+    return widths
 
 
 def train_ppo_clip(
