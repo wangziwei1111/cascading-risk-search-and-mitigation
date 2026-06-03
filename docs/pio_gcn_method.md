@@ -321,3 +321,30 @@ full_truth = false
 
 Therefore the reported recall is `smoke_recall`, not formal `critical_path_recall`.
 The current results are preliminary and should not be described as final model performance.
+
+## Fourth-Round Formal-Small Experiment Update
+
+The fourth round adds `run_pio_gcn_formal_small_experiment.py`.
+
+This script is intended to run:
+
+```text
+physics feature dataset generation
+physics-informed GCN training
+physics CE-only GCN training
+PIO-GCN Top-K full-truth evaluation
+fair baseline comparison
+aggregate tables and figures
+```
+
+The completed run is a preliminary light formal experiment:
+
+```text
+training_num_scenarios = 5
+training_epochs = 3
+training_max_active_depth = 0
+test_num_seeds = 1
+full_truth = true
+```
+
+The heavier target configuration did not finish in the current interactive runtime window. Therefore the current numbers are useful for method validation and advisor reporting, but they should not be described as final performance conclusions.

@@ -1,0 +1,19 @@
+{
+  "output_dir": "results\\gcn_search\\pio_formal_small_experiment",
+  "training_num_scenarios": 5,
+  "training_first_seed": 20260750,
+  "training_epochs": 3,
+  "training_max_active_depth": 0,
+  "test_seed_start": 20260722,
+  "test_num_seeds": 1,
+  "top_k": [
+    20,
+    50,
+    100
+  ],
+  "beta": 1.2,
+  "security_limit": 1.0,
+  "skip_training_if_exists": true,
+  "paper_baseline_model": null,
+  "paper_baseline_normalizer": null
+}

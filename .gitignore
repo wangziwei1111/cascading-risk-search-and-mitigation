@@ -10,3 +10,11 @@ results/**/*.csv
 results/**/*.png
 results/**/*.pdf
 !results/gcn_search/**
+results/gcn_search/**/*.pt
+results/gcn_search/**/*.npz
+results/gcn_search/**/scenario_checkpoints/
+results/gcn_search/**/*order.csv
+results/gcn_search/**/*curve.csv
+results/gcn_search/**/*full_truth.csv
+results/gcn_search/**/*smoke_truth.csv
+results/gcn_search/**/*simulation_results.csv

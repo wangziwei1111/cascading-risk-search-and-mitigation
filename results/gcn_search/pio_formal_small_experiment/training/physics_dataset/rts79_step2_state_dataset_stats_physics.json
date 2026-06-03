@@ -1,0 +1,22 @@
+{
+  "num_scenarios": 5,
+  "first_seed": 20260750,
+  "scenario_id_offset": 0,
+  "max_active_depth": 0,
+  "random_failure_limit_r": 2,
+  "load_scale": 1.1,
+  "load_random_low": 0.9,
+  "load_random_high": 1.1,
+  "relay_threshold_beta": 1.2,
+  "security_limit": 1.0,
+  "feature_mode": "physics",
+  "num_features": 9,
+  "num_states": 6,
+  "num_candidate_labels": 228,
+  "num_one_step_positive": 0,
+  "num_reachable_positive": 140,
+  "one_step_positive_ratio": 0.0,
+  "reachable_positive_ratio": 0.6140350877192983,
+  "model_input_uses_normalized_features": true,
+  "physics_loss_uses_raw_physical_features": true
+}

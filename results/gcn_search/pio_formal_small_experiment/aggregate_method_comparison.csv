@@ -1,0 +1,9 @@
+﻿method,num_test_seeds,mean_total_critical_paths,mean_found_after_20,mean_found_after_50,mean_found_after_100,mean_attempts_to_find_all,mean_recall_at_20,mean_recall_at_50,mean_recall_at_100,mean_runtime_seconds,notes
+PIO_GCN_Top20,1,55.0,1.0,,,,0.0181818181818181,,,22.22461771965027,full ordered N-2 truth; formal small RTS-79 experiment
+PIO_GCN_Top50,1,55.0,,3.0,,,,0.0545454545454545,,22.22461771965027,full ordered N-2 truth; formal small RTS-79 experiment
+PIO_GCN_Top100,1,55.0,,,7.0,,,,0.1272727272727272,22.22461771965027,full ordered N-2 truth; formal small RTS-79 experiment
+original_GCN_path_prob,1,55.0,7.0,8.0,10.0,1401.0,0.12727272727272726,0.14545454545454545,0.18181818181818182,2.6449263095855713,weak paper-feature model trained inside this small experiment; preliminary result
+LODF_yP,1,55.0,2.0,10.0,11.0,1148.0,0.03636363636363636,0.18181818181818182,0.2,1.6620597839355469,physical-rule ranking baseline
+random,1,55.0,1.0,3.0,4.0,1381.0,0.01818181818181818,0.05454545454545454,0.07272727272727272,0.0003387928009033203,fixed random seed per test seed
+line_order,1,55.0,0.0,1.0,3.0,1400.0,0.0,0.01818181818181818,0.05454545454545454,8.249282836914062e-05,line-number order baseline
+oracle,1,55.0,20.0,50.0,55.0,55.0,0.36363636363636365,0.9090909090909091,1.0,0.0005385875701904297,upper bound only; not a deployable search method

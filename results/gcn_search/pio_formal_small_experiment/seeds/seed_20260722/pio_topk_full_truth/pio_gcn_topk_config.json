@@ -1,0 +1,17 @@
+{
+  "model": "results\\gcn_search\\pio_formal_small_experiment\\training\\physics_informed\\rts79_physics_gcn_model.pt",
+  "normalizer": "results\\gcn_search\\pio_formal_small_experiment\\training\\physics_dataset\\rts79_step2_state_feature_normalizer_physics.json",
+  "output_dir": "results\\gcn_search\\pio_formal_small_experiment\\seeds\\seed_20260722\\pio_topk_full_truth",
+  "seed": 20260722,
+  "beta": 1.2,
+  "security_limit": 1.0,
+  "top_k": [
+    20,
+    50,
+    100
+  ],
+  "measured_state_json": null,
+  "run_full_truth": true,
+  "max_paths_for_smoke_test": null,
+  "use_candidate_probability_mask": true
+}

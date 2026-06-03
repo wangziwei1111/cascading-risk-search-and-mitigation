@@ -624,3 +624,136 @@ empty output
 ```
 
 Conclusion: the third round did not modify RL mitigation code.
+
+## Fourth-Round Validation Log: Formal-Small Experiment
+
+### Pytest
+
+Command:
+
+```powershell
+python -m pytest tests/test_cascade_from_case_consistency.py tests/test_measured_state_sanity.py tests/test_gcn_physics_features.py tests/test_gcn_probability_mask.py tests/test_gcn_physics_losses.py tests/test_online_state_update.py tests/test_gcn_raw_feature_training.py tests/test_pio_topk_measured_consistency.py -q
+```
+
+Result:
+
+```text
+19 passed
+```
+
+### Formal-small experiment attempts
+
+The target command was attempted first:
+
+```powershell
+python src/gcn_search/legacy_rts79/run_pio_gcn_formal_small_experiment.py --output-dir results/gcn_search/pio_formal_small_experiment --training-num-scenarios 50 --training-epochs 10 --test-seed-start 20260722 --test-num-seeds 5 --top-k 20 50 100 --skip-training-if-exists
+```
+
+Result: timed out in the current interactive runtime window.
+
+The light configuration suggested by the task was then attempted:
+
+```powershell
+training_num_scenarios = 20
+training_epochs = 5
+test_num_seeds = 3
+```
+
+Result: timed out during training data generation.
+
+The completed run used a smaller full-truth preview:
+
+```powershell
+python src/gcn_search/legacy_rts79/run_pio_gcn_formal_small_experiment.py --output-dir results/gcn_search/pio_formal_small_experiment --training-num-scenarios 5 --training-epochs 3 --training-max-active-depth 0 --test-seed-start 20260722 --test-num-seeds 1 --top-k 20 50 100 --skip-training-if-exists
+```
+
+This run completed successfully.
+
+### Output path
+
+```text
+results/gcn_search/pio_formal_small_experiment/
+```
+
+Required summary files were generated:
+
+```text
+config.json
+training_dataset_stats.json
+physics_training_metrics.csv
+physics_ce_training_metrics.csv
+per_seed_full_truth_summary.csv
+pio_topk_per_seed_summary.csv
+baseline_per_seed_summary.csv
+aggregate_method_comparison.csv
+aggregate_topk_summary.csv
+```
+
+### Full truth
+
+This completed run uses full ordered N-2 truth for the one test seed.
+
+```text
+test_seed = 20260722
+total_critical_paths = 55
+```
+
+### aggregate_topk_summary.csv
+
+```text
+PIO_GCN_Top20: mean_critical_found = 1, mean_critical_path_recall = 0.0182
+PIO_GCN_Top50: mean_critical_found = 3, mean_critical_path_recall = 0.0545
+PIO_GCN_Top100: mean_critical_found = 7, mean_critical_path_recall = 0.1273
+```
+
+### aggregate_method_comparison.csv
+
+```text
+original_GCN_path_prob: found_after_100 = 10, attempts_to_find_all = 1401
+LODF_yP: found_after_100 = 11, attempts_to_find_all = 1148
+random: found_after_100 = 4, attempts_to_find_all = 1381
+line_order: found_after_100 = 3, attempts_to_find_all = 1400
+oracle: found_after_100 = 55, attempts_to_find_all = 55
+```
+
+### Figures
+
+```text
+results/gcn_search/pio_formal_small_experiment/figures/topk_recall_bar.png
+results/gcn_search/pio_formal_small_experiment/figures/found_after_k_comparison.png
+results/gcn_search/pio_formal_small_experiment/figures/runtime_comparison.png
+```
+
+### Result cleanup policy
+
+`.gitignore` was updated to ignore large/intermediate GCN result files:
+
+```text
+results/gcn_search/**/*.pt
+results/gcn_search/**/*.npz
+results/gcn_search/**/scenario_checkpoints/
+results/gcn_search/**/*order.csv
+results/gcn_search/**/*curve.csv
+results/gcn_search/**/*full_truth.csv
+results/gcn_search/**/*smoke_truth.csv
+results/gcn_search/**/*simulation_results.csv
+```
+
+The completed formal-small experiment keeps key summary CSV files, aggregate CSV files, figures, and docs.
+Incomplete timeout outputs were removed before rerunning to avoid mixing incompatible configurations.
+
+### RL modification check
+
+Command:
+
+```powershell
+git diff -- src/rl_mitigation scripts/rl_mitigation
+```
+
+Result:
+
+```text
+empty output
+```
+
+Conclusion: the fourth round did not modify RL mitigation code.

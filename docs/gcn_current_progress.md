@@ -306,3 +306,38 @@ Top-100: mean critical found = 2.5, mean smoke recall = 1.0
 ```
 
 These are early smoke-truth results, not formal full-truth conclusions.
+
+### Fourth-Round Formal-Small Experiment
+
+The fourth round adds a formal-small experiment pipeline:
+
+```text
+src/gcn_search/legacy_rts79/run_pio_gcn_formal_small_experiment.py
+```
+
+Completed output:
+
+```text
+results/gcn_search/pio_formal_small_experiment/
+```
+
+The completed run uses full ordered N-2 truth, but only one test seed:
+
+```text
+training_num_scenarios = 5
+training_epochs = 3
+training_max_active_depth = 0
+test_num_seeds = 1
+full_truth = true
+```
+
+Key results:
+
+```text
+total_critical_paths = 55
+PIO_GCN_Top20 recall = 0.0182
+PIO_GCN_Top50 recall = 0.0545
+PIO_GCN_Top100 recall = 0.1273
+```
+
+This can be reported as a full-truth pipeline validation on RTS-79, but not as a final multi-seed performance conclusion.
