@@ -4,7 +4,7 @@ import numpy as np
 
 from .backend_factory import make_backend
 from .observations import build_observation
-from .reward import cascade_reward
+from .reward import cascade_reward, cascade_reward_terms
 from ..chronics.generate_week_chronics import generate_week_chronics
 from ..contingency.sampler import ContingencySampler
 from ..rl.action_mask import action_mask, apply_invalid_action_policy
@@ -106,10 +106,14 @@ class CascadeMitigationEnv:
             for i, rho in enumerate(before_trip_pf.relative_flow)
             if self.line_status[i] and rho >= 1.0
         ]
+        trip_probabilities = {
+            int(idx): float(self._trip_probability(float(before_trip_pf.relative_flow[idx])))
+            for idx in overloaded
+        }
         tripped = []
         if before_trip_pf.converged:
             for idx in overloaded:
-                beta = self._trip_probability(float(before_trip_pf.relative_flow[idx]))
+                beta = trip_probabilities[int(idx)]
                 if self.rng.random() < beta:
                     self.line_status[idx] = 0
                     tripped.append(idx)
@@ -132,22 +136,48 @@ class CascadeMitigationEnv:
             current_load=self.current_load,
             generation=self.generation,
         )
+        reward_terms = cascade_reward_terms(
+            terminal=terminal,
+            pf_failed=pf_failed,
+            alpha=self.alpha,
+            action=effective_action,
+            num_new_outages=len(tripped),
+            previous_load=previous_load,
+            current_load=self.current_load,
+            generation=self.generation,
+        )
         self.episode_return += float(reward)
+        terminal_reason = "powerflow_failed" if pf_failed else "no_new_trips" if len(tripped) == 0 else "max_generations" if self.generation >= self.max_generations else "continuing"
         record = {
             "generation": self.generation,
             "initial_outages": self.initial_outages,
             "initial_outage_order": self.initial_outage_description["order"],
             "initial_outage_type": self.initial_outage_description["type"],
             "initial_outage_mode": self.initial_outage_mode,
+            "action": int(action),
+            "effective_action": int(effective_action),
+            "action_valid": not bool(invalid),
             "outaged_lines": np.where(self.line_status == 0)[0].astype(int).tolist(),
             "proactive_action": proactive_line,
+            "proactive_opened_line": proactive_line,
+            "islands": after_trip_pf.island_records,
+            "load_before": float(previous_load),
+            "load_after": float(after_trip_pf.current_load_mw),
+            "load_shed": float(after_trip_pf.load_shed_mw),
             "overloaded_lines": overloaded,
+            "trip_probabilities": trip_probabilities,
             "random_trips": tripped,
+            "random_tripped_lines": tripped,
+            "newly_failed_lines": tripped,
             "pf_converged": not pf_failed,
+            "relative_flow": after_trip_pf.relative_flow.astype(float).tolist(),
             "load_shed_MW": after_trip_pf.load_shed_mw,
             "load_shed_ratio": after_trip_pf.load_shed_ratio,
             "invalid_action": bool(invalid),
             "island_records": after_trip_pf.island_records,
+            "terminal_reason": terminal_reason,
+            "reward_terms": reward_terms,
+            "reward": float(reward),
         }
         self.trace.append(record)
         return build_observation(self.line_status, self.relative_flow), reward, terminal, False, self._info(pf_failed=pf_failed)
