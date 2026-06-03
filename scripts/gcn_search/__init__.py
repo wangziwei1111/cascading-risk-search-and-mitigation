@@ -1,1 +1,2 @@
-"""GCN search command wrappers."""
+"""GCN search scripts."""
+
