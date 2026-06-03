@@ -1,0 +1,16 @@
+{
+  "before": {
+    "mean_prob_do_nothing": 0.03791174292564392,
+    "median_prob_do_nothing": 0.037775494158267975,
+    "mean_entropy": 3.034634590148926,
+    "mean_max_nonzero_prob": 0.06193084642291069
+  },
+  "after": {
+    "mean_prob_do_nothing": 0.07344046980142593,
+    "median_prob_do_nothing": 0.0752444937825203,
+    "mean_entropy": 3.028817653656006,
+    "mean_max_nonzero_prob": 0.05925650894641876
+  },
+  "target_do_nothing_prob": 0.6,
+  "warning": "pretraining is conservative; it should not collapse all probability mass to do-nothing"
+}
