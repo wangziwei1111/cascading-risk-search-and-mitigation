@@ -76,7 +76,6 @@ def build_split_dataset(case: dict, split: str, action_scan_csv: Path) -> tuple[
     scenario_rows = [summaries[sid] for sid in sorted(summaries)]
     features, targets, outage_masks, risks, improvements, scenario_ids = [], [], [], [], [], []
     risk_scale = max(1.0, max(float(row["do_nothing_negative_return"]) for row in scenario_rows))
-    improvement_scale = max(1.0, max(float(row["best_improvement"]) for row in scenario_rows))
     for row in scenario_rows:
         outage_mask = np.zeros(len(graph.lines), dtype=np.float32)
         for line in row["initial_outages"]:
@@ -86,7 +85,6 @@ def build_split_dataset(case: dict, split: str, action_scan_csv: Path) -> tuple[
             np.full(len(graph.lines), row["initial_outage_order"] / 2.0, dtype=np.float32),
             np.full(len(graph.lines), row["load_scale"], dtype=np.float32),
             np.full(len(graph.lines), row["gen_scale"], dtype=np.float32),
-            np.full(len(graph.lines), row["best_improvement"] / improvement_scale, dtype=np.float32),
         ])
         features.append(np.concatenate([static_features, dynamic], axis=1))
         targets.append(outage_mask * (row["do_nothing_negative_return"] / risk_scale))
@@ -164,4 +162,3 @@ def write_manifest(output_dir: Path, graph: BranchGraph, config: dict, split_cou
     }
     with open(output_dir / "dataset_manifest.json", "w", encoding="utf-8") as f:
         json.dump(payload, f, indent=2, ensure_ascii=False)
-
