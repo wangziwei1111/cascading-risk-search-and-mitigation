@@ -16,15 +16,16 @@ def main() -> None:
     base = ROOT / "results" / "rl_mitigation" / "paper" / "ieee118"
     figs = base / "figures"
     figs.mkdir(parents=True, exist_ok=True)
+    suffix = "_smoke" if args.smoke else ""
     _plot_learning(base, figs, args.smoke)
     eval_files = sorted((base / "eval").glob("eval_*_before_after*.csv"))
     rows = _read(eval_files[-1]) if eval_files else []
     if rows:
-        plot_survival_by_policy(rows, str(figs / "fig10_ieee118_negative_return_survival.png"), str(figs / "fig10_ieee118_negative_return_survival.pdf"))
-        _metric_survival(rows, figs / "fig11a_ieee118_generations_survival.png", "num_generations")
-        _metric_survival(rows, figs / "fig11b_ieee118_line_outages_survival.png", "num_line_outages")
-        _metric_survival(rows, figs / "fig11c_ieee118_load_shed_survival.png", "load_shed_MW")
-        _action_frequency(rows, figs / "fig12_ieee118_action_frequency.png")
+        plot_survival_by_policy(rows, str(figs / f"fig10_ieee118_negative_return_survival{suffix}.png"), str(figs / f"fig10_ieee118_negative_return_survival{suffix}.pdf"))
+        _metric_survival(rows, figs / f"fig11a_ieee118_generations_survival{suffix}.png", "num_generations")
+        _metric_survival(rows, figs / f"fig11b_ieee118_line_outages_survival{suffix}.png", "num_line_outages")
+        _metric_survival(rows, figs / f"fig11c_ieee118_load_shed_survival{suffix}.png", "load_shed_MW")
+        _action_frequency(rows, figs / f"fig12_ieee118_action_frequency{suffix}.png")
     print(f"IEEE118 paper figure interfaces written to {figs}")
 
 
@@ -44,8 +45,9 @@ def _plot_learning(base, figs, smoke):
     plt.ylabel("Episode return")
     plt.legend(fontsize=7)
     plt.tight_layout()
-    plt.savefig(figs / "fig9_ieee118_learning_curve_pretrain_mask_vs_baseline.png", dpi=200)
-    plt.savefig(figs / "fig9_ieee118_learning_curve_pretrain_mask_vs_baseline.pdf")
+    suffix = "_smoke" if smoke else ""
+    plt.savefig(figs / f"fig9_ieee118_learning_curve_pretrain_mask_vs_baseline{suffix}.png", dpi=200)
+    plt.savefig(figs / f"fig9_ieee118_learning_curve_pretrain_mask_vs_baseline{suffix}.pdf")
     plt.close()
 
 
@@ -79,4 +81,3 @@ def _action_frequency(rows, out_png):
 
 if __name__ == "__main__":
     main()
-

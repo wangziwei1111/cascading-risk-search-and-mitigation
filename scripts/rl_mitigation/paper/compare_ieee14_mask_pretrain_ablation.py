@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import argparse
 from pathlib import Path
 
 import numpy as np
@@ -17,6 +18,12 @@ VARIANTS = [
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", default="configs/rl_mitigation/paper/ieee14_paper_ppo.yaml")
+    parser.add_argument("--smoke", action="store_true")
+    parser.add_argument("--steps", type=int, default=512)
+    parser.add_argument("--eval-episodes", type=int, default=50)
+    parser.parse_args()
     base = ROOT / "results" / "rl_mitigation" / "paper" / "ieee14"
     eval_rows = _read_latest_eval(base / "eval")
     out_dir = base / "ablation"
@@ -65,4 +72,3 @@ def _summary(variant: str, use_pretrain: bool, use_mask: bool, rows: list[dict])
 
 if __name__ == "__main__":
     main()
-

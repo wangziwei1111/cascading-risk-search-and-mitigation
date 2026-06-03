@@ -2,31 +2,25 @@
 
 Paper: `Real-Time Cascade Mitigation in Power Systems Using Influence Graph Improved by Reinforcement Learning`
 
-Current priority: reproduce the RL paper body. GCN-RL coupling and IEEE14 GCN risk ranking are paused and must not be treated as paper reproduction results.
+Current boundary: only the RL paper reproduction is in scope. GCN, GCN-RL bridge, oracle BC, safe gate, and one-step oracle are excluded from paper main results.
 
-| Paper content | Paper requirement | Current implementation | Done | Gap | Script / result |
+Status values: `done`, `partial-smoke`, `partial-framework`, `not-done`.
+
+| Paper content | Paper requirement | Current implementation | Status | Gap / boundary | Next formal command |
 |---|---|---|---|---|---|
-| Figure 1 cascade flow | Complete cascade environment loop | IEEE14 example trace with action, islands, power-flow convergence, trip probabilities, reward terms | yes | PYPOWER substitute environment | `scripts/rl_mitigation/paper/check_figure1_cascade_flow.py`; `results/rl_mitigation/paper/figure1_trace/` |
-| Figure 2/3 IEEE5 DP | Small-system DP explanation | IEEE5 mechanism reproduction, DFS transitions, policy iteration, figures | partial | exact paper IEEE5 parameters unavailable; mechanism reproduction only | `scripts/rl_mitigation/paper/run_ieee5_dp.py`; `results/rl_mitigation/paper/ieee5/` |
-| IEEE14 MDP state | `S=[line_status, relative_flow]` | default observation length is `2n` | yes | none for implemented environment | `tests/rl_mitigation/paper/test_paper_mdp_definition.py` |
-| IEEE14 action space | `A=0` do-nothing, `A=i` open line i | full `0..n_lines`; no Top-M compression | yes | none | `tests/rl_mitigation/paper/test_paper_action_space.py` |
-| IEEE14 reward | paper reward terms | exact term function and tests | yes | PYPOWER failure behavior differs from original environment | `src/rl_mitigation/envs/reward.py` |
-| do-nothing initialization | supervised actor initialization to action 0 | paper wrapper with probability diagnostics and figure | yes | smoke uses reduced states | `results/rl_mitigation/paper/ieee14/pretrain/` |
-| invalid action mask | mask out already-opened lines | action mask and PPO masked logits | yes | no-mask path records invalid actions as do-nothing | `src/rl_mitigation/rl/action_mask.py` |
-| IEEE14 9-grid search | lr x entropy 3x3 | smoke gridsearch completed with 9 logs | partial | smoke 512 steps, not full 60000 | `results/rl_mitigation/paper/ieee14/gridsearch/` |
-| Figure 7 | IEEE14 learning curves | smoke Figure 7 generated | partial | smoke figure name marks smoke | `results/rl_mitigation/paper/ieee14/figures/fig7_*_smoke.*` |
-| Figure 8 | before/after negative-return survival | 100-scenario smoke survival generated | partial | formal entry supports 1000, current run is 100 smoke | `results/rl_mitigation/paper/ieee14/figures/fig8_*` |
-| IEEE118 training | PPO on IEEE118 | PYPOWER case118 framework and short smoke | partial | backend now supports case118; full 600000 not run | `scripts/rl_mitigation/paper/train_ieee118_ppo.py` |
-| Figure 9 | IEEE118 learning curve | interface and smoke figure generated | partial | short smoke only | `results/rl_mitigation/paper/ieee118/figures/fig9_*` |
-| Figure 10 | IEEE118 negative-return survival | interface and smoke figure generated | partial | do-nothing smoke only when checkpoint load is limited | `results/rl_mitigation/paper/ieee118/figures/fig10_*` |
-| Figure 11 | IEEE118 generations/outages/load-shed survival | interface and smoke figures generated | partial | smoke only | `results/rl_mitigation/paper/ieee118/figures/fig11a/b/c_*` |
-| Figure 12 | IEEE118 action frequency | interface and smoke figure generated | partial | action-frequency proxy from proactive-action count | `results/rl_mitigation/paper/ieee118/figures/fig12_*` |
+| MDP state/action/reward | `S=[line_status, relative_flow]`, full `0..n` actions, paper reward | Implemented and tested | done | PYPOWER substitute environment | `pytest tests/rl_mitigation/paper -q` |
+| Figure 1 | Cascade flow trace | JSON/MD trace with required fields | done | Example trace, not numerical figure | `python -m scripts.rl_mitigation.paper.check_figure1_cascade_flow --config configs/rl_mitigation/paper/ieee14_paper_ppo.yaml` |
+| IEEE5 DP / Figure 2/3 | DP example | IEEE5 mechanism reproduction with DFS and policy iteration | done | Exact paper IEEE5 parameters unavailable | `python -m scripts.rl_mitigation.paper.run_ieee5_dp --config configs/rl_mitigation/paper/ieee5_dp.yaml` |
+| IEEE14 paper PPO | do-nothing init + mask + PPO | Smoke pipeline runs and report is generated | partial-smoke | Formal 60000-step run not completed in this round | `python -m scripts.rl_mitigation.paper.run_ieee14_paper_pipeline --config configs/rl_mitigation/paper/ieee14_paper_ppo.yaml --steps 60000 --eval-episodes 1000` |
+| IEEE14 Figure 7 | 9-grid learning curves | Smoke gridsearch output under `gridsearch/smoke` | partial-smoke | Not formal 60000-step gridsearch | `python -m scripts.rl_mitigation.paper.train_ieee14_gridsearch --config configs/rl_mitigation/paper/ieee14_paper_gridsearch.yaml --steps 60000` |
+| IEEE14 Figure 8 | 1000-scenario before/after survival | Smoke survival figure generated with `_smoke` suffix | partial-smoke | Not 1000-scenario formal evaluation | `python -m scripts.rl_mitigation.paper.evaluate_ieee14_survival --eval-csv results/rl_mitigation/paper/ieee14/eval/eval_1000_before_after.csv --episodes 1000` |
+| IEEE14 claim check | classify performance conclusion | JSON/MD/table produced | partial-smoke | Current result is not fully supported | `python -m scripts.rl_mitigation.paper.check_ieee14_paper_claims --eval-csv results/rl_mitigation/paper/ieee14/eval/eval_1000_before_after.csv` |
+| IEEE118 case118 smoke | runnable IEEE118 framework | PYPOWER case118, action space 187, state 372 | partial-framework | Full 600000-step training not run | `python -m scripts.rl_mitigation.paper.train_ieee118_ppo --config configs/rl_mitigation/paper/ieee118_paper_ppo.yaml --smoke --steps 2048` |
+| IEEE118 baseline/proposed | baseline vs proposed comparison | scaffold and smoke proposed output | partial-framework | Full baseline/proposed training not run | `python -m scripts.rl_mitigation.paper.compare_ieee118_pretrain_mask` |
+| IEEE118 Figure 9-12 | learning/survival/action figures | Smoke figure interfaces generated | partial-smoke | Framework evidence only | `python -m scripts.rl_mitigation.paper.make_ieee118_paper_figures --smoke` |
 
-Diagnostic and enhanced results are separated from the paper main line:
+Current thesis-safe wording:
 
-- Diagnostics: action-value scan, one-step oracle, policy diagnosis.
-- Enhanced experiments: oracle BC, safe gate, GCN-RL bridge.
-- Paper reproduction: `results/rl_mitigation/paper/`.
-
-Current IEEE14 claim check is `partially_supported`; the smoke proposed policy does not yet stably improve all do-nothing metrics in the PYPOWER IEEE14 substitute environment.
-
+```text
+The repository reproduces the RL paper mechanism and provides PYPOWER IEEE14/IEEE118 smoke evidence. IEEE14 PPO performance is currently partially supported rather than a complete numerical reproduction. Formal claims require the 60000-step IEEE14 run, 1000-scenario evaluation, and preferably a closer grid2op-compatible environment.
+```

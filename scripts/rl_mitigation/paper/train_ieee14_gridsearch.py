@@ -19,7 +19,7 @@ def main() -> None:
     args = parser.parse_args()
     grid = load_config(args.config)
     base_cfg = load_config(grid.get("base_config", "configs/rl_mitigation/paper/ieee14_paper_ppo.yaml"))
-    out = ROOT / "results" / "rl_mitigation" / "paper" / "ieee14" / "gridsearch"
+    out = ROOT / "results" / "rl_mitigation" / "paper" / "ieee14" / "gridsearch" / ("smoke" if args.smoke else "formal")
     out.mkdir(parents=True, exist_ok=True)
     all_rows = []
     for lr in grid["learning_rates"]:
@@ -30,7 +30,7 @@ def main() -> None:
             env = make_paper_env(cfg)
             steps = min(args.steps, 2048) if args.smoke else args.steps
             name = f"lr_{_fmt(lr)}_ent_{_fmt(ent)}"
-            log = out / f"{name}{'_smoke' if args.smoke else ''}.csv"
+            log = out / f"{name}.csv"
             _, rows = train_ppo_clip(
                 env,
                 total_steps=steps,
@@ -62,7 +62,8 @@ def _fmt(value) -> str:
 
 def _plot_grid(rows, figures, smoke: bool) -> None:
     figures.mkdir(parents=True, exist_ok=True)
-    out_csv = figures / "fig7_ieee14_learning_curves_gridsearch.csv"
+    suffix = "_smoke" if smoke else ""
+    out_csv = figures / f"fig7_ieee14_learning_curves_gridsearch{suffix}.csv"
     with open(out_csv, "w", newline="", encoding="utf-8") as f:
         fields = sorted({k for row in rows for k in row})
         writer = csv.DictWriter(f, fieldnames=fields)
@@ -78,7 +79,6 @@ def _plot_grid(rows, figures, smoke: bool) -> None:
     plt.ylabel("Episode return")
     plt.legend(fontsize=7)
     plt.tight_layout()
-    suffix = "_smoke" if smoke else ""
     plt.savefig(figures / f"fig7_ieee14_learning_curves_gridsearch{suffix}.png", dpi=200)
     plt.savefig(figures / f"fig7_ieee14_learning_curves_gridsearch{suffix}.pdf")
     plt.close()
@@ -86,4 +86,3 @@ def _plot_grid(rows, figures, smoke: bool) -> None:
 
 if __name__ == "__main__":
     main()
-

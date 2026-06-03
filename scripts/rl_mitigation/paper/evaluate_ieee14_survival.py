@@ -11,18 +11,22 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--eval-csv")
     parser.add_argument("--episodes", type=int, default=1000)
+    parser.add_argument("--smoke", action="store_true")
     args = parser.parse_args()
     base = ROOT / "results" / "rl_mitigation" / "paper" / "ieee14"
     eval_csv = args.eval_csv or str(base / "eval" / f"eval_{args.episodes}_before_after.csv")
     rows = _read(eval_csv)
     figs = base / "figures"
     figs.mkdir(parents=True, exist_ok=True)
+    if not args.smoke and "_smoke" in str(eval_csv):
+        args.smoke = True
+    suffix = "_smoke" if args.smoke else ""
     plot_survival_by_policy(
         rows,
-        str(figs / "fig8_ieee14_negative_return_survival.png"),
-        str(figs / "fig8_ieee14_negative_return_survival.pdf"),
+        str(figs / f"fig8_ieee14_negative_return_survival{suffix}.png"),
+        str(figs / f"fig8_ieee14_negative_return_survival{suffix}.pdf"),
     )
-    _write_survival_csv(rows, figs / "fig8_ieee14_negative_return_survival.csv")
+    _write_survival_csv(rows, figs / f"fig8_ieee14_negative_return_survival{suffix}.csv")
     print(f"Figure 8 written to {figs}")
 
 
@@ -45,4 +49,3 @@ def _write_survival_csv(rows, path):
 
 if __name__ == "__main__":
     main()
-

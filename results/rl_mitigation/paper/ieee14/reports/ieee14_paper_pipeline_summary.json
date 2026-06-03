@@ -1,0 +1,102 @@
+{
+  "config": "configs/rl_mitigation/paper/ieee14_paper_ppo.yaml",
+  "smoke": true,
+  "training_steps": 2048,
+  "eval_episodes": 100,
+  "pretrain_diagnostics": {
+    "mean_prob_do_nothing": 0.07344046980142593,
+    "median_prob_do_nothing": 0.0752444937825203,
+    "mean_entropy": 3.028817653656006,
+    "mean_max_nonzero_prob": 0.05925650894641876
+  },
+  "train_log": "C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\rl_mitigation\\paper\\ieee14\\train_logs\\proposed_pretrain_mask_smoke.csv",
+  "checkpoint": "C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\rl_mitigation\\paper\\ieee14\\checkpoints\\proposed_pretrain_mask\\latest.pt",
+  "eval_csv": "C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\rl_mitigation\\paper\\ieee14\\eval\\eval_100_before_after_smoke.csv",
+  "figure8": "C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\rl_mitigation\\paper\\ieee14\\figures\\fig8_ieee14_negative_return_survival_smoke.png",
+  "claim_check": "C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\rl_mitigation\\paper\\ieee14\\reports\\ieee14_claim_check.json",
+  "overall": "partially_supported",
+  "metrics": {
+    "mean_negative_return": {
+      "metric": "mean_negative_return",
+      "do_nothing_mean": 80.15971463770578,
+      "proposed_mean": 80.12710539030184,
+      "difference_proposed_minus_do_nothing": -0.03260924740393989,
+      "relative_change_percent": -0.04068034367552632,
+      "direction": "improved",
+      "supported": true
+    },
+    "p95_negative_return": {
+      "metric": "p95_negative_return",
+      "do_nothing_mean": 108.87330713857921,
+      "proposed_mean": 108.87330713857921,
+      "difference_proposed_minus_do_nothing": 0.0,
+      "relative_change_percent": 0.0,
+      "direction": "unchanged",
+      "supported": true
+    },
+    "mean_num_generations": {
+      "metric": "mean_num_generations",
+      "do_nothing_mean": 1.17,
+      "proposed_mean": 1.17,
+      "difference_proposed_minus_do_nothing": 0.0,
+      "relative_change_percent": 0.0,
+      "direction": "unchanged",
+      "supported": true
+    },
+    "mean_num_line_outages": {
+      "metric": "mean_num_line_outages",
+      "do_nothing_mean": 4.77,
+      "proposed_mean": 4.79,
+      "difference_proposed_minus_do_nothing": 0.020000000000000462,
+      "relative_change_percent": 0.4192872117400516,
+      "direction": "worse",
+      "supported": false
+    },
+    "mean_load_shed_MW": {
+      "metric": "mean_load_shed_MW",
+      "do_nothing_mean": 11.604456391394137,
+      "proposed_mean": 11.68793641191721,
+      "difference_proposed_minus_do_nothing": 0.0834800205230728,
+      "relative_change_percent": 0.7193789843096964,
+      "direction": "worse",
+      "supported": false
+    },
+    "mean_load_shed_ratio": {
+      "metric": "mean_load_shed_ratio",
+      "do_nothing_mean": 0.044804850932023695,
+      "proposed_mean": 0.045127167613579953,
+      "difference_proposed_minus_do_nothing": 0.0003223166815562589,
+      "relative_change_percent": 0.7193789843096815,
+      "direction": "worse",
+      "supported": false
+    },
+    "pf_failed_ratio": {
+      "metric": "pf_failed_ratio",
+      "do_nothing_mean": 0.77,
+      "proposed_mean": 0.77,
+      "difference_proposed_minus_do_nothing": 0.0,
+      "relative_change_percent": 0.0,
+      "direction": "unchanged",
+      "supported": true
+    },
+    "mean_num_invalid_actions": {
+      "metric": "mean_num_invalid_actions",
+      "do_nothing_mean": 0.0,
+      "proposed_mean": 0.0,
+      "difference_proposed_minus_do_nothing": 0.0,
+      "relative_change_percent": 0.0,
+      "direction": "unchanged",
+      "supported": true
+    },
+    "mean_num_proactive_actions": {
+      "metric": "mean_num_proactive_actions",
+      "do_nothing_mean": 0.0,
+      "proposed_mean": 0.06,
+      "difference_proposed_minus_do_nothing": 0.06,
+      "relative_change_percent": 0.0,
+      "direction": "improved",
+      "supported": true
+    }
+  },
+  "boundary_statement": "当前PYPOWER IEEE14替代环境下，plain paper PPO尚未稳定优于do-nothing。仓库已复现MDP、动作空间、奖励函数、do-nothing初始化、invalid action mask和PPO训练流程；性能结论仍需更长训练、更接近原论文grid2op环境或进一步调参验证。"
+}

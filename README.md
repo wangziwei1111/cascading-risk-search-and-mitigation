@@ -24,6 +24,14 @@ docs/rl_mitigation_extra_diagnostics.md
 
 Current IEEE14 smoke claim check is cautious: the PYPOWER IEEE14 substitute environment reproduces the MDP/training mechanism, but the PPO mitigation performance claim is only partially supported and should not be overstated.
 
+Next formal reproduction step:
+
+```powershell
+python -m scripts.rl_mitigation.paper.run_ieee14_paper_pipeline --config configs/rl_mitigation/paper/ieee14_paper_ppo.yaml --steps 60000 --eval-episodes 1000
+```
+
+Do not claim complete numerical reproduction until the formal IEEE14 run and claim check support the paper's mitigation conclusion.
+
 公开仓库地址：
 
 ```text

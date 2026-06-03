@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "num_rows": 200,
+  "num_scenarios": 100,
+  "required_policies": [
+    "do_nothing",
+    "paper_proposed_policy"
+  ],
+  "errors": [],
+  "eval_csv": "C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\rl_mitigation\\paper\\ieee14\\eval\\eval_100_before_after_smoke.csv"
+}
