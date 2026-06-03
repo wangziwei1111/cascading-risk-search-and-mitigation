@@ -45,6 +45,14 @@ def train_physics_gcn(config: PhysicsGcnRunConfig) -> dict:
     out.mkdir(parents=True, exist_ok=True)
     data = np.load(config.dataset_npz, allow_pickle=True)
     x = data["x_gcn"].astype(np.float32)
+    if "physics_raw_features" in data.files and data["physics_raw_features"].ndim == 3:
+        x_raw = data["physics_raw_features"].astype(np.float32)
+    elif "x_gcn_raw" in data.files:
+        x_raw = data["x_gcn_raw"].astype(np.float32)
+    else:
+        x_raw = x.copy()
+    if x_raw.shape != x.shape:
+        x_raw = data["x_gcn_raw"].astype(np.float32) if "x_gcn_raw" in data else x
     y = data["y_reachable"].astype(np.int64)
     loss_mask = data["loss_mask"].astype(bool)
     train_config = PaperGcnTrainConfig(
@@ -70,6 +78,7 @@ def train_physics_gcn(config: PhysicsGcnRunConfig) -> dict:
     loader = DataLoader(
         TensorDataset(
             torch.tensor(x[train_index], dtype=torch.float32),
+            torch.tensor(x_raw[train_index], dtype=torch.float32),
             torch.tensor(y[train_index], dtype=torch.long),
             torch.tensor(loss_mask[train_index], dtype=torch.bool),
         ),
@@ -82,13 +91,13 @@ def train_physics_gcn(config: PhysicsGcnRunConfig) -> dict:
         model.train()
         sums = {"ce_loss": 0.0, "mask_invalid_loss": 0.0, "relay_priority_loss": 0.0, "loading_monotonic_loss": 0.0, "total_loss": 0.0}
         batches = 0
-        for xb, yb, mb in loader:
+        for xb, xrawb, yb, mb in loader:
             optimizer.zero_grad()
             logits = model(xb, adjacency_powers)
             ce_matrix = loss_function(logits.reshape(-1, 2), yb.reshape(-1)).reshape_as(yb)
             ce_loss = ce_matrix[mb].mean()
             probability = torch.softmax(logits, dim=2)[:, :, 1]
-            loading_ratio = xb[:, :, loading_feature_idx] if loading_feature_idx is not None else None
+            loading_ratio = xrawb[:, :, loading_feature_idx] if loading_feature_idx is not None else None
             physics = compute_physics_constraint_loss(
                 probability,
                 mb,
@@ -96,6 +105,7 @@ def train_physics_gcn(config: PhysicsGcnRunConfig) -> dict:
                 lambda_mask=config.lambda_mask,
                 lambda_relay=config.lambda_relay,
                 lambda_monotonic=config.lambda_monotonic,
+                beta=config.beta,
                 p_min_relay=config.p_min_relay,
                 monotonic_margin=config.monotonic_margin,
             )
@@ -118,6 +128,7 @@ def train_physics_gcn(config: PhysicsGcnRunConfig) -> dict:
             "train_config": asdict(train_config),
             "physics_run_config": asdict(config),
             "feature_names": _x_gcn_physics_feature_names() if x.shape[2] >= 9 else [f"feature_{i}" for i in range(x.shape[2])],
+            "physics_loss_uses_raw_features": True,
             "adjacency_powers": adjacency_powers.numpy(),
             "class_order": ["normal", "shed"],
         },

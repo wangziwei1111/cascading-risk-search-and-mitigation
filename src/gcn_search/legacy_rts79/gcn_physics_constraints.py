@@ -46,9 +46,10 @@ def compute_relay_priority_loss(
     probability: torch.Tensor,
     loading_ratio: torch.Tensor,
     candidate_mask: torch.Tensor | None = None,
+    beta: float = 1.2,
     p_min_relay: float = 0.5,
 ) -> torch.Tensor:
-    relay_candidates = loading_ratio >= 1.0
+    relay_candidates = loading_ratio > float(beta)
     if candidate_mask is not None:
         relay_candidates = relay_candidates & candidate_mask.to(device=probability.device, dtype=torch.bool)
     if not torch.any(relay_candidates):
@@ -95,6 +96,7 @@ def compute_physics_constraint_loss(
     lambda_mask: float = 0.0,
     lambda_relay: float = 0.0,
     lambda_monotonic: float = 0.0,
+    beta: float = 1.2,
     p_min_relay: float = 0.5,
     monotonic_margin: float = 0.0,
 ) -> dict[str, torch.Tensor]:
@@ -105,7 +107,7 @@ def compute_physics_constraint_loss(
         monotonic_loss = zero
     else:
         relay_loss = (
-            compute_relay_priority_loss(probability, loading_ratio, candidate_mask, p_min_relay)
+            compute_relay_priority_loss(probability, loading_ratio, candidate_mask, beta, p_min_relay)
             if lambda_relay
             else zero
         )

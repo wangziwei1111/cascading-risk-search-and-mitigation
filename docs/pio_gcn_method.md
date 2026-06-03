@@ -208,3 +208,78 @@ python evaluate_rts79_pio_gcn_topk.py --model <model.pt> --normalizer <normalize
 3. Top-K 当前用于减少精确仿真次数，但小模型排序效果不代表正式模型性能。
 4. measured-state JSON 是接口样例，不是真实 SCADA/PMU 数据。
 5. 原始 `GCN_path_prob` 仍保留为基线方法。
+
+## 第二轮修正记录
+
+本轮修正重点是物理一致性和评价语义。
+
+### raw physics features
+
+数据集在 physics 模式下同时保存：
+
+```text
+x_gcn                # 归一化后模型输入
+x_gcn_raw            # 未归一化原始特征
+physics_raw_features # physics loss 使用的原始物理特征
+```
+
+训练时：
+
+```text
+model input uses normalized features
+physics loss uses raw physical features
+```
+
+也就是说，GCN 前向传播仍使用归一化 `x_gcn`，但 `loading_ratio`、`is_online`、`is_candidate` 等物理约束量从 raw features 中读取。
+
+### relay loss 使用 beta
+
+`compute_relay_priority_loss` 已改为：
+
+```text
+relay candidate = loading_ratio > beta
+```
+
+默认 `beta = 1.2`。这避免把 `security_limit = 1.0` 和继电保护阈值 `beta = 1.2` 混淆。
+
+### measured-state 贯穿 Top-K 仿真
+
+`evaluate_rts79_pio_gcn_topk.py` 在加载 measured-state 后，会先构造 updated root case。后续：
+
+- 第一步概率预测；
+- 第一故障后的 `S1(i)`；
+- 第二步概率预测；
+- Top-K 精确物理仿真；
+
+均从该 updated root case 出发。
+
+输出文件新增：
+
+```text
+used_measured_state
+initial_offline_lines
+simulation_initial_source
+```
+
+### full truth / smoke truth 语义
+
+`--run-exhaustive-truth` 不再使用。当前改为：
+
+```text
+--run-full-truth
+```
+
+如果使用 `--max-paths-for-smoke-test`，则只输出 `smoke_recall`，不把它伪装成正式 `critical_path_recall`。
+
+### ablation 区分
+
+`run_pio_gcn_ablation.py` 已从形式消融改成不同配置：
+
+- `original_GCN_path_prob`：读取原始 baseline CSV；
+- `physics_features_only`：physics CE-only 模型，关闭 candidate probability mask；
+- `physics_features_plus_mask`：physics CE-only 模型，启用 mask；
+- `physics_informed_loss`：带非零 lambda 的 physics-informed 模型；
+- `online_state_update`：使用 measured-state updated root case；
+- `pio_gcn_topk`：physics-informed 模型 + mask + Top-K physical simulation。
+
+当前仍是 smoke-test，不是正式性能消融。

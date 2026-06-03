@@ -14,11 +14,9 @@ from gcn_physics_constraints import apply_candidate_probability_mask, make_candi
 from online_state_update import apply_measured_state_to_case, load_measured_state_json
 from rts79_cascade import (
     Rts79InitialConfig,
-    line_label_to_index_1based,
     run_initial_dcopf,
-    run_sequential_initial_outages_dcpf,
-    simulate_cascade_path,
 )
+from rts79_cascade_from_case import offline_line_labels, run_sequential_outages_from_case, simulate_cascade_path_from_case
 from train_rts79_paper_gcn import PaperGcnTrainConfig, PaperStyleRts79Gcn, _make_x_gcn_physics
 
 
@@ -32,8 +30,9 @@ class PioTopkConfig:
     security_limit: float = 1.0
     top_k: tuple[int, ...] = (20,)
     measured_state_json: str | None = None
-    run_exhaustive_truth: bool = False
+    run_full_truth: bool = False
     max_paths_for_smoke_test: int | None = None
+    use_candidate_probability_mask: bool = True
 
 
 def evaluate_pio_gcn_topk(config: PioTopkConfig) -> dict:
@@ -47,25 +46,28 @@ def evaluate_pio_gcn_topk(config: PioTopkConfig) -> dict:
     measured_state = load_measured_state_json(config.measured_state_json) if config.measured_state_json else None
     if measured_state is not None:
         root_case = apply_measured_state_to_case(root_case, measured_state)
-    order = _make_path_order(model, adjacency_powers, normalizer, root_case, initial_config, config)
+    initial_offline = offline_line_labels(root_case)
+    order = _make_path_order(model, adjacency_powers, normalizer, root_case, config)
     if config.max_paths_for_smoke_test:
         order = order[: config.max_paths_for_smoke_test]
+    for row in order:
+        row["used_measured_state"] = measured_state is not None
+        row["initial_offline_lines"] = ",".join(initial_offline)
+        row["simulation_initial_source"] = "measured_state_updated_case" if measured_state is not None else "seed_initial_dcopf_case"
     pd.DataFrame(order).to_csv(out / "pio_gcn_topk_order.csv", index=False, encoding="utf-8-sig")
     max_top_k = min(max(config.top_k), len(order))
     simulation_rows = []
     for row in order[:max_top_k]:
         first, second = row["path"].split("->")
-        result = simulate_cascade_path(
-            [first, second],
-            config=initial_config,
-            relay_threshold_beta=config.beta,
-            security_limit=config.security_limit,
-        )
+        result = simulate_cascade_path_from_case(root_case, [first, second], beta=config.beta, security_limit=config.security_limit)
         simulation_rows.append(
             {
                 "path": row["path"],
                 "rank": row["rank"],
                 "score": row["score"],
+                "used_measured_state": measured_state is not None,
+                "initial_offline_lines": ",".join(initial_offline),
+                "simulation_initial_source": "measured_state_updated_case" if measured_state is not None else "seed_initial_dcopf_case",
                 "total_load_shed_mw": float(result.total_load_shed_mw),
                 "critical": bool(result.total_load_shed_mw > 1e-7),
                 "final_outage_labels": ",".join(result.final_outage_labels),
@@ -73,25 +75,37 @@ def evaluate_pio_gcn_topk(config: PioTopkConfig) -> dict:
         )
     sim_table = pd.DataFrame(simulation_rows)
     sim_table.to_csv(out / "pio_gcn_topk_simulation_results.csv", index=False, encoding="utf-8-sig")
-    truth_critical = None
-    if config.run_exhaustive_truth:
-        truth_critical = _make_smoke_truth(order, initial_config, config)
-        truth_critical.to_csv(out / "pio_gcn_topk_smoke_truth.csv", index=False, encoding="utf-8-sig")
+    truth_table = None
+    if config.run_full_truth:
+        truth_table = _make_full_truth(root_case, config)
+        truth_table.to_csv(out / "pio_gcn_topk_full_truth.csv", index=False, encoding="utf-8-sig")
+    elif config.max_paths_for_smoke_test:
+        truth_table = _make_smoke_truth(order, root_case, config)
+        truth_table.to_csv(out / "pio_gcn_topk_smoke_truth.csv", index=False, encoding="utf-8-sig")
     summary_rows = []
     for k in config.top_k:
         subset = sim_table.head(min(k, len(sim_table)))
         found = int(subset["critical"].sum()) if not subset.empty else 0
-        recall = ""
-        if truth_critical is not None:
-            denom = int(truth_critical["critical"].sum())
-            recall = float(found / denom) if denom else 0.0
+        critical_path_recall = ""
+        smoke_recall = ""
+        if truth_table is not None:
+            truth_set = set(truth_table.loc[truth_table["critical"], "path"].tolist())
+            found_set = set(subset.loc[subset["critical"], "path"].tolist()) if not subset.empty else set()
+            if config.run_full_truth and not config.max_paths_for_smoke_test:
+                critical_path_recall = float(len(found_set & truth_set) / max(len(truth_set), 1))
+            else:
+                smoke_recall = float(len(found_set & truth_set) / max(len(truth_set), 1))
         summary_rows.append(
             {
                 "method": "pio_gcn_topk",
                 "top_k": int(k),
                 "num_simulated_paths": int(len(subset)),
                 "num_critical_found": found,
-                "critical_path_recall": recall,
+                "critical_path_recall": critical_path_recall,
+                "smoke_recall": smoke_recall,
+                "used_measured_state": measured_state is not None,
+                "initial_offline_lines": ",".join(initial_offline),
+                "simulation_initial_source": "measured_state_updated_case" if measured_state is not None else "seed_initial_dcopf_case",
                 "runtime_seconds": float(time.time() - start_time),
                 "notes": "smoke truth only" if config.max_paths_for_smoke_test else "",
             }
@@ -112,22 +126,20 @@ def _load_model(path: str | Path) -> tuple[PaperStyleRts79Gcn, torch.Tensor]:
     return model, torch.tensor(checkpoint["adjacency_powers"], dtype=torch.float32)
 
 
-def _make_path_order(model, adjacency_powers, normalizer, root_case, initial_config, config: PioTopkConfig) -> list[dict]:
+def _make_path_order(model, adjacency_powers, normalizer, root_case, config: PioTopkConfig) -> list[dict]:
     first_prob = _predict(model, adjacency_powers, normalizer, root_case, config)
     first_mask = make_candidate_mask(root_case)
-    first_prob = apply_candidate_probability_mask(first_prob, first_mask)
+    if config.use_candidate_probability_mask:
+        first_prob = apply_candidate_probability_mask(first_prob, first_mask)
     records = []
     for first_idx in np.where(first_mask)[0]:
         first_line = f"L{first_idx + 1:02d}"
-        state = run_sequential_initial_outages_dcpf(
-            [first_line],
-            config=initial_config,
-            relay_threshold_beta=config.beta,
-            security_limit=config.security_limit,
-        )
-        second_prob = _predict(model, adjacency_powers, normalizer, state.case, config)
-        second_mask = make_candidate_mask(state.case, used_lines=[first_line])
-        second_prob = apply_candidate_probability_mask(second_prob, second_mask)
+        state = run_sequential_outages_from_case(root_case, [first_line], beta=config.beta, security_limit=config.security_limit)
+        second_case = state["case"]
+        second_prob = _predict(model, adjacency_powers, normalizer, second_case, config)
+        second_mask = make_candidate_mask(second_case, used_lines=[first_line])
+        if config.use_candidate_probability_mask:
+            second_prob = apply_candidate_probability_mask(second_prob, second_mask)
         for second_idx in np.where(second_mask)[0]:
             second_line = f"L{second_idx + 1:02d}"
             score = float(first_prob[first_idx] * second_prob[second_idx])
@@ -157,13 +169,27 @@ def _predict(model, adjacency_powers, normalizer, case, config: PioTopkConfig) -
         return torch.softmax(logits, dim=2)[0, :, 1].numpy()
 
 
-def _make_smoke_truth(order: list[dict], initial_config: Rts79InitialConfig, config: PioTopkConfig) -> pd.DataFrame:
+def _make_smoke_truth(order: list[dict], root_case: dict, config: PioTopkConfig) -> pd.DataFrame:
     rows = []
     limit = config.max_paths_for_smoke_test or len(order)
     for row in order[:limit]:
         first, second = row["path"].split("->")
-        result = simulate_cascade_path([first, second], config=initial_config, relay_threshold_beta=config.beta, security_limit=config.security_limit)
+        result = simulate_cascade_path_from_case(root_case, [first, second], beta=config.beta, security_limit=config.security_limit)
         rows.append({"path": row["path"], "critical": bool(result.total_load_shed_mw > 1e-7)})
+    return pd.DataFrame(rows)
+
+
+def _make_full_truth(root_case: dict, config: PioTopkConfig) -> pd.DataFrame:
+    rows = []
+    first_mask = make_candidate_mask(root_case)
+    for first_idx in np.where(first_mask)[0]:
+        first = f"L{first_idx + 1:02d}"
+        first_state = run_sequential_outages_from_case(root_case, [first], beta=config.beta, security_limit=config.security_limit)
+        second_mask = make_candidate_mask(first_state["case"], used_lines=[first])
+        for second_idx in np.where(second_mask)[0]:
+            second = f"L{second_idx + 1:02d}"
+            result = simulate_cascade_path_from_case(root_case, [first, second], beta=config.beta, security_limit=config.security_limit)
+            rows.append({"path": f"{first}->{second}", "critical": bool(result.total_load_shed_mw > 1e-7), "total_load_shed_mw": float(result.total_load_shed_mw)})
     return pd.DataFrame(rows)
 
 
@@ -177,8 +203,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--security-limit", type=float, default=1.0)
     parser.add_argument("--top-k", type=int, nargs="+", default=[20])
     parser.add_argument("--measured-state-json")
-    parser.add_argument("--run-exhaustive-truth", action="store_true")
+    parser.add_argument("--run-full-truth", action="store_true")
     parser.add_argument("--max-paths-for-smoke-test", type=int)
+    parser.add_argument("--disable-candidate-probability-mask", action="store_true")
     return parser.parse_args()
 
 
@@ -194,8 +221,9 @@ def main() -> None:
             security_limit=args.security_limit,
             top_k=tuple(args.top_k),
             measured_state_json=args.measured_state_json,
-            run_exhaustive_truth=args.run_exhaustive_truth,
+            run_full_truth=args.run_full_truth,
             max_paths_for_smoke_test=args.max_paths_for_smoke_test,
+            use_candidate_probability_mask=not args.disable_candidate_probability_mask,
         )
     )
 

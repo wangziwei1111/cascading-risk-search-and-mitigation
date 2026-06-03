@@ -1,0 +1,7 @@
+﻿method,search_method,total_critical_count,attempts_to_find_all,found_after_50_attempts,found_after_100_attempts,found_after_200_attempts,found_after_500_attempts,top_k,num_simulated_paths,num_critical_found,critical_path_recall,smoke_recall,used_measured_state,initial_offline_lines,simulation_initial_source,runtime_seconds,notes
+original_GCN_path_prob,GCN_path_prob,55.0,1401.0,8.0,10.0,10.0,15.0,,,,,,,,,,
+pio_gcn_topk,,,,,,,,20.0,20.0,0.0,,0.0,False,,seed_initial_dcopf_case,1.221792221069336,smoke truth only
+pio_gcn_topk,,,,,,,,20.0,20.0,0.0,,0.0,False,,seed_initial_dcopf_case,1.2726898193359375,smoke truth only
+pio_gcn_topk,,,,,,,,20.0,20.0,0.0,,0.0,False,,seed_initial_dcopf_case,1.2025542259216309,smoke truth only
+pio_gcn_topk,,,,,,,,20.0,20.0,17.0,,1.0,True,L03,measured_state_updated_case,2.108633041381836,smoke truth only
+pio_gcn_topk,,,,,,,,20.0,20.0,0.0,,0.0,False,,seed_initial_dcopf_case,1.1553566455841064,smoke truth only

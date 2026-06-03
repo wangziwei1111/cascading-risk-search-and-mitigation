@@ -264,3 +264,15 @@ runtime
 - 新增测试和验证日志。
 
 当前新增内容是可运行的第一轮工程框架，主要目的是验证接口、数据流和物理约束是否能闭环运行；正式性能结论仍应以后续更大训练集和更多场景评估为准。
+
+### 第二轮修正
+
+第二轮已修正以下问题：
+
+- physics loss 不再使用归一化后的 `loading_ratio`，而是使用数据集中保存的 raw physical features；
+- relay priority loss 使用 `loading_ratio > beta`，不再误用 `security_limit = 1.0`；
+- measured-state updated root case 已贯穿 Top-K 排序和物理仿真；
+- `exhaustive_truth` 语义已改为 `full_truth / smoke_truth`；
+- ablation smoke 已区分 paper baseline、physics CE-only、physics + mask、physics-informed、online update 和 PIO Top-K 配置。
+
+这些仍属于 smoke 级验证，不代表正式性能结论。

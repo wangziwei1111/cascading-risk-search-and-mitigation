@@ -31,8 +31,16 @@ def test_invalid_probability_increases_mask_loss():
 
 def test_relay_and_monotonic_losses_behave():
     mask = torch.tensor([[True, True]])
-    loading = torch.tensor([[1.2, 0.2]])
-    relay_loss = compute_relay_priority_loss(torch.tensor([[0.1, 0.9]]), loading, mask, p_min_relay=0.5)
+    loading = torch.tensor([[1.25, 0.2]])
+    relay_loss = compute_relay_priority_loss(torch.tensor([[0.1, 0.9]]), loading, mask, beta=1.2, p_min_relay=0.5)
     assert relay_loss > 0
     monotonic_loss = compute_loading_monotonic_loss(torch.tensor([[0.1, 0.9]]), loading, mask)
     assert monotonic_loss > 0
+
+
+def test_relay_loss_uses_beta_not_security_limit():
+    mask = torch.tensor([[True]])
+    below_beta = compute_relay_priority_loss(torch.tensor([[0.1]]), torch.tensor([[1.1]]), mask, beta=1.2, p_min_relay=0.5)
+    above_beta = compute_relay_priority_loss(torch.tensor([[0.1]]), torch.tensor([[1.25]]), mask, beta=1.2, p_min_relay=0.5)
+    assert float(below_beta) == 0.0
+    assert above_beta > 0.0
