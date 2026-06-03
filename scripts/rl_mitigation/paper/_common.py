@@ -45,7 +45,14 @@ def make_paper_env(cfg: dict, seed: int | None = None) -> CascadeMitigationEnv:
     initial_cfg = cfg.get("initial_outages", {})
     include_n1 = initial_cfg.get("include_n_minus_1", True)
     include_n2 = initial_cfg.get("include_common_bus_n_minus_2", True)
-    sampler = ContingencySampler(case, seed=cfg.get("seed", 0) if seed is None else seed, include_n_minus_1=include_n1, include_common_bus_n_minus_2=include_n2)
+    sampler = ContingencySampler(
+        case,
+        seed=cfg.get("seed", 0) if seed is None else seed,
+        include_n_minus_1=include_n1,
+        include_common_bus_n_minus_2=include_n2,
+        include_star_motifs="star" in initial_cfg.get("motif_types", []),
+        k_values=initial_cfg.get("k_values", [2, 3, 4]),
+    )
     chronics_cfg = cfg.get("chronics", {})
     days = chronics_cfg.get("days", 7)
     resolution = chronics_cfg.get("resolution_minutes", 5)

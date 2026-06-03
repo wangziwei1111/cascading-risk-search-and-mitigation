@@ -5,6 +5,7 @@ import copy
 import numpy as np
 from pypower.api import ppoption, runpf
 from pypower.case14 import case14
+from pypower.case118 import case118
 from pypower.idx_brch import BR_STATUS, F_BUS, PF, PT, RATE_A, T_BUS
 from pypower.idx_bus import BUS_I, PD
 from pypower.idx_gen import GEN_BUS, PG, PMAX
@@ -14,7 +15,7 @@ from .powerflow_result import PowerFlowResult
 
 
 class PypowerACBackend:
-    """AC power-flow backend based on PYPOWER's MATPOWER case14."""
+    """AC power-flow backend based on supported PYPOWER MATPOWER cases."""
 
     def __init__(
         self,
@@ -32,12 +33,20 @@ class PypowerACBackend:
         self.rate_a_scale = float(rate_a_scale)
         self.min_rate_a_mw = float(min_rate_a_mw)
         self.default_rate_a = float(default_rate_a_mw)
-        self.base_ppc = case14()
+        self.base_ppc = self._load_base_ppc(case)
         self.lines = [(int(row[F_BUS]) - 1, int(row[T_BUS]) - 1) for row in self.base_ppc["branch"]]
         if len(self.lines) != case["num_lines"]:
-            raise ValueError(f"PYPOWER case14 has {len(self.lines)} branches, expected {case['num_lines']}")
+            raise ValueError(f"{case.get('source', 'PYPOWER case')} has {len(self.lines)} branches, expected {case['num_lines']}")
         self.base_load_mw = float(np.sum(self.base_ppc["bus"][:, PD]))
         self.calibrated_rate_a = self._build_rate_a()
+
+    @staticmethod
+    def _load_base_ppc(case: dict) -> dict:
+        source = case.get("source", "")
+        name = case.get("name", "")
+        if source == "pypower.case118" or "ieee118" in name:
+            return case118()
+        return case14()
 
     def solve(self, line_status: np.ndarray, load_scale: float = 1.0, gen_scale: float = 1.0) -> PowerFlowResult:
         line_status = np.asarray(line_status, dtype=np.int8).copy()

@@ -19,10 +19,17 @@ def pretrain_paper_do_nothing_actor(
     entropy_coef: float = 0.01,
     seed: int = 0,
     target_do_nothing_prob: float = 0.60,
+    policy_hidden_layers: list[int] | None = None,
+    value_hidden_layers: list[int] | None = None,
 ):
     torch.manual_seed(seed)
     states, actions = collect_random_states(env, n_states=n_states, seed=seed)
-    model = TorchActorCritic(env.observation_space_shape[0], env.action_space_n)
+    model = TorchActorCritic(
+        env.observation_space_shape[0],
+        env.action_space_n,
+        policy_hidden=policy_hidden_layers or [64, 64],
+        value_hidden=value_hidden_layers or [64, 8],
+    )
     x = torch.tensor(states, dtype=torch.float32)
     y = torch.tensor(actions, dtype=torch.long)
     before = _prob_stats(model, x)
@@ -80,4 +87,3 @@ def _plot_pretrain(before: dict, after: dict, out_png: Path) -> None:
     plt.savefig(out_png, dpi=200)
     plt.savefig(out_png.with_suffix(".pdf"))
     plt.close()
-

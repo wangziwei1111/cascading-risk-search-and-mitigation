@@ -16,6 +16,20 @@ def common_bus_n_minus_2(case: dict) -> list[tuple[int, int]]:
     return pairs
 
 
+def common_bus_star_motifs(case: dict, k_values: list[int] | tuple[int, ...] = (2, 3, 4)) -> list[tuple[int, ...]]:
+    by_bus: dict[int, list[int]] = {}
+    for idx, (a, b) in enumerate(case["lines"]):
+        by_bus.setdefault(int(a), []).append(idx)
+        by_bus.setdefault(int(b), []).append(idx)
+    motifs = []
+    for lines in by_bus.values():
+        unique = sorted(set(lines))
+        for k in k_values:
+            if len(unique) >= int(k):
+                motifs.extend(tuple(combo) for combo in itertools.combinations(unique, int(k)))
+    return sorted(set(motifs))
+
+
 class ContingencySampler:
     def __init__(
         self,
@@ -23,6 +37,8 @@ class ContingencySampler:
         seed: int = 0,
         include_n_minus_1: bool = True,
         include_common_bus_n_minus_2: bool = True,
+        include_star_motifs: bool = False,
+        k_values: list[int] | tuple[int, ...] = (2, 3, 4),
     ):
         self.case = case
         self.rng = np.random.default_rng(seed)
@@ -31,6 +47,8 @@ class ContingencySampler:
             self.pool.extend(n_minus_1(case))
         if include_common_bus_n_minus_2:
             self.pool.extend(common_bus_n_minus_2(case))
+        if include_star_motifs:
+            self.pool.extend(common_bus_star_motifs(case, k_values=k_values))
         if not self.pool:
             raise ValueError("ContingencySampler requires at least one contingency type")
 

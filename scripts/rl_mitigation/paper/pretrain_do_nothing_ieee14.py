@@ -25,10 +25,11 @@ def main() -> None:
         entropy_coef=pre.get("entropy_coef", 0.01),
         seed=cfg.get("seed", 0),
         target_do_nothing_prob=pre.get("target_do_nothing_prob", 0.60),
+        policy_hidden_layers=ppo.get("policy_hidden_layers", [64, 64]),
+        value_hidden_layers=ppo.get("value_hidden_layers", [64, 8]),
     )
     print(f"Paper do-nothing pretraining written to {out}")
 
 
 if __name__ == "__main__":
     main()
-
