@@ -9,11 +9,14 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import torch
+from pypower.idx_bus import PD
+from pypower.idx_gen import PG
 
 from gcn_physics_constraints import apply_candidate_probability_mask, make_candidate_mask
 from online_state_update import apply_measured_state_to_case, load_measured_state_json
 from rts79_cascade import (
     Rts79InitialConfig,
+    _build_branch_table,
     run_initial_dcopf,
 )
 from rts79_cascade_from_case import offline_line_labels, run_sequential_outages_from_case, simulate_cascade_path_from_case
@@ -42,11 +45,17 @@ def evaluate_pio_gcn_topk(config: PioTopkConfig) -> dict:
     model, adjacency_powers = _load_model(config.model)
     normalizer = json.loads(Path(config.normalizer).read_text(encoding="utf-8"))
     initial_config = Rts79InitialConfig(random_seed=config.seed)
-    root_case = run_initial_dcopf(initial_config).case
+    seed_root_case = run_initial_dcopf(initial_config).case
+    root_case = seed_root_case
     measured_state = load_measured_state_json(config.measured_state_json) if config.measured_state_json else None
     if measured_state is not None:
         root_case = apply_measured_state_to_case(root_case, measured_state)
     initial_offline = offline_line_labels(root_case)
+    online_state_summary = _make_online_state_summary(seed_root_case, root_case, measured_state)
+    (out / "online_state_summary.json").write_text(
+        json.dumps(online_state_summary, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
     order = _make_path_order(model, adjacency_powers, normalizer, root_case, config)
     if config.max_paths_for_smoke_test:
         order = order[: config.max_paths_for_smoke_test]
@@ -114,6 +123,40 @@ def evaluate_pio_gcn_topk(config: PioTopkConfig) -> dict:
     summary.to_csv(out / "pio_gcn_topk_summary.csv", index=False, encoding="utf-8-sig")
     (out / "pio_gcn_topk_config.json").write_text(json.dumps(asdict(config), ensure_ascii=False, indent=2), encoding="utf-8")
     return {"output_dir": str(out), "summary": summary_rows}
+
+
+def _case_total_load_mw(case: dict) -> float:
+    return float(np.sum(case["bus"][:, PD]))
+
+
+def _case_total_generation_mw(case: dict) -> float:
+    return float(np.sum(case["gen"][:, PG]))
+
+
+def _case_max_loading_ratio(case: dict) -> float:
+    try:
+        branch_table = _build_branch_table(case)
+        online = branch_table["status"] == 1
+        return float(branch_table.loc[online, "loading_ratio"].max()) if online.any() else 0.0
+    except Exception:
+        return float("nan")
+
+
+def _make_online_state_summary(before_case: dict, after_case: dict, measured_state) -> dict:
+    used = measured_state is not None
+    return {
+        "used_measured_state": used,
+        "source": measured_state.source if used else "seed_initial_dcopf_case",
+        "timestamp": measured_state.timestamp if used else None,
+        "initial_offline_lines": offline_line_labels(after_case),
+        "num_offline_lines": len(offline_line_labels(after_case)),
+        "total_load_mw_before_update": _case_total_load_mw(before_case),
+        "total_load_mw_after_update": _case_total_load_mw(after_case),
+        "total_generation_mw_before_update": _case_total_generation_mw(before_case),
+        "total_generation_mw_after_update": _case_total_generation_mw(after_case),
+        "max_loading_ratio_before_update": _case_max_loading_ratio(before_case),
+        "max_loading_ratio_after_update": _case_max_loading_ratio(after_case),
+    }
 
 
 def _load_model(path: str | Path) -> tuple[PaperStyleRts79Gcn, torch.Tensor]:

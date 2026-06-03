@@ -1,0 +1,13 @@
+{
+  "used_measured_state": false,
+  "source": "seed_initial_dcopf_case",
+  "timestamp": null,
+  "initial_offline_lines": [],
+  "num_offline_lines": 0,
+  "total_load_mw_before_update": 3111.3410994230317,
+  "total_load_mw_after_update": 3111.3410994230317,
+  "total_generation_mw_before_update": 3111.341099423032,
+  "total_generation_mw_after_update": 3111.341099423032,
+  "max_loading_ratio_before_update": 0.6909523969512944,
+  "max_loading_ratio_after_update": 0.6909523969512944
+}

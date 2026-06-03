@@ -1,0 +1,18 @@
+{
+  "model": "results\\gcn_search\\pio_validation_round2\\physics_train\\rts79_physics_gcn_model.pt",
+  "normalizer": "results\\gcn_search\\pio_validation_round2\\physics_dataset\\rts79_step2_state_feature_normalizer_physics.json",
+  "output_dir": "results\\gcn_search\\pio_small_experiment",
+  "baseline_summary_dir": "results\\gcn_search\\baseline_smoke_round2",
+  "seed_start": 20260722,
+  "num_seeds": 10,
+  "top_k": [
+    20,
+    50,
+    100
+  ],
+  "beta": 1.2,
+  "security_limit": 1.0,
+  "run_full_truth": false,
+  "max_paths_for_smoke_test": 100,
+  "measured_state_json": null
+}

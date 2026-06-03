@@ -283,3 +283,41 @@ simulation_initial_source
 - `pio_gcn_topk`：physics-informed 模型 + mask + Top-K physical simulation。
 
 当前仍是 smoke-test，不是正式性能消融。
+## Third-Round Small Trusted Experiment Update
+
+This round moves the PIO-GCN work from a smoke framework toward a small trusted experiment.
+
+Definitions used in this project:
+
+```text
+smoke-test:
+  A minimal run used to check that code paths, files, masks, and physical simulators work.
+
+small experiment:
+  A multi-seed run with fixed Top-K settings. It is useful for an early progress report,
+  but it is still not a final paper-scale experiment.
+
+full experiment:
+  A larger multi-scenario evaluation with full ordered N-2 truth and trained models.
+```
+
+New third-round components:
+
+- `simulate_cascade_path_from_case` is now checked against the original `simulate_cascade_path` on fixed N-2 paths.
+- `online_state_summary.json` is written by `evaluate_rts79_pio_gcn_topk.py`.
+- `examples/rts79_measured_state_mild_example.json` provides a mild measured-state perturbation without manually opening a line.
+- `run_pio_gcn_small_experiment.py` runs a multi-seed PIO-GCN Top-K experiment.
+- `plot_pio_gcn_small_experiment.py` generates reportable bar charts.
+
+Current small experiment setting:
+
+```text
+num_seeds = 10
+seed_start = 20260722
+Top-K = 20, 50, 100
+max_paths_for_smoke_test = 100
+full_truth = false
+```
+
+Therefore the reported recall is `smoke_recall`, not formal `critical_path_recall`.
+The current results are preliminary and should not be described as final model performance.

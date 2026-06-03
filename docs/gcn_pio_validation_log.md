@@ -471,3 +471,156 @@ git diff -- src/rl_mitigation scripts/rl_mitigation
 结果：空输出。
 
 结论：第二轮未修改 RL 部分。
+## Third-Round Validation Log: Small Trusted Experiment
+
+### Cascade from-case consistency test
+
+Command:
+
+```powershell
+python -m pytest tests/test_cascade_from_case_consistency.py -q
+```
+
+Result:
+
+```text
+5 passed
+```
+
+The test compares the original `simulate_cascade_path([first, second], config=...)`
+with `simulate_cascade_path_from_case(root_case, [first, second], ...)` on five fixed paths:
+
+```text
+L10->L05
+L27->L02
+L01->L02
+L04->L08
+L16->L17
+```
+
+Compared fields:
+
+```text
+total_load_shed_mw
+critical
+final_outage_labels
+final_max_loading_ratio
+```
+
+### Measured-state sanity test
+
+Command:
+
+```powershell
+python -m pytest tests/test_measured_state_sanity.py -q
+```
+
+Result:
+
+```text
+1 passed
+```
+
+Checked behavior:
+
+- `examples/rts79_measured_state_example.json` opens `L03`.
+- `L03` does not appear in `first_line` or `second_line` in Top-K order.
+- `initial_offline_lines` contains `L03`.
+- `final_outage_labels` contains `L03`.
+- `simulation_initial_source = measured_state_updated_case`.
+- `online_state_summary.json` is generated.
+
+### Existing GCN/PIO regression tests
+
+Command:
+
+```powershell
+python -m pytest tests/test_gcn_physics_features.py tests/test_gcn_probability_mask.py tests/test_gcn_physics_losses.py tests/test_online_state_update.py tests/test_gcn_raw_feature_training.py tests/test_pio_topk_measured_consistency.py -q
+```
+
+Result:
+
+```text
+13 passed
+```
+
+### Small experiment
+
+Command:
+
+```powershell
+python src/gcn_search/legacy_rts79/run_pio_gcn_small_experiment.py --model results/gcn_search/pio_validation_round2/physics_train/rts79_physics_gcn_model.pt --normalizer results/gcn_search/pio_validation_round2/physics_dataset/rts79_step2_state_feature_normalizer_physics.json --baseline-summary-dir results/gcn_search/baseline_smoke_round2 --output-dir results/gcn_search/pio_small_experiment --seed-start 20260722 --num-seeds 10 --top-k 20 50 100 --max-paths-for-smoke-test 100
+```
+
+Output:
+
+```text
+results/gcn_search/pio_small_experiment/per_seed_summary.csv
+results/gcn_search/pio_small_experiment/aggregate_summary.csv
+results/gcn_search/pio_small_experiment/method_comparison_summary.csv
+results/gcn_search/pio_small_experiment/config.json
+```
+
+Aggregate summary:
+
+```text
+Top-20: mean_num_critical_found = 0.6, mean_smoke_recall = 0.25, mean_runtime_seconds = 3.5413
+Top-50: mean_num_critical_found = 1.9, mean_smoke_recall = 0.8167, mean_runtime_seconds = 3.5413
+Top-100: mean_num_critical_found = 2.5, mean_smoke_recall = 1.0, mean_runtime_seconds = 3.5413
+```
+
+Because this run uses `--max-paths-for-smoke-test 100`, the recall column is smoke recall only.
+It must not be reported as formal full-truth critical path recall.
+
+### Method comparison summary
+
+Output:
+
+```text
+results/gcn_search/pio_small_experiment/method_comparison_summary.csv
+```
+
+Key rows:
+
+```text
+original_GCN_path_prob_smoke_baseline: attempts_to_find_all = 1370, found_after_100 = 11
+PIO_GCN_Top20: mean_critical_found = 0.6, mean_smoke_recall = 0.25
+PIO_GCN_Top50: mean_critical_found = 1.9, mean_smoke_recall = 0.8167
+PIO_GCN_Top100: mean_critical_found = 2.5, mean_smoke_recall = 1.0
+```
+
+The baseline row is read from an existing baseline CSV. Its truth definition may differ from the PIO smoke truth,
+so it is recorded for context and should not be forced into a formal apples-to-apples comparison.
+
+### Plot outputs
+
+Command:
+
+```powershell
+python src/gcn_search/legacy_rts79/plot_pio_gcn_small_experiment.py --per-seed-summary results/gcn_search/pio_small_experiment/per_seed_summary.csv --aggregate-summary results/gcn_search/pio_small_experiment/aggregate_summary.csv --output-dir results/gcn_search/pio_small_experiment/figures
+```
+
+Output:
+
+```text
+results/gcn_search/pio_small_experiment/figures/critical_found_bar.png
+results/gcn_search/pio_small_experiment/figures/runtime_bar.png
+```
+
+No `topk_recall_bar.png` was generated because this run does not contain full-truth recall.
+
+### RL modification check
+
+Command:
+
+```powershell
+git diff -- src/rl_mitigation scripts/rl_mitigation
+```
+
+Result:
+
+```text
+empty output
+```
+
+Conclusion: the third round did not modify RL mitigation code.

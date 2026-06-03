@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-06-03T10:15:00+08:00",
+  "source": "mild measured-state perturbation example without forced line outage",
+  "branch_status": {},
+  "branch_flow_mw": {
+    "L01": 38.5,
+    "L02": -28.0,
+    "L10": 59.0,
+    "L27": 16.5
+  },
+  "bus_load_mw": {
+    "3": 184.0,
+    "6": 137.0,
+    "15": 205.0
+  },
+  "generator_output_mw": {
+    "1": 174.0,
+    "2": 116.0,
+    "7": 91.0
+  }
+}

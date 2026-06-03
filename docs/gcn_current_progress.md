@@ -276,3 +276,33 @@ runtime
 - ablation smoke 已区分 paper baseline、physics CE-only、physics + mask、physics-informed、online update 和 PIO Top-K 配置。
 
 这些仍属于 smoke 级验证，不代表正式性能结论。
+### Third-Round Small Trusted Experiment
+
+The third round adds a small trusted experiment layer on top of the PIO-GCN smoke framework.
+
+Completed items:
+
+- Added consistency tests between the original `simulate_cascade_path` entry point and the new `simulate_cascade_path_from_case` entry point.
+- Added measured-state sanity tests to ensure manually offline line `L03` is not selected as a new active outage.
+- Added `online_state_summary.json` to explain how measured-state changes load, generation, offline lines, and loading ratios.
+- Added `run_pio_gcn_small_experiment.py` for 10-seed or 20-seed small experiments.
+- Added `plot_pio_gcn_small_experiment.py` for result figures.
+
+Current small experiment:
+
+```text
+num_seeds = 10
+Top-K = 20, 50, 100
+max_paths_for_smoke_test = 100
+full_truth = false
+```
+
+Preliminary aggregate results:
+
+```text
+Top-20: mean critical found = 0.6, mean smoke recall = 0.25
+Top-50: mean critical found = 1.9, mean smoke recall = 0.8167
+Top-100: mean critical found = 2.5, mean smoke recall = 1.0
+```
+
+These are early smoke-truth results, not formal full-truth conclusions.
