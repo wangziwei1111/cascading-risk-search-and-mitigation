@@ -1,67 +1,105 @@
 # Cascading Risk Search and Mitigation
 
-公开仓库：
+Public repository:
 
 ```text
 https://github.com/wangziwei1111/cascading-risk-search-and-mitigation
 ```
 
-本仓库用于“电力系统连锁故障风险识别与实时缓解”的代码复现和论文实验整理。
+This repository records the reproduction and extension work for power-system cascading-failure risk search and mitigation.
 
-## Current Focus
+## Main Contents
 
-当前主线是复现强化学习论文：
+### 1. IEEE RTS-79 GCN cascading-failure path search
+
+This is the current GCN-focused work.
+
+Core idea:
 
 ```text
-Real-Time Cascade Mitigation in Power Systems Using Influence Graph Improved by Reinforcement Learning
+Sequential improved OPA simulator
++ reachable GCN
++ path-level probability ranking
 ```
 
-本阶段只把 RL 论文复现作为主结果。GCN-RL 闭环、one-step oracle、oracle BC、safe gate、action scan 等只作为诊断或增强实验，不能写成论文原始 PPO 方法结果。
+The reproduced RTS-79 workflow searches ordered N-2 cascading-failure paths. It treats transmission branches as graph nodes, trains a reachable GCN to estimate whether a candidate branch can reach load shedding within the remaining search depth, and ranks complete ordered paths with path-level probability.
 
-主要产物：
+Read first:
 
 ```text
-results/rl_mitigation/paper/
+docs/README_RTS79_REPRODUCTION.md
+docs/gcn_current_progress.md
+docs/gcn_search_reproduction.md
+```
+
+Key source code:
+
+```text
+src/gcn_search/legacy_rts79/
+```
+
+Key reports and outputs:
+
+```text
+results/gcn_search/
+```
+
+### 2. RL cascade mitigation reproduction
+
+This part records a separate reinforcement-learning mitigation reproduction line based on IEEE14/IEEE118 experiments.
+
+Read first:
+
+```text
 docs/rl_paper_reproduction_status.md
 docs/rl_paper_figure_index.md
-docs/rl_mitigation_extra_diagnostics.md
+docs/rl_mitigation_reproduction.md
 ```
 
-## RL Paper Pipeline
+Key source code:
 
-IEEE14 使用 PYPOWER `case14` 的 AC 潮流替代环境，动作空间为全部支路主动断线加 do-nothing，初始故障从 N-1 和共同母线 N-2 场景中采样。IEEE118 当前保留 smoke/framework 级验证，未做完整 600000-step 正式训练。
-
-模式入口：
-
-```powershell
-python -m scripts.rl_mitigation.paper.run_ieee14_paper_pipeline --config configs/rl_mitigation/paper/ieee14_paper_ppo.yaml --mode smoke
-python -m scripts.rl_mitigation.paper.run_ieee14_paper_pipeline --config configs/rl_mitigation/paper/ieee14_paper_ppo.yaml --mode medium
-python -m scripts.rl_mitigation.paper.run_ieee14_paper_pipeline --config configs/rl_mitigation/paper/ieee14_paper_ppo.yaml --mode formal
+```text
+src/rl_mitigation/
+scripts/rl_mitigation/
 ```
 
-`--mode smoke|medium|formal` 会分别生成 `_smoke`、`_medium`、无后缀正式产物。`--steps` 和 `--eval-episodes` 可以覆盖默认训练步数和评估场景数。
+## Current RTS-79 GCN Result Boundary
 
-总 pipeline：
+The RTS-79 GCN work has completed:
 
-```powershell
-python -m scripts.rl_mitigation.paper.run_rl_paper_reproduction_pipeline --mode smoke
+- improved OPA cascading-failure simulator;
+- deterministic ordered N-2 path simulation with `R = 2`;
+- relay protection, island load shedding, and redispatch OPF logic;
+- Step2-State dataset generation;
+- reachable GCN training;
+- path-level GCN probability ranking;
+- comparison with LODF_yP, random search, and line-order search.
+
+Current test summary:
+
+```text
+Average critical paths across 5 load scenarios: 56.6
+GCN_path_prob average searches to find all critical paths: 68.2
+LODF_yP average searches: 1259.8
+random average searches: 1378.0
+line_order average searches: 1332.6
 ```
 
-## Current Result Boundary
+The current GCN is a ranking accelerator. Final path criticality is still verified by the physical OPA/OPF simulator.
 
-当前 smoke/medium-reduced 运行已经证明复现管线、do-nothing 预训练、PPO 训练、评估一致性检查、Figure 7/8 文件命名和 claim check 可以闭环运行。
+## Suggested Next Extension
 
-但 IEEE14 PPO 性能结论仍不能写成完整数值复现。claim check 采用严格规则：只有 `mean_negative_return`、`mean_num_line_outages`、`mean_load_shed_MW` 都严格改善且 `pf_failed_ratio` 不升高，才算 `fully_supported`。
+The next research direction is:
 
-正式论文结论需要继续运行：
-
-```powershell
-python -m scripts.rl_mitigation.paper.run_ieee14_paper_pipeline --config configs/rl_mitigation/paper/ieee14_paper_ppo.yaml --mode formal
-python -m scripts.rl_mitigation.paper.train_ieee14_gridsearch --config configs/rl_mitigation/paper/ieee14_paper_gridsearch.yaml --mode formal
+```text
+offline data-driven base model
++ physics constraints
++ online measured-state update
++ model-guided small-sample physical simulation
 ```
 
-验证：
+Details are summarized in:
 
-```powershell
-pytest tests/rl_mitigation/paper -q
+```text
+docs/gcn_current_progress.md
 ```
