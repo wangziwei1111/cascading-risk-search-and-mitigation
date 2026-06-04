@@ -1,3 +1,66 @@
+# Round 9 Final Polish and PR Readiness
+
+Purpose: final polish for the current PIO-GCN PathRank stage. This round does not add a new algorithm, does not rerun large experiments, and does not extend functionality.
+
+## Path and Terminology Fixes
+
+- Fixed nonexistent script references from `run_pio_gcn_formal_experiment.py` to the real `run_pio_gcn_formal_small_experiment.py`.
+- Updated README entry commands so they point to real scripts for data generation, physics GCN training, PIO-GCN Top-K evaluation, formal preliminary experiment, formal ablation, pairwise rank-loss experiment, and artifact self-check.
+- Unified current-facing docs around these terms: `PIO-GCN PathRank`, `physics-enhanced features`, `candidate mask`, `original physics loss`, `pairwise rank-loss`, `JSON measured-state interface`, and `3-seed RTS-79 full-truth preliminary result`.
+- Reworded field-measurement claims to state that JSON measured-state interface is not connected to field SCADA/PMU systems.
+
+## Added Import Smoke Test
+
+Added:
+
+```text
+tests/test_pio_gcn_imports.py
+```
+
+It imports key PIO-GCN PathRank modules without running large experiments:
+
+```text
+gcn_physics_constraints
+online_state_update
+rts79_cascade_from_case
+train_rts79_physics_gcn
+evaluate_rts79_pio_gcn_topk
+run_pio_gcn_formal_small_experiment
+run_pio_gcn_formal_ablation
+run_pio_gcn_rank_loss_experiment
+```
+
+## Artifact Self-Check Enhancements
+
+`scripts/gcn_search/check_pio_gcn_artifacts.py` now also checks:
+
+- `docs/pio_gcn_pr_description.md` contains an RL untouched statement.
+- `docs/pio_gcn_advisor_brief.md` clearly states that the result is not a final paper conclusion.
+- `docs/pio_gcn_stage_summary.md` does not contain the nonexistent script name `run_pio_gcn_formal_experiment.py`.
+- Key summary CSV files exist and are non-empty.
+
+## Validation Commands
+
+```text
+python -m pytest tests/test_cascade_from_case_consistency.py tests/test_measured_state_sanity.py tests/test_gcn_physics_features.py tests/test_gcn_probability_mask.py tests/test_gcn_physics_losses.py tests/test_gcn_ranking_loss.py tests/test_online_state_update.py tests/test_gcn_raw_feature_training.py tests/test_pio_topk_measured_consistency.py tests/test_pio_gcn_imports.py
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+```
+
+## Observed Result
+
+```text
+pytest: 24 passed, 266 warnings
+artifact self-check: PASS: PIO-GCN artifacts are review-ready.
+```
+
+## RL Status
+
+`src/rl_mitigation` and `scripts/rl_mitigation` are not modified in this round.
+
+## PR Recommendation
+
+After the final validation commands pass, this branch is ready to open a review PR for the current PIO-GCN PathRank preliminary milestone.
+
 # PIO-GCN PathRank 验证日志
 
 ## 基本信息

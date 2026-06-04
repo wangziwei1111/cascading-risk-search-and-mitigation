@@ -48,7 +48,7 @@ Important consistency rule:
 
 ```text
 model input uses normalized features
-physics loss uses raw physical features
+original physics loss uses raw physical features
 ```
 
 ## Baselines
@@ -206,7 +206,7 @@ top_k = 20, 50, 100
 
 ### Ablation Results
 
-| method | physics feature | candidate mask | physics loss | mean found@100 | mean recall@100 |
+| method | physics-enhanced features | candidate mask | original physics loss | mean found@100 | mean recall@100 |
 |---|---:|---:|---:|---:|---:|
 | physics_ce_no_mask | yes | no | no | 23.3333 | 0.4209 |
 | physics_ce_mask | yes | yes | no | 23.3333 | 0.4209 |
@@ -220,7 +220,7 @@ top_k = 20, 50, 100
 
 ### Interpretation
 
-The largest contribution currently comes from the physics feature representation, not from the physics-informed loss.
+The largest contribution currently comes from the physics-enhanced feature representation, not from the original physics loss.
 
 Evidence:
 
@@ -246,9 +246,9 @@ physics_loss_mask recall@20/50/100 = 0.2160 / 0.3427 / 0.4213
 Therefore, the current honest conclusion is:
 
 ```text
-PIO-GCN's current improvement mainly comes from using richer physics features.
+PIO-GCN PathRank's current improvement mainly comes from using richer physics-enhanced features.
 The candidate mask has little effect in this particular ordered-path construction.
-The current physics loss is not yet a major performance driver and needs further tuning.
+The current original physics loss is not yet a major performance driver and needs further tuning.
 ```
 
 Diagnostics:
@@ -260,7 +260,7 @@ results/gcn_search/pio_formal_ablation_3seed/diagnostics/per_method_top100_found
 results/gcn_search/pio_formal_ablation_3seed/diagnostics/per_method_rank_of_critical_paths.csv
 ```
 
-## Seventh-Round Rank-Loss Physics-Informed Training
+## Seventh-Round Pairwise Rank-Loss Physics-Informed Training
 
 The seventh round adds a reachable pairwise ranking loss. The goal is not just to classify whether a branch can reach load shedding, but to rank reachable critical branches ahead of noncritical branches inside the same state.
 
@@ -275,7 +275,7 @@ physics_loss_mask recall@100 = 0.4213
 
 This was only a tiny Top-100 difference and did not improve Top-20 or Top-50.
 
-### Rank-loss definition
+### Pairwise rank-loss definition
 
 For each state, positive candidates are branches with `y_reachable = 1`; negative candidates are branches with `y_reachable = 0`. The ranking loss encourages:
 
@@ -291,7 +291,7 @@ rank_margin = 0.05
 rank_max_pairs = 512
 ```
 
-### Rank-loss results
+### Pairwise rank-loss results
 
 Output directory:
 
@@ -310,21 +310,21 @@ results/gcn_search/pio_rank_loss_preliminary_3seed/
 
 ### Interpretation
 
-Rank-loss gives a small but concrete Top-100 improvement:
+Pairwise rank-loss gives a small but concrete Top-100 improvement:
 
 ```text
 CE mask found@100 = 23.3333
-Rank-loss mask found@100 = 24.0
+Pairwise rank-loss mask found@100 = 24.0
 ```
 
 It does not improve Top-20 or Top-50 in this preliminary run:
 
 ```text
 CE mask found@20/50 = 12.3333 / 19.3333
-Rank-loss mask found@20/50 = 12.3333 / 19.3333
+Pairwise rank-loss mask found@20/50 = 12.3333 / 19.3333
 ```
 
-Training diagnostics indicate that rank-loss increases positive-negative score separation:
+Training diagnostics indicate that pairwise rank-loss increases positive-negative score separation:
 
 ```text
 mean_positive_score = 0.8054
@@ -342,6 +342,6 @@ The formal preliminary result should now be read with the following consistent i
 - LODF_yP is about 21% Top-100 recall.
 - The weak paper-feature `GCN_path_prob` baseline is about 14% Top-100 recall.
 - Candidate mask and original physics loss do not materially change the current 3-seed result.
-- Rank-loss does not improve Top-20/Top-50; its small Top-100 increase is not yet a robust contribution.
+- Pairwise rank-loss does not improve Top-20/Top-50; its small Top-100 increase is not yet a robust contribution.
 - The experiment is still RTS-79 3-seed preliminary, not a final performance claim.
-- The measured-state path is a JSON interface, not a real SCADA/PMU connection.
+- The measured-state path is a JSON measured-state interface, not connected to field SCADA/PMU systems.

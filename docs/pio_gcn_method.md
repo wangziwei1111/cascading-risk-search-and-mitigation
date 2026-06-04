@@ -36,9 +36,9 @@ score(L_i -> L_j) = p_shed(L_i | S0) * p_shed(L_j | S1(i))
 
 本次改进没有删除或覆盖原始 `GCN_path_prob`，而是在其基础上新增：
 
-- physics feature dataset generation；
+- physics-enhanced feature dataset generation；
 - physics-informed GCN training；
-- online measured-state input；
+- JSON measured-state interface input；
 - candidate probability mask；
 - Top-K 小样本物理仿真校验；
 - smoke-test 消融记录。
@@ -135,7 +135,7 @@ src/gcn_search/legacy_rts79/evaluate_rts79_pio_gcn_topk.py
 
 ```text
 加载 physics GCN 模型和 normalizer
--> 可选加载 measured-state JSON
+-> 可选加载 JSON measured-state interface
 -> 构造在线 case
 -> 计算 physics GCN 概率
 -> 用 candidate mask 修正概率
@@ -204,9 +204,9 @@ python evaluate_rts79_pio_gcn_topk.py --model <model.pt> --normalizer <normalize
 ## 当前限制
 
 1. 当前新增的是 smoke framework，不是正式 800 场景训练结果。
-2. 当前 physics loss 是可运行的初版约束，权重仍需系统调参。
+2. 当前 original physics loss 是可运行的初版约束，权重仍需系统调参。
 3. Top-K 当前用于减少精确仿真次数，但小模型排序效果不代表正式模型性能。
-4. measured-state JSON 是接口样例，不是真实 SCADA/PMU 数据。
+4. JSON measured-state interface 是接口样例，尚未连接现场 SCADA/PMU 量测系统。
 5. 原始 `GCN_path_prob` 仍保留为基线方法。
 
 ## 第二轮修正记录
@@ -220,14 +220,14 @@ python evaluate_rts79_pio_gcn_topk.py --model <model.pt> --normalizer <normalize
 ```text
 x_gcn                # 归一化后模型输入
 x_gcn_raw            # 未归一化原始特征
-physics_raw_features # physics loss 使用的原始物理特征
+physics_raw_features # original physics loss 使用的原始物理特征
 ```
 
 训练时：
 
 ```text
 model input uses normalized features
-physics loss uses raw physical features
+original physics loss uses raw physical features
 ```
 
 也就是说，GCN 前向传播仍使用归一化 `x_gcn`，但 `loading_ratio`、`is_online`、`is_candidate` 等物理约束量从 raw features 中读取。
@@ -329,7 +329,7 @@ The fourth round adds `run_pio_gcn_formal_small_experiment.py`.
 This script is intended to run:
 
 ```text
-physics feature dataset generation
+physics-enhanced feature dataset generation
 physics-informed GCN training
 physics CE-only GCN training
 PIO-GCN Top-K full-truth evaluation
@@ -354,8 +354,8 @@ This method document uses the following current project boundary:
 
 - The original `GCN_path_prob` method is preserved and not overwritten.
 - PIO-GCN currently improves the search mainly through physics-enhanced branch features.
-- Candidate mask, original physics loss, and rank-loss are implemented for analysis, but they are not yet the main source of the observed preliminary gain.
+- Candidate mask, original physics loss, and pairwise rank-loss are implemented for analysis, but they are not yet the main source of the observed preliminary gain.
 - The current headline number is around 42% Top-100 recall on 3 RTS-79 full-truth preliminary seeds.
 - LODF_yP is around 21%, and the weak paper-feature `GCN_path_prob` baseline is around 14%.
-- The online-state update is implemented through JSON measured-state input only. It should not be described as a real SCADA/PMU integration.
+- The online-state update is implemented through the JSON measured-state interface only. It should not be described as connected to field SCADA/PMU systems.
 - These statements are preliminary RTS-79 conclusions and should not be used as final paper-scale claims.

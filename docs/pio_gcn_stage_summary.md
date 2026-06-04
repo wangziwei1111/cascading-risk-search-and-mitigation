@@ -21,20 +21,20 @@ Its limitation in this project is not the path-probability idea itself, but the 
 PIO-GCN adds four practical improvements around the preserved path-probability search:
 
 - Physics-enhanced branch features: loading ratio, relay margin, security margin, online status, candidate status, and related physical quantities.
-- Raw-feature-aware physics loss: model input uses normalized features, while physics constraints use raw loading and status features.
+- Raw-feature-aware original physics loss: model input uses normalized features, while physics constraints use raw loading and status features.
 - Candidate mask: offline, used, or invalid branches are masked out during candidate scoring.
-- JSON measured-state interface: online state can update the root case before Top-K search. This is a JSON measured-state interface only, not a real SCADA/PMU integration.
+- JSON measured-state interface: online state can update the root case before Top-K search. This is a JSON measured-state interface only, not connected to field SCADA/PMU systems.
 
 ## Current Code Modules
 
 - `src/gcn_search/legacy_rts79/rts79_cascade.py`: RTS-79 improved OPA cascade simulator.
 - `src/gcn_search/legacy_rts79/generate_rts79_step2_state_dataset.py`: Step2-state dataset generation.
-- `src/gcn_search/legacy_rts79/train_rts79_physics_gcn.py`: physics-feature and physics-informed GCN training.
-- `src/gcn_search/legacy_rts79/gcn_physics_constraints.py`: candidate mask, relay/security physics losses, and pairwise ranking loss.
+- `src/gcn_search/legacy_rts79/train_rts79_physics_gcn.py`: physics-enhanced feature and physics-informed GCN training.
+- `src/gcn_search/legacy_rts79/gcn_physics_constraints.py`: candidate mask, relay/security original physics losses, and pairwise rank-loss.
 - `src/gcn_search/legacy_rts79/evaluate_rts79_pio_gcn_topk.py`: PIO-GCN Top-K online search evaluation.
-- `src/gcn_search/legacy_rts79/run_pio_gcn_formal_experiment.py`: 3-seed preliminary full-truth experiment.
+- `src/gcn_search/legacy_rts79/run_pio_gcn_formal_small_experiment.py`: 3-seed RTS-79 full-truth preliminary result.
 - `src/gcn_search/legacy_rts79/run_pio_gcn_formal_ablation.py`: formal preliminary ablation.
-- `src/gcn_search/legacy_rts79/run_pio_gcn_rank_loss_experiment.py`: rank-loss preliminary comparison.
+- `src/gcn_search/legacy_rts79/run_pio_gcn_rank_loss_experiment.py`: pairwise rank-loss preliminary comparison.
 
 ## Fifth-Round 3-Seed Full-Truth Preliminary Result
 
@@ -53,7 +53,7 @@ Key result:
 | LODF_yP | 2.00 | 8.00 | 11.67 | 0.2099 |
 | oracle | 20.00 | 50.00 | 55.33 | 1.0000 |
 
-This shows that the physics-feature PIO-GCN search is much better than the weak paper-feature GCN and LODF_yP in this small RTS-79 preliminary setting.
+This shows that the physics-enhanced features in PIO-GCN PathRank are much better than the weak paper-feature GCN and LODF_yP in this small RTS-79 preliminary setting.
 
 ## Sixth-Round Ablation Result
 
@@ -67,7 +67,7 @@ Key result:
 
 | Method | Top-100 recall | Main interpretation |
 |---|---:|---|
-| physics_ce_no_mask | 0.4209 | Physics features are already effective. |
+| physics_ce_no_mask | 0.4209 | Physics-enhanced features are already effective. |
 | physics_ce_mask | 0.4209 | Candidate mask does not materially change this 3-seed result. |
 | physics_loss_no_mask | 0.4213 | Original physics loss adds only a tiny change. |
 | physics_loss_mask | 0.4213 | Mask plus original physics loss is still not the main contributor. |
@@ -76,7 +76,7 @@ Key result:
 
 The most credible conclusion is that the main gain currently comes from physics-enhanced features, not from candidate mask or original physics loss.
 
-## Seventh-Round Rank-Loss Result
+## Seventh-Round Pairwise Rank-Loss Result
 
 Output directory:
 
@@ -84,7 +84,7 @@ Output directory:
 results/gcn_search/pio_rank_loss_preliminary_3seed/
 ```
 
-Rank-loss tries to directly improve path ordering by making reachable positive branches score higher than negative candidate branches within the same state.
+Pairwise rank-loss tries to directly improve path ordering by making reachable positive branches score higher than negative candidate branches within the same state.
 
 | Method | Top-20 found | Top-50 found | Top-100 found | Top-100 recall |
 |---|---:|---:|---:|---:|
@@ -92,7 +92,7 @@ Rank-loss tries to directly improve path ordering by making reachable positive b
 | physics_loss_mask | 12.00 | 19.00 | 23.33 | 0.4213 |
 | physics_rank_loss_mask | 12.33 | 19.33 | 24.00 | 0.4337 |
 
-The rank-loss model does not improve Top-20 or Top-50. It gives a small Top-100 increase, but this is not yet strong enough to call rank-loss a major contributor. For reporting, the honest conclusion is: rank-loss is implemented and may slightly help Top-100, but it has not yet produced a clear, robust improvement.
+The pairwise rank-loss model does not improve Top-20 or Top-50. It gives a small Top-100 increase, but this is not yet strong enough to call pairwise rank-loss a major contributor. For reporting, the honest conclusion is: pairwise rank-loss is implemented and may slightly help Top-100, but it has not yet produced a clear, robust improvement.
 
 ## Most Trustworthy Current Conclusions
 
@@ -101,16 +101,16 @@ The rank-loss model does not improve Top-20 or Top-50. It gives a small Top-100 
 - Preliminary Top-100 recall is around 42% on 3 RTS-79 full-truth seeds.
 - LODF_yP is around 21% Top-100 recall.
 - The weak paper-feature GCN_path_prob baseline is around 14% Top-100 recall.
-- Candidate mask, original physics loss, and rank-loss are not the main sources of improvement in the current experiment.
+- Candidate mask, original physics loss, and pairwise rank-loss are not the main sources of improvement in the current experiment.
 
 ## What We Cannot Claim Yet
 
 - We cannot claim final performance.
 - We cannot claim large-scale statistical significance.
 - We cannot claim Henan-grid reproduction.
-- We cannot claim real SCADA/PMU online deployment.
-- We cannot claim that physics loss is already a decisive improvement.
-- We cannot claim rank-loss has robustly improved Top-20 or Top-50 search.
+- We cannot claim connection to field SCADA/PMU measurement systems.
+- We cannot claim that original physics loss is already a decisive improvement.
+- We cannot claim pairwise rank-loss has robustly improved Top-20 or Top-50 search.
 
 ## Next-Stage Suggestions
 

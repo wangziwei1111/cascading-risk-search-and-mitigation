@@ -39,16 +39,19 @@ Key source code:
 src/gcn_search/legacy_rts79/
 ```
 
-PIO-GCN smoke entrypoints:
+PIO-GCN PathRank entrypoints:
 
 ```powershell
-python generate_rts79_step2_state_dataset.py --num-scenarios 1 --feature-mode physics
-python train_rts79_physics_gcn.py --dataset-npz <physics_dataset.npz> --epochs 1
-python evaluate_rts79_pio_gcn_topk.py --model <model.pt> --normalizer <normalizer.json> --top-k 20 50 100
-python run_pio_gcn_ablation.py --model <model.pt> --normalizer <normalizer.json>
+python src/gcn_search/legacy_rts79/generate_rts79_step2_state_dataset.py --num-scenarios 1 --feature-mode physics
+python src/gcn_search/legacy_rts79/train_rts79_physics_gcn.py --dataset-npz <physics_dataset.npz> --epochs 1
+python src/gcn_search/legacy_rts79/evaluate_rts79_pio_gcn_topk.py --model <model.pt> --normalizer <normalizer.json> --top-k 20 50 100
+python src/gcn_search/legacy_rts79/run_pio_gcn_formal_small_experiment.py --output-dir results/gcn_search/pio_formal_preliminary_3seed --test-num-seeds 3 --top-k 20 50 100
+python src/gcn_search/legacy_rts79/run_pio_gcn_formal_ablation.py --output-dir results/gcn_search/pio_formal_ablation_3seed --base-experiment-dir results/gcn_search/pio_formal_preliminary_3seed --top-k 20 50 100
+python src/gcn_search/legacy_rts79/run_pio_gcn_rank_loss_experiment.py --output-dir results/gcn_search/pio_rank_loss_preliminary_3seed --base-experiment-dir results/gcn_search/pio_formal_preliminary_3seed
+python scripts/gcn_search/check_pio_gcn_artifacts.py
 ```
 
-Online measured-state input example:
+JSON measured-state interface example:
 
 ```text
 examples/rts79_measured_state_example.json
@@ -60,14 +63,14 @@ Key reports and outputs:
 results/gcn_search/
 ```
 
-Current PIO-GCN preliminary conclusion:
+Current PIO-GCN PathRank preliminary conclusion:
 
 - The most effective current component is physics-enhanced branch features.
-- On 3 RTS-79 full-truth preliminary seeds, Top-100 recall is around 42%.
+- On the 3-seed RTS-79 full-truth preliminary result, Top-100 recall is around 42%.
 - LODF_yP is around 21% Top-100 recall, and the weak paper-feature `GCN_path_prob` baseline is around 14%.
-- Candidate mask, original physics loss, and rank-loss are not the main contributors in the current preliminary results.
+- Candidate mask, original physics loss, and pairwise rank-loss are not the main contributors in the current preliminary results.
 - These are RTS-79 3-seed preliminary results, not final paper-scale performance claims.
-- The online-state feature is a JSON measured-state interface only; it is not a real SCADA/PMU integration.
+- The online-state feature is a JSON measured-state interface only; it is not connected to field SCADA/PMU systems.
 
 Stage summary and review materials:
 
@@ -128,7 +131,7 @@ The next research direction is:
 ```text
 offline data-driven base model
 + physics constraints
-+ online measured-state update
++ JSON measured-state interface update
 + model-guided small-sample physical simulation
 ```
 

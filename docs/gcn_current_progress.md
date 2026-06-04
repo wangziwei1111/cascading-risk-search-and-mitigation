@@ -258,7 +258,7 @@ runtime
 - 数据集生成支持 `feature_mode=paper/physics`，默认仍为 `paper`；
 - 新增 candidate probability mask 和物理约束损失；
 - 新增 physics-informed GCN 训练入口；
-- 新增 measured-state JSON 在线状态更新接口；
+- 新增 JSON measured-state interface 在线状态更新接口；
 - 新增 PIO-GCN Top-K 小样本仿真评估；
 - 新增 smoke 消融脚本；
 - 新增测试和验证日志。
@@ -269,7 +269,7 @@ runtime
 
 第二轮已修正以下问题：
 
-- physics loss 不再使用归一化后的 `loading_ratio`，而是使用数据集中保存的 raw physical features；
+- original physics loss 不再使用归一化后的 `loading_ratio`，而是使用数据集中保存的 raw physical features；
 - relay priority loss 使用 `loading_ratio > beta`，不再误用 `security_limit = 1.0`；
 - measured-state updated root case 已贯穿 Top-K 排序和物理仿真；
 - `exhaustive_truth` 语义已改为 `full_truth / smoke_truth`；
@@ -392,7 +392,7 @@ LODF_yP recall@100 = 0.2099
 Advisor-reportable conclusion:
 
 ```text
-The current PIO-GCN gain mainly comes from physics features.
+The current PIO-GCN PathRank gain mainly comes from physics-enhanced features.
 Candidate masking contributes little in the current ranking setup.
 The current physics-informed loss is not yet the main source of improvement.
 ```
@@ -406,8 +406,8 @@ This is still preliminary. We should not claim final superiority until the model
 | Physics feature | paper_gcn_path_prob recall@100 0.1435 vs physics_ce_mask 0.4209 | main current gain |
 | Candidate mask | physics_ce_no_mask 0.4209 vs physics_ce_mask 0.4209 | little effect in current setup |
 | Original physics loss | physics_ce_mask 0.4209 vs physics_loss_mask 0.4213 | tiny Top-100 effect, no Top-20/50 gain |
-| Rank-loss | physics_ce_mask 0.4209 vs physics_rank_loss_mask 0.4337 | small but clear Top-100 gain |
-| LODF_yP | LODF_yP recall@100 0.2099 vs rank-loss 0.4337 | rank-loss PIO-GCN remains stronger in this 3-seed preliminary run |
+| Pairwise rank-loss | physics_ce_mask 0.4209 vs physics_rank_loss_mask 0.4337 | small Top-100 change |
+| LODF_yP | LODF_yP recall@100 0.2099 vs pairwise rank-loss 0.4337 | Pairwise rank-loss PIO-GCN remains stronger in this 3-seed preliminary run |
 
 Current advisor-reportable message:
 
@@ -428,8 +428,8 @@ The current review-ready conclusion is:
 | Weak paper-feature `GCN_path_prob` | Around 14% Top-100 recall. |
 | Candidate mask | Currently not a major contributor. |
 | Original physics loss | Currently contributes very little. |
-| Rank-loss | No Top-20/Top-50 improvement; only a small Top-100 change, so not yet a robust contribution. |
-| Online state | JSON measured-state interface only, not real SCADA/PMU integration. |
+| Pairwise rank-loss | No Top-20/Top-50 improvement; only a small Top-100 change, so not yet a robust contribution. |
+| Online state | JSON measured-state interface only, not connected to field SCADA/PMU systems. |
 | Claim boundary | RTS-79 3-seed preliminary only; not final paper-scale performance. |
 
-In plain Chinese: this stage can report that "adding physical features to the GCN input is useful"; it should not report that physics loss, mask, or rank-loss has already become the decisive improvement.
+In plain Chinese: this stage can report that "adding physics-enhanced features to the GCN input is useful"; it should not report that original physics loss, candidate mask, or pairwise rank-loss has already become the decisive improvement.
