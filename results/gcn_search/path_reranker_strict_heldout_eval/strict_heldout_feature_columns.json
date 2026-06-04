@@ -1,0 +1,22 @@
+{
+  "feature_columns": [
+    "rank_in_pio",
+    "rank_in_paper",
+    "rank_in_lodf",
+    "pio_score",
+    "paper_score",
+    "lodf_score",
+    "ensemble_score_alpha_0_75",
+    "first_line_loading_ratio",
+    "second_line_loading_ratio",
+    "max_loading_ratio",
+    "min_security_margin",
+    "min_relay_margin",
+    "first_line_abs_flow",
+    "second_line_abs_flow",
+    "first_outage_num_overloaded_lines",
+    "first_outage_max_loading_ratio",
+    "first_outage_total_load_shed_mw",
+    "candidate_position_min_rank"
+  ]
+}

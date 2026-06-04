@@ -493,3 +493,13 @@ A compact path-level dataset was built from 5 RTS-79 full-truth seeds. Each orde
 | learned_mlp_reranker | 0.333 | 0.698 | 0.944 | 0.997 |
 
 The learned MLP reranker exceeds the requested Recall@100 > 0.60 and Recall@200 > 0.65 targets in this 5-seed preliminary check. This is promising, but it is still only RTS-79 preliminary and needs more seeds before final claims.
+
+## Leakage Audit and Strict Held-Out Update
+
+The learned reranker was audited for leakage. No forbidden input feature was found, train/val/test seeds are disjoint, and no near-perfect feature-label correlation was found. Because the original recall was close to oracle, the audit still flags a suspicious-performance warning and requires strict held-out reporting.
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| learned_mlp_reranker_strict | 0.341 | 0.694 | 0.940 | 0.993 |
+
+Feature ablation shows that `score_plus_physical` and `all_safe_features` are strongest. This supports the current result, but more seeds are needed to rule out topology/path-pattern memorization.

@@ -1,0 +1,23 @@
+﻿feature,is_forbidden,passed,notes
+rank_in_pio,False,True,
+rank_in_paper,False,True,
+rank_in_lodf,False,True,
+pio_score,False,True,
+paper_score,False,True,
+lodf_score,False,True,
+ensemble_score_alpha_0_75,False,True,
+first_line_loading_ratio,False,True,
+second_line_loading_ratio,False,True,
+max_loading_ratio,False,True,
+min_security_margin,False,True,
+min_relay_margin,False,True,
+first_line_abs_flow,False,True,
+second_line_abs_flow,False,True,
+first_outage_num_overloaded_lines,False,True,
+first_outage_max_loading_ratio,False,True,
+first_outage_total_load_shed_mw,False,True,
+candidate_position_min_rank,False,True,
+is_critical,True,True,Present as label/evaluation field only.
+total_load_shed_mw,True,True,Present as label/evaluation field only.
+y_critical,True,True,Present as label/evaluation field only.
+y_load_shed,True,True,Present as label/evaluation field only.

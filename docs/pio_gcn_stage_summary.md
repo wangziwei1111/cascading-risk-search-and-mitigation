@@ -179,3 +179,13 @@ The simple score-level ensemble is feasible but not decisive. The hard-negative-
 | learned_mlp_reranker | 0.333 | 0.698 | 0.944 | 0.997 |
 
 The learned path reranker shows that path-level supervised features are much more effective than hand-written score combinations on this 5-seed RTS-79 preliminary dataset. It reaches the requested Top-100 and Top-200 targets, but it still needs larger seed coverage before being used as a final claim.
+
+## Leakage Audit and Strict Held-Out Validation
+
+No forbidden label feature was found in the learned path reranker input columns. Strict held-out evaluation, where each test seed is excluded from both training and validation, still gives strong MLP performance:
+
+| Method | Recall@100 | Recall@200 |
+|---|---:|---:|
+| learned_mlp_reranker_strict | 0.940 | 0.993 |
+
+The result remains credible as a preliminary RTS-79 finding, but not as final evidence. The remaining caveat is possible topology/path-pattern memorization because the same RTS-79 ordered path labels appear across operating-condition seeds.

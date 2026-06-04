@@ -25,3 +25,7 @@ The learned MLP reranker leaves very few critical paths outside Top-200 in the 5
 ## Next Step
 
 The next research step should not simply add more hand-written weights. It should expand the path-level dataset, add topology/islanding features, and test whether the learned reranker generalizes to more RTS-79 operating scenarios and synthetic renewable perturbations.
+
+## Leakage Audit Context
+
+The leakage audit did not find forbidden label features in the learned reranker inputs. However, feature ablation shows that score-derived features are already very strong, and combining score plus physical features gives near-oracle recall on the current 5-seed RTS-79 dataset. This means the remaining concern is not direct label leakage, but limited topology/operating-condition diversity.

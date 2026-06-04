@@ -92,6 +92,8 @@ Simple ensemble does not fully solve the Top-200 issue. The hard-negative-aware 
 | learned_mlp_reranker | 0.333 | 0.698 | 0.944 | 0.997 |
 
 The learned MLP reranker is the strongest current result and exceeds the requested Top-100/Top-200 targets. Because it uses only 5 RTS-79 seeds, it should be described as a strong preliminary indication rather than a final result.
+
+Leakage audit update: strict held-out validation still gives learned MLP recall@100 about 0.940 and recall@200 about 0.993. No forbidden feature was found, but the result remains a preliminary RTS-79 finding because path labels repeat across operating-condition seeds.
 - This means the earlier weak paper baseline limitation was real; the paper-feature baseline becomes more competitive when trained more fairly.
 - The current conclusion should be softened: physics-enhanced features are useful, but they are not the only competitive route, especially when evaluating deeper Top-K lists.
 

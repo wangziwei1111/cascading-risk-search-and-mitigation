@@ -151,9 +151,12 @@ Recommended:
 & "C:\Users\24186\Documents\New project 7\.venv\Scripts\python.exe" src/gcn_search/legacy_rts79/train_path_reranker.py --dataset-dir results/gcn_search/path_reranker_dataset --output-dir results/gcn_search/path_reranker_models --model-type both --seed-split-mode leave_one_seed_out --epochs 80 --learning-rate 0.01 --lambda-pairwise-rank 0.05
 & "C:\Users\24186\Documents\New project 7\.venv\Scripts\python.exe" src/gcn_search/legacy_rts79/evaluate_path_reranker_fulltruth.py --dataset-dir results/gcn_search/path_reranker_dataset --model-dir results/gcn_search/path_reranker_models --output-dir results/gcn_search/path_reranker_fulltruth_eval
 & "C:\Users\24186\Documents\New project 7\.venv\Scripts\python.exe" src/gcn_search/legacy_rts79/mine_hard_negative_paths.py --dataset-dir results/gcn_search/path_reranker_dataset --model-dir results/gcn_search/path_reranker_models --output-dir results/gcn_search/path_reranker_hard_negative_mining --model-type mlp --top-k 100
+& "C:\Users\24186\Documents\New project 7\.venv\Scripts\python.exe" src/gcn_search/legacy_rts79/audit_path_reranker_leakage.py --dataset-dir results/gcn_search/path_reranker_dataset --model-dir results/gcn_search/path_reranker_models --eval-dir results/gcn_search/path_reranker_fulltruth_eval --output-dir results/gcn_search/path_reranker_leakage_audit
+& "C:\Users\24186\Documents\New project 7\.venv\Scripts\python.exe" src/gcn_search/legacy_rts79/evaluate_path_reranker_strict_heldout.py --dataset-dir results/gcn_search/path_reranker_dataset --baseline-eval-dir results/gcn_search/path_reranker_fulltruth_eval --output-dir results/gcn_search/path_reranker_strict_heldout_eval --epochs 80
+& "C:\Users\24186\Documents\New project 7\.venv\Scripts\python.exe" src/gcn_search/legacy_rts79/run_path_reranker_feature_ablation.py --dataset-dir results/gcn_search/path_reranker_dataset --output-dir results/gcn_search/path_reranker_feature_ablation --epochs 80
 ```
 
-Output: compact path-level dataset CSV, model metrics, leave-one-seed-out predictions, learned-reranker comparison summaries, diagnostics, and figures. Model `.pt` files remain local and are not tracked.
+Output: compact path-level dataset CSV, model metrics, leave-one-seed-out predictions, learned-reranker comparison summaries, leakage audit, strict held-out validation, feature ablation, diagnostics, and figures. Model `.pt` files remain local and are not tracked.
 
 ## Figure Generation
 
@@ -168,6 +171,8 @@ results/gcn_search/pio_topk_depth_tradeoff/figures/
 results/gcn_search/pio_ensemble_preliminary/figures/
 results/gcn_search/pio_rerank_preliminary/figures/
 results/gcn_search/path_reranker_fulltruth_eval/figures/
+results/gcn_search/path_reranker_strict_heldout_eval/figures/
+results/gcn_search/path_reranker_feature_ablation/figures/
 ```
 
 ## Artifact Self-Check

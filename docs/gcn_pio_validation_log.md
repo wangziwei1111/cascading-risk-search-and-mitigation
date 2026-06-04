@@ -1,3 +1,73 @@
+## Learned Path Reranker Leakage Audit and Strict Held-Out Validation
+
+Purpose: audit whether the learned path reranker high recall is caused by data leakage, and rerun strict held-out seed validation. No RL mitigation files were modified and the original `GCN_path_prob` method remains preserved.
+
+### Leakage audit
+
+```text
+script = src/gcn_search/legacy_rts79/audit_path_reranker_leakage.py
+output_dir = results/gcn_search/path_reranker_leakage_audit
+```
+
+Findings:
+
+| Check | Result |
+|---|---|
+| Forbidden input features | Not found |
+| Seed split overlap | Clean |
+| Near-perfect feature-label correlation | Not found |
+| Suspicious high performance warning | Triggered |
+
+The warning is intentional: learned-reranker recall is close to oracle, so strict held-out validation must be reported together with the original result.
+
+### Strict held-out validation
+
+```text
+script = src/gcn_search/legacy_rts79/evaluate_path_reranker_strict_heldout.py
+output_dir = results/gcn_search/path_reranker_strict_heldout_eval
+protocol = for each fold, 3 train seeds, 1 validation seed, 1 held-out test seed
+```
+
+Key result:
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| rerank_physical_stress | 0.280 | 0.439 | 0.532 | 0.587 |
+| learned_logistic_reranker_strict | 0.329 | 0.566 | 0.782 | 0.958 |
+| learned_mlp_reranker_strict | 0.341 | 0.694 | 0.940 | 0.993 |
+
+The strict learned MLP still exceeds `rerank_physical_stress` and reaches the requested targets:
+
+```text
+Recall@100 > 0.60 = yes
+Recall@200 > 0.65 = yes
+```
+
+### Feature ablation
+
+```text
+script = src/gcn_search/legacy_rts79/run_path_reranker_feature_ablation.py
+output_dir = results/gcn_search/path_reranker_feature_ablation
+```
+
+| Feature group | Recall@100 | Recall@200 |
+|---|---:|---:|
+| score_only | 0.706 | 0.929 |
+| score_plus_rank | 0.730 | 0.920 |
+| physical_only | 0.627 | 0.833 |
+| score_plus_physical | 0.922 | 0.993 |
+| all_safe_features | 0.937 | 0.996 |
+
+Conclusion: high recall is driven by score-derived and physical-stress features, not by direct forbidden labels. The remaining caveat is topology/path-pattern memorization across RTS-79 operating-condition seeds.
+
+### Validation
+
+```text
+pytest = 26 passed, 304 warnings
+artifact self-check = PASS: PIO-GCN artifacts are review-ready.
+RL diff = empty
+```
+
 ## Learned Path Reranker and Hard Negative Mining Round
 
 Purpose: improve PIO-GCN + rerank performance with a learned path-level reranker. No RL mitigation files were modified and the original `GCN_path_prob` method remains preserved.

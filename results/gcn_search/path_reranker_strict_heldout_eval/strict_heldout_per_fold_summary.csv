@@ -1,0 +1,141 @@
+﻿seed,method,top_k,critical_found,critical_path_recall,notes,found,mean_critical_rank,median_critical_rank,train_seeds,val_seed
+20260722,PIO_GCN,20,14,0.2545454545454545,baseline,14,,,,
+20260722,PIO_GCN,50,17,0.3090909090909091,baseline,17,,,,
+20260722,PIO_GCN,100,22,0.4,baseline,22,,,,
+20260722,PIO_GCN,200,29,0.5272727272727272,baseline,29,,,,
+20260722,paper_GCN_path_prob_strong,20,9,0.1636363636363636,baseline,9,,,,
+20260722,paper_GCN_path_prob_strong,50,17,0.3090909090909091,baseline,17,,,,
+20260722,paper_GCN_path_prob_strong,100,20,0.3636363636363636,baseline,20,,,,
+20260722,paper_GCN_path_prob_strong,200,31,0.5636363636363636,baseline,31,,,,
+20260722,oracle,20,20,0.3636363636363636,baseline,20,,,,
+20260722,oracle,50,50,0.9090909090909092,baseline,50,,,,
+20260722,oracle,100,55,1.0,baseline,55,,,,
+20260722,oracle,200,55,1.0,baseline,55,,,,
+20260722,rerank_physical_stress,20,12,0.2181818181818181,rerank top-300 PIO candidates,12,,,,
+20260722,rerank_physical_stress,50,21,0.3818181818181818,rerank top-300 PIO candidates,21,,,,
+20260722,rerank_physical_stress,100,28,0.509090909090909,rerank top-300 PIO candidates,28,,,,
+20260722,rerank_physical_stress,200,32,0.5818181818181818,rerank top-300 PIO candidates,32,,,,
+20260722,LODF_yP,20,2,0.0363636363636363,physical-rule ranking baseline,2,,,,
+20260722,LODF_yP,50,10,0.1818181818181818,physical-rule ranking baseline,10,,,,
+20260722,LODF_yP,100,11,0.2,physical-rule ranking baseline,11,,,,
+20260722,LODF_yP,200,20,0.3636363636363636,physical-rule ranking baseline,20,,,,
+20260723,PIO_GCN,20,9,0.173076923076923,baseline,9,,,,
+20260723,PIO_GCN,50,18,0.3461538461538461,baseline,18,,,,
+20260723,PIO_GCN,100,22,0.4230769230769231,baseline,22,,,,
+20260723,PIO_GCN,200,27,0.5192307692307693,baseline,27,,,,
+20260723,paper_GCN_path_prob_strong,20,9,0.173076923076923,baseline,9,,,,
+20260723,paper_GCN_path_prob_strong,50,12,0.2307692307692307,baseline,12,,,,
+20260723,paper_GCN_path_prob_strong,100,15,0.2884615384615384,baseline,15,,,,
+20260723,paper_GCN_path_prob_strong,200,31,0.5961538461538461,baseline,31,,,,
+20260723,oracle,20,20,0.3846153846153846,baseline,20,,,,
+20260723,oracle,50,50,0.9615384615384616,baseline,50,,,,
+20260723,oracle,100,52,1.0,baseline,52,,,,
+20260723,oracle,200,52,1.0,baseline,52,,,,
+20260723,rerank_physical_stress,20,15,0.2884615384615384,rerank top-300 PIO candidates,15,,,,
+20260723,rerank_physical_stress,50,24,0.4615384615384615,rerank top-300 PIO candidates,24,,,,
+20260723,rerank_physical_stress,100,28,0.5384615384615384,rerank top-300 PIO candidates,28,,,,
+20260723,rerank_physical_stress,200,30,0.5769230769230769,rerank top-300 PIO candidates,30,,,,
+20260723,LODF_yP,20,2,0.0384615384615384,physical-rule ranking baseline,2,,,,
+20260723,LODF_yP,50,6,0.1153846153846153,physical-rule ranking baseline,6,,,,
+20260723,LODF_yP,100,10,0.1923076923076923,physical-rule ranking baseline,10,,,,
+20260723,LODF_yP,200,12,0.2307692307692307,physical-rule ranking baseline,12,,,,
+20260724,PIO_GCN,20,13,0.2203389830508474,baseline,13,,,,
+20260724,PIO_GCN,50,22,0.3728813559322034,baseline,22,,,,
+20260724,PIO_GCN,100,26,0.4406779661016949,baseline,26,,,,
+20260724,PIO_GCN,200,31,0.5254237288135594,baseline,31,,,,
+20260724,paper_GCN_path_prob_strong,20,12,0.2033898305084746,baseline,12,,,,
+20260724,paper_GCN_path_prob_strong,50,15,0.2542372881355932,baseline,15,,,,
+20260724,paper_GCN_path_prob_strong,100,24,0.4067796610169492,baseline,24,,,,
+20260724,paper_GCN_path_prob_strong,200,33,0.559322033898305,baseline,33,,,,
+20260724,oracle,20,20,0.3389830508474576,baseline,20,,,,
+20260724,oracle,50,50,0.847457627118644,baseline,50,,,,
+20260724,oracle,100,59,1.0,baseline,59,,,,
+20260724,oracle,200,59,1.0,baseline,59,,,,
+20260724,rerank_physical_stress,20,19,0.3220338983050847,rerank top-300 PIO candidates,19,,,,
+20260724,rerank_physical_stress,50,28,0.4745762711864407,rerank top-300 PIO candidates,28,,,,
+20260724,rerank_physical_stress,100,34,0.576271186440678,rerank top-300 PIO candidates,34,,,,
+20260724,rerank_physical_stress,200,35,0.5932203389830508,rerank top-300 PIO candidates,35,,,,
+20260724,LODF_yP,20,2,0.0338983050847457,physical-rule ranking baseline,2,,,,
+20260724,LODF_yP,50,8,0.135593220338983,physical-rule ranking baseline,8,,,,
+20260724,LODF_yP,100,14,0.2372881355932203,physical-rule ranking baseline,14,,,,
+20260724,LODF_yP,200,22,0.3728813559322034,physical-rule ranking baseline,22,,,,
+20260725,PIO_GCN,20,10,0.1923076923076923,baseline,10,,,,
+20260725,PIO_GCN,50,16,0.3076923076923077,baseline,16,,,,
+20260725,PIO_GCN,100,21,0.4038461538461538,baseline,21,,,,
+20260725,PIO_GCN,200,24,0.4615384615384615,baseline,24,,,,
+20260725,paper_GCN_path_prob_strong,20,8,0.1538461538461538,baseline,8,,,,
+20260725,paper_GCN_path_prob_strong,50,12,0.2307692307692307,baseline,12,,,,
+20260725,paper_GCN_path_prob_strong,100,16,0.3076923076923077,baseline,16,,,,
+20260725,paper_GCN_path_prob_strong,200,28,0.5384615384615384,baseline,28,,,,
+20260725,oracle,20,20,0.3846153846153846,baseline,20,,,,
+20260725,oracle,50,50,0.9615384615384616,baseline,50,,,,
+20260725,oracle,100,52,1.0,baseline,52,,,,
+20260725,oracle,200,52,1.0,baseline,52,,,,
+20260725,rerank_physical_stress,20,16,0.3076923076923077,rerank top-300 PIO candidates,16,,,,
+20260725,rerank_physical_stress,50,24,0.4615384615384615,rerank top-300 PIO candidates,24,,,,
+20260725,rerank_physical_stress,100,25,0.4807692307692308,rerank top-300 PIO candidates,25,,,,
+20260725,rerank_physical_stress,200,27,0.5192307692307693,rerank top-300 PIO candidates,27,,,,
+20260725,LODF_yP,20,2,0.0384615384615384,physical-rule ranking baseline,2,,,,
+20260725,LODF_yP,50,6,0.1153846153846153,physical-rule ranking baseline,6,,,,
+20260725,LODF_yP,100,10,0.1923076923076923,physical-rule ranking baseline,10,,,,
+20260725,LODF_yP,200,16,0.3076923076923077,physical-rule ranking baseline,16,,,,
+20260726,PIO_GCN,20,14,0.2153846153846154,baseline,14,,,,
+20260726,PIO_GCN,50,23,0.3538461538461538,baseline,23,,,,
+20260726,PIO_GCN,100,29,0.4461538461538462,baseline,29,,,,
+20260726,PIO_GCN,200,37,0.5692307692307692,baseline,37,,,,
+20260726,paper_GCN_path_prob_strong,20,12,0.1846153846153846,baseline,12,,,,
+20260726,paper_GCN_path_prob_strong,50,16,0.2461538461538461,baseline,16,,,,
+20260726,paper_GCN_path_prob_strong,100,25,0.3846153846153846,baseline,25,,,,
+20260726,paper_GCN_path_prob_strong,200,38,0.5846153846153846,baseline,38,,,,
+20260726,oracle,20,20,0.3076923076923077,baseline,20,,,,
+20260726,oracle,50,50,0.7692307692307693,baseline,50,,,,
+20260726,oracle,100,65,1.0,baseline,65,,,,
+20260726,oracle,200,65,1.0,baseline,65,,,,
+20260726,rerank_physical_stress,20,17,0.2615384615384615,rerank top-300 PIO candidates,17,,,,
+20260726,rerank_physical_stress,50,27,0.4153846153846154,rerank top-300 PIO candidates,27,,,,
+20260726,rerank_physical_stress,100,36,0.5538461538461539,rerank top-300 PIO candidates,36,,,,
+20260726,rerank_physical_stress,200,43,0.6615384615384615,rerank top-300 PIO candidates,43,,,,
+20260726,LODF_yP,20,2,0.0307692307692307,physical-rule ranking baseline,2,,,,
+20260726,LODF_yP,50,8,0.123076923076923,physical-rule ranking baseline,8,,,,
+20260726,LODF_yP,100,14,0.2153846153846154,physical-rule ranking baseline,14,,,,
+20260726,LODF_yP,200,24,0.3692307692307692,physical-rule ranking baseline,24,,,,
+20260722,learned_logistic_reranker_strict,20,19,0.34545454545454546,strict leave-one-seed-out; test seed excluded from train and validation,19,61.85454545454545,40.0,"20260723,20260724,20260725",20260726.0
+20260722,learned_logistic_reranker_strict,50,31,0.5636363636363636,strict leave-one-seed-out; test seed excluded from train and validation,31,61.85454545454545,40.0,"20260723,20260724,20260725",20260726.0
+20260722,learned_logistic_reranker_strict,100,42,0.7636363636363637,strict leave-one-seed-out; test seed excluded from train and validation,42,61.85454545454545,40.0,"20260723,20260724,20260725",20260726.0
+20260722,learned_logistic_reranker_strict,200,54,0.9818181818181818,strict leave-one-seed-out; test seed excluded from train and validation,54,61.85454545454545,40.0,"20260723,20260724,20260725",20260726.0
+20260722,learned_mlp_reranker_strict,20,19,0.34545454545454546,strict leave-one-seed-out; test seed excluded from train and validation,19,41.654545454545456,35.0,"20260723,20260724,20260725",20260726.0
+20260722,learned_mlp_reranker_strict,50,37,0.6727272727272727,strict leave-one-seed-out; test seed excluded from train and validation,37,41.654545454545456,35.0,"20260723,20260724,20260725",20260726.0
+20260722,learned_mlp_reranker_strict,100,51,0.9272727272727272,strict leave-one-seed-out; test seed excluded from train and validation,51,41.654545454545456,35.0,"20260723,20260724,20260725",20260726.0
+20260722,learned_mlp_reranker_strict,200,55,1.0,strict leave-one-seed-out; test seed excluded from train and validation,55,41.654545454545456,35.0,"20260723,20260724,20260725",20260726.0
+20260723,learned_logistic_reranker_strict,20,18,0.34615384615384615,strict leave-one-seed-out; test seed excluded from train and validation,18,51.42307692307692,36.5,"20260722,20260724,20260725",20260726.0
+20260723,learned_logistic_reranker_strict,50,33,0.6346153846153846,strict leave-one-seed-out; test seed excluded from train and validation,33,51.42307692307692,36.5,"20260722,20260724,20260725",20260726.0
+20260723,learned_logistic_reranker_strict,100,47,0.9038461538461539,strict leave-one-seed-out; test seed excluded from train and validation,47,51.42307692307692,36.5,"20260722,20260724,20260725",20260726.0
+20260723,learned_logistic_reranker_strict,200,51,0.9807692307692307,strict leave-one-seed-out; test seed excluded from train and validation,51,51.42307692307692,36.5,"20260722,20260724,20260725",20260726.0
+20260723,learned_mlp_reranker_strict,20,18,0.34615384615384615,strict leave-one-seed-out; test seed excluded from train and validation,18,35.5,29.5,"20260722,20260724,20260725",20260726.0
+20260723,learned_mlp_reranker_strict,50,39,0.75,strict leave-one-seed-out; test seed excluded from train and validation,39,35.5,29.5,"20260722,20260724,20260725",20260726.0
+20260723,learned_mlp_reranker_strict,100,51,0.9807692307692307,strict leave-one-seed-out; test seed excluded from train and validation,51,35.5,29.5,"20260722,20260724,20260725",20260726.0
+20260723,learned_mlp_reranker_strict,200,52,1.0,strict leave-one-seed-out; test seed excluded from train and validation,52,35.5,29.5,"20260722,20260724,20260725",20260726.0
+20260724,learned_logistic_reranker_strict,20,20,0.3389830508474576,strict leave-one-seed-out; test seed excluded from train and validation,20,66.71186440677967,32.0,"20260722,20260723,20260725",20260726.0
+20260724,learned_logistic_reranker_strict,50,34,0.576271186440678,strict leave-one-seed-out; test seed excluded from train and validation,34,66.71186440677967,32.0,"20260722,20260723,20260725",20260726.0
+20260724,learned_logistic_reranker_strict,100,42,0.711864406779661,strict leave-one-seed-out; test seed excluded from train and validation,42,66.71186440677967,32.0,"20260722,20260723,20260725",20260726.0
+20260724,learned_logistic_reranker_strict,200,56,0.9491525423728814,strict leave-one-seed-out; test seed excluded from train and validation,56,66.71186440677967,32.0,"20260722,20260723,20260725",20260726.0
+20260724,learned_mlp_reranker_strict,20,20,0.3389830508474576,strict leave-one-seed-out; test seed excluded from train and validation,20,45.25423728813559,32.0,"20260722,20260723,20260725",20260726.0
+20260724,learned_mlp_reranker_strict,50,39,0.6610169491525424,strict leave-one-seed-out; test seed excluded from train and validation,39,45.25423728813559,32.0,"20260722,20260723,20260725",20260726.0
+20260724,learned_mlp_reranker_strict,100,53,0.8983050847457628,strict leave-one-seed-out; test seed excluded from train and validation,53,45.25423728813559,32.0,"20260722,20260723,20260725",20260726.0
+20260724,learned_mlp_reranker_strict,200,58,0.9830508474576272,strict leave-one-seed-out; test seed excluded from train and validation,58,45.25423728813559,32.0,"20260722,20260723,20260725",20260726.0
+20260725,learned_logistic_reranker_strict,20,16,0.3076923076923077,strict leave-one-seed-out; test seed excluded from train and validation,16,69.67307692307692,45.5,"20260722,20260723,20260724",20260726.0
+20260725,learned_logistic_reranker_strict,50,27,0.5192307692307693,strict leave-one-seed-out; test seed excluded from train and validation,27,69.67307692307692,45.5,"20260722,20260723,20260724",20260726.0
+20260725,learned_logistic_reranker_strict,100,42,0.8076923076923077,strict leave-one-seed-out; test seed excluded from train and validation,42,69.67307692307692,45.5,"20260722,20260723,20260724",20260726.0
+20260725,learned_logistic_reranker_strict,200,48,0.9230769230769231,strict leave-one-seed-out; test seed excluded from train and validation,48,69.67307692307692,45.5,"20260722,20260723,20260724",20260726.0
+20260725,learned_mlp_reranker_strict,20,19,0.36538461538461536,strict leave-one-seed-out; test seed excluded from train and validation,19,40.46153846153846,27.5,"20260722,20260723,20260724",20260726.0
+20260725,learned_mlp_reranker_strict,50,37,0.7115384615384616,strict leave-one-seed-out; test seed excluded from train and validation,37,40.46153846153846,27.5,"20260722,20260723,20260724",20260726.0
+20260725,learned_mlp_reranker_strict,100,48,0.9230769230769231,strict leave-one-seed-out; test seed excluded from train and validation,48,40.46153846153846,27.5,"20260722,20260723,20260724",20260726.0
+20260725,learned_mlp_reranker_strict,200,51,0.9807692307692307,strict leave-one-seed-out; test seed excluded from train and validation,51,40.46153846153846,27.5,"20260722,20260723,20260724",20260726.0
+20260726,learned_logistic_reranker_strict,20,20,0.3076923076923077,strict leave-one-seed-out; test seed excluded from train and validation,20,67.8923076923077,39.0,"20260722,20260723,20260724",20260725.0
+20260726,learned_logistic_reranker_strict,50,35,0.5384615384615384,strict leave-one-seed-out; test seed excluded from train and validation,35,67.8923076923077,39.0,"20260722,20260723,20260724",20260725.0
+20260726,learned_logistic_reranker_strict,100,47,0.7230769230769231,strict leave-one-seed-out; test seed excluded from train and validation,47,67.8923076923077,39.0,"20260722,20260723,20260724",20260725.0
+20260726,learned_logistic_reranker_strict,200,62,0.9538461538461539,strict leave-one-seed-out; test seed excluded from train and validation,62,67.8923076923077,39.0,"20260722,20260723,20260724",20260725.0
+20260726,learned_mlp_reranker_strict,20,20,0.3076923076923077,strict leave-one-seed-out; test seed excluded from train and validation,20,40.50769230769231,35.0,"20260722,20260723,20260724",20260725.0
+20260726,learned_mlp_reranker_strict,50,44,0.676923076923077,strict leave-one-seed-out; test seed excluded from train and validation,44,40.50769230769231,35.0,"20260722,20260723,20260724",20260725.0
+20260726,learned_mlp_reranker_strict,100,63,0.9692307692307692,strict leave-one-seed-out; test seed excluded from train and validation,63,40.50769230769231,35.0,"20260722,20260723,20260724",20260725.0
+20260726,learned_mlp_reranker_strict,200,65,1.0,strict leave-one-seed-out; test seed excluded from train and validation,65,40.50769230769231,35.0,"20260722,20260723,20260724",20260725.0

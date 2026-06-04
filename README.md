@@ -55,6 +55,9 @@ python src/gcn_search/legacy_rts79/evaluate_pio_gcn_hard_negative_rerank.py --ou
 python src/gcn_search/legacy_rts79/build_path_reranker_dataset.py --output-dir results/gcn_search/path_reranker_dataset
 python src/gcn_search/legacy_rts79/train_path_reranker.py --dataset-dir results/gcn_search/path_reranker_dataset --output-dir results/gcn_search/path_reranker_models
 python src/gcn_search/legacy_rts79/evaluate_path_reranker_fulltruth.py --dataset-dir results/gcn_search/path_reranker_dataset --model-dir results/gcn_search/path_reranker_models --output-dir results/gcn_search/path_reranker_fulltruth_eval
+python src/gcn_search/legacy_rts79/audit_path_reranker_leakage.py --output-dir results/gcn_search/path_reranker_leakage_audit
+python src/gcn_search/legacy_rts79/evaluate_path_reranker_strict_heldout.py --output-dir results/gcn_search/path_reranker_strict_heldout_eval
+python src/gcn_search/legacy_rts79/run_path_reranker_feature_ablation.py --output-dir results/gcn_search/path_reranker_feature_ablation
 python scripts/gcn_search/check_pio_gcn_artifacts.py
 ```
 
@@ -95,6 +98,7 @@ docs/pio_gcn_topk_depth_tradeoff.md
 docs/pio_gcn_ensemble_rerank_preliminary.md
 docs/pio_gcn_path_reranker.md
 docs/pio_gcn_hard_negative_analysis.md
+docs/pio_gcn_path_reranker_leakage_audit.md
 ```
 
 ### 2. RL cascade mitigation reproduction

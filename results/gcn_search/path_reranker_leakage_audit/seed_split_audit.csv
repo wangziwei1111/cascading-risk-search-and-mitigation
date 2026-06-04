@@ -1,0 +1,9 @@
+﻿check,value,passed,notes
+train_seeds,"20260722,20260723,20260724",True,
+val_seeds,20260725,True,
+test_seeds,20260726,True,
+train_val_seed_overlap,,True,
+train_test_seed_overlap,,True,
+val_test_seed_overlap,,True,
+train_test_path_label_overlap,1406,True,Same topology path labels repeat across operating-condition seeds; seed split remains the leakage boundary.
+val_test_path_label_overlap,1406,True,Same topology path labels repeat across operating-condition seeds; seed split remains the leakage boundary.

@@ -1,0 +1,21 @@
+{
+  "dataset_dir": "results\\gcn_search\\path_reranker_dataset",
+  "baseline_eval_dir": "results\\gcn_search\\path_reranker_fulltruth_eval",
+  "output_dir": "results\\gcn_search\\path_reranker_strict_heldout_eval",
+  "seeds": [
+    20260722,
+    20260723,
+    20260724,
+    20260725,
+    20260726
+  ],
+  "top_k": [
+    20,
+    50,
+    100,
+    200
+  ],
+  "epochs": 80,
+  "learning_rate": 0.01,
+  "lambda_pairwise_rank": 0.05
+}

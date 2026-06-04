@@ -1,0 +1,5 @@
+﻿check,passed,notes
+seed_split_disjoint,True,
+no_forbidden_input_features,True,
+no_near_perfect_feature_label_corr,True,
+suspiciously_high_performance_warning,False,High recall requires strict held-out confirmation.

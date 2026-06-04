@@ -64,3 +64,16 @@ This result is very strong, but it is still RTS-79 preliminary. The dataset has 
 ## Renewable Status
 
 The existing synthetic renewable preliminary artifacts contain aggregate full-truth summaries, but not reusable per-path renewable truth details. Therefore renewable learned-reranker evaluation is not completed in this round. It should be done by regenerating compact renewable per-path features and predictions without committing full-truth detail files.
+
+## Leakage Audit Update
+
+A leakage audit and stricter held-out seed validation were added. No forbidden input feature was found, and strict held-out MLP performance remains high:
+
+```text
+Recall@20 = 0.341
+Recall@50 = 0.694
+Recall@100 = 0.940
+Recall@200 = 0.993
+```
+
+The high score is therefore not explained by direct label leakage, but the result remains preliminary because RTS-79 topology/path labels repeat across operating-condition seeds.

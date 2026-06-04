@@ -122,6 +122,16 @@ The simple score-level ensemble is feasible but not decisive. The hard-negative-
 
 The learned path reranker is the strongest current result and exceeds the requested Top-100/Top-200 targets. It is still a 5-seed RTS-79 preliminary result and should not be described as final evidence.
 
+## Leakage Audit and Strict Held-Out Validation
+
+No forbidden input feature was found in the learned path reranker. Strict held-out seed validation still shows strong performance:
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| learned_mlp_reranker_strict | 0.341 | 0.694 | 0.940 | 0.993 |
+
+Feature ablation indicates the strongest signal comes from combining score-derived features with physical stress features. The remaining caveat is limited seed diversity and possible RTS-79 path-pattern memorization, not direct label leakage.
+
 ## RL Untouched Statement
 
 This PR does not modify `src/rl_mitigation` or `scripts/rl_mitigation`.
