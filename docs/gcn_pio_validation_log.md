@@ -941,3 +941,116 @@ empty output
 ```
 
 Conclusion: the fifth round did not modify RL mitigation code.
+
+## Sixth-Round Validation Log: Formal Preliminary Ablation
+
+### Training diagnostics update
+
+`train_rts79_physics_gcn.py` now reports additional validation diagnostics:
+
+```text
+validation_precision
+validation_recall
+validation_pr_auc
+mean_predicted_positive_probability
+positive_prediction_rate_at_0.5
+positive_prediction_rate_at_0.8
+mean_physics_loss
+```
+
+These metrics are intended to explain whether a model is over-predicting risky branches.
+
+### Ablation command
+
+```powershell
+python src/gcn_search/legacy_rts79/run_pio_gcn_formal_ablation.py --output-dir results/gcn_search/pio_formal_ablation_3seed --base-experiment-dir results/gcn_search/pio_formal_preliminary_3seed --top-k 20 50 100
+```
+
+The run reused the fifth-round full-truth files for seeds:
+
+```text
+20260722
+20260723
+20260724
+```
+
+Full truth was validated against the fifth-round `per_seed_full_truth_summary.csv`.
+
+### Ablation aggregate summary
+
+Key Top-100 results:
+
+```text
+physics_ce_no_mask: mean_found_after_100 = 23.3333, mean_recall_at_100 = 0.4209
+physics_ce_mask: mean_found_after_100 = 23.3333, mean_recall_at_100 = 0.4209
+physics_loss_no_mask: mean_found_after_100 = 23.3333, mean_recall_at_100 = 0.4213
+physics_loss_mask: mean_found_after_100 = 23.3333, mean_recall_at_100 = 0.4213
+paper_gcn_path_prob: mean_found_after_100 = 8.0, mean_recall_at_100 = 0.1435
+LODF_yP: mean_found_after_100 = 11.6667, mean_recall_at_100 = 0.2099
+random: mean_found_after_100 = 3.0, mean_recall_at_100 = 0.0548
+line_order: mean_found_after_100 = 3.6667, mean_recall_at_100 = 0.0657
+oracle: mean_found_after_100 = 55.3333, mean_recall_at_100 = 1.0
+```
+
+Interpretation:
+
+```text
+The main gain comes from physics features.
+Candidate mask does not materially change this 3-seed result.
+Physics-informed loss gives only a tiny Top-100 gain and does not improve Top-20/Top-50 in this run.
+```
+
+### Diagnostics
+
+Diagnostics directory:
+
+```text
+results/gcn_search/pio_formal_ablation_3seed/diagnostics/
+```
+
+Files:
+
+```text
+per_method_score_distribution.csv
+per_method_top100_missed_critical.csv
+per_method_top100_found_critical.csv
+per_method_rank_of_critical_paths.csv
+```
+
+Figures:
+
+```text
+results/gcn_search/pio_formal_ablation_3seed/figures/ablation_recall_at_100.png
+results/gcn_search/pio_formal_ablation_3seed/figures/ablation_found_after_k.png
+results/gcn_search/pio_formal_ablation_3seed/figures/ablation_runtime.png
+```
+
+### Pytest
+
+Command:
+
+```powershell
+python -m pytest tests/test_cascade_from_case_consistency.py tests/test_measured_state_sanity.py tests/test_gcn_physics_features.py tests/test_gcn_probability_mask.py tests/test_gcn_physics_losses.py tests/test_online_state_update.py tests/test_gcn_raw_feature_training.py tests/test_pio_topk_measured_consistency.py -q
+```
+
+Result:
+
+```text
+19 passed
+```
+
+### RL modification check
+
+Command:
+
+```powershell
+git diff -- src/rl_mitigation scripts/rl_mitigation
+```
+
+Result:
+
+```text
+empty output
+```
+
+Conclusion: the sixth round did not modify RL mitigation code.

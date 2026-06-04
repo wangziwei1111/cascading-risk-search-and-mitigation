@@ -185,3 +185,77 @@ This is now suitable for an advisor progress report as a preliminary RTS-79 full
 - the training set is filtered to high-flow Top-10 first outages;
 - the model remains weak, with high coverage but many false positives;
 - the experiment has only 3 test seeds.
+
+## Sixth-Round Formal Preliminary Ablation
+
+The sixth round answers the question: where does the PIO-GCN improvement come from?
+
+Output directory:
+
+```text
+results/gcn_search/pio_formal_ablation_3seed/
+```
+
+The ablation reuses the fifth-round 3-seed full truth:
+
+```text
+test seeds = 20260722, 20260723, 20260724
+full truth = true
+top_k = 20, 50, 100
+```
+
+### Ablation Results
+
+| method | physics feature | candidate mask | physics loss | mean found@100 | mean recall@100 |
+|---|---:|---:|---:|---:|---:|
+| physics_ce_no_mask | yes | no | no | 23.3333 | 0.4209 |
+| physics_ce_mask | yes | yes | no | 23.3333 | 0.4209 |
+| physics_loss_no_mask | yes | no | yes | 23.3333 | 0.4213 |
+| physics_loss_mask | yes | yes | yes | 23.3333 | 0.4213 |
+| paper_gcn_path_prob | no, paper 4-feature | no | no | 8.0 | 0.1435 |
+| LODF_yP | physical rule | no | no | 11.6667 | 0.2099 |
+| random | no | no | no | 3.0 | 0.0548 |
+| line_order | no | no | no | 3.6667 | 0.0657 |
+| oracle | upper bound | upper bound | upper bound | 55.3333 | 1.0 |
+
+### Interpretation
+
+The largest contribution currently comes from the physics feature representation, not from the physics-informed loss.
+
+Evidence:
+
+```text
+paper_gcn_path_prob recall@100 = 0.1435
+physics_ce_no_mask recall@100 = 0.4209
+```
+
+The candidate mask does not visibly change this run:
+
+```text
+physics_ce_no_mask recall@100 = 0.4209
+physics_ce_mask recall@100 = 0.4209
+```
+
+The physics-informed loss gives only a very small Top-100 change and slightly worse Top-20/Top-50 behavior:
+
+```text
+physics_ce_mask recall@20/50/100 = 0.2216 / 0.3488 / 0.4209
+physics_loss_mask recall@20/50/100 = 0.2160 / 0.3427 / 0.4213
+```
+
+Therefore, the current honest conclusion is:
+
+```text
+PIO-GCN's current improvement mainly comes from using richer physics features.
+The candidate mask has little effect in this particular ordered-path construction.
+The current physics loss is not yet a major performance driver and needs further tuning.
+```
+
+Diagnostics:
+
+```text
+results/gcn_search/pio_formal_ablation_3seed/diagnostics/per_method_score_distribution.csv
+results/gcn_search/pio_formal_ablation_3seed/diagnostics/per_method_top100_missed_critical.csv
+results/gcn_search/pio_formal_ablation_3seed/diagnostics/per_method_top100_found_critical.csv
+results/gcn_search/pio_formal_ablation_3seed/diagnostics/per_method_rank_of_critical_paths.csv
+```

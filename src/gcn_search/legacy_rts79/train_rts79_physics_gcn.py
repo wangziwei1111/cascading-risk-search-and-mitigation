@@ -18,6 +18,7 @@ from train_rts79_paper_gcn import (
     _build_adjacency_powers,
     _build_branch_graph_adjacency,
     _evaluate_paper_gcn,
+    _predict_shed_probability,
     _x_gcn_physics_feature_names,
 )
 from rts79_cascade import load_rts79_case
@@ -117,11 +118,23 @@ def train_physics_gcn(config: PhysicsGcnRunConfig) -> dict:
             for key in ("mask_invalid_loss", "relay_priority_loss", "loading_monotonic_loss"):
                 sums[key] += float(physics[key].detach())
             sums["total_loss"] += float(total_loss.detach())
-        metrics = _evaluate_paper_gcn(model, x[validation_index], y[validation_index], loss_mask[validation_index], adjacency_powers)
+        metrics = _evaluate_physics_training_metrics(
+            model,
+            x[validation_index],
+            y[validation_index],
+            loss_mask[validation_index],
+            adjacency_powers,
+        )
+        mean_physics_loss = (
+            sums["mask_invalid_loss"] + sums["relay_priority_loss"] + sums["loading_monotonic_loss"]
+        ) / max(batches, 1)
         row = {"epoch": epoch, **{k: v / max(batches, 1) for k, v in sums.items()}, **{f"validation_{k}": v for k, v in metrics.items()}}
+        row["mean_physics_loss"] = mean_physics_loss
         epoch_rows.append(row)
         print(json.dumps(row, ensure_ascii=False))
-    final_metrics = _evaluate_paper_gcn(model, x[validation_index], y[validation_index], loss_mask[validation_index], adjacency_powers)
+    final_metrics = _evaluate_physics_training_metrics(model, x[validation_index], y[validation_index], loss_mask[validation_index], adjacency_powers)
+    if epoch_rows:
+        final_metrics["mean_physics_loss"] = float(epoch_rows[-1]["mean_physics_loss"])
     torch.save(
         {
             "model_state_dict": model.state_dict(),
@@ -138,6 +151,63 @@ def train_physics_gcn(config: PhysicsGcnRunConfig) -> dict:
     pd.DataFrame([{"split": "validation", **final_metrics}]).to_csv(out / "rts79_physics_gcn_metrics.csv", index=False, encoding="utf-8-sig")
     (out / "rts79_physics_gcn_train_config.json").write_text(json.dumps(asdict(config), ensure_ascii=False, indent=2), encoding="utf-8")
     return final_metrics
+
+
+def _evaluate_physics_training_metrics(
+    model: nn.Module,
+    x: np.ndarray,
+    y: np.ndarray,
+    mask: np.ndarray,
+    adjacency_powers: torch.Tensor,
+) -> dict:
+    metrics = _evaluate_paper_gcn(model, x, y, mask, adjacency_powers)
+    probability = _predict_shed_probability(model, x, adjacency_powers)
+    active = mask.astype(bool)
+    truth = y.astype(int)
+    if active.any():
+        active_probability = probability[active]
+        active_truth = truth[active]
+        prediction_05 = active_probability >= 0.5
+        prediction_08 = active_probability >= 0.8
+        tp = int(((prediction_05 == 1) & (active_truth == 1)).sum())
+        fp = int(((prediction_05 == 1) & (active_truth == 0)).sum())
+        fn = int(((prediction_05 == 0) & (active_truth == 1)).sum())
+        precision = tp / max(tp + fp, 1)
+        recall = tp / max(tp + fn, 1)
+        metrics.update(
+            {
+                "precision": float(precision),
+                "recall": float(recall),
+                "pr_auc": _average_precision(active_truth, active_probability),
+                "mean_predicted_positive_probability": float(active_probability.mean()),
+                "positive_prediction_rate_at_0.5": float(prediction_05.mean()),
+                "positive_prediction_rate_at_0.8": float(prediction_08.mean()),
+            }
+        )
+    else:
+        metrics.update(
+            {
+                "precision": 0.0,
+                "recall": 0.0,
+                "pr_auc": 0.0,
+                "mean_predicted_positive_probability": 0.0,
+                "positive_prediction_rate_at_0.5": 0.0,
+                "positive_prediction_rate_at_0.8": 0.0,
+            }
+        )
+    return metrics
+
+
+def _average_precision(truth: np.ndarray, score: np.ndarray) -> float:
+    truth = truth.astype(int)
+    positives = int(truth.sum())
+    if positives == 0:
+        return 0.0
+    order = np.argsort(-score)
+    sorted_truth = truth[order]
+    cumulative_tp = np.cumsum(sorted_truth)
+    precision_at_k = cumulative_tp / (np.arange(len(sorted_truth)) + 1)
+    return float((precision_at_k * sorted_truth).sum() / positives)
 
 
 def parse_args() -> argparse.Namespace:

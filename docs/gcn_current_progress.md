@@ -373,3 +373,28 @@ original_GCN_path_prob mean_found_after_100 = 8.0
 ```
 
 Remaining issue: the model is still preliminary and tends to over-predict risky lines. The next step is to improve training data coverage and calibration before making final performance claims.
+
+### Sixth-Round Ablation Conclusion
+
+The sixth round completed a 3-seed full-truth preliminary ablation.
+
+Main result:
+
+```text
+physics_ce_no_mask recall@100 = 0.4209
+physics_ce_mask recall@100 = 0.4209
+physics_loss_no_mask recall@100 = 0.4213
+physics_loss_mask recall@100 = 0.4213
+paper_gcn_path_prob recall@100 = 0.1435
+LODF_yP recall@100 = 0.2099
+```
+
+Advisor-reportable conclusion:
+
+```text
+The current PIO-GCN gain mainly comes from physics features.
+Candidate masking contributes little in the current ranking setup.
+The current physics-informed loss is not yet the main source of improvement.
+```
+
+This is still preliminary. We should not claim final superiority until the model is trained on broader Step2 states and calibrated more carefully.
