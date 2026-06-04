@@ -89,6 +89,42 @@ def compute_loading_monotonic_loss(
     return torch.stack(losses).mean()
 
 
+def compute_reachable_pairwise_ranking_loss(
+    probability: torch.Tensor,
+    y_reachable: torch.Tensor,
+    candidate_mask: torch.Tensor,
+    max_pairs: int = 512,
+    margin: float = 0.05,
+) -> torch.Tensor:
+    if probability.ndim == 1:
+        probability = probability.unsqueeze(0)
+        y_reachable = y_reachable.unsqueeze(0)
+        candidate_mask = candidate_mask.unsqueeze(0)
+    losses = []
+    for prob_row, label_row, mask_row in zip(probability, y_reachable, candidate_mask):
+        valid = mask_row.to(device=probability.device, dtype=torch.bool)
+        labels = label_row.to(device=probability.device, dtype=torch.long)
+        pos_idx = torch.where(valid & (labels == 1))[0]
+        neg_idx = torch.where(valid & (labels == 0))[0]
+        if pos_idx.numel() == 0 or neg_idx.numel() == 0:
+            continue
+        pair_count = int(pos_idx.numel() * neg_idx.numel())
+        pos_grid = pos_idx.repeat_interleave(neg_idx.numel())
+        neg_grid = neg_idx.repeat(pos_idx.numel())
+        if pair_count > int(max_pairs):
+            sample = torch.linspace(0, pair_count - 1, steps=int(max_pairs), device=probability.device).long()
+            pos_grid = pos_grid[sample]
+            neg_grid = neg_grid[sample]
+        diff = prob_row[pos_grid] - prob_row[neg_grid]
+        losses.append(F.relu(float(margin) - diff).mean())
+    if not losses:
+        return probability.sum() * 0.0
+    loss = torch.stack(losses).mean()
+    if not torch.isfinite(loss):
+        raise ValueError("reachable_pairwise_ranking_loss produced NaN/Inf.")
+    return loss
+
+
 def compute_physics_constraint_loss(
     probability: torch.Tensor,
     candidate_mask: torch.Tensor,

@@ -18,3 +18,4 @@ results/gcn_search/**/*curve.csv
 results/gcn_search/**/*full_truth.csv
 results/gcn_search/**/*smoke_truth.csv
 results/gcn_search/**/*simulation_results.csv
+results/gcn_search/**/diagnostics/per_method_score_distribution.csv

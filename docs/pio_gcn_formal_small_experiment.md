@@ -259,3 +259,77 @@ results/gcn_search/pio_formal_ablation_3seed/diagnostics/per_method_top100_misse
 results/gcn_search/pio_formal_ablation_3seed/diagnostics/per_method_top100_found_critical.csv
 results/gcn_search/pio_formal_ablation_3seed/diagnostics/per_method_rank_of_critical_paths.csv
 ```
+
+## Seventh-Round Rank-Loss Physics-Informed Training
+
+The seventh round adds a reachable pairwise ranking loss. The goal is not just to classify whether a branch can reach load shedding, but to rank reachable critical branches ahead of noncritical branches inside the same state.
+
+### Why the original physics loss contributed little
+
+The previous physics-informed loss mostly constrained invalid candidates, relay-priority behavior, and loading monotonicity. These constraints help physical consistency, but they do not directly optimize the ordered path ranking objective. As a result, the sixth-round ablation showed:
+
+```text
+physics_ce_mask recall@100 = 0.4209
+physics_loss_mask recall@100 = 0.4213
+```
+
+This was only a tiny Top-100 difference and did not improve Top-20 or Top-50.
+
+### Rank-loss definition
+
+For each state, positive candidates are branches with `y_reachable = 1`; negative candidates are branches with `y_reachable = 0`. The ranking loss encourages:
+
+```text
+p_positive >= p_negative + margin
+```
+
+The preliminary run used:
+
+```text
+lambda_rank = 0.2
+rank_margin = 0.05
+rank_max_pairs = 512
+```
+
+### Rank-loss results
+
+Output directory:
+
+```text
+results/gcn_search/pio_rank_loss_preliminary_3seed/
+```
+
+| method | found@20 | found@50 | found@100 | recall@20 | recall@50 | recall@100 |
+|---|---:|---:|---:|---:|---:|---:|
+| physics_ce_mask | 12.3333 | 19.3333 | 23.3333 | 0.2216 | 0.3488 | 0.4209 |
+| physics_loss_mask | 12.0 | 19.0 | 23.3333 | 0.2160 | 0.3427 | 0.4213 |
+| physics_rank_loss_mask | 12.3333 | 19.3333 | 24.0 | 0.2216 | 0.3488 | 0.4337 |
+| LODF_yP | 2.0 | 8.0 | 11.6667 | 0.0362 | 0.1443 | 0.2099 |
+| paper_gcn_path_prob | 5.6667 | 7.0 | 8.0 | 0.1012 | 0.1250 | 0.1435 |
+| oracle | 20.0 | 50.0 | 55.3333 | 0.3624 | 0.9060 | 1.0 |
+
+### Interpretation
+
+Rank-loss gives a small but concrete Top-100 improvement:
+
+```text
+CE mask found@100 = 23.3333
+Rank-loss mask found@100 = 24.0
+```
+
+It does not improve Top-20 or Top-50 in this preliminary run:
+
+```text
+CE mask found@20/50 = 12.3333 / 19.3333
+Rank-loss mask found@20/50 = 12.3333 / 19.3333
+```
+
+Training diagnostics indicate that rank-loss increases positive-negative score separation:
+
+```text
+mean_positive_score = 0.8054
+mean_negative_score = 0.6920
+positive_negative_score_gap = 0.1135
+```
+
+This is still a 3-seed preliminary RTS-79 result, not a final large-scale conclusion.

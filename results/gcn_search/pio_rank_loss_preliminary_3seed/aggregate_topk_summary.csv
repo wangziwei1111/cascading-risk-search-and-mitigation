@@ -1,0 +1,19 @@
+﻿method,top_k,num_test_seeds,mean_total_critical_paths,mean_critical_found,mean_critical_path_recall,mean_runtime_seconds,notes
+physics_ce_mask,20,3,55.333333333333336,12.333333333333334,0.22163683773853263,0.5896763801574707,CE-only physics feature model with candidate mask
+physics_ce_mask,50,3,55.333333333333336,19.333333333333332,0.3487693097862589,0.5896763801574707,CE-only physics feature model with candidate mask
+physics_ce_mask,100,3,55.333333333333336,23.333333333333332,0.4209019793765556,0.5896763801574707,CE-only physics feature model with candidate mask
+physics_loss_mask,20,3,55.333333333333336,12.0,0.21598712022440836,0.5863885879516602,original physics-informed loss model with candidate mask
+physics_loss_mask,50,3,55.333333333333336,19.0,0.3427087037256529,0.5863885879516602,original physics-informed loss model with candidate mask
+physics_loss_mask,100,3,55.333333333333336,23.333333333333332,0.42125162972620595,0.5863885879516602,original physics-informed loss model with candidate mask
+physics_rank_loss_mask,20,3,55.333333333333336,12.333333333333334,0.22163683773853263,0.6060003439585367,physics-informed model with reachable pairwise ranking loss and candidate mask
+physics_rank_loss_mask,50,3,55.333333333333336,19.333333333333332,0.3487693097862589,0.6060003439585367,physics-informed model with reachable pairwise ranking loss and candidate mask
+physics_rank_loss_mask,100,3,55.333333333333336,24.0,0.43372249219706843,0.6060003439585367,physics-informed model with reachable pairwise ranking loss and candidate mask
+paper_gcn_path_prob,20,3,55.333333333333336,5.666666666666667,0.1012030342538817,3.2966829935709634,original paper 4-feature GCN_path_prob baseline; weak model
+paper_gcn_path_prob,50,3,55.333333333333336,7.0,0.12497333175299279,3.2966829935709634,original paper 4-feature GCN_path_prob baseline; weak model
+paper_gcn_path_prob,100,3,55.333333333333336,8.0,0.1435048002844613,3.2966829935709634,original paper 4-feature GCN_path_prob baseline; weak model
+LODF_yP,20,3,55.333333333333336,2.0,0.036241159969973534,1.9596707820892334,physical-rule ranking baseline
+LODF_yP,50,3,55.333333333333336,8.0,0.14426533918059342,1.9596707820892334,physical-rule ranking baseline
+LODF_yP,100,3,55.333333333333336,11.666666666666666,0.20986527596697088,1.9596707820892334,physical-rule ranking baseline
+oracle,20,3,55.333333333333336,20.0,0.3624115996997353,0.0005335807800292969,upper bound only
+oracle,50,3,55.333333333333336,50.0,0.9060289992493381,0.0005335807800292969,upper bound only
+oracle,100,3,55.333333333333336,55.333333333333336,1.0,0.0005335807800292969,upper bound only

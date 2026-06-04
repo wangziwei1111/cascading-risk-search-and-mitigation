@@ -11,7 +11,7 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
-from gcn_physics_constraints import compute_physics_constraint_loss
+from gcn_physics_constraints import compute_physics_constraint_loss, compute_reachable_pairwise_ranking_loss
 from train_rts79_paper_gcn import (
     PaperGcnTrainConfig,
     PaperStyleRts79Gcn,
@@ -38,6 +38,9 @@ class PhysicsGcnRunConfig:
     security_limit: float = 1.0
     p_min_relay: float = 0.5
     monotonic_margin: float = 0.0
+    lambda_rank: float = 0.0
+    rank_margin: float = 0.05
+    rank_max_pairs: int = 512
     random_seed: int = 20260603
 
 
@@ -90,7 +93,7 @@ def train_physics_gcn(config: PhysicsGcnRunConfig) -> dict:
     loading_feature_idx = _x_gcn_physics_feature_names().index("loading_ratio") if x.shape[2] >= 9 else None
     for epoch in range(1, config.epochs + 1):
         model.train()
-        sums = {"ce_loss": 0.0, "mask_invalid_loss": 0.0, "relay_priority_loss": 0.0, "loading_monotonic_loss": 0.0, "total_loss": 0.0}
+        sums = {"ce_loss": 0.0, "mask_invalid_loss": 0.0, "relay_priority_loss": 0.0, "loading_monotonic_loss": 0.0, "ranking_loss": 0.0, "total_loss": 0.0}
         batches = 0
         for xb, xrawb, yb, mb in loader:
             optimizer.zero_grad()
@@ -110,13 +113,25 @@ def train_physics_gcn(config: PhysicsGcnRunConfig) -> dict:
                 p_min_relay=config.p_min_relay,
                 monotonic_margin=config.monotonic_margin,
             )
-            total_loss = ce_loss + physics["total_physics_loss"]
+            ranking_loss = (
+                compute_reachable_pairwise_ranking_loss(
+                    probability,
+                    yb,
+                    mb,
+                    max_pairs=config.rank_max_pairs,
+                    margin=config.rank_margin,
+                )
+                if config.lambda_rank
+                else probability.sum() * 0.0
+            )
+            total_loss = ce_loss + physics["total_physics_loss"] + float(config.lambda_rank) * ranking_loss
             total_loss.backward()
             optimizer.step()
             batches += 1
             sums["ce_loss"] += float(ce_loss.detach())
             for key in ("mask_invalid_loss", "relay_priority_loss", "loading_monotonic_loss"):
                 sums[key] += float(physics[key].detach())
+            sums["ranking_loss"] += float(ranking_loss.detach())
             sums["total_loss"] += float(total_loss.detach())
         metrics = _evaluate_physics_training_metrics(
             model,
@@ -169,6 +184,10 @@ def _evaluate_physics_training_metrics(
         active_truth = truth[active]
         prediction_05 = active_probability >= 0.5
         prediction_08 = active_probability >= 0.8
+        positive_scores = active_probability[active_truth == 1]
+        negative_scores = active_probability[active_truth == 0]
+        mean_positive_score = float(positive_scores.mean()) if positive_scores.size else 0.0
+        mean_negative_score = float(negative_scores.mean()) if negative_scores.size else 0.0
         tp = int(((prediction_05 == 1) & (active_truth == 1)).sum())
         fp = int(((prediction_05 == 1) & (active_truth == 0)).sum())
         fn = int(((prediction_05 == 0) & (active_truth == 1)).sum())
@@ -182,6 +201,10 @@ def _evaluate_physics_training_metrics(
                 "mean_predicted_positive_probability": float(active_probability.mean()),
                 "positive_prediction_rate_at_0.5": float(prediction_05.mean()),
                 "positive_prediction_rate_at_0.8": float(prediction_08.mean()),
+                "ranking_ap": _average_precision(active_truth, active_probability),
+                "mean_positive_score": mean_positive_score,
+                "mean_negative_score": mean_negative_score,
+                "positive_negative_score_gap": float(mean_positive_score - mean_negative_score),
             }
         )
     else:
@@ -193,6 +216,10 @@ def _evaluate_physics_training_metrics(
                 "mean_predicted_positive_probability": 0.0,
                 "positive_prediction_rate_at_0.5": 0.0,
                 "positive_prediction_rate_at_0.8": 0.0,
+                "ranking_ap": 0.0,
+                "mean_positive_score": 0.0,
+                "mean_negative_score": 0.0,
+                "positive_negative_score_gap": 0.0,
             }
         )
     return metrics
@@ -224,6 +251,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--security-limit", type=float, default=1.0)
     parser.add_argument("--p-min-relay", type=float, default=0.5)
     parser.add_argument("--monotonic-margin", type=float, default=0.0)
+    parser.add_argument("--lambda-rank", type=float, default=0.0)
+    parser.add_argument("--rank-margin", type=float, default=0.05)
+    parser.add_argument("--rank-max-pairs", type=int, default=512)
     return parser.parse_args()
 
 

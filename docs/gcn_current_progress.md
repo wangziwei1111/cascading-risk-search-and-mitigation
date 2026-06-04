@@ -398,3 +398,21 @@ The current physics-informed loss is not yet the main source of improvement.
 ```
 
 This is still preliminary. We should not claim final superiority until the model is trained on broader Step2 states and calibrated more carefully.
+
+### Seventh-Round Rank-Loss Result
+
+| factor | comparison | conclusion |
+|---|---|---|
+| Physics feature | paper_gcn_path_prob recall@100 0.1435 vs physics_ce_mask 0.4209 | main current gain |
+| Candidate mask | physics_ce_no_mask 0.4209 vs physics_ce_mask 0.4209 | little effect in current setup |
+| Original physics loss | physics_ce_mask 0.4209 vs physics_loss_mask 0.4213 | tiny Top-100 effect, no Top-20/50 gain |
+| Rank-loss | physics_ce_mask 0.4209 vs physics_rank_loss_mask 0.4337 | small but clear Top-100 gain |
+| LODF_yP | LODF_yP recall@100 0.2099 vs rank-loss 0.4337 | rank-loss PIO-GCN remains stronger in this 3-seed preliminary run |
+
+Current advisor-reportable message:
+
+```text
+Physics features are the main source of improvement.
+The new reachable pairwise rank-loss produces a small Top-100 gain.
+The model still needs better calibration and broader training before final claims.
+```

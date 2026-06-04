@@ -1054,3 +1054,129 @@ empty output
 ```
 
 Conclusion: the sixth round did not modify RL mitigation code.
+
+## Seventh-Round Validation Log: Rank-Loss Training and Diagnostic Cleanup
+
+### Large diagnostic cleanup
+
+The detailed score distribution file was too large for long-term Git tracking:
+
+```text
+results/gcn_search/pio_formal_ablation_3seed/diagnostics/per_method_score_distribution.csv
+```
+
+It was removed from Git tracking with `git rm --cached`. The local file was not deleted.
+
+A compact replacement summary was generated:
+
+```text
+results/gcn_search/pio_formal_ablation_3seed/diagnostics/per_method_score_distribution_summary.csv
+```
+
+The repository ignore rules now exclude future detailed score-distribution CSV files.
+
+### New ranking loss test
+
+New test file:
+
+```text
+tests/test_gcn_ranking_loss.py
+```
+
+It covers:
+
+- zero loss when positive probabilities exceed negatives by the margin;
+- positive loss when positives are ranked below negatives;
+- zero loss when no positive or no negative pair exists;
+- batch input;
+- finite loss values.
+
+### Pytest
+
+Command:
+
+```powershell
+python -m pytest tests/test_cascade_from_case_consistency.py tests/test_measured_state_sanity.py tests/test_gcn_physics_features.py tests/test_gcn_probability_mask.py tests/test_gcn_physics_losses.py tests/test_gcn_ranking_loss.py tests/test_online_state_update.py tests/test_gcn_raw_feature_training.py tests/test_pio_topk_measured_consistency.py -q
+```
+
+Result:
+
+```text
+23 passed
+```
+
+### Rank-loss training command
+
+Command:
+
+```powershell
+python src/gcn_search/legacy_rts79/run_pio_gcn_rank_loss_experiment.py --output-dir results/gcn_search/pio_rank_loss_preliminary_3seed --base-experiment-dir results/gcn_search/pio_formal_preliminary_3seed --lambda-rank 0.2 --rank-margin 0.05 --rank-max-pairs 512
+```
+
+The run reused the fifth-round full-truth seeds:
+
+```text
+20260722
+20260723
+20260724
+```
+
+### Rank-loss training metrics
+
+Final validation metrics:
+
+```text
+validation_pr_auc = 0.4402
+mean_predicted_positive_probability = 0.7038
+positive_prediction_rate_at_0.5 = 0.9743
+positive_prediction_rate_at_0.8 = 0.2304
+mean_positive_score = 0.8054
+mean_negative_score = 0.6920
+positive_negative_score_gap = 0.1135
+```
+
+The model still over-predicts positives, but the positive-negative score gap is larger than before.
+
+### Rank-loss comparison result
+
+```text
+physics_ce_mask: found@20/50/100 = 12.3333 / 19.3333 / 23.3333
+physics_loss_mask: found@20/50/100 = 12.0 / 19.0 / 23.3333
+physics_rank_loss_mask: found@20/50/100 = 12.3333 / 19.3333 / 24.0
+LODF_yP: found@20/50/100 = 2.0 / 8.0 / 11.6667
+paper_gcn_path_prob: found@20/50/100 = 5.6667 / 7.0 / 8.0
+oracle: found@20/50/100 = 20.0 / 50.0 / 55.3333
+```
+
+Interpretation:
+
+```text
+Rank-loss improves Top-100 slightly, from 23.3333 to 24.0 found critical paths.
+It does not improve Top-20 or Top-50 in this run.
+```
+
+### Output files
+
+```text
+results/gcn_search/pio_rank_loss_preliminary_3seed/aggregate_topk_summary.csv
+results/gcn_search/pio_rank_loss_preliminary_3seed/aggregate_method_comparison.csv
+results/gcn_search/pio_rank_loss_preliminary_3seed/diagnostics/rank_loss_vs_ce_summary.csv
+results/gcn_search/pio_rank_loss_preliminary_3seed/figures/rank_loss_vs_ce_recall.png
+results/gcn_search/pio_rank_loss_preliminary_3seed/figures/rank_loss_vs_ce_found_after_k.png
+```
+
+### RL modification check
+
+Command:
+
+```powershell
+git diff -- src/rl_mitigation scripts/rl_mitigation
+```
+
+Result:
+
+```text
+empty output
+```
+
+Conclusion: the seventh round did not modify RL mitigation code.

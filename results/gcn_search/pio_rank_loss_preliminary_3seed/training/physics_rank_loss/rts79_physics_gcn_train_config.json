@@ -1,0 +1,18 @@
+{
+  "dataset_npz": "results\\gcn_search\\pio_formal_preliminary_3seed\\training\\physics_dataset\\rts79_step2_state_dataset_physics.npz",
+  "output_dir": "results\\gcn_search\\pio_rank_loss_preliminary_3seed\\training\\physics_rank_loss",
+  "epochs": 5,
+  "batch_size": 16,
+  "learning_rate": 0.005,
+  "lambda_mask": 0.1,
+  "lambda_relay": 0.1,
+  "lambda_monotonic": 0.1,
+  "beta": 1.2,
+  "security_limit": 1.0,
+  "p_min_relay": 0.5,
+  "monotonic_margin": 0.0,
+  "lambda_rank": 0.2,
+  "rank_margin": 0.05,
+  "rank_max_pairs": 512,
+  "random_seed": 20260603
+}
