@@ -61,6 +61,43 @@ artifact self-check: PASS: PIO-GCN artifacts are review-ready.
 
 After the final validation commands pass, this branch is ready to open a review PR for the current PIO-GCN PathRank preliminary milestone.
 
+# Final PR Readiness Check
+
+Purpose: final pre-PR confirmation for `feature/pio-gcn-topk-smoke`. No new algorithm was added, no large experiment was rerun, and no RL mitigation files were modified.
+
+## Git Status
+
+```text
+branch = feature/pio-gcn-topk-smoke
+working tree = clean before final log update
+ahead commits versus main = 9
+RL diff = empty
+```
+
+## Validation Results
+
+```text
+pytest: 24 passed, 300 warnings
+artifact self-check: PASS: PIO-GCN artifacts are review-ready.
+```
+
+## PR Readiness
+
+This branch is ready to open a PR from `feature/pio-gcn-topk-smoke` to `main`.
+
+## Current Final Conclusion
+
+The current PIO-GCN PathRank preliminary milestone supports one cautious conclusion: on the 3-seed RTS-79 full-truth preliminary result, the main observed improvement comes from physics-enhanced features. PIO-GCN PathRank reaches about 42% Top-100 recall, while LODF_yP is about 21% and the weak paper-feature `GCN_path_prob` baseline is about 14%.
+
+## Current Limitations
+
+- RTS-79 only.
+- Only 3 full-truth test seeds.
+- Paper-feature baseline is weak under the current small training setup.
+- JSON measured-state interface only; it is not connected to field SCADA/PMU systems.
+- Candidate mask, original physics loss, and pairwise rank-loss are implemented and measured, but they are not yet decisive contributors.
+- This is a preliminary milestone, not a final paper-scale conclusion.
+
 # PIO-GCN PathRank 验证日志
 
 ## 基本信息
