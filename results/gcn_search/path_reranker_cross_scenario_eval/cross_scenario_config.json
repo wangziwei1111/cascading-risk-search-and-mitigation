@@ -1,0 +1,5 @@
+{
+  "output_dir": "results/gcn_search/path_reranker_cross_scenario_eval",
+  "renewable_eval_dir": "results/gcn_search/path_reranker_renewable_eval",
+  "run_renewable_if_missing": true
+}

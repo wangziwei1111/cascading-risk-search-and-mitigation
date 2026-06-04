@@ -503,3 +503,16 @@ The learned reranker was audited for leakage. No forbidden input feature was fou
 | learned_mlp_reranker_strict | 0.341 | 0.694 | 0.940 | 0.993 |
 
 Feature ablation shows that `score_plus_physical` and `all_safe_features` are strongest. This supports the current result, but more seeds are needed to rule out topology/path-pattern memorization.
+
+## Latest External and Renewable Reranker Validation
+
+The learned path reranker was further checked on three external unseen RTS-79 full-truth seeds and on three synthetic renewable RTS-79 full-truth cases.
+
+| Setting | Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---|---:|---:|---:|---:|
+| External seeds 20260727-20260729 | PIO-GCN PathRank | 0.209 | 0.342 | 0.437 | 0.551 |
+| External seeds 20260727-20260729 | learned_mlp_reranker_external | 0.354 | 0.718 | 0.922 | 0.994 |
+| Synthetic renewable, 0.30 penetration | PIO-GCN PathRank | 0.237 | 0.347 | 0.426 | 0.495 |
+| Synthetic renewable, 0.30 penetration | learned_mlp_reranker_renewable | 0.345 | 0.622 | 0.808 | 0.947 |
+
+Memorization analysis currently rates residual path-pattern risk as medium. No direct label leakage has been found, and external/renewable checks are strong, but the model is still evaluated only on RTS-79 topology. The advisor-reportable conclusion is: path-level supervised reranking is very promising for RTS-79, but it is not yet final grid-general evidence.

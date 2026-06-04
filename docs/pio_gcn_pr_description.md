@@ -18,6 +18,8 @@ The previous GCN search artifacts were spread across smoke runs and intermediate
 - Added pairwise rank-loss implementation and preliminary comparison.
 - Added JSON measured-state interface support for root-case updates.
 - Added compact formal preliminary, ablation, and rank-loss result summaries.
+- Added external unseen-seed and synthetic renewable learned-reranker validation.
+- Added path-pattern memorization risk analysis.
 - Removed old smoke/full-truth/detail artifacts from Git tracking while keeping local files.
 - Added artifact self-check script for PR review.
 
@@ -83,6 +85,8 @@ results/gcn_search/tracked_large_files_removed_round8.txt
 - The stronger paper-feature baseline was only trained with 6 completed scenarios because the 20-scenario attempt exceeded the interactive runtime budget.
 - The stronger paper-feature baseline v2 was requested for 10 scenarios but completed 7 before the interactive timeout.
 - The synthetic renewable perturbation full-truth preliminary run is completed for 3 seeds at 0.30 penetration ratio, but it is still only a synthetic RTS-79 perturbation.
+- The learned path reranker has external-seed and synthetic-renewable validation, but all current cases still share RTS-79 topology.
+- Memorization risk is not zero; fixed-topology path-pattern learning remains a medium residual risk.
 - The measured-state pathway is a JSON measured-state interface only; it is not connected to field SCADA/PMU systems.
 - Original physics loss and pairwise rank-loss are implemented and measured, but they are not yet decisive contributors.
 - This is a 3-seed RTS-79 full-truth preliminary result, not a final paper-scale claim.
@@ -121,6 +125,17 @@ The simple score-level ensemble is feasible but not decisive. The hard-negative-
 | learned_mlp_reranker | 0.333 | 0.698 | 0.944 | 0.997 |
 
 The learned path reranker is the strongest current result and exceeds the requested Top-100/Top-200 targets. It is still a 5-seed RTS-79 preliminary result and should not be described as final evidence.
+
+## External and Synthetic Renewable Learned-Reranker Validation
+
+| Setting | Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---|---:|---:|---:|---:|
+| External seeds 20260727-20260729 | PIO-GCN PathRank | 0.209 | 0.342 | 0.437 | 0.551 |
+| External seeds 20260727-20260729 | learned_mlp_reranker_external | 0.354 | 0.718 | 0.922 | 0.994 |
+| Synthetic renewable, 0.30 penetration | PIO-GCN PathRank | 0.237 | 0.347 | 0.426 | 0.495 |
+| Synthetic renewable, 0.30 penetration | learned_mlp_reranker_renewable | 0.345 | 0.622 | 0.808 | 0.947 |
+
+Path-pattern memorization analysis was added. It finds medium residual risk: no direct leakage was found, but all current learned-reranker tests still share RTS-79 topology.
 
 ## Leakage Audit and Strict Held-Out Validation
 

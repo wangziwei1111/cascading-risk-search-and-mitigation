@@ -1,0 +1,29 @@
+﻿setting,method,top_k,num_test_seeds,mean_found,std_found,mean_recall,std_recall,notes
+standard_train_to_synthetic_renewable_test,PIO_GCN,20,3,13.0,1.4142135623730951,0.2372593105038626,0.0104145171511043,PIO-GCN PathRank on synthetic renewable cases
+standard_train_to_synthetic_renewable_test,PIO_GCN,50,3,19.0,2.160246899469287,0.3465352242591952,0.0141540288024141,PIO-GCN PathRank on synthetic renewable cases
+standard_train_to_synthetic_renewable_test,PIO_GCN,100,3,23.33333333333333,2.494438257849294,0.425804219993082,0.0134175140380885,PIO-GCN PathRank on synthetic renewable cases
+standard_train_to_synthetic_renewable_test,PIO_GCN,200,3,27.0,1.632993161855452,0.4946241208347746,0.0116636050111032,PIO-GCN PathRank on synthetic renewable cases
+standard_train_to_synthetic_renewable_test,paper_GCN_path_prob_strong,20,3,12.666666666666666,1.247219128924647,0.2316095929897382,0.0131139268049303,strong paper-style GCN baseline on synthetic renewable cases
+standard_train_to_synthetic_renewable_test,paper_GCN_path_prob_strong,50,3,16.666666666666668,0.9428090415820634,0.3057765479072985,0.0166703743313066,strong paper-style GCN baseline on synthetic renewable cases
+standard_train_to_synthetic_renewable_test,paper_GCN_path_prob_strong,100,3,20.666666666666668,1.247219128924647,0.3785454859910066,0.0065693700362712,strong paper-style GCN baseline on synthetic renewable cases
+standard_train_to_synthetic_renewable_test,paper_GCN_path_prob_strong,200,3,25.0,2.8284271247461903,0.4561138014527845,0.0218966068373921,strong paper-style GCN baseline on synthetic renewable cases
+standard_train_to_synthetic_renewable_test,LODF_yP,20,3,14.333333333333334,1.247219128924647,0.2621641877089819,0.0089301038658777,LODF-yP baseline on synthetic renewable cases
+standard_train_to_synthetic_renewable_test,LODF_yP,50,3,32.0,2.160246899469287,0.5857978784734232,0.0068164175388442,LODF-yP baseline on synthetic renewable cases
+standard_train_to_synthetic_renewable_test,LODF_yP,100,3,39.333333333333336,2.357022603955158,0.7205839963103885,0.0181803954117658,LODF-yP baseline on synthetic renewable cases
+standard_train_to_synthetic_renewable_test,LODF_yP,200,3,43.333333333333336,4.642796092394707,0.7907442638072179,0.0255305770760439,LODF-yP baseline on synthetic renewable cases
+standard_train_to_synthetic_renewable_test,rerank_physical_stress,20,3,19.0,0.816496580927726,0.3485385679695607,0.0133001005151536,hand-crafted physical-stress rerank baseline
+standard_train_to_synthetic_renewable_test,rerank_physical_stress,50,3,24.666666666666668,1.247219128924647,0.452164764210769,0.0124027127902728,hand-crafted physical-stress rerank baseline
+standard_train_to_synthetic_renewable_test,rerank_physical_stress,100,3,28.0,2.160246899469287,0.5127262769514586,0.0217292330004441,hand-crafted physical-stress rerank baseline
+standard_train_to_synthetic_renewable_test,rerank_physical_stress,200,3,30.33333333333333,3.2998316455372216,0.5534849533033553,0.0186402851226287,hand-crafted physical-stress rerank baseline
+standard_train_to_synthetic_renewable_test,oracle,20,3,20.0,0.0,0.3680963910988124,0.0292854963845007,upper bound using full truth labels
+standard_train_to_synthetic_renewable_test,oracle,50,3,49.66666666666666,0.4714045207910317,0.9134382566585956,0.0639530065232793,upper bound using full truth labels
+standard_train_to_synthetic_renewable_test,oracle,100,3,54.66666666666666,4.189935029992179,1.0,0.0,upper bound using full truth labels
+standard_train_to_synthetic_renewable_test,oracle,200,3,54.66666666666666,4.189935029992179,1.0,0.0,upper bound using full truth labels
+standard_train_to_synthetic_renewable_test,learned_logistic_reranker_renewable,20,3,16.333333333333332,0.9428090415820634,0.2992764902571198,0.0079463457584321,"trained on standard RTS-79 seeds, tested on synthetic renewable perturbation"
+standard_train_to_synthetic_renewable_test,learned_logistic_reranker_renewable,50,3,31.666666666666668,0.4714045207910317,0.5821515046696645,0.0376285679791696,"trained on standard RTS-79 seeds, tested on synthetic renewable perturbation"
+standard_train_to_synthetic_renewable_test,learned_logistic_reranker_renewable,100,3,43.0,3.559026084010437,0.7862475498674045,0.0123664840564889,"trained on standard RTS-79 seeds, tested on synthetic renewable perturbation"
+standard_train_to_synthetic_renewable_test,learned_logistic_reranker_renewable,200,3,50.333333333333336,2.494438257849294,0.9227343479764788,0.0262667351585653,"trained on standard RTS-79 seeds, tested on synthetic renewable perturbation"
+standard_train_to_synthetic_renewable_test,learned_mlp_reranker_renewable,20,3,20.0,0.0,0.3680963910988124,0.0292854963845007,"trained on standard RTS-79 seeds, tested on synthetic renewable perturbation"
+standard_train_to_synthetic_renewable_test,learned_mlp_reranker_renewable,50,3,37.333333333333336,1.247219128924647,0.6854750374726161,0.0348031949231375,"trained on standard RTS-79 seeds, tested on synthetic renewable perturbation"
+standard_train_to_synthetic_renewable_test,learned_mlp_reranker_renewable,100,3,44.333333333333336,2.357022603955158,0.8126080940850917,0.0241205550648809,"trained on standard RTS-79 seeds, tested on synthetic renewable perturbation"
+standard_train_to_synthetic_renewable_test,learned_mlp_reranker_renewable,200,3,51.333333333333336,3.39934634239519,0.940533840654906,0.0359299159938315,"trained on standard RTS-79 seeds, tested on synthetic renewable perturbation"

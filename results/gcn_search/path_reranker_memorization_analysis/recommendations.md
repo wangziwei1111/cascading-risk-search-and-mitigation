@@ -1,0 +1,17 @@
+# Path Pattern Memorization Recommendations
+
+- Treat learned path reranker results as preliminary until evaluated on more unseen load/renewable scenarios.
+- Report external-seed and synthetic-renewable results together with standard RTS-79 results.
+- Avoid claiming final proof or production readiness.
+- Prefer feature groups without direct line identity if future tests show severe topology memorization.
+
+Current risk summary:
+
+|item|value|interpretation|risk_level|
+|---|---|---|---|
+|training_dataset_path_pattern_concentration|0.17667844522968199|fraction of critical labels covered by the ten most frequent critical line pairs|low|
+|repeated_positive_patterns|54|line pairs repeatedly critical across at least three training seeds|medium|
+|strict_heldout_summary_available|1|results\gcn_search\path_reranker_strict_heldout_eval\strict_heldout_method_comparison.csv|info|
+|external_summary_available|1|results\gcn_search\path_reranker_extended_strict_eval\extended_strict_method_comparison.csv|info|
+|renewable_summary_available|1|results\gcn_search\path_reranker_renewable_eval\renewable_path_reranker_method_comparison.csv|info|
+|overall_memorization_risk|medium|No direct label leakage was found earlier, but fixed RTS-79 topology can still allow path-pattern learning; external and renewable tests are needed before stronger claims.|medium|

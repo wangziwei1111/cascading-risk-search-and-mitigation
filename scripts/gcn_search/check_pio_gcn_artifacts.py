@@ -24,6 +24,8 @@ REQUIRED_FILES = [
     "docs/pio_gcn_path_reranker.md",
     "docs/pio_gcn_hard_negative_analysis.md",
     "docs/pio_gcn_path_reranker_leakage_audit.md",
+    "docs/pio_gcn_path_reranker_external_validation.md",
+    "docs/pio_gcn_path_pattern_memorization.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/pio_formal_preliminary_3seed/config.json",
     "results/gcn_search/pio_formal_preliminary_3seed/aggregate_method_comparison.csv",
@@ -62,6 +64,11 @@ REQUIRED_FILES = [
     "results/gcn_search/path_reranker_strict_heldout_eval/strict_heldout_method_comparison.csv",
     "results/gcn_search/path_reranker_strict_heldout_eval/strict_heldout_feature_columns.json",
     "results/gcn_search/path_reranker_feature_ablation/feature_ablation_summary.csv",
+    "results/gcn_search/path_reranker_extended_strict_eval/extended_strict_method_comparison.csv",
+    "results/gcn_search/path_reranker_renewable_eval/renewable_path_reranker_method_comparison.csv",
+    "results/gcn_search/path_reranker_cross_scenario_eval/cross_scenario_method_comparison.csv",
+    "results/gcn_search/path_reranker_memorization_analysis/memorization_risk_summary.csv",
+    "results/gcn_search/path_reranker_robust_ablation/robust_feature_ablation_summary.csv",
 ]
 
 
@@ -85,6 +92,11 @@ SUMMARY_FILES = [
     "results/gcn_search/path_reranker_leakage_audit/leakage_audit_summary.csv",
     "results/gcn_search/path_reranker_strict_heldout_eval/strict_heldout_method_comparison.csv",
     "results/gcn_search/path_reranker_feature_ablation/feature_ablation_summary.csv",
+    "results/gcn_search/path_reranker_extended_strict_eval/extended_strict_method_comparison.csv",
+    "results/gcn_search/path_reranker_renewable_eval/renewable_path_reranker_method_comparison.csv",
+    "results/gcn_search/path_reranker_cross_scenario_eval/cross_scenario_method_comparison.csv",
+    "results/gcn_search/path_reranker_memorization_analysis/memorization_risk_summary.csv",
+    "results/gcn_search/path_reranker_robust_ablation/robust_feature_ablation_summary.csv",
 ]
 
 
@@ -180,6 +192,9 @@ def main() -> int:
         "docs/gcn_current_progress.md",
         "docs/pio_gcn_path_reranker.md",
         "docs/pio_gcn_path_reranker_leakage_audit.md",
+        "docs/pio_gcn_path_reranker_external_validation.md",
+        "docs/pio_gcn_path_pattern_memorization.md",
+        "docs/pio_gcn_renewable_preliminary.md",
     ]:
         if (ROOT / rel_doc).exists():
             text = _read_text(rel_doc).lower()

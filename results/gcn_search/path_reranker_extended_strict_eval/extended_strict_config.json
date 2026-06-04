@@ -1,0 +1,15 @@
+{
+  "output_dir": "results/gcn_search/path_reranker_extended_strict_eval",
+  "dataset_dir": "results/gcn_search/path_reranker_dataset",
+  "external_seed_start": 20260727,
+  "external_num_seeds": 3,
+  "top_k": [
+    20,
+    50,
+    100,
+    200
+  ],
+  "train_epochs": 80,
+  "beta": 1.2,
+  "security_limit": 1.0
+}

@@ -479,7 +479,7 @@ experiment_script = src/gcn_search/legacy_rts79/run_pio_gcn_renewable_preliminar
 test = tests/test_renewable_scenarios.py
 ```
 
-This is a synthetic renewable perturbation on RTS-79 only. It is not a real renewable grid model, not EMT simulation, and not dynamic simulation. The renewable full-truth experiment was not run in this round because the extended 5-seed full-truth experiment was prioritized.
+This is a synthetic renewable perturbation on RTS-79 only. It is not a real renewable grid model, not EMT simulation, and not dynamic simulation. A later path-reranker addendum completed a synthetic renewable learned-reranker full-truth check, so this earlier note should be read as historical context for that round only.
 
 ## Extended 5-Seed Result Summary
 
@@ -1753,3 +1753,68 @@ artifact self-check: PASS: PIO-GCN artifacts are review-ready.
 ## Stage Score Suggestion
 
 Current stage is suitable for a preliminary advisor update and PR review. It is not yet suitable for final paper performance claims.
+
+# Path Reranker External Validation Addendum
+
+Purpose: verify whether the learned path reranker generalizes beyond the original five RTS-79 training seeds and whether the current high performance may be explained by direct leakage or path-pattern memorization.
+
+## New Scripts
+
+```text
+src/gcn_search/legacy_rts79/run_path_reranker_extended_strict_eval.py
+src/gcn_search/legacy_rts79/evaluate_path_reranker_renewable.py
+src/gcn_search/legacy_rts79/run_path_reranker_cross_scenario_eval.py
+src/gcn_search/legacy_rts79/analyze_path_pattern_memorization.py
+```
+
+## Commands Run
+
+```powershell
+$env:PYTHONHOME='E:\'; python src/gcn_search/legacy_rts79/run_path_reranker_extended_strict_eval.py --output-dir results/gcn_search/path_reranker_extended_strict_eval --external-seed-start 20260727 --external-num-seeds 3 --top-k 20 50 100 200
+$env:PYTHONHOME='E:\'; python src/gcn_search/legacy_rts79/evaluate_path_reranker_renewable.py --output-dir results/gcn_search/path_reranker_renewable_eval --test-seed-start 20260722 --test-num-seeds 3 --renewable-penetration-ratio 0.30 --top-k 20 50 100 200
+$env:PYTHONHOME='E:\'; python src/gcn_search/legacy_rts79/run_path_reranker_cross_scenario_eval.py --output-dir results/gcn_search/path_reranker_cross_scenario_eval --renewable-eval-dir results/gcn_search/path_reranker_renewable_eval
+$env:PYTHONHOME='E:\'; python src/gcn_search/legacy_rts79/analyze_path_pattern_memorization.py --output-dir results/gcn_search/path_reranker_memorization_analysis
+$env:PYTHONHOME='E:\'; python src/gcn_search/legacy_rts79/run_path_reranker_feature_ablation.py --output-dir results/gcn_search/path_reranker_robust_ablation --epochs 80
+```
+
+## External Unseen-Seed Result
+
+External full-truth test seeds: 20260727, 20260728, 20260729.
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| PIO-GCN PathRank | 0.209 | 0.342 | 0.437 | 0.551 |
+| LODF_yP | 0.318 | 0.569 | 0.666 | 0.886 |
+| learned_logistic_reranker_external | 0.330 | 0.611 | 0.788 | 0.970 |
+| learned_mlp_reranker_external | 0.354 | 0.718 | 0.922 | 0.994 |
+
+## Synthetic Renewable Learned-Reranker Result
+
+Synthetic renewable penetration ratio: 0.30. This is not a real renewable dynamic model.
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| PIO-GCN PathRank | 0.237 | 0.347 | 0.426 | 0.495 |
+| LODF_yP | 0.262 | 0.586 | 0.721 | 0.791 |
+| learned_logistic_reranker_renewable | 0.287 | 0.564 | 0.786 | 0.922 |
+| learned_mlp_reranker_renewable | 0.345 | 0.622 | 0.813 | 0.947 |
+
+## Memorization Risk
+
+Output:
+
+```text
+results/gcn_search/path_reranker_memorization_analysis/memorization_risk_summary.csv
+```
+
+Current risk level: medium. No direct leakage was found in the previous audit, but all current learned-reranker validation still uses RTS-79 topology, so fixed path-pattern learning remains a residual risk.
+
+## RL Status
+
+Command:
+
+```powershell
+git diff -- src/rl_mitigation scripts/rl_mitigation
+```
+
+Result: empty output. RL mitigation code was not modified.

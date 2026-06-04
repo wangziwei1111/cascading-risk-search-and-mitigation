@@ -35,6 +35,11 @@ def test_pio_gcn_key_modules_import() -> None:
         "mine_hard_negative_paths",
         "audit_path_reranker_leakage",
         "evaluate_path_reranker_strict_heldout",
+        "path_reranker_eval_utils",
+        "run_path_reranker_extended_strict_eval",
+        "evaluate_path_reranker_renewable",
+        "run_path_reranker_cross_scenario_eval",
+        "analyze_path_pattern_memorization",
         "run_path_reranker_feature_ablation",
         "analyze_pio_gcn_loss_diagnostics",
     ]

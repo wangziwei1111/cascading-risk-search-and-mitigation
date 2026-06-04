@@ -189,3 +189,18 @@ No forbidden label feature was found in the learned path reranker input columns.
 | learned_mlp_reranker_strict | 0.940 | 0.993 |
 
 The result remains credible as a preliminary RTS-79 finding, but not as final evidence. The remaining caveat is possible topology/path-pattern memorization because the same RTS-79 ordered path labels appear across operating-condition seeds.
+
+## External and Synthetic Renewable Learned-Reranker Validation
+
+Additional validation was added to check whether the learned path reranker only fits the original five RTS-79 seeds.
+
+| Setting | Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---|---:|---:|---:|---:|
+| External seeds 20260727-20260729 | PIO-GCN PathRank | 0.209 | 0.342 | 0.437 | 0.551 |
+| External seeds 20260727-20260729 | learned_mlp_reranker_external | 0.354 | 0.718 | 0.922 | 0.994 |
+| Synthetic renewable, 0.30 penetration | PIO-GCN PathRank | 0.237 | 0.347 | 0.426 | 0.495 |
+| Synthetic renewable, 0.30 penetration | learned_mlp_reranker_renewable | 0.345 | 0.622 | 0.808 | 0.947 |
+
+The learned reranker remains strong on both checks. This is encouraging, but the conservative statement remains: the result is an RTS-79 preliminary result, because all cases share the same benchmark topology.
+
+Path-pattern memorization analysis finds medium residual risk: no direct leakage was found, but fixed-topology line-pair patterns may still contribute. The next step should test more operating scenarios and at least one additional benchmark grid.

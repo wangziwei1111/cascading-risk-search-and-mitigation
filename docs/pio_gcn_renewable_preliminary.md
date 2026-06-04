@@ -84,3 +84,16 @@ The test checks reproducibility, finite values, penetration-ratio recording, and
 ## Current Limitation
 
 This is still a synthetic renewable perturbation on RTS-79 only. It should not be reported as a real renewable power-system conclusion, a dynamic stability result, or field-measurement validation.
+# Learned Path Reranker on Synthetic Renewable Cases
+
+The synthetic renewable learned-reranker evaluation is now complete for three RTS-79 full-truth seeds at renewable penetration ratio 0.30.
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| PIO-GCN PathRank | 0.237 | 0.347 | 0.426 | 0.495 |
+| paper_GCN_path_prob_strong | 0.232 | 0.306 | 0.379 | 0.456 |
+| LODF_yP | 0.262 | 0.586 | 0.721 | 0.791 |
+| learned_logistic_reranker_renewable | 0.287 | 0.564 | 0.811 | 0.922 |
+| learned_mlp_reranker_renewable | 0.345 | 0.622 | 0.808 | 0.947 |
+
+This is only a synthetic renewable robustness check on RTS-79. It does not imply a real renewable dynamic model or field SCADA/PMU integration.

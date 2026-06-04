@@ -43,6 +43,17 @@ FEATURE_GROUPS = {
     ],
 }
 FEATURE_GROUPS["all_safe_features"] = sorted(set(sum(FEATURE_GROUPS.values(), []) + ["ensemble_score_alpha_0_75", "candidate_position_min_rank"]))
+FEATURE_GROUPS["no_line_identity_features"] = FEATURE_GROUPS["all_safe_features"]
+FEATURE_GROUPS["no_rank_features"] = [
+    feature
+    for feature in FEATURE_GROUPS["all_safe_features"]
+    if feature not in {"rank_in_pio", "rank_in_paper", "rank_in_lodf", "candidate_position_min_rank"}
+]
+FEATURE_GROUPS["no_lodf_score"] = [
+    feature
+    for feature in FEATURE_GROUPS["all_safe_features"]
+    if feature not in {"lodf_score", "rank_in_lodf"}
+]
 
 
 @dataclass(frozen=True)
@@ -90,7 +101,12 @@ def run_feature_ablation(config: FeatureAblationConfig) -> dict:
     )
     per_seed.to_csv(out / "feature_ablation_method_comparison.csv", index=False, encoding="utf-8-sig")
     summary.to_csv(out / "feature_ablation_summary.csv", index=False, encoding="utf-8-sig")
+    if "robust" in str(out).lower():
+        per_seed.to_csv(out / "robust_feature_ablation_method_comparison.csv", index=False, encoding="utf-8-sig")
+        summary.to_csv(out / "robust_feature_ablation_summary.csv", index=False, encoding="utf-8-sig")
     _plot(summary, out / "figures" / "feature_ablation_recall_bar.png")
+    if "robust" in str(out).lower():
+        _plot(summary, out / "figures" / "robust_feature_ablation_recall_bar.png")
     return {"output_dir": str(out)}
 
 

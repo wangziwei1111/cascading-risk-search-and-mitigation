@@ -1,0 +1,85 @@
+﻿seed,method,top_k,critical_found,critical_path_recall,notes
+20260727,PIO_GCN,20,13,0.21666666666666667,PIO-GCN PathRank baseline on external unseen seeds
+20260727,PIO_GCN,50,20,0.3333333333333333,PIO-GCN PathRank baseline on external unseen seeds
+20260727,PIO_GCN,100,26,0.43333333333333335,PIO-GCN PathRank baseline on external unseen seeds
+20260727,PIO_GCN,200,32,0.5333333333333333,PIO-GCN PathRank baseline on external unseen seeds
+20260727,paper_GCN_path_prob_strong,20,12,0.2,strong paper-style GCN baseline
+20260727,paper_GCN_path_prob_strong,50,17,0.2833333333333333,strong paper-style GCN baseline
+20260727,paper_GCN_path_prob_strong,100,24,0.4,strong paper-style GCN baseline
+20260727,paper_GCN_path_prob_strong,200,36,0.6,strong paper-style GCN baseline
+20260727,LODF_yP,20,18,0.3,physical LODF-yP baseline
+20260727,LODF_yP,50,33,0.55,physical LODF-yP baseline
+20260727,LODF_yP,100,37,0.6166666666666667,physical LODF-yP baseline
+20260727,LODF_yP,200,60,1.0,physical LODF-yP baseline
+20260727,rerank_physical_stress,20,16,0.26666666666666666,hand-crafted physical-stress rerank baseline
+20260727,rerank_physical_stress,50,30,0.5,hand-crafted physical-stress rerank baseline
+20260727,rerank_physical_stress,100,38,0.6333333333333333,hand-crafted physical-stress rerank baseline
+20260727,rerank_physical_stress,200,42,0.7,hand-crafted physical-stress rerank baseline
+20260727,oracle,20,20,0.3333333333333333,upper bound using full truth labels
+20260727,oracle,50,50,0.8333333333333334,upper bound using full truth labels
+20260727,oracle,100,60,1.0,upper bound using full truth labels
+20260727,oracle,200,60,1.0,upper bound using full truth labels
+20260727,learned_logistic_reranker_external,20,18,0.3,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260727,learned_logistic_reranker_external,50,36,0.6,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260727,learned_logistic_reranker_external,100,50,0.8333333333333334,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260727,learned_logistic_reranker_external,200,58,0.9666666666666667,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260727,learned_mlp_reranker_external,20,20,0.3333333333333333,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260727,learned_mlp_reranker_external,50,44,0.7333333333333333,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260727,learned_mlp_reranker_external,100,55,0.9166666666666666,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260727,learned_mlp_reranker_external,200,59,0.9833333333333333,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260728,PIO_GCN,20,12,0.21818181818181817,PIO-GCN PathRank baseline on external unseen seeds
+20260728,PIO_GCN,50,19,0.34545454545454546,PIO-GCN PathRank baseline on external unseen seeds
+20260728,PIO_GCN,100,26,0.4727272727272727,PIO-GCN PathRank baseline on external unseen seeds
+20260728,PIO_GCN,200,33,0.6,PIO-GCN PathRank baseline on external unseen seeds
+20260728,paper_GCN_path_prob_strong,20,11,0.2,strong paper-style GCN baseline
+20260728,paper_GCN_path_prob_strong,50,14,0.2545454545454545,strong paper-style GCN baseline
+20260728,paper_GCN_path_prob_strong,100,19,0.34545454545454546,strong paper-style GCN baseline
+20260728,paper_GCN_path_prob_strong,200,32,0.5818181818181818,strong paper-style GCN baseline
+20260728,LODF_yP,20,19,0.34545454545454546,physical LODF-yP baseline
+20260728,LODF_yP,50,35,0.6363636363636364,physical LODF-yP baseline
+20260728,LODF_yP,100,41,0.7454545454545455,physical LODF-yP baseline
+20260728,LODF_yP,200,50,0.9090909090909091,physical LODF-yP baseline
+20260728,rerank_physical_stress,20,18,0.32727272727272727,hand-crafted physical-stress rerank baseline
+20260728,rerank_physical_stress,50,29,0.5272727272727272,hand-crafted physical-stress rerank baseline
+20260728,rerank_physical_stress,100,37,0.6727272727272727,hand-crafted physical-stress rerank baseline
+20260728,rerank_physical_stress,200,41,0.7454545454545455,hand-crafted physical-stress rerank baseline
+20260728,oracle,20,20,0.36363636363636365,upper bound using full truth labels
+20260728,oracle,50,50,0.9090909090909091,upper bound using full truth labels
+20260728,oracle,100,55,1.0,upper bound using full truth labels
+20260728,oracle,200,55,1.0,upper bound using full truth labels
+20260728,learned_logistic_reranker_external,20,20,0.36363636363636365,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260728,learned_logistic_reranker_external,50,35,0.6363636363636364,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260728,learned_logistic_reranker_external,100,43,0.7818181818181819,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260728,learned_logistic_reranker_external,200,54,0.9818181818181818,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260728,learned_mlp_reranker_external,20,20,0.36363636363636365,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260728,learned_mlp_reranker_external,50,40,0.7272727272727273,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260728,learned_mlp_reranker_external,100,52,0.9454545454545454,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260728,learned_mlp_reranker_external,200,55,1.0,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260729,PIO_GCN,20,10,0.19230769230769232,PIO-GCN PathRank baseline on external unseen seeds
+20260729,PIO_GCN,50,18,0.34615384615384615,PIO-GCN PathRank baseline on external unseen seeds
+20260729,PIO_GCN,100,21,0.40384615384615385,PIO-GCN PathRank baseline on external unseen seeds
+20260729,PIO_GCN,200,27,0.5192307692307693,PIO-GCN PathRank baseline on external unseen seeds
+20260729,paper_GCN_path_prob_strong,20,10,0.19230769230769232,strong paper-style GCN baseline
+20260729,paper_GCN_path_prob_strong,50,12,0.23076923076923078,strong paper-style GCN baseline
+20260729,paper_GCN_path_prob_strong,100,15,0.28846153846153844,strong paper-style GCN baseline
+20260729,paper_GCN_path_prob_strong,200,30,0.5769230769230769,strong paper-style GCN baseline
+20260729,LODF_yP,20,16,0.3076923076923077,physical LODF-yP baseline
+20260729,LODF_yP,50,27,0.5192307692307693,physical LODF-yP baseline
+20260729,LODF_yP,100,33,0.6346153846153846,physical LODF-yP baseline
+20260729,LODF_yP,200,39,0.75,physical LODF-yP baseline
+20260729,rerank_physical_stress,20,18,0.34615384615384615,hand-crafted physical-stress rerank baseline
+20260729,rerank_physical_stress,50,25,0.4807692307692308,hand-crafted physical-stress rerank baseline
+20260729,rerank_physical_stress,100,30,0.5769230769230769,hand-crafted physical-stress rerank baseline
+20260729,rerank_physical_stress,200,35,0.6730769230769231,hand-crafted physical-stress rerank baseline
+20260729,oracle,20,20,0.38461538461538464,upper bound using full truth labels
+20260729,oracle,50,50,0.9615384615384616,upper bound using full truth labels
+20260729,oracle,100,52,1.0,upper bound using full truth labels
+20260729,oracle,200,52,1.0,upper bound using full truth labels
+20260729,learned_logistic_reranker_external,20,17,0.3269230769230769,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260729,learned_logistic_reranker_external,50,31,0.5961538461538461,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260729,learned_logistic_reranker_external,100,39,0.75,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260729,learned_logistic_reranker_external,200,50,0.9615384615384616,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260729,learned_mlp_reranker_external,20,19,0.36538461538461536,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260729,learned_mlp_reranker_external,50,36,0.6923076923076923,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260729,learned_mlp_reranker_external,100,47,0.9038461538461539,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"
+20260729,learned_mlp_reranker_external,200,52,1.0,"trained on seeds 20260722-20260726, evaluated on unseen external seeds"

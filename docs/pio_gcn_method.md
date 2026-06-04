@@ -367,3 +367,18 @@ The synthetic renewable perturbation experiment is now completed for 3 full-trut
 The latest improvement check adds score-level ensemble ranking and hard-negative-aware rerank. Simple ensemble is feasible but not decisive. The hard-negative-aware rerank uses PIO score, LODF score, loading stress, and relay risk to reorder the top 300 PIO candidates, and it currently provides the clearest Top-100/Top-200 improvement in the 5-seed RTS-79 preliminary result.
 
 The learned path reranker goes one step further by training directly on ordered path-level samples. In the current leave-one-seed-out RTS-79 preliminary result, the MLP reranker reaches recall@100 about 0.944 and recall@200 about 0.997. This is the strongest current result, but it still needs more operating-condition seeds and renewable per-path evaluation before being treated as a robust conclusion.
+## Learned Path-Level Reranker Addendum
+
+After PIO-GCN PathRank produces ordered N-2 path scores, a lightweight path-level reranker can be trained on compact features from full-truth RTS-79 seeds. This does not replace the original `GCN_path_prob`; it is an additional post-ranking validation path.
+
+Path-level features include PIO-GCN score, paper-GCN score, LODF score, rank features, line loading ratios, relay/security margins, and first-outage stress. The current learned reranker is evaluated as a preliminary RTS-79 result only.
+
+External unseen-seed validation and synthetic renewable validation are available:
+
+```text
+results/gcn_search/path_reranker_extended_strict_eval/
+results/gcn_search/path_reranker_renewable_eval/
+results/gcn_search/path_reranker_memorization_analysis/
+```
+
+Current interpretation: learned path-level supervision is promising, but RTS-79 fixed-topology path-pattern memorization remains a medium residual risk. The result should not be used as final grid-general evidence.

@@ -29,3 +29,8 @@ The next research step should not simply add more hand-written weights. It shoul
 ## Leakage Audit Context
 
 The leakage audit did not find forbidden label features in the learned reranker inputs. However, feature ablation shows that score-derived features are already very strong, and combining score plus physical features gives near-oracle recall on the current 5-seed RTS-79 dataset. This means the remaining concern is not direct label leakage, but limited topology/operating-condition diversity.
+# Learned Reranker Follow-Up
+
+The hard-negative-aware hand-written rerank was followed by a learned path reranker. External unseen-seed and synthetic renewable checks both show that learned path-level features can recover many critical paths that simple PIO-GCN PathRank misses.
+
+Current caveat: the strongest learned reranker result may still benefit from repeated RTS-79 path patterns. The memorization-risk analysis therefore rates residual risk as medium, not zero.

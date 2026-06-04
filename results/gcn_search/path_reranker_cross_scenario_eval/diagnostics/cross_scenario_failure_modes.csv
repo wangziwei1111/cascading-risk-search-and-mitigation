@@ -1,0 +1,4 @@
+﻿setting,seed,pio_recall_at_100,learned_mlp_recall_at_100,learned_minus_pio_at_100,failure_mode
+standard_train_to_synthetic_renewable_test,20260722,0.4406779661016949,0.7796610169491526,0.33898305084745767,learned not worse than PIO
+standard_train_to_synthetic_renewable_test,20260723,0.4081632653061224,0.8367346938775511,0.42857142857142866,learned not worse than PIO
+standard_train_to_synthetic_renewable_test,20260724,0.4285714285714285,0.8214285714285714,0.3928571428571429,learned not worse than PIO
