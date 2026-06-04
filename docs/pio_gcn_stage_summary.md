@@ -158,3 +158,15 @@ The 5-seed full-truth extension and the stronger paper-feature baseline show an 
 | paper_GCN_path_prob_strong_v2 | 0.330 | 0.565 |
 
 PIO-GCN PathRank is better for shallow Top-K screening, while the stronger paper-feature baseline can overtake at Top-200. This should be reported honestly.
+
+## Latest Ensemble and Rerank Result
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| PIO-GCN PathRank | 0.211 | 0.338 | 0.423 | 0.521 |
+| paper_GCN_path_prob_strong | 0.176 | 0.254 | 0.350 | 0.568 |
+| ensemble_alpha_0.75 | 0.200 | 0.345 | 0.444 | 0.549 |
+| rerank_balanced | 0.289 | 0.410 | 0.521 | 0.576 |
+| rerank_physical_stress | 0.280 | 0.439 | 0.532 | 0.587 |
+
+The simple score-level ensemble is feasible but not decisive. The hard-negative-aware rerank is the clearest improvement in this round because it raises Top-100 and Top-200 simultaneously. This remains a preliminary RTS-79 result.

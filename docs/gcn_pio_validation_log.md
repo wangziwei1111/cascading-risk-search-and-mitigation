@@ -1,3 +1,100 @@
+## Performance Improvement Round: Ensemble, Rerank, Renewable Full-Truth
+
+Purpose: address the Top-K depth tradeoff by evaluating score-level ensemble ranking and hard-negative-aware rerank, while keeping the synthetic renewable full-truth preliminary and strong paper baseline v2 results documented. No RL mitigation files were modified and the original `GCN_path_prob` method remains preserved.
+
+### Top-K depth tradeoff
+
+The 5-seed RTS-79 full-truth result shows:
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| PIO-GCN PathRank | 0.211 | 0.338 | 0.423 | 0.521 |
+| paper_GCN_path_prob_strong | 0.176 | 0.254 | 0.350 | 0.568 |
+| paper_GCN_path_prob_strong_v2 | 0.176 | 0.244 | 0.330 | 0.565 |
+| LODF_yP | 0.036 | 0.134 | 0.207 | 0.329 |
+
+Conclusion: PIO-GCN is stronger at Top-20/50/100, but strong paper baseline can overtake at Top-200.
+
+### Score-level ensemble
+
+Completed:
+
+```text
+script = src/gcn_search/legacy_rts79/evaluate_pio_gcn_ensemble_ranking.py
+output_dir = results/gcn_search/pio_ensemble_preliminary
+alphas = 0.25, 0.50, 0.75
+seeds = 5
+full_truth = reused from pio_extended_fulltruth_5seed
+```
+
+Key results:
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| PIO-GCN PathRank | 0.211 | 0.338 | 0.423 | 0.521 |
+| paper_GCN_path_prob_strong | 0.176 | 0.254 | 0.350 | 0.568 |
+| ensemble_alpha_0.25 | 0.172 | 0.285 | 0.392 | 0.574 |
+| ensemble_alpha_0.50 | 0.187 | 0.319 | 0.426 | 0.567 |
+| ensemble_alpha_0.75 | 0.200 | 0.345 | 0.444 | 0.549 |
+
+Conclusion: ensemble is feasible and uses regenerated PIO/paper path scores. It improves Top-100 for alpha=0.75, but it is not a decisive Top-200 solution.
+
+### Hard-negative-aware rerank
+
+Completed:
+
+```text
+script = src/gcn_search/legacy_rts79/evaluate_pio_gcn_hard_negative_rerank.py
+output_dir = results/gcn_search/pio_rerank_preliminary
+rerank_pool_size = 300
+seeds = 5
+full_truth = reused from pio_extended_fulltruth_5seed
+```
+
+Key results:
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| PIO-GCN PathRank | 0.211 | 0.338 | 0.423 | 0.521 |
+| paper_GCN_path_prob_strong | 0.176 | 0.254 | 0.350 | 0.568 |
+| rerank_pio_dominant | 0.258 | 0.380 | 0.469 | 0.556 |
+| rerank_balanced | 0.289 | 0.410 | 0.521 | 0.576 |
+| rerank_physical_stress | 0.280 | 0.439 | 0.532 | 0.587 |
+
+Conclusion: rerank improves Top-100 and Top-200 in this 5-seed preliminary check. The strongest current result is `rerank_physical_stress`.
+
+### Renewable full-truth
+
+Completed: yes.
+
+```text
+synthetic renewable = true
+test_num_seeds = 3
+renewable_penetration_ratio = 0.30
+full_truth = true
+```
+
+This remains a synthetic renewable perturbation, not a real renewable power-system, EMT, dynamic-stability, or field SCADA/PMU validation.
+
+### Strong paper baseline v2
+
+Completed partially:
+
+```text
+attempted scenarios = 10
+completed scenarios = 7
+timeout location = dataset generation after scenario checkpoint 7
+partial result used = yes
+```
+
+### Validation
+
+```text
+pytest = 26 passed, 262 warnings
+artifact self-check = PASS: PIO-GCN artifacts are review-ready.
+RL diff = empty
+```
+
 ## Shortcoming Fix Round: Renewable Full-Truth and Top-K Depth Tradeoff
 
 Purpose: complete the synthetic renewable full-truth preliminary experiment, strengthen the paper-feature baseline check, explain the Top-200 tradeoff, and keep PR artifacts review-safe. No RL mitigation files were modified and the original `GCN_path_prob` method remains preserved.

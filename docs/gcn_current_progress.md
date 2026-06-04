@@ -467,3 +467,17 @@ The 5-seed RTS-79 full-truth extension also shows a Top-K depth tradeoff:
 | LODF_yP | 0.036 | 0.134 | 0.207 | 0.329 |
 
 Current honest conclusion: PIO-GCN PathRank is useful for rapid small-Top-K screening, especially Top-20/50/100. It should not be claimed as better at every ranking depth because the stronger paper-feature baseline can overtake at Top-200.
+
+## Latest Performance Improvement: Ensemble and Rerank
+
+Score-level ensemble and hard-negative-aware rerank were evaluated on the same 5-seed RTS-79 full-truth setting.
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| PIO-GCN PathRank | 0.211 | 0.338 | 0.423 | 0.521 |
+| paper_GCN_path_prob_strong | 0.176 | 0.254 | 0.350 | 0.568 |
+| ensemble_alpha_0.75 | 0.200 | 0.345 | 0.444 | 0.549 |
+| rerank_balanced | 0.289 | 0.410 | 0.521 | 0.576 |
+| rerank_physical_stress | 0.280 | 0.439 | 0.532 | 0.587 |
+
+Current interpretation: simple ensemble improves some Top-100 behavior but does not fully solve the Top-200 issue. Hard-negative-aware rerank gives the clearest improvement and lifts Top-200 above the stronger paper-feature baseline in this preliminary 5-seed check.

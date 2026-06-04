@@ -363,3 +363,5 @@ This method document uses the following current project boundary:
 ## Latest Scope Clarification
 
 The synthetic renewable perturbation experiment is now completed for 3 full-truth seeds at renewable penetration ratio 0.30. It is a synthetic RTS-79 operating-point perturbation only. The current result also shows a Top-K depth tradeoff: PIO-GCN PathRank is stronger at Top-20/50/100, while a stronger paper-feature baseline can surpass it at Top-200. The method should therefore be described as a rapid small-Top-K screening method, not as a final all-depth ranking solution.
+
+The latest improvement check adds score-level ensemble ranking and hard-negative-aware rerank. Simple ensemble is feasible but not decisive. The hard-negative-aware rerank uses PIO score, LODF score, loading stress, and relay risk to reorder the top 300 PIO candidates, and it currently provides the clearest Top-100/Top-200 improvement in the 5-seed RTS-79 preliminary result.

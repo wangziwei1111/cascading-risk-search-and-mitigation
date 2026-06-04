@@ -1,0 +1,16 @@
+﻿seed,method,weight_pio,weight_lodf,weight_loading,weight_relay,top100_critical_count,top200_critical_count
+20260722,rerank_pio_dominant,0.65,0.15,0.15,0.05,25,30
+20260722,rerank_balanced,0.4,0.25,0.25,0.1,28,32
+20260722,rerank_physical_stress,0.25,0.25,0.35,0.15,28,32
+20260723,rerank_pio_dominant,0.65,0.15,0.15,0.05,25,29
+20260723,rerank_balanced,0.4,0.25,0.25,0.1,28,30
+20260723,rerank_physical_stress,0.25,0.25,0.35,0.15,28,30
+20260724,rerank_pio_dominant,0.65,0.15,0.15,0.05,27,34
+20260724,rerank_balanced,0.4,0.25,0.25,0.1,32,34
+20260724,rerank_physical_stress,0.25,0.25,0.35,0.15,34,35
+20260725,rerank_pio_dominant,0.65,0.15,0.15,0.05,23,26
+20260725,rerank_balanced,0.4,0.25,0.25,0.1,24,26
+20260725,rerank_physical_stress,0.25,0.25,0.35,0.15,25,27
+20260726,rerank_pio_dominant,0.65,0.15,0.15,0.05,33,39
+20260726,rerank_balanced,0.4,0.25,0.25,0.1,36,42
+20260726,rerank_physical_stress,0.25,0.25,0.35,0.15,36,43

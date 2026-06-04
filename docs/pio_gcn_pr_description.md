@@ -101,6 +101,17 @@ This is a synthetic renewable perturbation robustness check only.
 
 PIO-GCN PathRank is stronger at Top-20/50/100 in the 5-seed RTS-79 full-truth extension. The stronger paper-feature baseline surpasses PIO-GCN at Top-200, so the method should be described as useful for rapid small-Top-K screening rather than as a universal winner at all ranking depths.
 
+## Ensemble and Rerank Preliminary
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| PIO-GCN PathRank | 0.211 | 0.338 | 0.423 | 0.521 |
+| paper_GCN_path_prob_strong | 0.176 | 0.254 | 0.350 | 0.568 |
+| ensemble_alpha_0.75 | 0.200 | 0.345 | 0.444 | 0.549 |
+| rerank_physical_stress | 0.280 | 0.439 | 0.532 | 0.587 |
+
+The simple score-level ensemble is feasible but not decisive. The hard-negative-aware rerank gives the clearest improvement in this round, improving Top-100 and Top-200 in the 5-seed RTS-79 preliminary check.
+
 ## RL Untouched Statement
 
 This PR does not modify `src/rl_mitigation` or `scripts/rl_mitigation`.

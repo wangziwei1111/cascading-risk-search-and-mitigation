@@ -1,0 +1,141 @@
+﻿seed,method,top_k,critical_found,critical_path_recall,notes
+20260722,PIO_GCN,20,14,0.2545454545454545,baseline
+20260722,PIO_GCN,50,17,0.3090909090909091,baseline
+20260722,PIO_GCN,100,22,0.4,baseline
+20260722,PIO_GCN,200,29,0.5272727272727272,baseline
+20260722,paper_GCN_path_prob_strong,20,9,0.16363636363636364,baseline
+20260722,paper_GCN_path_prob_strong,50,17,0.3090909090909091,baseline
+20260722,paper_GCN_path_prob_strong,100,20,0.36363636363636365,baseline
+20260722,paper_GCN_path_prob_strong,200,31,0.5636363636363636,baseline
+20260722,ensemble_alpha_0.25,20,10,0.18181818181818182,score-level ensemble from regenerated PIO and paper path scores
+20260722,ensemble_alpha_0.25,50,18,0.32727272727272727,score-level ensemble from regenerated PIO and paper path scores
+20260722,ensemble_alpha_0.25,100,21,0.38181818181818183,score-level ensemble from regenerated PIO and paper path scores
+20260722,ensemble_alpha_0.25,200,31,0.5636363636363636,score-level ensemble from regenerated PIO and paper path scores
+20260722,ensemble_alpha_0.50,20,13,0.23636363636363636,score-level ensemble from regenerated PIO and paper path scores
+20260722,ensemble_alpha_0.50,50,18,0.32727272727272727,score-level ensemble from regenerated PIO and paper path scores
+20260722,ensemble_alpha_0.50,100,23,0.41818181818181815,score-level ensemble from regenerated PIO and paper path scores
+20260722,ensemble_alpha_0.50,200,31,0.5636363636363636,score-level ensemble from regenerated PIO and paper path scores
+20260722,ensemble_alpha_0.75,20,13,0.23636363636363636,score-level ensemble from regenerated PIO and paper path scores
+20260722,ensemble_alpha_0.75,50,19,0.34545454545454546,score-level ensemble from regenerated PIO and paper path scores
+20260722,ensemble_alpha_0.75,100,23,0.41818181818181815,score-level ensemble from regenerated PIO and paper path scores
+20260722,ensemble_alpha_0.75,200,29,0.5272727272727272,score-level ensemble from regenerated PIO and paper path scores
+20260722,oracle,20,20,0.36363636363636365,baseline
+20260722,oracle,50,50,0.9090909090909091,baseline
+20260722,oracle,100,55,1.0,baseline
+20260722,oracle,200,55,1.0,baseline
+20260722,LODF_yP,20,2,0.0363636363636363,physical-rule ranking baseline
+20260722,LODF_yP,50,10,0.1818181818181818,physical-rule ranking baseline
+20260722,LODF_yP,100,11,0.2,physical-rule ranking baseline
+20260722,LODF_yP,200,20,0.3636363636363636,physical-rule ranking baseline
+20260723,PIO_GCN,20,9,0.17307692307692307,baseline
+20260723,PIO_GCN,50,18,0.34615384615384615,baseline
+20260723,PIO_GCN,100,22,0.4230769230769231,baseline
+20260723,PIO_GCN,200,27,0.5192307692307693,baseline
+20260723,paper_GCN_path_prob_strong,20,9,0.17307692307692307,baseline
+20260723,paper_GCN_path_prob_strong,50,12,0.23076923076923078,baseline
+20260723,paper_GCN_path_prob_strong,100,15,0.28846153846153844,baseline
+20260723,paper_GCN_path_prob_strong,200,31,0.5961538461538461,baseline
+20260723,ensemble_alpha_0.25,20,8,0.15384615384615385,score-level ensemble from regenerated PIO and paper path scores
+20260723,ensemble_alpha_0.25,50,12,0.23076923076923078,score-level ensemble from regenerated PIO and paper path scores
+20260723,ensemble_alpha_0.25,100,16,0.3076923076923077,score-level ensemble from regenerated PIO and paper path scores
+20260723,ensemble_alpha_0.25,200,30,0.5769230769230769,score-level ensemble from regenerated PIO and paper path scores
+20260723,ensemble_alpha_0.50,20,9,0.17307692307692307,score-level ensemble from regenerated PIO and paper path scores
+20260723,ensemble_alpha_0.50,50,14,0.2692307692307692,score-level ensemble from regenerated PIO and paper path scores
+20260723,ensemble_alpha_0.50,100,22,0.4230769230769231,score-level ensemble from regenerated PIO and paper path scores
+20260723,ensemble_alpha_0.50,200,30,0.5769230769230769,score-level ensemble from regenerated PIO and paper path scores
+20260723,ensemble_alpha_0.75,20,8,0.15384615384615385,score-level ensemble from regenerated PIO and paper path scores
+20260723,ensemble_alpha_0.75,50,17,0.3269230769230769,score-level ensemble from regenerated PIO and paper path scores
+20260723,ensemble_alpha_0.75,100,23,0.4423076923076923,score-level ensemble from regenerated PIO and paper path scores
+20260723,ensemble_alpha_0.75,200,29,0.5576923076923077,score-level ensemble from regenerated PIO and paper path scores
+20260723,oracle,20,20,0.38461538461538464,baseline
+20260723,oracle,50,50,0.9615384615384616,baseline
+20260723,oracle,100,52,1.0,baseline
+20260723,oracle,200,52,1.0,baseline
+20260723,LODF_yP,20,2,0.0384615384615384,physical-rule ranking baseline
+20260723,LODF_yP,50,6,0.1153846153846153,physical-rule ranking baseline
+20260723,LODF_yP,100,10,0.1923076923076923,physical-rule ranking baseline
+20260723,LODF_yP,200,12,0.2307692307692307,physical-rule ranking baseline
+20260724,PIO_GCN,20,13,0.22033898305084745,baseline
+20260724,PIO_GCN,50,22,0.3728813559322034,baseline
+20260724,PIO_GCN,100,26,0.4406779661016949,baseline
+20260724,PIO_GCN,200,31,0.5254237288135594,baseline
+20260724,paper_GCN_path_prob_strong,20,12,0.2033898305084746,baseline
+20260724,paper_GCN_path_prob_strong,50,15,0.2542372881355932,baseline
+20260724,paper_GCN_path_prob_strong,100,24,0.4067796610169492,baseline
+20260724,paper_GCN_path_prob_strong,200,33,0.559322033898305,baseline
+20260724,ensemble_alpha_0.25,20,12,0.2033898305084746,score-level ensemble from regenerated PIO and paper path scores
+20260724,ensemble_alpha_0.25,50,17,0.288135593220339,score-level ensemble from regenerated PIO and paper path scores
+20260724,ensemble_alpha_0.25,100,26,0.4406779661016949,score-level ensemble from regenerated PIO and paper path scores
+20260724,ensemble_alpha_0.25,200,34,0.576271186440678,score-level ensemble from regenerated PIO and paper path scores
+20260724,ensemble_alpha_0.50,20,12,0.2033898305084746,score-level ensemble from regenerated PIO and paper path scores
+20260724,ensemble_alpha_0.50,50,20,0.3389830508474576,score-level ensemble from regenerated PIO and paper path scores
+20260724,ensemble_alpha_0.50,100,26,0.4406779661016949,score-level ensemble from regenerated PIO and paper path scores
+20260724,ensemble_alpha_0.50,200,34,0.576271186440678,score-level ensemble from regenerated PIO and paper path scores
+20260724,ensemble_alpha_0.75,20,14,0.23728813559322035,score-level ensemble from regenerated PIO and paper path scores
+20260724,ensemble_alpha_0.75,50,22,0.3728813559322034,score-level ensemble from regenerated PIO and paper path scores
+20260724,ensemble_alpha_0.75,100,27,0.4576271186440678,score-level ensemble from regenerated PIO and paper path scores
+20260724,ensemble_alpha_0.75,200,33,0.559322033898305,score-level ensemble from regenerated PIO and paper path scores
+20260724,oracle,20,20,0.3389830508474576,baseline
+20260724,oracle,50,50,0.847457627118644,baseline
+20260724,oracle,100,59,1.0,baseline
+20260724,oracle,200,59,1.0,baseline
+20260724,LODF_yP,20,2,0.0338983050847457,physical-rule ranking baseline
+20260724,LODF_yP,50,8,0.135593220338983,physical-rule ranking baseline
+20260724,LODF_yP,100,14,0.2372881355932203,physical-rule ranking baseline
+20260724,LODF_yP,200,22,0.3728813559322034,physical-rule ranking baseline
+20260725,PIO_GCN,20,10,0.19230769230769232,baseline
+20260725,PIO_GCN,50,16,0.3076923076923077,baseline
+20260725,PIO_GCN,100,21,0.40384615384615385,baseline
+20260725,PIO_GCN,200,24,0.46153846153846156,baseline
+20260725,paper_GCN_path_prob_strong,20,8,0.15384615384615385,baseline
+20260725,paper_GCN_path_prob_strong,50,12,0.23076923076923078,baseline
+20260725,paper_GCN_path_prob_strong,100,16,0.3076923076923077,baseline
+20260725,paper_GCN_path_prob_strong,200,28,0.5384615384615384,baseline
+20260725,ensemble_alpha_0.25,20,8,0.15384615384615385,score-level ensemble from regenerated PIO and paper path scores
+20260725,ensemble_alpha_0.25,50,14,0.2692307692307692,score-level ensemble from regenerated PIO and paper path scores
+20260725,ensemble_alpha_0.25,100,20,0.38461538461538464,score-level ensemble from regenerated PIO and paper path scores
+20260725,ensemble_alpha_0.25,200,28,0.5384615384615384,score-level ensemble from regenerated PIO and paper path scores
+20260725,ensemble_alpha_0.50,20,8,0.15384615384615385,score-level ensemble from regenerated PIO and paper path scores
+20260725,ensemble_alpha_0.50,50,16,0.3076923076923077,score-level ensemble from regenerated PIO and paper path scores
+20260725,ensemble_alpha_0.50,100,21,0.40384615384615385,score-level ensemble from regenerated PIO and paper path scores
+20260725,ensemble_alpha_0.50,200,27,0.5192307692307693,score-level ensemble from regenerated PIO and paper path scores
+20260725,ensemble_alpha_0.75,20,9,0.17307692307692307,score-level ensemble from regenerated PIO and paper path scores
+20260725,ensemble_alpha_0.75,50,17,0.3269230769230769,score-level ensemble from regenerated PIO and paper path scores
+20260725,ensemble_alpha_0.75,100,22,0.4230769230769231,score-level ensemble from regenerated PIO and paper path scores
+20260725,ensemble_alpha_0.75,200,26,0.5,score-level ensemble from regenerated PIO and paper path scores
+20260725,oracle,20,20,0.38461538461538464,baseline
+20260725,oracle,50,50,0.9615384615384616,baseline
+20260725,oracle,100,52,1.0,baseline
+20260725,oracle,200,52,1.0,baseline
+20260725,LODF_yP,20,2,0.0384615384615384,physical-rule ranking baseline
+20260725,LODF_yP,50,6,0.1153846153846153,physical-rule ranking baseline
+20260725,LODF_yP,100,10,0.1923076923076923,physical-rule ranking baseline
+20260725,LODF_yP,200,16,0.3076923076923077,physical-rule ranking baseline
+20260726,PIO_GCN,20,14,0.2153846153846154,baseline
+20260726,PIO_GCN,50,23,0.35384615384615387,baseline
+20260726,PIO_GCN,100,29,0.4461538461538462,baseline
+20260726,PIO_GCN,200,37,0.5692307692307692,baseline
+20260726,paper_GCN_path_prob_strong,20,12,0.18461538461538463,baseline
+20260726,paper_GCN_path_prob_strong,50,16,0.24615384615384617,baseline
+20260726,paper_GCN_path_prob_strong,100,25,0.38461538461538464,baseline
+20260726,paper_GCN_path_prob_strong,200,38,0.5846153846153846,baseline
+20260726,ensemble_alpha_0.25,20,11,0.16923076923076924,score-level ensemble from regenerated PIO and paper path scores
+20260726,ensemble_alpha_0.25,50,20,0.3076923076923077,score-level ensemble from regenerated PIO and paper path scores
+20260726,ensemble_alpha_0.25,100,29,0.4461538461538462,score-level ensemble from regenerated PIO and paper path scores
+20260726,ensemble_alpha_0.25,200,40,0.6153846153846154,score-level ensemble from regenerated PIO and paper path scores
+20260726,ensemble_alpha_0.50,20,11,0.16923076923076924,score-level ensemble from regenerated PIO and paper path scores
+20260726,ensemble_alpha_0.50,50,23,0.35384615384615387,score-level ensemble from regenerated PIO and paper path scores
+20260726,ensemble_alpha_0.50,100,29,0.4461538461538462,score-level ensemble from regenerated PIO and paper path scores
+20260726,ensemble_alpha_0.50,200,39,0.6,score-level ensemble from regenerated PIO and paper path scores
+20260726,ensemble_alpha_0.75,20,13,0.2,score-level ensemble from regenerated PIO and paper path scores
+20260726,ensemble_alpha_0.75,50,23,0.35384615384615387,score-level ensemble from regenerated PIO and paper path scores
+20260726,ensemble_alpha_0.75,100,31,0.47692307692307695,score-level ensemble from regenerated PIO and paper path scores
+20260726,ensemble_alpha_0.75,200,39,0.6,score-level ensemble from regenerated PIO and paper path scores
+20260726,oracle,20,20,0.3076923076923077,baseline
+20260726,oracle,50,50,0.7692307692307693,baseline
+20260726,oracle,100,65,1.0,baseline
+20260726,oracle,200,65,1.0,baseline
+20260726,LODF_yP,20,2,0.0307692307692307,physical-rule ranking baseline
+20260726,LODF_yP,50,8,0.123076923076923,physical-rule ranking baseline
+20260726,LODF_yP,100,14,0.2153846153846154,physical-rule ranking baseline
+20260726,LODF_yP,200,24,0.3692307692307692,physical-rule ranking baseline

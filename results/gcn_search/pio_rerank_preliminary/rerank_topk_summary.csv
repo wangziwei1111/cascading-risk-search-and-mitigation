@@ -1,0 +1,141 @@
+﻿seed,method,top_k,critical_found,critical_path_recall,notes
+20260722,PIO_GCN,20,14,0.2545454545454545,baseline
+20260722,PIO_GCN,50,17,0.3090909090909091,baseline
+20260722,PIO_GCN,100,22,0.4,baseline
+20260722,PIO_GCN,200,29,0.5272727272727272,baseline
+20260722,paper_GCN_path_prob_strong,20,9,0.16363636363636364,baseline
+20260722,paper_GCN_path_prob_strong,50,17,0.3090909090909091,baseline
+20260722,paper_GCN_path_prob_strong,100,20,0.36363636363636365,baseline
+20260722,paper_GCN_path_prob_strong,200,31,0.5636363636363636,baseline
+20260722,oracle,20,20,0.36363636363636365,baseline
+20260722,oracle,50,50,0.9090909090909091,baseline
+20260722,oracle,100,55,1.0,baseline
+20260722,oracle,200,55,1.0,baseline
+20260722,rerank_pio_dominant,20,14,0.2545454545454545,rerank top-300 PIO candidates
+20260722,rerank_pio_dominant,50,20,0.36363636363636365,rerank top-300 PIO candidates
+20260722,rerank_pio_dominant,100,25,0.45454545454545453,rerank top-300 PIO candidates
+20260722,rerank_pio_dominant,200,30,0.5454545454545454,rerank top-300 PIO candidates
+20260722,rerank_balanced,20,14,0.2545454545454545,rerank top-300 PIO candidates
+20260722,rerank_balanced,50,20,0.36363636363636365,rerank top-300 PIO candidates
+20260722,rerank_balanced,100,28,0.509090909090909,rerank top-300 PIO candidates
+20260722,rerank_balanced,200,32,0.5818181818181818,rerank top-300 PIO candidates
+20260722,rerank_physical_stress,20,12,0.21818181818181817,rerank top-300 PIO candidates
+20260722,rerank_physical_stress,50,21,0.38181818181818183,rerank top-300 PIO candidates
+20260722,rerank_physical_stress,100,28,0.509090909090909,rerank top-300 PIO candidates
+20260722,rerank_physical_stress,200,32,0.5818181818181818,rerank top-300 PIO candidates
+20260722,LODF_yP,20,2,0.0363636363636363,physical-rule ranking baseline
+20260722,LODF_yP,50,10,0.1818181818181818,physical-rule ranking baseline
+20260722,LODF_yP,100,11,0.2,physical-rule ranking baseline
+20260722,LODF_yP,200,20,0.3636363636363636,physical-rule ranking baseline
+20260723,PIO_GCN,20,9,0.17307692307692307,baseline
+20260723,PIO_GCN,50,18,0.34615384615384615,baseline
+20260723,PIO_GCN,100,22,0.4230769230769231,baseline
+20260723,PIO_GCN,200,27,0.5192307692307693,baseline
+20260723,paper_GCN_path_prob_strong,20,9,0.17307692307692307,baseline
+20260723,paper_GCN_path_prob_strong,50,12,0.23076923076923078,baseline
+20260723,paper_GCN_path_prob_strong,100,15,0.28846153846153844,baseline
+20260723,paper_GCN_path_prob_strong,200,31,0.5961538461538461,baseline
+20260723,oracle,20,20,0.38461538461538464,baseline
+20260723,oracle,50,50,0.9615384615384616,baseline
+20260723,oracle,100,52,1.0,baseline
+20260723,oracle,200,52,1.0,baseline
+20260723,rerank_pio_dominant,20,13,0.25,rerank top-300 PIO candidates
+20260723,rerank_pio_dominant,50,19,0.36538461538461536,rerank top-300 PIO candidates
+20260723,rerank_pio_dominant,100,25,0.4807692307692308,rerank top-300 PIO candidates
+20260723,rerank_pio_dominant,200,29,0.5576923076923077,rerank top-300 PIO candidates
+20260723,rerank_balanced,20,14,0.2692307692307692,rerank top-300 PIO candidates
+20260723,rerank_balanced,50,23,0.4423076923076923,rerank top-300 PIO candidates
+20260723,rerank_balanced,100,28,0.5384615384615384,rerank top-300 PIO candidates
+20260723,rerank_balanced,200,30,0.5769230769230769,rerank top-300 PIO candidates
+20260723,rerank_physical_stress,20,15,0.28846153846153844,rerank top-300 PIO candidates
+20260723,rerank_physical_stress,50,24,0.46153846153846156,rerank top-300 PIO candidates
+20260723,rerank_physical_stress,100,28,0.5384615384615384,rerank top-300 PIO candidates
+20260723,rerank_physical_stress,200,30,0.5769230769230769,rerank top-300 PIO candidates
+20260723,LODF_yP,20,2,0.0384615384615384,physical-rule ranking baseline
+20260723,LODF_yP,50,6,0.1153846153846153,physical-rule ranking baseline
+20260723,LODF_yP,100,10,0.1923076923076923,physical-rule ranking baseline
+20260723,LODF_yP,200,12,0.2307692307692307,physical-rule ranking baseline
+20260724,PIO_GCN,20,13,0.22033898305084745,baseline
+20260724,PIO_GCN,50,22,0.3728813559322034,baseline
+20260724,PIO_GCN,100,26,0.4406779661016949,baseline
+20260724,PIO_GCN,200,31,0.5254237288135594,baseline
+20260724,paper_GCN_path_prob_strong,20,12,0.2033898305084746,baseline
+20260724,paper_GCN_path_prob_strong,50,15,0.2542372881355932,baseline
+20260724,paper_GCN_path_prob_strong,100,24,0.4067796610169492,baseline
+20260724,paper_GCN_path_prob_strong,200,33,0.559322033898305,baseline
+20260724,oracle,20,20,0.3389830508474576,baseline
+20260724,oracle,50,50,0.847457627118644,baseline
+20260724,oracle,100,59,1.0,baseline
+20260724,oracle,200,59,1.0,baseline
+20260724,rerank_pio_dominant,20,16,0.2711864406779661,rerank top-300 PIO candidates
+20260724,rerank_pio_dominant,50,24,0.4067796610169492,rerank top-300 PIO candidates
+20260724,rerank_pio_dominant,100,27,0.4576271186440678,rerank top-300 PIO candidates
+20260724,rerank_pio_dominant,200,34,0.576271186440678,rerank top-300 PIO candidates
+20260724,rerank_balanced,20,19,0.3220338983050847,rerank top-300 PIO candidates
+20260724,rerank_balanced,50,26,0.4406779661016949,rerank top-300 PIO candidates
+20260724,rerank_balanced,100,32,0.5423728813559322,rerank top-300 PIO candidates
+20260724,rerank_balanced,200,34,0.576271186440678,rerank top-300 PIO candidates
+20260724,rerank_physical_stress,20,19,0.3220338983050847,rerank top-300 PIO candidates
+20260724,rerank_physical_stress,50,28,0.4745762711864407,rerank top-300 PIO candidates
+20260724,rerank_physical_stress,100,34,0.576271186440678,rerank top-300 PIO candidates
+20260724,rerank_physical_stress,200,35,0.5932203389830508,rerank top-300 PIO candidates
+20260724,LODF_yP,20,2,0.0338983050847457,physical-rule ranking baseline
+20260724,LODF_yP,50,8,0.135593220338983,physical-rule ranking baseline
+20260724,LODF_yP,100,14,0.2372881355932203,physical-rule ranking baseline
+20260724,LODF_yP,200,22,0.3728813559322034,physical-rule ranking baseline
+20260725,PIO_GCN,20,10,0.19230769230769232,baseline
+20260725,PIO_GCN,50,16,0.3076923076923077,baseline
+20260725,PIO_GCN,100,21,0.40384615384615385,baseline
+20260725,PIO_GCN,200,24,0.46153846153846156,baseline
+20260725,paper_GCN_path_prob_strong,20,8,0.15384615384615385,baseline
+20260725,paper_GCN_path_prob_strong,50,12,0.23076923076923078,baseline
+20260725,paper_GCN_path_prob_strong,100,16,0.3076923076923077,baseline
+20260725,paper_GCN_path_prob_strong,200,28,0.5384615384615384,baseline
+20260725,oracle,20,20,0.38461538461538464,baseline
+20260725,oracle,50,50,0.9615384615384616,baseline
+20260725,oracle,100,52,1.0,baseline
+20260725,oracle,200,52,1.0,baseline
+20260725,rerank_pio_dominant,20,14,0.2692307692307692,rerank top-300 PIO candidates
+20260725,rerank_pio_dominant,50,19,0.36538461538461536,rerank top-300 PIO candidates
+20260725,rerank_pio_dominant,100,23,0.4423076923076923,rerank top-300 PIO candidates
+20260725,rerank_pio_dominant,200,26,0.5,rerank top-300 PIO candidates
+20260725,rerank_balanced,20,16,0.3076923076923077,rerank top-300 PIO candidates
+20260725,rerank_balanced,50,21,0.40384615384615385,rerank top-300 PIO candidates
+20260725,rerank_balanced,100,24,0.46153846153846156,rerank top-300 PIO candidates
+20260725,rerank_balanced,200,26,0.5,rerank top-300 PIO candidates
+20260725,rerank_physical_stress,20,16,0.3076923076923077,rerank top-300 PIO candidates
+20260725,rerank_physical_stress,50,24,0.46153846153846156,rerank top-300 PIO candidates
+20260725,rerank_physical_stress,100,25,0.4807692307692308,rerank top-300 PIO candidates
+20260725,rerank_physical_stress,200,27,0.5192307692307693,rerank top-300 PIO candidates
+20260725,LODF_yP,20,2,0.0384615384615384,physical-rule ranking baseline
+20260725,LODF_yP,50,6,0.1153846153846153,physical-rule ranking baseline
+20260725,LODF_yP,100,10,0.1923076923076923,physical-rule ranking baseline
+20260725,LODF_yP,200,16,0.3076923076923077,physical-rule ranking baseline
+20260726,PIO_GCN,20,14,0.2153846153846154,baseline
+20260726,PIO_GCN,50,23,0.35384615384615387,baseline
+20260726,PIO_GCN,100,29,0.4461538461538462,baseline
+20260726,PIO_GCN,200,37,0.5692307692307692,baseline
+20260726,paper_GCN_path_prob_strong,20,12,0.18461538461538463,baseline
+20260726,paper_GCN_path_prob_strong,50,16,0.24615384615384617,baseline
+20260726,paper_GCN_path_prob_strong,100,25,0.38461538461538464,baseline
+20260726,paper_GCN_path_prob_strong,200,38,0.5846153846153846,baseline
+20260726,oracle,20,20,0.3076923076923077,baseline
+20260726,oracle,50,50,0.7692307692307693,baseline
+20260726,oracle,100,65,1.0,baseline
+20260726,oracle,200,65,1.0,baseline
+20260726,rerank_pio_dominant,20,16,0.24615384615384617,rerank top-300 PIO candidates
+20260726,rerank_pio_dominant,50,26,0.4,rerank top-300 PIO candidates
+20260726,rerank_pio_dominant,100,33,0.5076923076923077,rerank top-300 PIO candidates
+20260726,rerank_pio_dominant,200,39,0.6,rerank top-300 PIO candidates
+20260726,rerank_balanced,20,19,0.2923076923076923,rerank top-300 PIO candidates
+20260726,rerank_balanced,50,26,0.4,rerank top-300 PIO candidates
+20260726,rerank_balanced,100,36,0.5538461538461539,rerank top-300 PIO candidates
+20260726,rerank_balanced,200,42,0.6461538461538462,rerank top-300 PIO candidates
+20260726,rerank_physical_stress,20,17,0.26153846153846155,rerank top-300 PIO candidates
+20260726,rerank_physical_stress,50,27,0.4153846153846154,rerank top-300 PIO candidates
+20260726,rerank_physical_stress,100,36,0.5538461538461539,rerank top-300 PIO candidates
+20260726,rerank_physical_stress,200,43,0.6615384615384615,rerank top-300 PIO candidates
+20260726,LODF_yP,20,2,0.0307692307692307,physical-rule ranking baseline
+20260726,LODF_yP,50,8,0.123076923076923,physical-rule ranking baseline
+20260726,LODF_yP,100,14,0.2153846153846154,physical-rule ranking baseline
+20260726,LODF_yP,200,24,0.3692307692307692,physical-rule ranking baseline

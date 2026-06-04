@@ -27,6 +27,8 @@ def test_pio_gcn_key_modules_import() -> None:
         "renewable_scenarios",
         "run_pio_gcn_renewable_preliminary_experiment",
         "analyze_topk_depth_tradeoff",
+        "evaluate_pio_gcn_ensemble_ranking",
+        "evaluate_pio_gcn_hard_negative_rerank",
         "analyze_pio_gcn_loss_diagnostics",
     ]
 

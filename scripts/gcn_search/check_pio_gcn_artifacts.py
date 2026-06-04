@@ -20,6 +20,7 @@ REQUIRED_FILES = [
     "docs/pio_gcn_renewable_preliminary.md",
     "docs/pio_gcn_topk_depth_tradeoff.md",
     "docs/pio_gcn_ensemble_feasibility.md",
+    "docs/pio_gcn_ensemble_rerank_preliminary.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/pio_formal_preliminary_3seed/config.json",
     "results/gcn_search/pio_formal_preliminary_3seed/aggregate_method_comparison.csv",
@@ -44,6 +45,12 @@ REQUIRED_FILES = [
     "results/gcn_search/pio_topk_depth_tradeoff/config.json",
     "results/gcn_search/pio_topk_depth_tradeoff/topk_depth_tradeoff_summary.csv",
     "results/gcn_search/pio_topk_depth_tradeoff/recommendations.md",
+    "results/gcn_search/pio_ensemble_preliminary/config.json",
+    "results/gcn_search/pio_ensemble_preliminary/ensemble_method_comparison.csv",
+    "results/gcn_search/pio_ensemble_preliminary/diagnostics/ensemble_rank_shift_summary.csv",
+    "results/gcn_search/pio_rerank_preliminary/config.json",
+    "results/gcn_search/pio_rerank_preliminary/rerank_method_comparison.csv",
+    "results/gcn_search/pio_rerank_preliminary/diagnostics/rerank_weight_sweep.csv",
 ]
 
 
@@ -59,6 +66,8 @@ SUMMARY_FILES = [
     "results/gcn_search/pio_loss_diagnostics/loss_contribution_summary.csv",
     "results/gcn_search/pio_renewable_preliminary/aggregate_method_comparison.csv",
     "results/gcn_search/pio_topk_depth_tradeoff/topk_depth_tradeoff_summary.csv",
+    "results/gcn_search/pio_ensemble_preliminary/ensemble_method_comparison.csv",
+    "results/gcn_search/pio_rerank_preliminary/rerank_method_comparison.csv",
 ]
 
 
@@ -154,6 +163,14 @@ def main() -> int:
         failures.append("Renewable preliminary doc still says the full-truth experiment was not run.")
     if "online deployment" in renewable_text.lower():
         failures.append("Renewable preliminary doc contains an overstated deployment claim.")
+
+    for optional_summary in [
+        "results/gcn_search/pio_ensemble_preliminary/ensemble_method_comparison.csv",
+        "results/gcn_search/pio_rerank_preliminary/rerank_method_comparison.csv",
+    ]:
+        path = ROOT / optional_summary
+        if path.exists() and path.stat().st_size == 0:
+            failures.append(f"Optional ensemble/rerank summary exists but is empty: {optional_summary}")
 
     tracked = _git_ls_files("results/gcn_search")
     bad_files: list[str] = []

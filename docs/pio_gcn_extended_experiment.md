@@ -69,6 +69,19 @@ The interactive run timed out after 7 completed scenario checkpoints. The v2 mod
 - PIO-GCN PathRank outperforms the stronger paper-feature baseline at Top-20/50/100.
 - The stronger paper-feature baseline is better at Top-200 in this 5-seed result.
 - The v2 paper-feature baseline keeps the same Top-200 pattern, but it does not improve Top-20/50/100 over v1.
+
+## Ensemble and Rerank Follow-Up
+
+The Top-200 tradeoff was followed by two improvement checks:
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| PIO-GCN PathRank | 0.211 | 0.338 | 0.423 | 0.521 |
+| paper_GCN_path_prob_strong | 0.176 | 0.254 | 0.350 | 0.568 |
+| ensemble_alpha_0.75 | 0.200 | 0.345 | 0.444 | 0.549 |
+| rerank_physical_stress | 0.280 | 0.439 | 0.532 | 0.587 |
+
+Simple ensemble does not fully solve the Top-200 issue. The hard-negative-aware rerank result is stronger: it improves Top-100 and Top-200 in this preliminary 5-seed check.
 - This means the earlier weak paper baseline limitation was real; the paper-feature baseline becomes more competitive when trained more fairly.
 - The current conclusion should be softened: physics-enhanced features are useful, but they are not the only competitive route, especially when evaluating deeper Top-K lists.
 
