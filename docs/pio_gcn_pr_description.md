@@ -81,10 +81,25 @@ results/gcn_search/tracked_large_files_removed_round8.txt
 - Only 3 full-truth test seeds are used for the key preliminary result.
 - The paper-feature baseline is weak under the current small training setup.
 - The stronger paper-feature baseline was only trained with 6 completed scenarios because the 20-scenario attempt exceeded the interactive runtime budget.
-- The synthetic renewable perturbation module is implemented and tested, but renewable full-truth results have not yet been run.
+- The stronger paper-feature baseline v2 was requested for 10 scenarios but completed 7 before the interactive timeout.
+- The synthetic renewable perturbation full-truth preliminary run is completed for 3 seeds at 0.30 penetration ratio, but it is still only a synthetic RTS-79 perturbation.
 - The measured-state pathway is a JSON measured-state interface only; it is not connected to field SCADA/PMU systems.
 - Original physics loss and pairwise rank-loss are implemented and measured, but they are not yet decisive contributors.
 - This is a 3-seed RTS-79 full-truth preliminary result, not a final paper-scale claim.
+
+## Synthetic Renewable Preliminary Result
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| PIO-GCN PathRank | 0.237 | 0.347 | 0.426 | 0.495 |
+| paper_GCN_path_prob_strong | 0.232 | 0.306 | 0.379 | 0.456 |
+| LODF_yP | 0.037 | 0.071 | 0.076 | 0.220 |
+
+This is a synthetic renewable perturbation robustness check only.
+
+## Top-K Depth Tradeoff
+
+PIO-GCN PathRank is stronger at Top-20/50/100 in the 5-seed RTS-79 full-truth extension. The stronger paper-feature baseline surpasses PIO-GCN at Top-200, so the method should be described as useful for rapid small-Top-K screening rather than as a universal winner at all ranking depths.
 
 ## RL Untouched Statement
 

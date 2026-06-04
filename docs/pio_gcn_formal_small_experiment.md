@@ -362,3 +362,17 @@ results/gcn_search/pio_extended_fulltruth_5seed/
 | oracle | 0.356 | 0.890 | 1.000 | 1.000 |
 
 This result keeps the Top-100 advantage of PIO-GCN PathRank over the stronger paper-feature baseline and LODF_yP. However, the stronger paper-feature baseline surpasses PIO-GCN at Top-200, so the conclusion should remain cautious.
+
+## Latest Synthetic Renewable and Top-200 Tradeoff Addendum
+
+A 3-seed synthetic renewable perturbation run was completed with renewable penetration ratio 0.30 and full-truth ordered N-2 evaluation.
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| PIO-GCN PathRank | 0.237 | 0.347 | 0.426 | 0.495 |
+| paper_GCN_path_prob_strong | 0.232 | 0.306 | 0.379 | 0.456 |
+| LODF_yP | 0.037 | 0.071 | 0.076 | 0.220 |
+
+This supports a limited robustness statement: the method remains usable under a synthetic renewable-like operating-point perturbation. It should not be described as validation on a real renewable grid.
+
+The stronger paper-feature baseline surpasses PIO-GCN PathRank at Top-200 in the 5-seed extended result. The likely explanation is ranking-depth behavior: PIO-GCN concentrates critical paths earlier, while the strong paper-feature baseline spreads useful critical paths deeper into the candidate list. Therefore, the current method should be framed as rapid small-Top-K screening rather than a universal winner at all Top-K depths.

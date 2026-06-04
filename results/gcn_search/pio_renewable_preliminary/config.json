@@ -1,0 +1,21 @@
+{
+  "output_dir": "results\\gcn_search\\pio_renewable_preliminary",
+  "model": "results/gcn_search/pio_formal_preliminary_3seed/training/physics_informed/rts79_physics_gcn_model.pt",
+  "normalizer": "results/gcn_search/pio_formal_preliminary_3seed/training/physics_dataset/rts79_step2_state_feature_normalizer_physics.json",
+  "test_seed_start": 20260722,
+  "test_num_seeds": 3,
+  "top_k": [
+    20,
+    50,
+    100,
+    200
+  ],
+  "beta": 1.2,
+  "security_limit": 1.0,
+  "renewable_penetration_ratio": 0.3,
+  "fluctuation_low": 0.6,
+  "fluctuation_high": 1.1,
+  "run_full_truth": true,
+  "paper_baseline_model": "results\\gcn_search\\paper_baseline_strong\\paper_train_ce_only\\rts79_physics_gcn_model.pt",
+  "paper_baseline_normalizer": "results\\gcn_search\\paper_baseline_strong\\paper_dataset\\rts79_step2_state_feature_normalizer.json"
+}

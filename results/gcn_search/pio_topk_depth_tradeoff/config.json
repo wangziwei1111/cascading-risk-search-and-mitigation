@@ -1,0 +1,14 @@
+{
+  "output_dir": "results\\gcn_search\\pio_topk_depth_tradeoff",
+  "extended_dir": "results\\gcn_search\\pio_extended_fulltruth_5seed",
+  "paper_v2_model": "results\\gcn_search\\paper_baseline_strong_v2\\paper_train_ce_only\\rts79_physics_gcn_model.pt",
+  "paper_v2_normalizer": "results\\gcn_search\\paper_baseline_strong_v2\\paper_dataset\\rts79_step2_state_feature_normalizer.json",
+  "top_k": [
+    20,
+    50,
+    100,
+    200
+  ],
+  "beta": 1.2,
+  "security_limit": 1.0
+}

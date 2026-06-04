@@ -452,3 +452,18 @@ Key 5-seed result:
 | LODF_yP | 0.207 | 0.329 |
 
 This strengthens the earlier conclusion that PIO-GCN PathRank is useful at Top-100, but it also shows that a stronger paper-feature baseline can become competitive and even surpass PIO-GCN at Top-200. This should be reported honestly.
+
+## Latest Shortcoming-Fix Update: Renewable and Top-K Depth
+
+The synthetic renewable perturbation full-truth preliminary experiment is now completed for 3 seeds with renewable penetration ratio 0.30. PIO-GCN PathRank reaches recall@100 about 0.426, the stronger paper-feature baseline reaches about 0.379, and LODF_yP reaches about 0.076. This only supports a synthetic RTS-79 robustness statement; it is not a real renewable power-system result.
+
+The 5-seed RTS-79 full-truth extension also shows a Top-K depth tradeoff:
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| PIO-GCN PathRank | 0.211 | 0.338 | 0.423 | 0.521 |
+| paper_GCN_path_prob_strong | 0.176 | 0.254 | 0.350 | 0.568 |
+| paper_GCN_path_prob_strong_v2 | 0.176 | 0.244 | 0.330 | 0.565 |
+| LODF_yP | 0.036 | 0.134 | 0.207 | 0.329 |
+
+Current honest conclusion: PIO-GCN PathRank is useful for rapid small-Top-K screening, especially Top-20/50/100. It should not be claimed as better at every ranking depth because the stronger paper-feature baseline can overtake at Top-200.

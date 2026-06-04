@@ -18,6 +18,8 @@ REQUIRED_FILES = [
     "docs/pio_gcn_reproduction_commands.md",
     "docs/pio_gcn_extended_experiment.md",
     "docs/pio_gcn_renewable_preliminary.md",
+    "docs/pio_gcn_topk_depth_tradeoff.md",
+    "docs/pio_gcn_ensemble_feasibility.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/pio_formal_preliminary_3seed/config.json",
     "results/gcn_search/pio_formal_preliminary_3seed/aggregate_method_comparison.csv",
@@ -33,7 +35,15 @@ REQUIRED_FILES = [
     "results/gcn_search/pio_extended_fulltruth_5seed/aggregate_method_comparison.csv",
     "results/gcn_search/pio_extended_fulltruth_5seed/diagnostics/per_seed_variability.csv",
     "results/gcn_search/paper_baseline_strong/paper_baseline_eval_summary.csv",
+    "results/gcn_search/paper_baseline_strong_v2/paper_baseline_eval_summary.csv",
     "results/gcn_search/pio_loss_diagnostics/recommendations.md",
+    "results/gcn_search/pio_renewable_preliminary/config.json",
+    "results/gcn_search/pio_renewable_preliminary/aggregate_method_comparison.csv",
+    "results/gcn_search/pio_renewable_preliminary/diagnostics/renewable_case_diagnostics.csv",
+    "results/gcn_search/pio_renewable_preliminary/figures/renewable_runtime_comparison.png",
+    "results/gcn_search/pio_topk_depth_tradeoff/config.json",
+    "results/gcn_search/pio_topk_depth_tradeoff/topk_depth_tradeoff_summary.csv",
+    "results/gcn_search/pio_topk_depth_tradeoff/recommendations.md",
 ]
 
 
@@ -45,7 +55,10 @@ SUMMARY_FILES = [
     "results/gcn_search/pio_rank_loss_preliminary_3seed/diagnostics/rank_loss_vs_ce_summary.csv",
     "results/gcn_search/pio_extended_fulltruth_5seed/aggregate_method_comparison.csv",
     "results/gcn_search/paper_baseline_strong/paper_baseline_eval_summary.csv",
+    "results/gcn_search/paper_baseline_strong_v2/paper_baseline_eval_summary.csv",
     "results/gcn_search/pio_loss_diagnostics/loss_contribution_summary.csv",
+    "results/gcn_search/pio_renewable_preliminary/aggregate_method_comparison.csv",
+    "results/gcn_search/pio_topk_depth_tradeoff/topk_depth_tradeoff_summary.csv",
 ]
 
 
@@ -137,6 +150,10 @@ def main() -> int:
     renewable_text = _read_text("docs/pio_gcn_renewable_preliminary.md") if (ROOT / "docs/pio_gcn_renewable_preliminary.md").exists() else ""
     if "synthetic renewable" not in renewable_text.lower():
         failures.append("Renewable preliminary doc does not clearly state synthetic renewable scope.")
+    if "full-truth experiment was not run" in renewable_text:
+        failures.append("Renewable preliminary doc still says the full-truth experiment was not run.")
+    if "online deployment" in renewable_text.lower():
+        failures.append("Renewable preliminary doc contains an overstated deployment claim.")
 
     tracked = _git_ls_files("results/gcn_search")
     bad_files: list[str] = []

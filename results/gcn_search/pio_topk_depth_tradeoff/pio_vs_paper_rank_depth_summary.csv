@@ -1,0 +1,13 @@
+﻿method,top_k,mean_recall,mean_found
+PIO_GCN_Top20,20,0.2111307336731065,12.0
+paper_GCN_path_prob_strong,20,0.1757129311366599,10.0
+paper_GCN_path_prob_strong_v2,20,0.17571293113665995,10.0
+PIO_GCN_Top50,50,0.337932914543084,19.2
+paper_GCN_path_prob_strong,50,0.254204100983762,14.4
+paper_GCN_path_prob_strong_v2,50,0.24410098376200073,13.8
+PIO_GCN_Top100,100,0.4227509778357236,24.0
+paper_GCN_path_prob_strong,100,0.3502370510845087,20.0
+paper_GCN_path_prob_strong_v2,100,0.3296112362214057,18.8
+PIO_GCN_Top200,200,0.5205392912172574,29.6
+paper_GCN_path_prob_strong,200,0.5684378333530875,32.2
+paper_GCN_path_prob_strong_v2,200,0.5645916795069337,32.0

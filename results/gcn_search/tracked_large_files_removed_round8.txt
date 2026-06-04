@@ -164,3 +164,9 @@ results/gcn_search/pio_validation_round2/pio_topk/pio_gcn_topk_config.json
 results/gcn_search/pio_validation_round2/pio_topk/pio_gcn_topk_summary.csv
 results/gcn_search/pio_validation_round2/pio_topk_measured/pio_gcn_topk_config.json
 results/gcn_search/pio_validation_round2/pio_topk_measured/pio_gcn_topk_summary.csv
+Round after PR readiness: additional ignored local-only artifacts
+
+results/gcn_search/paper_baseline_strong_v2/paper_dataset/
+results/gcn_search/paper_baseline_strong_v2/paper_train_ce_only/
+
+These files remain local if present. They are excluded from review tracking because they contain .npz datasets, .pt model weights, normalizer details, and scenario checkpoints.

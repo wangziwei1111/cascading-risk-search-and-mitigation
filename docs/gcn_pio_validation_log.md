@@ -1,3 +1,102 @@
+## Shortcoming Fix Round: Renewable Full-Truth and Top-K Depth Tradeoff
+
+Purpose: complete the synthetic renewable full-truth preliminary experiment, strengthen the paper-feature baseline check, explain the Top-200 tradeoff, and keep PR artifacts review-safe. No RL mitigation files were modified and the original `GCN_path_prob` method remains preserved.
+
+### Synthetic renewable full-truth preliminary
+
+Completed:
+
+```text
+script = src/gcn_search/legacy_rts79/run_pio_gcn_renewable_preliminary_experiment.py
+output_dir = results/gcn_search/pio_renewable_preliminary
+test_seed_start = 20260722
+test_num_seeds = 3
+renewable_penetration_ratio = 0.30
+fluctuation_low = 0.60
+fluctuation_high = 1.10
+top_k = 20, 50, 100, 200
+full_truth = true
+scope = synthetic renewable perturbation on RTS-79 only
+```
+
+Key results:
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| PIO-GCN PathRank | 0.237 | 0.347 | 0.426 | 0.495 |
+| paper_GCN_path_prob_strong | 0.232 | 0.306 | 0.379 | 0.456 |
+| LODF_yP | 0.037 | 0.071 | 0.076 | 0.220 |
+| oracle | 0.368 | 0.913 | 1.000 | 1.000 |
+
+Interpretation: PIO-GCN PathRank remains ahead in this synthetic renewable perturbation preliminary run. This is not a real renewable power-system validation.
+
+### Strong paper baseline v2
+
+Requested training configuration:
+
+```text
+output_dir = results/gcn_search/paper_baseline_strong_v2
+training_num_scenarios requested = 10
+training_num_scenarios completed = 7
+training_epochs = 5
+feature_mode = paper
+candidate_line_filter_mode = high_flow_top_n
+max_first_lines = 10
+```
+
+The 10-scenario attempt timed out during dataset generation after 7 scenario checkpoints. The v2 model was trained from the 7 completed scenarios. It is a partial stronger baseline, not a fully tuned paper-feature baseline.
+
+Validation metrics for v2:
+
+```text
+precision = 0.0791
+recall = 1.0000
+pr_auc = 0.3029
+mean_positive_score = 0.7516
+mean_negative_score = 0.6890
+positive_negative_score_gap = 0.0625
+```
+
+### Top-K depth tradeoff
+
+Output:
+
+```text
+results/gcn_search/pio_topk_depth_tradeoff/
+```
+
+Key 5-seed full-truth comparison:
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| PIO-GCN PathRank | 0.211 | 0.338 | 0.423 | 0.521 |
+| paper_GCN_path_prob_strong | 0.176 | 0.254 | 0.350 | 0.568 |
+| paper_GCN_path_prob_strong_v2 | 0.176 | 0.244 | 0.330 | 0.565 |
+| LODF_yP | 0.036 | 0.134 | 0.207 | 0.329 |
+
+Interpretation: PIO-GCN PathRank is stronger at Top-20/50/100, while the stronger paper-feature baseline can overtake at Top-200. The method should be reported as rapid small-Top-K screening, not as a universal all-depth ranking winner.
+
+### Ensemble status
+
+Score-level ensemble is feasible but not implemented in this round. The review-safe artifact policy intentionally avoids tracking per-path score distributions and order details, so a reproducible ensemble should be implemented later by regenerating scores or saving compact top-N score summaries.
+
+### Artifact policy update
+
+Additional local-only paths ignored:
+
+```text
+results/gcn_search/paper_baseline_strong_v2/paper_dataset/
+results/gcn_search/paper_baseline_strong_v2/paper_train_ce_only/
+```
+
+### Validation
+
+```text
+pytest with renewable test = 26 passed, 260 warnings
+artifact self-check = PASS: PIO-GCN artifacts are review-ready.
+RL diff = empty
+```
+
 # Round 9 Final Polish and PR Readiness
 
 Purpose: final polish for the current PIO-GCN PathRank stage. This round does not add a new algorithm, does not rerun large experiments, and does not extend functionality.

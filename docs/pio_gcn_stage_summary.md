@@ -141,4 +141,20 @@ Key 5-seed RTS-79 full-truth result:
 
 The stronger paper-feature baseline was trained with 6 completed scenarios after the intended 20-scenario run exceeded the interactive runtime budget. It is stronger than the old weak baseline, but still not a fully tuned paper baseline.
 
-The synthetic renewable perturbation module and tests are implemented, but the renewable full-truth experiment has not yet been run. It remains a prepared next experiment, not a completed result.
+The synthetic renewable perturbation module, tests, and 3-seed full-truth preliminary experiment are completed. The run uses RTS-79 only, renewable penetration ratio 0.30, and synthetic output fluctuation. It is not a real renewable dynamic model and not field-measurement validation.
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| PIO-GCN PathRank | 0.237 | 0.347 | 0.426 | 0.495 |
+| paper_GCN_path_prob_strong | 0.232 | 0.306 | 0.379 | 0.456 |
+| LODF_yP | 0.037 | 0.071 | 0.076 | 0.220 |
+
+The 5-seed full-truth extension and the stronger paper-feature baseline show an important tradeoff:
+
+| Method | Recall@100 | Recall@200 |
+|---|---:|---:|
+| PIO-GCN PathRank | 0.423 | 0.521 |
+| paper_GCN_path_prob_strong | 0.350 | 0.568 |
+| paper_GCN_path_prob_strong_v2 | 0.330 | 0.565 |
+
+PIO-GCN PathRank is better for shallow Top-K screening, while the stronger paper-feature baseline can overtake at Top-200. This should be reported honestly.

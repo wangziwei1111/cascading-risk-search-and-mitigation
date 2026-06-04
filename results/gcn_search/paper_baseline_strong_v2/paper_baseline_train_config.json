@@ -1,0 +1,12 @@
+{
+  "output_dir": "results\\gcn_search\\paper_baseline_strong_v2",
+  "training_num_scenarios": 7,
+  "training_first_seed": 20260750,
+  "training_epochs": 5,
+  "training_max_active_depth": 1,
+  "candidate_line_filter_mode": "high_flow_top_n",
+  "max_first_lines": 10,
+  "beta": 1.2,
+  "security_limit": 1.0,
+  "skip_training_if_exists": true
+}

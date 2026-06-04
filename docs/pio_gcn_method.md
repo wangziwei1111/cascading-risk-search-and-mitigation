@@ -359,3 +359,7 @@ This method document uses the following current project boundary:
 - LODF_yP is around 21%, and the weak paper-feature `GCN_path_prob` baseline is around 14%.
 - The online-state update is implemented through the JSON measured-state interface only. It should not be described as connected to field SCADA/PMU systems.
 - These statements are preliminary RTS-79 conclusions and should not be used as final paper-scale claims.
+
+## Latest Scope Clarification
+
+The synthetic renewable perturbation experiment is now completed for 3 full-truth seeds at renewable penetration ratio 0.30. It is a synthetic RTS-79 operating-point perturbation only. The current result also shows a Top-K depth tradeoff: PIO-GCN PathRank is stronger at Top-20/50/100, while a stronger paper-feature baseline can surpass it at Top-200. The method should therefore be described as a rapid small-Top-K screening method, not as a final all-depth ranking solution.

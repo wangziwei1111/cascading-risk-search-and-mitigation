@@ -1,0 +1,2 @@
+﻿seed,method,top_k,critical_found,critical_path_recall,runtime_seconds,notes
+20260723,PIO_GCN_Top200,200,25,0.5102040816326531,0.5289220809936523,synthetic renewable preliminary

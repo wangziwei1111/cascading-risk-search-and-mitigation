@@ -35,5 +35,7 @@ results/gcn_search/*.pdf
 results/gcn_search/improved_opa_page_*.png
 results/gcn_search/paper_baseline_strong/paper_dataset/
 results/gcn_search/paper_baseline_strong/paper_train_ce_only/
+results/gcn_search/paper_baseline_strong_v2/paper_dataset/
+results/gcn_search/paper_baseline_strong_v2/paper_train_ce_only/
 results/gcn_search/pio_extended_fulltruth_5seed/training/
 results/gcn_search/**/diagnostics/per_seed_candidate_count.csv

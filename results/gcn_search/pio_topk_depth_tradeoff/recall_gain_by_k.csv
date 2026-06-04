@@ -1,0 +1,13 @@
+﻿top_k,baseline,pio_minus_baseline_recall
+20,paper_GCN_path_prob_strong,0.03541780253644661
+20,paper_GCN_path_prob_strong_v2,0.03541780253644655
+20,LODF_yP,0.1755398838449686
+50,paper_GCN_path_prob_strong,0.08372881355932199
+50,paper_GCN_path_prob_strong_v2,0.09383193078108326
+50,LODF_yP,0.2036814033424203
+100,paper_GCN_path_prob_strong,0.07251392675121487
+100,paper_GCN_path_prob_strong_v2,0.09313974161431787
+100,LODF_yP,0.21529335071707958
+200,paper_GCN_path_prob_strong,-0.04789854213583011
+200,paper_GCN_path_prob_strong_v2,-0.04405238828967628
+200,LODF_yP,0.1916972857650825

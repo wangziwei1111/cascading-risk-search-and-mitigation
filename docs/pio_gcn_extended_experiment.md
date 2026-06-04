@@ -34,12 +34,30 @@ max_first_lines = 10
 
 The 20-scenario run was stopped after exceeding the interactive runtime budget; 6 scenarios were completed and used. This remains a limited strong-baseline attempt and should not be described as a fully tuned paper baseline.
 
+## Strong Paper Baseline v2
+
+A second stronger paper-feature attempt was launched with 10 requested training scenarios:
+
+```text
+output_dir = results/gcn_search/paper_baseline_strong_v2
+feature_mode = paper
+training_num_scenarios attempted = 10
+training_num_scenarios completed = 7
+training_epochs = 5
+training_max_active_depth = 1
+candidate_line_filter_mode = high_flow_top_n
+max_first_lines = 10
+```
+
+The interactive run timed out after 7 completed scenario checkpoints. The v2 model was trained on those 7 completed scenarios and is therefore still a partial baseline, not a fully tuned baseline.
+
 ## Key Results
 
 | Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 | Notes |
 |---|---:|---:|---:|---:|---|
 | PIO_GCN_Top20/50/100/200 | 0.211 | 0.338 | 0.423 | 0.521 | Physics-enhanced features model |
 | paper_GCN_path_prob_strong | 0.176 | 0.254 | 0.350 | 0.568 | Stronger paper-feature baseline, limited to 6 training scenarios |
+| paper_GCN_path_prob_strong_v2 | 0.176 | 0.244 | 0.330 | 0.565 | Stronger paper-feature baseline v2, limited to 7 training scenarios |
 | LODF_yP | 0.036 | 0.134 | 0.207 | 0.329 | Physical-rule baseline |
 | random | 0.007 | 0.026 | 0.069 | 0.156 | Random baseline |
 | line_order | 0.007 | 0.025 | 0.060 | 0.134 | Line-number order |
@@ -50,6 +68,7 @@ The 20-scenario run was stopped after exceeding the interactive runtime budget; 
 - PIO-GCN PathRank still clearly outperforms LODF_yP at Top-20/50/100/200.
 - PIO-GCN PathRank outperforms the stronger paper-feature baseline at Top-20/50/100.
 - The stronger paper-feature baseline is better at Top-200 in this 5-seed result.
+- The v2 paper-feature baseline keeps the same Top-200 pattern, but it does not improve Top-20/50/100 over v1.
 - This means the earlier weak paper baseline limitation was real; the paper-feature baseline becomes more competitive when trained more fairly.
 - The current conclusion should be softened: physics-enhanced features are useful, but they are not the only competitive route, especially when evaluating deeper Top-K lists.
 

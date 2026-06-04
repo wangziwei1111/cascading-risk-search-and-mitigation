@@ -48,6 +48,8 @@ python src/gcn_search/legacy_rts79/evaluate_rts79_pio_gcn_topk.py --model <model
 python src/gcn_search/legacy_rts79/run_pio_gcn_formal_small_experiment.py --output-dir results/gcn_search/pio_formal_preliminary_3seed --test-num-seeds 3 --top-k 20 50 100
 python src/gcn_search/legacy_rts79/run_pio_gcn_formal_ablation.py --output-dir results/gcn_search/pio_formal_ablation_3seed --base-experiment-dir results/gcn_search/pio_formal_preliminary_3seed --top-k 20 50 100
 python src/gcn_search/legacy_rts79/run_pio_gcn_rank_loss_experiment.py --output-dir results/gcn_search/pio_rank_loss_preliminary_3seed --base-experiment-dir results/gcn_search/pio_formal_preliminary_3seed
+python src/gcn_search/legacy_rts79/run_pio_gcn_renewable_preliminary_experiment.py --output-dir results/gcn_search/pio_renewable_preliminary --renewable-penetration-ratio 0.30 --top-k 20 50 100 200
+python src/gcn_search/legacy_rts79/analyze_topk_depth_tradeoff.py --output-dir results/gcn_search/pio_topk_depth_tradeoff
 python scripts/gcn_search/check_pio_gcn_artifacts.py
 ```
 
@@ -69,6 +71,8 @@ Current PIO-GCN PathRank preliminary conclusion:
 - On the 3-seed RTS-79 full-truth preliminary result, Top-100 recall is around 42%.
 - LODF_yP is around 21% Top-100 recall, and the weak paper-feature `GCN_path_prob` baseline is around 14%.
 - Candidate mask, original physics loss, and pairwise rank-loss are not the main contributors in the current preliminary results.
+- The 5-seed extension shows a depth tradeoff: PIO-GCN PathRank remains better at Top-20/50/100, while a stronger paper-feature baseline can surpass it at Top-200.
+- The synthetic renewable perturbation run is completed for 3 seeds at 0.30 penetration ratio, but it is only a synthetic RTS-79 robustness check.
 - These are RTS-79 3-seed preliminary results, not final paper-scale performance claims.
 - The online-state feature is a JSON measured-state interface only; it is not connected to field SCADA/PMU systems.
 
@@ -79,6 +83,8 @@ docs/pio_gcn_stage_summary.md
 docs/pio_gcn_advisor_brief.md
 docs/pio_gcn_pr_description.md
 docs/pio_gcn_reproduction_commands.md
+docs/pio_gcn_renewable_preliminary.md
+docs/pio_gcn_topk_depth_tradeoff.md
 ```
 
 ### 2. RL cascade mitigation reproduction

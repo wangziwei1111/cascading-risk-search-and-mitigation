@@ -26,6 +26,7 @@ def test_pio_gcn_key_modules_import() -> None:
         "train_rts79_paper_baseline_strong",
         "renewable_scenarios",
         "run_pio_gcn_renewable_preliminary_experiment",
+        "analyze_topk_depth_tradeoff",
         "analyze_pio_gcn_loss_diagnostics",
     ]
 
