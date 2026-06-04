@@ -32,6 +32,14 @@ The previous GCN search artifacts were spread across smoke runs and intermediate
 | Weak paper-feature `GCN_path_prob` | 5.67 | 7.00 | 8.00 | about 14% |
 | Oracle upper bound | 20.00 | 50.00 | 55.33 | 100% |
 
+Next-stage 5-seed RTS-79 full-truth result:
+
+| Method | Recall@100 | Recall@200 |
+|---|---:|---:|
+| PIO-GCN PathRank | 0.423 | 0.521 |
+| paper_GCN_path_prob_strong | 0.350 | 0.568 |
+| LODF_yP | 0.207 | 0.329 |
+
 ## Ablation Conclusion
 
 - Main contributor: physics-enhanced features.
@@ -72,6 +80,8 @@ results/gcn_search/tracked_large_files_removed_round8.txt
 - Only RTS-79 is covered.
 - Only 3 full-truth test seeds are used for the key preliminary result.
 - The paper-feature baseline is weak under the current small training setup.
+- The stronger paper-feature baseline was only trained with 6 completed scenarios because the 20-scenario attempt exceeded the interactive runtime budget.
+- The synthetic renewable perturbation module is implemented and tested, but renewable full-truth results have not yet been run.
 - The measured-state pathway is a JSON measured-state interface only; it is not connected to field SCADA/PMU systems.
 - Original physics loss and pairwise rank-loss are implemented and measured, but they are not yet decisive contributors.
 - This is a 3-seed RTS-79 full-truth preliminary result, not a final paper-scale claim.

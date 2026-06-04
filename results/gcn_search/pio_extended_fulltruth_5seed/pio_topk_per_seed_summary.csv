@@ -1,0 +1,21 @@
+﻿seed,top_k,total_critical_paths,critical_found,critical_path_recall,total_load_shed_found_mw,runtime_seconds,notes
+20260722,20,55,14,0.2545454545454545,4709.38426448707,28.0230073928833,physics-informed model; formal small experiment full truth
+20260722,50,55,17,0.3090909090909091,5180.26558791425,28.0230073928833,physics-informed model; formal small experiment full truth
+20260722,100,55,22,0.4,5988.2677212617955,28.0230073928833,physics-informed model; formal small experiment full truth
+20260722,200,55,29,0.5272727272727272,7517.413711003494,28.0230073928833,physics-informed model; formal small experiment full truth
+20260723,20,52,9,0.173076923076923,3605.60410277628,26.30108070373535,physics-informed model; formal small experiment full truth
+20260723,50,52,18,0.3461538461538461,5727.698408636781,26.30108070373535,physics-informed model; formal small experiment full truth
+20260723,100,52,22,0.4230769230769231,6169.742148024221,26.30108070373535,physics-informed model; formal small experiment full truth
+20260723,200,52,27,0.5192307692307693,8120.86872379108,26.30108070373535,physics-informed model; formal small experiment full truth
+20260724,20,59,13,0.2203389830508474,4342.193779975123,29.0084810256958,physics-informed model; formal small experiment full truth
+20260724,50,59,22,0.3728813559322034,6462.578186459766,29.0084810256958,physics-informed model; formal small experiment full truth
+20260724,100,59,26,0.4406779661016949,7444.152947977877,29.0084810256958,physics-informed model; formal small experiment full truth
+20260724,200,59,31,0.5254237288135594,8649.634773197198,29.0084810256958,physics-informed model; formal small experiment full truth
+20260725,20,52,10,0.1923076923076923,4135.690027680936,25.46994185447693,physics-informed model; formal small experiment full truth
+20260725,50,52,16,0.3076923076923077,5384.31564060384,25.46994185447693,physics-informed model; formal small experiment full truth
+20260725,100,52,21,0.4038461538461538,7332.272255627335,25.46994185447693,physics-informed model; formal small experiment full truth
+20260725,200,52,24,0.4615384615384615,8103.141752690286,25.46994185447693,physics-informed model; formal small experiment full truth
+20260726,20,65,14,0.2153846153846154,5220.970055774591,25.625610828399658,physics-informed model; formal small experiment full truth
+20260726,50,65,23,0.3538461538461538,7151.880783956169,25.625610828399658,physics-informed model; formal small experiment full truth
+20260726,100,65,29,0.4461538461538462,8717.91806848976,25.625610828399658,physics-informed model; formal small experiment full truth
+20260726,200,65,37,0.5692307692307692,10417.37194979663,25.625610828399658,physics-informed model; formal small experiment full truth

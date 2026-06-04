@@ -1,0 +1,4 @@
+﻿model,mean_predicted_positive_probability,positive_prediction_rate_at_0.5,positive_prediction_rate_at_0.8
+physics_ce,,,
+original_physics_loss,,,
+pairwise_rank_loss,0.7037737965583801,0.9742647058823528,0.230392156862745

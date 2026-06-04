@@ -18,3 +18,7 @@
 当前可信结论是：在 RTS-79 小系统 3-seed preliminary 条件下，物理特征增强的 GCN 排序能明显优于弱 paper GCN 和 LODF_yP，用较少 Top-K 尝试找到更多关键路径。但这还不是最终论文结论，样本规模和测试 seeds 还需要扩大。
 
 下一步建议是：扩大训练负荷场景和测试 seeds；系统调节 pairwise rank-loss 权重和 margin；做概率校准，避免模型过度预测高风险；再和更强的物理规则、训练更充分的 paper GCN baseline 做对比。
+
+第二阶段已经补做了一个 5-seed RTS-79 full-truth 扩展实验。结果是：PIO-GCN PathRank 在 Top-100 recall 约为 0.423，strong paper-feature GCN_path_prob 约为 0.350，LODF_yP 约为 0.207；但在 Top-200，strong paper baseline 约为 0.568，PIO-GCN 约为 0.521。这说明 PIO-GCN 在前排搜索仍有优势，但更公平的 paper baseline 也有竞争力，不能再只拿 weak baseline 说明问题。
+
+新能源部分目前完成了 synthetic renewable perturbation 模块、示例和测试，但还没有跑 full-truth renewable 实验。因此只能说“已准备新能源扰动实验框架”，不能说已经得到新能源场景结论。

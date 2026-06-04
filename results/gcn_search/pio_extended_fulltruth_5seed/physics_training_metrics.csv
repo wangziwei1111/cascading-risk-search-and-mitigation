@@ -1,0 +1,2 @@
+﻿split,total_accuracy,hit_rate,cover_rate,f1,true_positive,true_negative,false_positive,false_negative
+validation,0.12254901960784313,0.10611735330836454,1.0,0.19187358916478553,85,15,716,0

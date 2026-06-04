@@ -1,0 +1,10 @@
+{
+  "renewable_penetration_ratio": 0.2,
+  "renewable_buses": [3, 7, 16],
+  "renewable_generator_indices": [],
+  "fluctuation_low": 0.6,
+  "fluctuation_high": 1.1,
+  "random_seed": 20260722,
+  "balance_mode": "scale_generation",
+  "description": "Synthetic RTS-79 renewable output perturbation for GCN search robustness checks; not a real renewable dynamic model."
+}

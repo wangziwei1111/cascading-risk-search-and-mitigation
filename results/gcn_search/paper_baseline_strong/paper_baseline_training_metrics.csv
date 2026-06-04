@@ -1,0 +1,2 @@
+﻿split,total_accuracy,hit_rate,cover_rate,f1,true_positive,true_negative,false_positive,false_negative,precision,recall,pr_auc,mean_predicted_positive_probability,positive_prediction_rate_at_0.5,positive_prediction_rate_at_0.8,ranking_ap,mean_positive_score,mean_negative_score,positive_negative_score_gap,mean_physics_loss
+validation,0.08298755186721991,0.08298755186721991,1.0,0.15325670498084293,40,0,442,0,0.08298755186721991,1.0,0.30064909720047506,0.6762199997901917,1.0,0.058091286307053944,0.30064909720047506,0.7291904091835022,0.6714263558387756,0.05776405334472656,0.0

@@ -16,6 +16,8 @@ REQUIRED_FILES = [
     "docs/pio_gcn_advisor_brief.md",
     "docs/pio_gcn_pr_description.md",
     "docs/pio_gcn_reproduction_commands.md",
+    "docs/pio_gcn_extended_experiment.md",
+    "docs/pio_gcn_renewable_preliminary.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/pio_formal_preliminary_3seed/config.json",
     "results/gcn_search/pio_formal_preliminary_3seed/aggregate_method_comparison.csv",
@@ -26,6 +28,12 @@ REQUIRED_FILES = [
     "results/gcn_search/pio_rank_loss_preliminary_3seed/aggregate_method_comparison.csv",
     "results/gcn_search/pio_rank_loss_preliminary_3seed/diagnostics/rank_loss_vs_ce_summary.csv",
     "results/gcn_search/tracked_large_files_removed_round8.txt",
+    "results/gcn_search/pio_extended_fulltruth_5seed/config.json",
+    "results/gcn_search/pio_extended_fulltruth_5seed/per_seed_fulltruth_summary.csv",
+    "results/gcn_search/pio_extended_fulltruth_5seed/aggregate_method_comparison.csv",
+    "results/gcn_search/pio_extended_fulltruth_5seed/diagnostics/per_seed_variability.csv",
+    "results/gcn_search/paper_baseline_strong/paper_baseline_eval_summary.csv",
+    "results/gcn_search/pio_loss_diagnostics/recommendations.md",
 ]
 
 
@@ -35,6 +43,9 @@ SUMMARY_FILES = [
     "results/gcn_search/pio_formal_ablation_3seed/ablation_method_comparison.csv",
     "results/gcn_search/pio_rank_loss_preliminary_3seed/aggregate_method_comparison.csv",
     "results/gcn_search/pio_rank_loss_preliminary_3seed/diagnostics/rank_loss_vs_ce_summary.csv",
+    "results/gcn_search/pio_extended_fulltruth_5seed/aggregate_method_comparison.csv",
+    "results/gcn_search/paper_baseline_strong/paper_baseline_eval_summary.csv",
+    "results/gcn_search/pio_loss_diagnostics/loss_contribution_summary.csv",
 ]
 
 
@@ -46,6 +57,9 @@ DISALLOWED_TRACKED_SUBSTRINGS = [
     "simulation_results",
     "scenario_checkpoints",
     "per_method_score_distribution.csv",
+    "topk_score_distribution.csv",
+    "found_critical_paths.csv",
+    "missed_critical_paths.csv",
 ]
 
 
@@ -117,6 +131,12 @@ def main() -> int:
     stage_text = _read_text("docs/pio_gcn_stage_summary.md") if (ROOT / "docs/pio_gcn_stage_summary.md").exists() else ""
     if "run_pio_gcn_formal_experiment.py" in stage_text:
         failures.append("Stage summary contains nonexistent script: run_pio_gcn_formal_experiment.py")
+    if "real SCADA/PMU integration" in stage_text:
+        failures.append("Stage summary contains an overstated SCADA/PMU integration claim.")
+
+    renewable_text = _read_text("docs/pio_gcn_renewable_preliminary.md") if (ROOT / "docs/pio_gcn_renewable_preliminary.md").exists() else ""
+    if "synthetic renewable" not in renewable_text.lower():
+        failures.append("Renewable preliminary doc does not clearly state synthetic renewable scope.")
 
     tracked = _git_ls_files("results/gcn_search")
     bad_files: list[str] = []

@@ -345,3 +345,20 @@ The formal preliminary result should now be read with the following consistent i
 - Pairwise rank-loss does not improve Top-20/Top-50; its small Top-100 increase is not yet a robust contribution.
 - The experiment is still RTS-79 3-seed preliminary, not a final performance claim.
 - The measured-state path is a JSON measured-state interface, not connected to field SCADA/PMU systems.
+
+# Next-Stage Extended Full-Truth Result
+
+The next-stage update adds a 5-seed RTS-79 full-truth result:
+
+```text
+results/gcn_search/pio_extended_fulltruth_5seed/
+```
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| PIO-GCN PathRank | 0.211 | 0.338 | 0.423 | 0.521 |
+| paper_GCN_path_prob_strong | 0.176 | 0.254 | 0.350 | 0.568 |
+| LODF_yP | 0.036 | 0.134 | 0.207 | 0.329 |
+| oracle | 0.356 | 0.890 | 1.000 | 1.000 |
+
+This result keeps the Top-100 advantage of PIO-GCN PathRank over the stronger paper-feature baseline and LODF_yP. However, the stronger paper-feature baseline surpasses PIO-GCN at Top-200, so the conclusion should remain cautious.

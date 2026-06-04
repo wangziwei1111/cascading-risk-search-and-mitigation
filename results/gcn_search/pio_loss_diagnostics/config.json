@@ -1,0 +1,8 @@
+{
+  "output_dir": "results\\gcn_search\\pio_loss_diagnostics",
+  "physics_ce_metrics": "results/gcn_search/pio_formal_preliminary_3seed/training/physics_ce_only/rts79_physics_gcn_metrics.csv",
+  "physics_loss_metrics": "results/gcn_search/pio_formal_preliminary_3seed/training/physics_informed/rts79_physics_gcn_metrics.csv",
+  "rank_loss_metrics": "results/gcn_search/pio_rank_loss_preliminary_3seed/rank_loss_training_metrics.csv",
+  "ablation_summary": "results/gcn_search/pio_formal_ablation_3seed/ablation_method_comparison.csv",
+  "rank_loss_summary": "results/gcn_search/pio_rank_loss_preliminary_3seed/aggregate_method_comparison.csv"
+}

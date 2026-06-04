@@ -98,6 +98,82 @@ The current PIO-GCN PathRank preliminary milestone supports one cautious conclus
 - Candidate mask, original physics loss, and pairwise rank-loss are implemented and measured, but they are not yet decisive contributors.
 - This is a preliminary milestone, not a final paper-scale conclusion.
 
+# Next-Stage Shortcoming Fixes
+
+Purpose: address the main research shortcomings after PR #1 became review-ready. This round expands RTS-79 full-truth seeds, trains a more comparable paper-feature baseline, adds a synthetic renewable perturbation framework, and adds diagnostics for why original physics loss and pairwise rank-loss remain limited. No RL mitigation files were modified and the original `GCN_path_prob` method remains preserved.
+
+## Extended Full-Truth Configuration
+
+```text
+script = src/gcn_search/legacy_rts79/run_pio_gcn_extended_fulltruth_experiment.py
+output_dir = results/gcn_search/pio_extended_fulltruth_5seed
+test_seed_start = 20260722
+test_num_seeds = 5
+top_k = 20, 50, 100, 200
+run_full_truth = true
+```
+
+The requested 10-seed option was not run in this interactive round to control runtime. The completed 5-seed full-truth run satisfies the minimum requested extended setting.
+
+## Strong Paper Baseline Configuration
+
+```text
+script = src/gcn_search/legacy_rts79/train_rts79_paper_baseline_strong.py
+output_dir = results/gcn_search/paper_baseline_strong
+feature_mode = paper
+training_num_scenarios attempted = 20
+training_num_scenarios completed = 6
+training_epochs = 5
+training_max_active_depth = 1
+candidate_line_filter_mode = high_flow_top_n
+max_first_lines = 10
+```
+
+The 20-scenario run exceeded the interactive runtime budget after generating 6 scenarios. The completed 6-scenario model was used as `paper_GCN_path_prob_strong`. This is more comparable than the old weak paper baseline, but it is still not a fully tuned paper baseline.
+
+## Synthetic Renewable Configuration
+
+```text
+module = src/gcn_search/legacy_rts79/renewable_scenarios.py
+example = examples/rts79_renewable_scenario_example.json
+experiment_script = src/gcn_search/legacy_rts79/run_pio_gcn_renewable_preliminary_experiment.py
+test = tests/test_renewable_scenarios.py
+```
+
+This is a synthetic renewable perturbation on RTS-79 only. It is not a real renewable grid model, not EMT simulation, and not dynamic simulation. The renewable full-truth experiment was not run in this round because the extended 5-seed full-truth experiment was prioritized.
+
+## Extended 5-Seed Result Summary
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| PIO-GCN PathRank | 0.211 | 0.338 | 0.423 | 0.521 |
+| paper_GCN_path_prob_strong | 0.176 | 0.254 | 0.350 | 0.568 |
+| LODF_yP | 0.036 | 0.134 | 0.207 | 0.329 |
+| oracle | 0.356 | 0.890 | 1.000 | 1.000 |
+
+Interpretation: PIO-GCN PathRank remains stronger than LODF_yP and the stronger paper-feature baseline at Top-100. However, the stronger paper-feature baseline surpasses PIO-GCN at Top-200, so the conclusion must remain cautious.
+
+## Loss Diagnostics
+
+```text
+script = src/gcn_search/legacy_rts79/analyze_pio_gcn_loss_diagnostics.py
+output_dir = results/gcn_search/pio_loss_diagnostics
+```
+
+Summary: original physics loss and pairwise rank-loss are useful diagnostics, but current evidence suggests they are not decisive Top-K ranking contributors. Recommended next steps are hard negative mining and path-level ranking loss.
+
+## Validation Status
+
+```text
+pytest with renewable test: 26 passed, 270 warnings
+artifact self-check: PASS: PIO-GCN artifacts are review-ready.
+extended full truth: completed, 5 seeds, full truth
+renewable preliminary full truth: not run
+synthetic renewable module/test: completed
+RL diff: empty
+original GCN_path_prob: preserved
+```
+
 # PIO-GCN PathRank 验证日志
 
 ## 基本信息

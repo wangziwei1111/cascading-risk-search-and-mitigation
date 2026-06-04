@@ -1,0 +1,6 @@
+﻿method,num_test_seeds,mean_runtime_seconds,notes
+paper_GCN_path_prob_strong,5,2.761722707748413,paper-feature GCN_path_prob trained with the strong baseline configuration
+LODF_yP,5,1.8833779335021972,physical-rule ranking baseline
+random,5,0.00030846595764153997,fixed random seed per test seed
+line_order,5,8.955001831053186e-05,line-number order baseline
+oracle,5,0.00051312446594236,upper bound only; not a deployable search method

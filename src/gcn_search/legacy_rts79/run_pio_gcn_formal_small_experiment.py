@@ -256,24 +256,25 @@ def _evaluate_baselines_for_seed(seed: int, truth: pd.DataFrame, config: FormalS
     if paths["paper_model"] is not None and paths["paper_normalizer"] is not None:
         paper_model, paper_adjacency = _load_gcn_model(paths["paper_model"])
         paper_normalizer = json.loads(paths["paper_normalizer"].read_text(encoding="utf-8"))
+        paper_method = "paper_GCN_path_prob_strong" if config.paper_baseline_model else "original_GCN_path_prob"
         order_builders = {
-            "original_GCN_path_prob": lambda: _make_gcn_path_probability_order(paper_model, paper_adjacency, paper_normalizer, initial_config, search_config),
+            paper_method: lambda: _make_gcn_path_probability_order(paper_model, paper_adjacency, paper_normalizer, initial_config, search_config),
             **order_builders,
         }
     for method, builder in order_builders.items():
         start = time.time()
         ordered_paths = list(builder())
-        summary = _summarize_order(method, seed, ordered_paths, truth_by_path, total_critical, time.time() - start)
+        summary = _summarize_order(method, seed, ordered_paths, truth_by_path, total_critical, time.time() - start, config.top_k)
         summary["notes"] = _baseline_notes(method)
         rows.append(summary)
     pd.DataFrame(rows).to_csv(seed_dir / "baseline_per_seed_summary.csv", index=False, encoding="utf-8-sig")
     return rows
 
 
-def _summarize_order(method: str, seed: int, ordered_paths: list[str], truth_by_path: dict, total_critical: int, runtime: float) -> dict:
+def _summarize_order(method: str, seed: int, ordered_paths: list[str], truth_by_path: dict, total_critical: int, runtime: float, top_k_values: tuple[int, ...] = (20, 50, 100)) -> dict:
     found: set[str] = set()
     attempts_to_find_all = np.nan
-    found_after = {20: 0, 50: 0, 100: 0}
+    found_after = {int(k): 0 for k in top_k_values}
     for attempt, path in enumerate(ordered_paths, start=1):
         truth = truth_by_path.get(path)
         if truth and bool(truth.get("critical", False)):
@@ -288,12 +289,8 @@ def _summarize_order(method: str, seed: int, ordered_paths: list[str], truth_by_
         "seed": seed,
         "method": method,
         "attempts_to_find_all": attempts_to_find_all,
-        "found_after_20": int(found_after[20]),
-        "found_after_50": int(found_after[50]),
-        "found_after_100": int(found_after[100]),
-        "recall_at_20": float(found_after[20] / max(total_critical, 1)),
-        "recall_at_50": float(found_after[50] / max(total_critical, 1)),
-        "recall_at_100": float(found_after[100] / max(total_critical, 1)),
+        **{f"found_after_{k}": int(found_after[k]) for k in found_after},
+        **{f"recall_at_{k}": float(found_after[k] / max(total_critical, 1)) for k in found_after},
         "total_critical_paths": total_critical,
         "runtime_seconds": float(runtime),
     }
@@ -302,6 +299,8 @@ def _summarize_order(method: str, seed: int, ordered_paths: list[str], truth_by_
 def _baseline_notes(method: str) -> str:
     if method == "oracle":
         return "upper bound only; not a deployable search method"
+    if method == "paper_GCN_path_prob_strong":
+        return "paper-feature GCN_path_prob trained with the strong baseline configuration"
     if method == "original_GCN_path_prob":
         return "weak paper-feature model trained inside this small experiment; preliminary result"
     if method == "LODF_yP":
@@ -340,33 +339,38 @@ def _make_aggregate_method_comparison(pio: pd.DataFrame, baseline: pd.DataFrame)
                 "method": row["method"],
                 "num_test_seeds": row["num_test_seeds"],
                 "mean_total_critical_paths": row["mean_total_critical_paths"],
-                "mean_found_after_20": row["mean_critical_found"] if int(row["top_k"]) == 20 else "",
-                "mean_found_after_50": row["mean_critical_found"] if int(row["top_k"]) == 50 else "",
-                "mean_found_after_100": row["mean_critical_found"] if int(row["top_k"]) == 100 else "",
+                **{f"mean_found_after_{int(row['top_k'])}": row["mean_critical_found"]},
+                **{f"std_found_after_{int(row['top_k'])}": row["std_critical_found"]},
                 "mean_attempts_to_find_all": "",
-                "mean_recall_at_20": row["mean_critical_path_recall"] if int(row["top_k"]) == 20 else "",
-                "mean_recall_at_50": row["mean_critical_path_recall"] if int(row["top_k"]) == 50 else "",
-                "mean_recall_at_100": row["mean_critical_path_recall"] if int(row["top_k"]) == 100 else "",
+                "std_attempts_to_find_all": "",
+                **{f"mean_recall_at_{int(row['top_k'])}": row["mean_critical_path_recall"]},
+                **{f"std_recall_at_{int(row['top_k'])}": row["std_critical_path_recall"]},
                 "mean_runtime_seconds": row["mean_runtime_seconds"],
+                "std_runtime_seconds": "",
                 "notes": row["notes"],
             }
         )
     for method, group in baseline.groupby("method", sort=False):
+        row = {
+            "method": method,
+            "num_test_seeds": int(group["seed"].nunique()),
+            "mean_total_critical_paths": float(group["total_critical_paths"].mean()),
+            "mean_attempts_to_find_all": float(pd.to_numeric(group["attempts_to_find_all"], errors="coerce").mean()),
+            "std_attempts_to_find_all": float(pd.to_numeric(group["attempts_to_find_all"], errors="coerce").std(ddof=0)),
+            "mean_runtime_seconds": float(group["runtime_seconds"].mean()),
+            "std_runtime_seconds": float(group["runtime_seconds"].std(ddof=0)),
+            "notes": str(group["notes"].iloc[0]),
+        }
+        for col in sorted([c for c in group.columns if c.startswith("found_after_")], key=lambda name: int(name.rsplit("_", 1)[1])):
+            k = col.rsplit("_", 1)[1]
+            row[f"mean_found_after_{k}"] = float(group[col].mean())
+            row[f"std_found_after_{k}"] = float(group[col].std(ddof=0))
+        for col in sorted([c for c in group.columns if c.startswith("recall_at_")], key=lambda name: int(name.rsplit("_", 1)[1])):
+            k = col.rsplit("_", 1)[1]
+            row[f"mean_recall_at_{k}"] = float(group[col].mean())
+            row[f"std_recall_at_{k}"] = float(group[col].std(ddof=0))
         rows.append(
-            {
-                "method": method,
-                "num_test_seeds": int(group["seed"].nunique()),
-                "mean_total_critical_paths": float(group["total_critical_paths"].mean()),
-                "mean_found_after_20": float(group["found_after_20"].mean()),
-                "mean_found_after_50": float(group["found_after_50"].mean()),
-                "mean_found_after_100": float(group["found_after_100"].mean()),
-                "mean_attempts_to_find_all": float(pd.to_numeric(group["attempts_to_find_all"], errors="coerce").mean()),
-                "mean_recall_at_20": float(group["recall_at_20"].mean()),
-                "mean_recall_at_50": float(group["recall_at_50"].mean()),
-                "mean_recall_at_100": float(group["recall_at_100"].mean()),
-                "mean_runtime_seconds": float(group["runtime_seconds"].mean()),
-                "notes": str(group["notes"].iloc[0]),
-            }
+            row
         )
     return pd.DataFrame(rows)
 

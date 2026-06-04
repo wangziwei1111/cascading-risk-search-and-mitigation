@@ -1,0 +1,5 @@
+﻿method,top_k,num_test_seeds,mean_total_critical_paths,mean_critical_found,std_critical_found,mean_critical_path_recall,std_critical_path_recall,mean_total_load_shed_found_mw,mean_runtime_seconds,notes
+PIO_GCN_Top20,20,5,56.6,12.0,2.0976176963403033,0.21113073367310653,0.02753225287467907,4402.7684461388,26.885624361038207,full ordered N-2 truth; formal small RTS-79 experiment
+PIO_GCN_Top50,50,5,56.6,19.2,2.7856776554368237,0.337932914543084,0.025645912104664215,5981.347721514161,26.885624361038207,full ordered N-2 truth; formal small RTS-79 experiment
+PIO_GCN_Top100,100,5,56.6,24.0,3.03315017762062,0.4227509778357236,0.018677134451848435,7130.470628276196,26.885624361038207,full ordered N-2 truth; formal small RTS-79 experiment
+PIO_GCN_Top200,200,5,56.6,29.6,4.363484845854286,0.5205392912172574,0.034417632270279656,8561.686182095738,26.885624361038207,full ordered N-2 truth; formal small RTS-79 experiment

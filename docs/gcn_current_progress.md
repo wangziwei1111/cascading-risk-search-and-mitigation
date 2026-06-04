@@ -433,3 +433,22 @@ The current review-ready conclusion is:
 | Claim boundary | RTS-79 3-seed preliminary only; not final paper-scale performance. |
 
 In plain Chinese: this stage can report that "adding physics-enhanced features to the GCN input is useful"; it should not report that original physics loss, candidate mask, or pairwise rank-loss has already become the decisive improvement.
+
+# Next-Stage Shortcoming Fixes
+
+| Item | Status |
+|---|---|
+| Extended full-truth seeds | Completed 5-seed RTS-79 full-truth result. |
+| Strong paper baseline | Completed limited 6-scenario paper-feature GCN_path_prob training; 20-scenario attempt was too slow. |
+| Synthetic renewable perturbation | Module, example, test, and experiment script added; renewable full-truth experiment not yet run. |
+| Loss diagnostics | Added diagnostics explaining why original physics loss and pairwise rank-loss are not decisive yet. |
+
+Key 5-seed result:
+
+| Method | Recall@100 | Recall@200 |
+|---|---:|---:|
+| PIO-GCN PathRank | 0.423 | 0.521 |
+| paper_GCN_path_prob_strong | 0.350 | 0.568 |
+| LODF_yP | 0.207 | 0.329 |
+
+This strengthens the earlier conclusion that PIO-GCN PathRank is useful at Top-100, but it also shows that a stronger paper-feature baseline can become competitive and even surpass PIO-GCN at Top-200. This should be reported honestly.

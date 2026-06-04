@@ -1,0 +1,4 @@
+﻿model,pr_auc,mean_predicted_positive_probability,mean_positive_score,mean_negative_score,positive_negative_score_gap
+physics_ce,,,,,
+original_physics_loss,,,,,
+pairwise_rank_loss,0.4401695524158526,0.7037737965583801,0.8054183125495911,0.6919546723365784,0.1134636402130127

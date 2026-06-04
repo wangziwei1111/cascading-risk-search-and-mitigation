@@ -22,6 +22,11 @@ def test_pio_gcn_key_modules_import() -> None:
         "run_pio_gcn_formal_small_experiment",
         "run_pio_gcn_formal_ablation",
         "run_pio_gcn_rank_loss_experiment",
+        "run_pio_gcn_extended_fulltruth_experiment",
+        "train_rts79_paper_baseline_strong",
+        "renewable_scenarios",
+        "run_pio_gcn_renewable_preliminary_experiment",
+        "analyze_pio_gcn_loss_diagnostics",
     ]
 
     for module_name in module_names:

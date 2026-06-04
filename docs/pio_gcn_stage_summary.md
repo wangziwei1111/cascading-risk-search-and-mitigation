@@ -119,3 +119,26 @@ The pairwise rank-loss model does not improve Top-20 or Top-50. It gives a small
 - Calibrate model probabilities to reduce over-prediction.
 - Compare against stronger physical baselines and a better-trained paper-feature model.
 - Keep the current PIO-GCN branch as a reviewable preliminary milestone before adding new algorithms.
+
+## Next-Stage Shortcoming Fixes
+
+The next-stage update expands the evaluation beyond the original 3-seed preliminary result.
+
+Extended full-truth output:
+
+```text
+results/gcn_search/pio_extended_fulltruth_5seed/
+```
+
+Key 5-seed RTS-79 full-truth result:
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| PIO-GCN PathRank | 0.211 | 0.338 | 0.423 | 0.521 |
+| paper_GCN_path_prob_strong | 0.176 | 0.254 | 0.350 | 0.568 |
+| LODF_yP | 0.036 | 0.134 | 0.207 | 0.329 |
+| oracle | 0.356 | 0.890 | 1.000 | 1.000 |
+
+The stronger paper-feature baseline was trained with 6 completed scenarios after the intended 20-scenario run exceeded the interactive runtime budget. It is stronger than the old weak baseline, but still not a fully tuned paper baseline.
+
+The synthetic renewable perturbation module and tests are implemented, but the renewable full-truth experiment has not yet been run. It remains a prepared next experiment, not a completed result.
