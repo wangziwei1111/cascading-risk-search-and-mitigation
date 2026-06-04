@@ -7,7 +7,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from pypower.idx_brch import BR_STATUS
+from pypower.idx_brch import BR_STATUS, PF
 
 from rts79_cascade import (
     Rts79InitialConfig,
@@ -34,6 +34,8 @@ class Step2StateDatasetConfig:
     relay_threshold_beta: float = 1.2
     security_limit: float = 1.0
     feature_mode: str = "paper"
+    candidate_line_filter_mode: str = "all"
+    max_first_lines: int | None = None
 
 
 def generate_step2_state_dataset(config: Step2StateDatasetConfig, output_dir: str | Path) -> dict:
@@ -138,6 +140,8 @@ def consolidate_step2_state_checkpoints(output_dir: str | Path, config: Step2Sta
         "reachable_positive_ratio": float((y_reachable * loss_mask).sum() / max(loss_mask.sum(), 1)),
         "model_input_uses_normalized_features": True,
         "physics_loss_uses_raw_physical_features": config.feature_mode == "physics",
+        "candidate_line_filter_mode": config.candidate_line_filter_mode,
+        "max_first_lines": config.max_first_lines,
     }
     (out / f"rts79_step2_state_dataset_stats{suffix}.json").write_text(
         json.dumps({**asdict(config), **stats}, ensure_ascii=False, indent=2),
@@ -199,8 +203,7 @@ def _make_state_x_gcn(case: dict, config: Step2StateDatasetConfig) -> np.ndarray
 def _make_state_specs(base_case: dict, initial_config: Rts79InitialConfig, config: Step2StateDatasetConfig) -> list[tuple[tuple[str, ...], dict]]:
     specs: list[tuple[tuple[str, ...], dict]] = [(tuple(), base_case)]
     if config.max_active_depth >= 1:
-        for line_idx in range(1, base_case["branch"].shape[0] + 1):
-            first_line = f"L{line_idx:02d}"
+        for first_line in _select_first_lines(base_case, config):
             sequence_state = run_sequential_initial_outages_dcpf(
                 [first_line],
                 config=initial_config,
@@ -211,6 +214,22 @@ def _make_state_specs(base_case: dict, initial_config: Rts79InitialConfig, confi
                 continue
             specs.append(((first_line,), sequence_state.case))
     return specs
+
+
+def _select_first_lines(base_case: dict, config: Step2StateDatasetConfig) -> list[str]:
+    online_indices = [idx for idx, row in enumerate(base_case["branch"]) if int(row[BR_STATUS]) == 1]
+    mode = config.candidate_line_filter_mode
+    if mode == "all":
+        selected = online_indices
+    elif mode == "first_n":
+        selected = online_indices[: config.max_first_lines or len(online_indices)]
+    elif mode == "high_flow_top_n":
+        n = config.max_first_lines or len(online_indices)
+        flow_rank = sorted(online_indices, key=lambda idx: abs(float(base_case["branch"][idx, PF])), reverse=True)
+        selected = flow_rank[:n]
+    else:
+        raise ValueError(f"Unsupported candidate_line_filter_mode: {mode}")
+    return [f"L{idx + 1:02d}" for idx in selected]
 
 
 def _label_state(
@@ -286,6 +305,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--beta", type=float, default=1.2, help="Relay threshold beta.")
     parser.add_argument("--security-limit", type=float, default=1.0, help="Redispatch security loading limit.")
     parser.add_argument("--feature-mode", choices=["paper", "physics"], default="paper", help="GCN feature mode.")
+    parser.add_argument("--candidate-line-filter-mode", choices=["all", "first_n", "high_flow_top_n"], default="all", help="First-line expansion filter mode.")
+    parser.add_argument("--max-first-lines", type=int, help="Maximum first-outage lines expanded when filter mode is not all.")
     parser.add_argument("--consolidate-only", action="store_true", help="Only consolidate existing checkpoints.")
     return parser.parse_args()
 
@@ -299,6 +320,8 @@ def main() -> None:
         relay_threshold_beta=args.beta,
         security_limit=args.security_limit,
         feature_mode=args.feature_mode,
+        candidate_line_filter_mode=args.candidate_line_filter_mode,
+        max_first_lines=args.max_first_lines,
     )
     if args.consolidate_only:
         consolidate_step2_state_checkpoints(args.output_dir, config)

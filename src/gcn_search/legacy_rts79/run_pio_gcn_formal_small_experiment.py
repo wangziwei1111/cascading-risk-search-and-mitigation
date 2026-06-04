@@ -40,6 +40,8 @@ class FormalSmallExperimentConfig:
     skip_training_if_exists: bool = False
     paper_baseline_model: str | None = None
     paper_baseline_normalizer: str | None = None
+    candidate_line_filter_mode: str = "all"
+    max_first_lines: int | None = None
 
 
 def run_formal_small_experiment(config: FormalSmallExperimentConfig) -> dict:
@@ -72,6 +74,7 @@ def run_formal_small_experiment(config: FormalSmallExperimentConfig) -> dict:
         )
         pio_runtime = time.time() - pio_start
         truth = pd.read_csv(pio_dir / "pio_gcn_topk_full_truth.csv")
+        order = pd.read_csv(pio_dir / "pio_gcn_topk_order.csv")
         simulation = pd.read_csv(pio_dir / "pio_gcn_topk_simulation_results.csv")
         pio_summary = pd.read_csv(pio_dir / "pio_gcn_topk_summary.csv")
         total_critical = int(truth["critical"].sum())
@@ -100,6 +103,7 @@ def run_formal_small_experiment(config: FormalSmallExperimentConfig) -> dict:
                 }
             )
         baseline_rows.extend(_evaluate_baselines_for_seed(seed, truth, config, paths, seed_dir))
+        _write_seed_diagnostics(seed, truth, order, simulation, out / "diagnostics")
 
     per_truth = pd.DataFrame(per_truth_rows)
     pio_per_seed = pd.DataFrame(pio_rows)
@@ -133,6 +137,8 @@ def _prepare_training_artifacts(config: FormalSmallExperimentConfig, out: Path) 
                 security_limit=config.security_limit,
                 max_active_depth=config.training_max_active_depth,
                 feature_mode="physics",
+                candidate_line_filter_mode=config.candidate_line_filter_mode,
+                max_first_lines=config.max_first_lines,
             ),
             physics_dataset_dir,
         )
@@ -174,22 +180,63 @@ def _prepare_training_artifacts(config: FormalSmallExperimentConfig, out: Path) 
     }
 
 
-def _resolve_paper_baseline(config: FormalSmallExperimentConfig) -> tuple[Path, Path]:
+def _resolve_paper_baseline(config: FormalSmallExperimentConfig) -> tuple[Path | None, Path | None]:
     default_model = Path("results/gcn_search/pio_validation_round2/paper_train_ce_only/rts79_physics_gcn_model.pt")
     default_normalizer = Path("results/gcn_search/pio_validation_round2/paper_dataset/rts79_step2_state_feature_normalizer.json")
     model = Path(config.paper_baseline_model) if config.paper_baseline_model else default_model
     normalizer = Path(config.paper_baseline_normalizer) if config.paper_baseline_normalizer else default_normalizer
     if not model.exists() or not normalizer.exists():
-        raise FileNotFoundError(
-            "Paper baseline model/normalizer not found. Provide --paper-baseline-model and "
-            "--paper-baseline-normalizer, or run the paper baseline smoke training first."
-        )
+        return None, None
     return model, normalizer
 
 
 def _copy_if_exists(src: Path, dst: Path) -> None:
     if src.exists():
         shutil.copyfile(src, dst)
+
+
+def _write_seed_diagnostics(seed: int, truth: pd.DataFrame, order: pd.DataFrame, simulation: pd.DataFrame, diagnostics_dir: Path) -> None:
+    diagnostics_dir.mkdir(parents=True, exist_ok=True)
+    order = order.copy()
+    truth = truth.copy()
+    simulation = simulation.copy()
+    order["seed"] = seed
+    truth["seed"] = seed
+    simulation["seed"] = seed
+    _append_csv(order[["seed", "rank", "path", "score", "first_probability", "second_probability"]], diagnostics_dir / "topk_score_distribution.csv")
+    _append_csv(
+        pd.DataFrame(
+            [
+                {
+                    "seed": seed,
+                    "num_ordered_paths": int(len(order)),
+                    "num_candidate_paths_scored": int(order["path"].nunique()),
+                    "num_simulated_topk_paths": int(len(simulation)),
+                }
+            ]
+        ),
+        diagnostics_dir / "per_seed_candidate_count.csv",
+    )
+    rank_by_path = order.set_index("path")["rank"].to_dict()
+    score_by_path = order.set_index("path")["score"].to_dict()
+    top100_paths = set(order.sort_values("rank").head(100)["path"].astype(str))
+    critical = truth.loc[truth["critical"]].copy()
+    found = critical.loc[critical["path"].astype(str).isin(top100_paths)].copy()
+    missed = critical.loc[~critical["path"].astype(str).isin(top100_paths)].copy()
+    for table in (found, missed):
+        table["rank"] = table["path"].map(rank_by_path)
+        table["score"] = table["path"].map(score_by_path)
+        table["ranked_after_100"] = table["rank"].fillna(10**9).astype(float) > 100
+    keep = ["seed", "path", "total_load_shed_mw", "rank", "score", "ranked_after_100"]
+    _append_csv(found[keep], diagnostics_dir / "found_critical_paths.csv")
+    _append_csv(missed[keep], diagnostics_dir / "missed_critical_paths.csv")
+
+
+def _append_csv(table: pd.DataFrame, path: Path) -> None:
+    if path.exists():
+        old = pd.read_csv(path)
+        table = pd.concat([old, table], ignore_index=True)
+    table.to_csv(path, index=False, encoding="utf-8-sig")
 
 
 def _evaluate_baselines_for_seed(seed: int, truth: pd.DataFrame, config: FormalSmallExperimentConfig, paths: dict[str, Path], seed_dir: Path) -> list[dict]:
@@ -200,15 +247,19 @@ def _evaluate_baselines_for_seed(seed: int, truth: pd.DataFrame, config: FormalS
     total_critical = int(truth["critical"].sum())
     search_config = SearchEvalConfig(seed=seed, beta=config.beta, security_limit=config.security_limit, random_seed=seed)
     initial_config = Rts79InitialConfig(random_seed=seed)
-    paper_model, paper_adjacency = _load_gcn_model(paths["paper_model"])
-    paper_normalizer = json.loads(paths["paper_normalizer"].read_text(encoding="utf-8"))
     order_builders = {
-        "original_GCN_path_prob": lambda: _make_gcn_path_probability_order(paper_model, paper_adjacency, paper_normalizer, initial_config, search_config),
         "LODF_yP": lambda: _make_lodf_order(initial_config, search_config),
         "random": lambda: _make_random_order(seed),
         "line_order": _make_line_order,
         "oracle": lambda: truth.sort_values(["critical", "total_load_shed_mw"], ascending=[False, False])["path"].tolist(),
     }
+    if paths["paper_model"] is not None and paths["paper_normalizer"] is not None:
+        paper_model, paper_adjacency = _load_gcn_model(paths["paper_model"])
+        paper_normalizer = json.loads(paths["paper_normalizer"].read_text(encoding="utf-8"))
+        order_builders = {
+            "original_GCN_path_prob": lambda: _make_gcn_path_probability_order(paper_model, paper_adjacency, paper_normalizer, initial_config, search_config),
+            **order_builders,
+        }
     for method, builder in order_builders.items():
         start = time.time()
         ordered_paths = list(builder())
@@ -374,6 +425,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--skip-training-if-exists", action="store_true")
     parser.add_argument("--paper-baseline-model")
     parser.add_argument("--paper-baseline-normalizer")
+    parser.add_argument("--candidate-line-filter-mode", choices=["all", "first_n", "high_flow_top_n"], default="all")
+    parser.add_argument("--max-first-lines", type=int)
     return parser.parse_args()
 
 
@@ -394,6 +447,8 @@ def main() -> None:
             skip_training_if_exists=args.skip_training_if_exists,
             paper_baseline_model=args.paper_baseline_model,
             paper_baseline_normalizer=args.paper_baseline_normalizer,
+            candidate_line_filter_mode=args.candidate_line_filter_mode,
+            max_first_lines=args.max_first_lines,
         )
     )
 

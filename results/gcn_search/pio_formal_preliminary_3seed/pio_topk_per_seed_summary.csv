@@ -1,0 +1,10 @@
+﻿seed,top_k,total_critical_paths,critical_found,critical_path_recall,total_load_shed_found_mw,runtime_seconds,notes
+20260722,20,55,14,0.2545454545454545,4709.38426448707,26.815934419631958,physics-informed model; formal small experiment full truth
+20260722,50,55,17,0.3090909090909091,5180.26558791425,26.815934419631958,physics-informed model; formal small experiment full truth
+20260722,100,55,22,0.4,5988.2677212617955,26.815934419631958,physics-informed model; formal small experiment full truth
+20260723,20,52,9,0.173076923076923,3605.60410277628,26.647766590118408,physics-informed model; formal small experiment full truth
+20260723,50,52,18,0.3461538461538461,5727.698408636781,26.647766590118408,physics-informed model; formal small experiment full truth
+20260723,100,52,22,0.4230769230769231,6169.742148024221,26.647766590118408,physics-informed model; formal small experiment full truth
+20260724,20,59,13,0.2203389830508474,4342.193779975123,26.440188884735107,physics-informed model; formal small experiment full truth
+20260724,50,59,22,0.3728813559322034,6462.578186459766,26.440188884735107,physics-informed model; formal small experiment full truth
+20260724,100,59,26,0.4406779661016949,7444.152947977877,26.440188884735107,physics-informed model; formal small experiment full truth

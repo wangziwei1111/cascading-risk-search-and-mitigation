@@ -341,3 +341,35 @@ PIO_GCN_Top100 recall = 0.1273
 ```
 
 This can be reported as a full-truth pipeline validation on RTS-79, but not as a final multi-seed performance conclusion.
+
+### Fifth-Round Progress
+
+The fifth round improves credibility and maintainability:
+
+- Removed already-tracked large intermediate GCN result files from Git tracking.
+- Added Step2-State first-line filtering with `candidate_line_filter_mode`.
+- Completed a 3-seed full-truth preliminary formal experiment.
+- Added diagnostics for found and missed Top-100 critical paths.
+
+Completed preliminary configuration:
+
+```text
+training_num_scenarios = 10
+training_epochs = 5
+training_max_active_depth = 1
+candidate_line_filter_mode = high_flow_top_n
+max_first_lines = 10
+test_num_seeds = 3
+full_truth = true
+```
+
+Key result:
+
+```text
+PIO_GCN_Top100 mean recall = 0.4213
+PIO_GCN_Top100 mean_found_after_100 = 23.3333
+LODF_yP mean_found_after_100 = 11.6667
+original_GCN_path_prob mean_found_after_100 = 8.0
+```
+
+Remaining issue: the model is still preliminary and tends to over-predict risky lines. The next step is to improve training data coverage and calibration before making final performance claims.

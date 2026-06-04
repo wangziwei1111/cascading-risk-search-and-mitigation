@@ -757,3 +757,187 @@ empty output
 ```
 
 Conclusion: the fourth round did not modify RL mitigation code.
+
+## Fifth-Round Validation Log: Maintainability and 3-Seed Preliminary Formal Experiment
+
+### Tracked large-file cleanup
+
+Command used:
+
+```powershell
+git ls-files results/gcn_search | Where-Object { $_ -match '\.(pt|npz)$' -or $_ -match 'scenario_checkpoints/' -or $_ -match '(order|curve|full_truth|smoke_truth|simulation_results)\.csv$' } | git rm --cached -- ...
+```
+
+Result:
+
+```text
+89 tracked intermediate files were removed from Git tracking.
+```
+
+Cleanup categories:
+
+```text
+results/gcn_search/**/*.pt
+results/gcn_search/**/*.npz
+results/gcn_search/**/scenario_checkpoints/
+results/gcn_search/**/*order.csv
+results/gcn_search/**/*curve.csv
+results/gcn_search/**/*full_truth.csv
+results/gcn_search/**/*smoke_truth.csv
+results/gcn_search/**/*simulation_results.csv
+```
+
+Local files were not deleted. They were only removed from Git tracking. The file list is saved at:
+
+```text
+results/gcn_search/tracked_large_files_removed_round5.txt
+```
+
+### Step2-State generation acceleration
+
+New parameters:
+
+```text
+--candidate-line-filter-mode all | first_n | high_flow_top_n
+--max-first-lines N
+```
+
+Default behavior remains unchanged:
+
+```text
+candidate_line_filter_mode = all
+max_first_lines = null
+```
+
+The fifth-round preliminary experiment uses:
+
+```text
+candidate_line_filter_mode = high_flow_top_n
+max_first_lines = 10
+```
+
+This keeps the original full behavior available while allowing preliminary experiments to include first-outage states without expanding all 38 first outages per scenario.
+
+### Pytest
+
+Command:
+
+```powershell
+python -m pytest tests/test_cascade_from_case_consistency.py tests/test_measured_state_sanity.py tests/test_gcn_physics_features.py tests/test_gcn_probability_mask.py tests/test_gcn_physics_losses.py tests/test_online_state_update.py tests/test_gcn_raw_feature_training.py tests/test_pio_topk_measured_consistency.py -q
+```
+
+Result:
+
+```text
+19 passed
+```
+
+### 3-seed preliminary formal experiment
+
+Command:
+
+```powershell
+python src/gcn_search/legacy_rts79/run_pio_gcn_formal_small_experiment.py --output-dir results/gcn_search/pio_formal_preliminary_3seed --training-num-scenarios 10 --training-epochs 5 --training-max-active-depth 1 --candidate-line-filter-mode high_flow_top_n --max-first-lines 10 --test-seed-start 20260722 --test-num-seeds 3 --top-k 20 50 100 --skip-training-if-exists
+```
+
+Output directory:
+
+```text
+results/gcn_search/pio_formal_preliminary_3seed/
+```
+
+Training dataset stats:
+
+```text
+num_states = 110
+num_candidate_labels = 4080
+num_one_step_positive = 199
+num_reachable_positive = 427
+one_step_positive_ratio = 0.0488
+reachable_positive_ratio = 0.1047
+```
+
+Training metrics:
+
+```text
+validation_total_accuracy = 0.1225
+validation_hit_rate = 0.1061
+validation_cover_rate = 1.0
+validation_f1 = 0.1919
+```
+
+This indicates a weak preliminary model with high coverage but many false positives.
+
+Full-truth seeds:
+
+```text
+20260722: total_critical_paths = 55
+20260723: total_critical_paths = 52
+20260724: total_critical_paths = 59
+```
+
+### aggregate_topk_summary.csv
+
+```text
+PIO_GCN_Top20: mean_critical_found = 12.0, mean_critical_path_recall = 0.2160
+PIO_GCN_Top50: mean_critical_found = 19.0, mean_critical_path_recall = 0.3427
+PIO_GCN_Top100: mean_critical_found = 23.3333, mean_critical_path_recall = 0.4213
+```
+
+### aggregate_method_comparison.csv
+
+```text
+PIO_GCN_Top20: mean_found_after_20 = 12.0, mean_recall_at_20 = 0.2160
+PIO_GCN_Top50: mean_found_after_50 = 19.0, mean_recall_at_50 = 0.3427
+PIO_GCN_Top100: mean_found_after_100 = 23.3333, mean_recall_at_100 = 0.4213
+original_GCN_path_prob: mean_found_after_100 = 8.0, mean_attempts_to_find_all = 1400.0
+LODF_yP: mean_found_after_100 = 11.6667, mean_attempts_to_find_all = 1272.0
+random: mean_found_after_100 = 3.0, mean_attempts_to_find_all = 1390.0
+line_order: mean_found_after_100 = 3.6667, mean_attempts_to_find_all = 1287.6667
+oracle: mean_found_after_100 = 55.3333, mean_attempts_to_find_all = 55.3333
+```
+
+PIO-GCN outperforms the listed non-oracle baselines in Top-100 critical paths found for this 3-seed preliminary run, but the model is still preliminary and should not be described as a final performance result.
+
+### Diagnostics
+
+Diagnostics directory:
+
+```text
+results/gcn_search/pio_formal_preliminary_3seed/diagnostics/
+```
+
+Files:
+
+```text
+topk_score_distribution.csv
+missed_critical_paths.csv
+found_critical_paths.csv
+per_seed_candidate_count.csv
+```
+
+These files help explain whether missed paths were ranked after Top-100, whether model scores were poorly separated, and how many candidate paths were scored per seed.
+
+### Figures
+
+```text
+results/gcn_search/pio_formal_preliminary_3seed/figures/topk_recall_bar.png
+results/gcn_search/pio_formal_preliminary_3seed/figures/found_after_k_comparison.png
+results/gcn_search/pio_formal_preliminary_3seed/figures/runtime_comparison.png
+```
+
+### RL modification check
+
+Command:
+
+```powershell
+git diff -- src/rl_mitigation scripts/rl_mitigation
+```
+
+Result:
+
+```text
+empty output
+```
+
+Conclusion: the fifth round did not modify RL mitigation code.

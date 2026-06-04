@@ -1,0 +1,21 @@
+{
+  "output_dir": "results\\gcn_search\\pio_formal_preliminary_3seed",
+  "training_num_scenarios": 10,
+  "training_first_seed": 20260750,
+  "training_epochs": 5,
+  "training_max_active_depth": 1,
+  "test_seed_start": 20260722,
+  "test_num_seeds": 3,
+  "top_k": [
+    20,
+    50,
+    100
+  ],
+  "beta": 1.2,
+  "security_limit": 1.0,
+  "skip_training_if_exists": true,
+  "paper_baseline_model": null,
+  "paper_baseline_normalizer": null,
+  "candidate_line_filter_mode": "high_flow_top_n",
+  "max_first_lines": 10
+}

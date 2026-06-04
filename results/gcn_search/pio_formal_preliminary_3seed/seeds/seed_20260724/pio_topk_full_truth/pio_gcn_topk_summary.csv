@@ -1,0 +1,4 @@
+﻿method,top_k,num_simulated_paths,num_critical_found,critical_path_recall,smoke_recall,used_measured_state,initial_offline_lines,simulation_initial_source,runtime_seconds,notes
+pio_gcn_topk,20,20,13,0.22033898305084745,,False,,seed_initial_dcopf_case,26.435964584350586,
+pio_gcn_topk,50,50,22,0.3728813559322034,,False,,seed_initial_dcopf_case,26.436505556106567,
+pio_gcn_topk,100,100,26,0.4406779661016949,,False,,seed_initial_dcopf_case,26.43690013885498,

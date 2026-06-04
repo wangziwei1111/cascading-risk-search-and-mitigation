@@ -127,3 +127,61 @@ training_epochs = 10
 test_num_seeds = 5
 training_max_active_depth = 1
 ```
+
+## Fifth-Round 3-Seed Preliminary Formal Experiment
+
+The fifth round improves the experiment credibility and repository maintainability.
+
+Key changes:
+
+- Large intermediate files already tracked by Git were removed from Git tracking with `git rm --cached`.
+- Step2-State generation now supports candidate first-line filtering.
+- A 3-seed full-truth preliminary formal experiment was completed.
+- Diagnostics were added for found and missed Top-100 critical paths.
+
+Completed configuration:
+
+```text
+training_num_scenarios = 10
+training_epochs = 5
+training_max_active_depth = 1
+candidate_line_filter_mode = high_flow_top_n
+max_first_lines = 10
+test_seed_start = 20260722
+test_num_seeds = 3
+top_k = 20, 50, 100
+full_truth = true
+```
+
+Training data:
+
+```text
+num_states = 110
+num_candidate_labels = 4080
+reachable_positive_ratio = 0.1047
+```
+
+3-seed Top-K result:
+
+```text
+PIO_GCN_Top20: mean recall = 0.2160
+PIO_GCN_Top50: mean recall = 0.3427
+PIO_GCN_Top100: mean recall = 0.4213
+```
+
+Baseline comparison:
+
+```text
+PIO_GCN_Top100: mean_found_after_100 = 23.3333
+LODF_yP: mean_found_after_100 = 11.6667
+original_GCN_path_prob: mean_found_after_100 = 8.0
+random: mean_found_after_100 = 3.0
+line_order: mean_found_after_100 = 3.6667
+oracle: mean_found_after_100 = 55.3333
+```
+
+This is now suitable for an advisor progress report as a preliminary RTS-79 full-truth result. It is still not a final performance claim because:
+
+- the training set is filtered to high-flow Top-10 first outages;
+- the model remains weak, with high coverage but many false positives;
+- the experiment has only 3 test seeds.
