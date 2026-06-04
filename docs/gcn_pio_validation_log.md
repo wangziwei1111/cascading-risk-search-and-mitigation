@@ -1180,3 +1180,61 @@ empty output
 ```
 
 Conclusion: the seventh round did not modify RL mitigation code.
+# Round 8 Validation Log
+
+Purpose: close the current PIO-GCN branch into a reviewable preliminary milestone. This round does not add a new algorithm. It cleans result tracking, unifies conclusions, adds advisor/PR/reproduction documents, and adds an artifact self-check.
+
+## Result Cleanup
+
+Tracked old smoke, old validation, seed-level full-truth, root-level attachment, and historical IEEE14 result files were removed from Git tracking with `git rm --cached`. Local files were not deleted.
+
+Cleanup list:
+
+```text
+results/gcn_search/tracked_large_files_removed_round8.txt
+```
+
+Large or unsuitable tracked artifact types are now covered by `.gitignore`, including `.pt`, `.npz`, seed folders, full-truth detail, smoke-truth detail, simulation-result detail, order detail, scenario checkpoints, root result docx/pdf attachments, and detailed score distribution CSV files.
+
+## Added Review Documents
+
+```text
+docs/pio_gcn_stage_summary.md
+docs/pio_gcn_advisor_brief.md
+docs/pio_gcn_pr_description.md
+docs/pio_gcn_reproduction_commands.md
+```
+
+## Unified Conclusion
+
+- Main gain: physics-enhanced features.
+- Preliminary Top-100 recall: around 42% on 3 RTS-79 full-truth seeds.
+- LODF_yP: around 21%.
+- Weak paper-feature `GCN_path_prob`: around 14%.
+- Candidate mask: currently not a major contributor.
+- Original physics loss: currently contributes very little.
+- Rank-loss: no Top-20/Top-50 improvement; small Top-100 change only, not robust yet.
+- JSON measured-state input only; no real SCADA/PMU integration claim.
+- This is a 3-seed RTS-79 preliminary result, not a final paper-scale conclusion.
+
+## Validation Commands
+
+```text
+python -m pytest tests/test_cascade_from_case_consistency.py tests/test_measured_state_sanity.py tests/test_gcn_physics_features.py tests/test_gcn_probability_mask.py tests/test_gcn_physics_losses.py tests/test_gcn_ranking_loss.py tests/test_online_state_update.py tests/test_gcn_raw_feature_training.py tests/test_pio_topk_measured_consistency.py
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+```
+
+Observed result:
+
+```text
+pytest: 23 passed, 284 warnings
+artifact self-check: PASS: PIO-GCN artifacts are review-ready.
+```
+
+## RL Status
+
+`src/rl_mitigation` and `scripts/rl_mitigation` are not modified in this round.
+
+## Stage Score Suggestion
+
+Current stage is suitable for a preliminary advisor update and PR review. It is not yet suitable for final paper performance claims.

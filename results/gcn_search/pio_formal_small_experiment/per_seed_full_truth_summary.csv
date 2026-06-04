@@ -1,2 +1,0 @@
-﻿seed,num_ordered_n2_paths,total_critical_paths,full_truth,truth_path
-20260722,1406,55,True,results\gcn_search\pio_formal_small_experiment\seeds\seed_20260722\pio_topk_full_truth\pio_gcn_topk_full_truth.csv

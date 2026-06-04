@@ -1,7 +1,0 @@
-﻿state_id,feature_mode,num_features,scenario_id,seed,active_depth,active_outage_sequence,num_candidate_lines,num_one_step_positive,num_reachable_positive
-1,physics,9,1,20260750,0,,38,0,22
-2,physics,9,2,20260751,0,,38,0,23
-3,physics,9,3,20260752,0,,38,0,25
-4,physics,9,4,20260753,0,,38,0,23
-5,physics,9,5,20260754,0,,38,0,22
-6,physics,9,20,20260769,0,,38,0,25

@@ -16,6 +16,17 @@ results/gcn_search/**/scenario_checkpoints/
 results/gcn_search/**/*order.csv
 results/gcn_search/**/*curve.csv
 results/gcn_search/**/*full_truth.csv
+results/gcn_search/**/*full_truth*
 results/gcn_search/**/*smoke_truth.csv
+results/gcn_search/**/*smoke_truth*
 results/gcn_search/**/*simulation_results.csv
 results/gcn_search/**/diagnostics/per_method_score_distribution.csv
+results/gcn_search/baseline_smoke*/
+results/gcn_search/ieee14/
+results/gcn_search/pio_small_experiment/
+results/gcn_search/pio_formal_small_experiment/
+results/gcn_search/pio_validation*/
+results/gcn_search/**/seeds/
+results/gcn_search/*.docx
+results/gcn_search/*.pdf
+results/gcn_search/improved_opa_page_*.png

@@ -1,7 +1,0 @@
-policy,subset,num_scenarios,mean_negative_return,mean_num_line_outages,mean_load_shed_MW,pf_failed_rate
-do_nothing,all_test,100,75.18514158804321,4.7,15.783319732427598,0.72
-do_nothing,gcn_top_20,20,100.67393763773731,7.05,27.24460696518421,0.95
-safe_oracle_bc_full,all_test,100,74.29057815113194,3.92,6.250983098089696,0.72
-safe_oracle_bc_full,gcn_top_20,20,98.82160139107901,5.35,9.09916584134102,0.95
-one_step_oracle,all_test,100,67.06000000000002,2.29,0.3573026455640793,0.67
-one_step_oracle,gcn_top_20,20,80.08999999999999,2.55,0.0,0.8

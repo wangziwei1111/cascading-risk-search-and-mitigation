@@ -333,3 +333,15 @@ positive_negative_score_gap = 0.1135
 ```
 
 This is still a 3-seed preliminary RTS-79 result, not a final large-scale conclusion.
+# Round-8 Unified Conclusion
+
+The formal preliminary result should now be read with the following consistent interpretation:
+
+- The main observed improvement comes from physics-enhanced features.
+- PIO-GCN reaches about 42% Top-100 recall on 3 RTS-79 full-truth preliminary seeds.
+- LODF_yP is about 21% Top-100 recall.
+- The weak paper-feature `GCN_path_prob` baseline is about 14% Top-100 recall.
+- Candidate mask and original physics loss do not materially change the current 3-seed result.
+- Rank-loss does not improve Top-20/Top-50; its small Top-100 increase is not yet a robust contribution.
+- The experiment is still RTS-79 3-seed preliminary, not a final performance claim.
+- The measured-state path is a JSON interface, not a real SCADA/PMU connection.

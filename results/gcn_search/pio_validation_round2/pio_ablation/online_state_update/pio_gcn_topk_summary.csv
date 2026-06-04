@@ -1,2 +1,0 @@
-﻿method,top_k,num_simulated_paths,num_critical_found,critical_path_recall,smoke_recall,used_measured_state,initial_offline_lines,simulation_initial_source,runtime_seconds,notes
-pio_gcn_topk,20,20,17,,1.0,True,L03,measured_state_updated_case,2.108633041381836,smoke truth only

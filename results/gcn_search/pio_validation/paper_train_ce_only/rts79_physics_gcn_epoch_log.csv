@@ -1,2 +1,0 @@
-﻿epoch,ce_loss,mask_invalid_loss,relay_priority_loss,loading_monotonic_loss,total_loss,validation_total_accuracy,validation_hit_rate,validation_cover_rate,validation_f1,validation_true_positive,validation_true_negative,validation_false_positive,validation_false_negative
-1,9.20389461517334,0.0,0.0,0.0,9.20389461517334,0.631578947368421,0.6486486486486487,0.96,0.7741935483870968,24,0,13,1

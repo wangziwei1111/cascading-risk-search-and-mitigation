@@ -1,6 +1,0 @@
-﻿seed,method,attempts_to_find_all,found_after_20,found_after_50,found_after_100,recall_at_20,recall_at_50,recall_at_100,total_critical_paths,runtime_seconds,notes
-20260724,original_GCN_path_prob,1399,7,9,9,0.11864406779661017,0.15254237288135594,0.15254237288135594,59,3.3131885528564453,weak paper-feature model trained inside this small experiment; preliminary result
-20260724,LODF_yP,1334,2,8,14,0.03389830508474576,0.13559322033898305,0.23728813559322035,59,1.8993070125579834,physical-rule ranking baseline
-20260724,random,1400,0,0,2,0.0,0.0,0.03389830508474576,59,0.0002913475036621094,fixed random seed per test seed
-20260724,line_order,1063,2,3,5,0.03389830508474576,0.05084745762711865,0.0847457627118644,59,8.630752563476562e-05,line-number order baseline
-20260724,oracle,59,20,50,59,0.3389830508474576,0.847457627118644,1.0,59,0.00048542022705078125,upper bound only; not a deployable search method

@@ -416,3 +416,20 @@ Physics features are the main source of improvement.
 The new reachable pairwise rank-loss produces a small Top-100 gain.
 The model still needs better calibration and broader training before final claims.
 ```
+# Round-8 Unified Current Conclusion
+
+The current review-ready conclusion is:
+
+| Item | Current conclusion |
+|---|---|
+| Most useful component | Physics-enhanced branch features. |
+| PIO-GCN Top-100 preliminary recall | Around 42% on 3 RTS-79 full-truth seeds. |
+| LODF_yP baseline | Around 21% Top-100 recall. |
+| Weak paper-feature `GCN_path_prob` | Around 14% Top-100 recall. |
+| Candidate mask | Currently not a major contributor. |
+| Original physics loss | Currently contributes very little. |
+| Rank-loss | No Top-20/Top-50 improvement; only a small Top-100 change, so not yet a robust contribution. |
+| Online state | JSON measured-state interface only, not real SCADA/PMU integration. |
+| Claim boundary | RTS-79 3-seed preliminary only; not final paper-scale performance. |
+
+In plain Chinese: this stage can report that "adding physical features to the GCN input is useful"; it should not report that physics loss, mask, or rank-loss has already become the decisive improvement.

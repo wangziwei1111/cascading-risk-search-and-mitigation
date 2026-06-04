@@ -1,2 +1,0 @@
-﻿method,top_k,num_simulated_paths,num_critical_found,critical_path_recall,runtime_seconds,notes
-pio_gcn_topk,20,20,1,,4.761990308761597,smoke truth only

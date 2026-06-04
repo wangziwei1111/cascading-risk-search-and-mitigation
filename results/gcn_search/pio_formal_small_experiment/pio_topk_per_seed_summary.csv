@@ -1,4 +1,0 @@
-﻿seed,top_k,total_critical_paths,critical_found,critical_path_recall,total_load_shed_found_mw,runtime_seconds,notes
-20260722,20,55,1,0.0181818181818181,82.39944368301173,22.22461771965027,physics-informed model; formal small experiment full truth
-20260722,50,55,3,0.0545454545454545,248.1777077800076,22.22461771965027,physics-informed model; formal small experiment full truth
-20260722,100,55,7,0.1272727272727272,546.4145271789262,22.22461771965027,physics-informed model; formal small experiment full truth

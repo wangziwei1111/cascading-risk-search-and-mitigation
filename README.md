@@ -60,6 +60,24 @@ Key reports and outputs:
 results/gcn_search/
 ```
 
+Current PIO-GCN preliminary conclusion:
+
+- The most effective current component is physics-enhanced branch features.
+- On 3 RTS-79 full-truth preliminary seeds, Top-100 recall is around 42%.
+- LODF_yP is around 21% Top-100 recall, and the weak paper-feature `GCN_path_prob` baseline is around 14%.
+- Candidate mask, original physics loss, and rank-loss are not the main contributors in the current preliminary results.
+- These are RTS-79 3-seed preliminary results, not final paper-scale performance claims.
+- The online-state feature is a JSON measured-state interface only; it is not a real SCADA/PMU integration.
+
+Stage summary and review materials:
+
+```text
+docs/pio_gcn_stage_summary.md
+docs/pio_gcn_advisor_brief.md
+docs/pio_gcn_pr_description.md
+docs/pio_gcn_reproduction_commands.md
+```
+
 ### 2. RL cascade mitigation reproduction
 
 This part records a separate reinforcement-learning mitigation reproduction line based on IEEE14/IEEE118 experiments.

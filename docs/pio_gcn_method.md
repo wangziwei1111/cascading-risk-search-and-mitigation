@@ -348,3 +348,14 @@ full_truth = true
 ```
 
 The heavier target configuration did not finish in the current interactive runtime window. Therefore the current numbers are useful for method validation and advisor reporting, but they should not be described as final performance conclusions.
+# Round-8 Method Boundary
+
+This method document uses the following current project boundary:
+
+- The original `GCN_path_prob` method is preserved and not overwritten.
+- PIO-GCN currently improves the search mainly through physics-enhanced branch features.
+- Candidate mask, original physics loss, and rank-loss are implemented for analysis, but they are not yet the main source of the observed preliminary gain.
+- The current headline number is around 42% Top-100 recall on 3 RTS-79 full-truth preliminary seeds.
+- LODF_yP is around 21%, and the weak paper-feature `GCN_path_prob` baseline is around 14%.
+- The online-state update is implemented through JSON measured-state input only. It should not be described as a real SCADA/PMU integration.
+- These statements are preliminary RTS-79 conclusions and should not be used as final paper-scale claims.
