@@ -82,6 +82,16 @@ The Top-200 tradeoff was followed by two improvement checks:
 | rerank_physical_stress | 0.280 | 0.439 | 0.532 | 0.587 |
 
 Simple ensemble does not fully solve the Top-200 issue. The hard-negative-aware rerank result is stronger: it improves Top-100 and Top-200 in this preliminary 5-seed check.
+
+## Learned Path Reranker Follow-Up
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| rerank_physical_stress | 0.280 | 0.439 | 0.532 | 0.587 |
+| learned_logistic_reranker | 0.322 | 0.566 | 0.792 | 0.954 |
+| learned_mlp_reranker | 0.333 | 0.698 | 0.944 | 0.997 |
+
+The learned MLP reranker is the strongest current result and exceeds the requested Top-100/Top-200 targets. Because it uses only 5 RTS-79 seeds, it should be described as a strong preliminary indication rather than a final result.
 - This means the earlier weak paper baseline limitation was real; the paper-feature baseline becomes more competitive when trained more fairly.
 - The current conclusion should be softened: physics-enhanced features are useful, but they are not the only competitive route, especially when evaluating deeper Top-K lists.
 

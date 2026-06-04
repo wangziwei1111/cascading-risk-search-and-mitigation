@@ -1,3 +1,76 @@
+## Learned Path Reranker and Hard Negative Mining Round
+
+Purpose: improve PIO-GCN + rerank performance with a learned path-level reranker. No RL mitigation files were modified and the original `GCN_path_prob` method remains preserved.
+
+### Dataset
+
+```text
+script = src/gcn_search/legacy_rts79/build_path_reranker_dataset.py
+output_dir = results/gcn_search/path_reranker_dataset
+num_samples = 7030
+num_critical = 283
+positive_ratio = 0.0403
+split = train seeds 20260722-20260724, validation seed 20260725, test seed 20260726
+evaluation protocol = leave-one-seed-out predictions for all 5 seeds
+```
+
+### Training
+
+```text
+script = src/gcn_search/legacy_rts79/train_path_reranker.py
+models = logistic_reranker, mlp_reranker
+loss = class-balanced BCE + path-level pairwise ranking loss
+epochs = 80
+learning_rate = 0.01
+lambda_pairwise_rank = 0.05
+```
+
+Validation highlights:
+
+| Model | Mean PR-AUC across heldout seeds | Mean Recall@100 | Mean Recall@200 |
+|---|---:|---:|---:|
+| logistic | about 0.701 | about 0.793 | about 0.954 |
+| MLP | about 0.843 | about 0.945 | about 0.997 |
+
+### Full-truth comparison
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| PIO-GCN PathRank | 0.211 | 0.338 | 0.423 | 0.521 |
+| rerank_physical_stress | 0.280 | 0.439 | 0.532 | 0.587 |
+| learned_logistic_reranker | 0.322 | 0.566 | 0.792 | 0.954 |
+| learned_mlp_reranker | 0.333 | 0.698 | 0.944 | 0.997 |
+
+The learned MLP reranker exceeds the requested targets:
+
+```text
+Recall@100 > 0.60 = yes
+Recall@200 > 0.65 = yes
+```
+
+### Hard negative mining
+
+```text
+script = src/gcn_search/legacy_rts79/mine_hard_negative_paths.py
+output_dir = results/gcn_search/path_reranker_hard_negative_mining
+selected_model = mlp
+top_k = 100
+```
+
+Conclusion: the learned reranker pulls most critical paths into the early ranking. Remaining hard negatives are mainly physically stressful but survivable paths. More topology/islanding features and more operating-condition seeds are recommended.
+
+### Renewable learned-reranker status
+
+Not completed in this round. The existing synthetic renewable preliminary artifacts contain aggregate full-truth summaries, but not reusable per-path renewable truth details. Strict renewable learned-reranker evaluation should regenerate compact renewable per-path features without committing full-truth detail files.
+
+### Validation
+
+```text
+pytest = 26 passed, 266 warnings
+artifact self-check = PASS: PIO-GCN artifacts are review-ready.
+RL diff = empty
+```
+
 ## Performance Improvement Round: Ensemble, Rerank, Renewable Full-Truth
 
 Purpose: address the Top-K depth tradeoff by evaluating score-level ensemble ranking and hard-negative-aware rerank, while keeping the synthetic renewable full-truth preliminary and strong paper baseline v2 results documented. No RL mitigation files were modified and the original `GCN_path_prob` method remains preserved.

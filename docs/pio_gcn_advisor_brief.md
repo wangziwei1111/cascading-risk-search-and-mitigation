@@ -22,3 +22,5 @@
 当前结论不是最终论文结论。下一步建议是扩大训练场景和测试 seeds，补做更充分的 paper baseline，尝试 hard negative mining、路径级排序损失或 score-level ensemble，并进一步验证新能源扰动下的稳定性。
 
 补充性能增强结果：我又在同一批 5 个 full-truth seeds 上做了 ensemble 和 hard-negative rerank。简单 ensemble 能让 Top-100 略升，例如 alpha=0.75 时 recall@100 约 0.444，但 Top-200 仍低于 strong paper baseline。hard-negative rerank 效果更明显，`rerank_physical_stress` 的 recall@100 约 0.532、recall@200 约 0.587，超过原 PIO-GCN 和 strong paper baseline。可以向老师汇报为：当前最有希望的改进方向不是简单融合，而是在 PIO 前排候选中加入物理应力二次排序。
+
+最新又完成了 learned path reranker：把每条有序 N-2 路径作为一个样本，用路径分数、物理应力、继电器裕度和 first-outage stress 特征训练轻量模型。leave-one-seed-out 结果显示，MLP reranker 的 recall@100 约 0.944、recall@200 约 0.997，已经超过设定目标。但这个结果很强，也要谨慎汇报：目前只有 RTS-79 的 5 个 seeds，说明路径级监督学习非常有潜力，但还不能说是最终论文结论。

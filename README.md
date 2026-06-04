@@ -52,6 +52,9 @@ python src/gcn_search/legacy_rts79/run_pio_gcn_renewable_preliminary_experiment.
 python src/gcn_search/legacy_rts79/analyze_topk_depth_tradeoff.py --output-dir results/gcn_search/pio_topk_depth_tradeoff
 python src/gcn_search/legacy_rts79/evaluate_pio_gcn_ensemble_ranking.py --output-dir results/gcn_search/pio_ensemble_preliminary
 python src/gcn_search/legacy_rts79/evaluate_pio_gcn_hard_negative_rerank.py --output-dir results/gcn_search/pio_rerank_preliminary
+python src/gcn_search/legacy_rts79/build_path_reranker_dataset.py --output-dir results/gcn_search/path_reranker_dataset
+python src/gcn_search/legacy_rts79/train_path_reranker.py --dataset-dir results/gcn_search/path_reranker_dataset --output-dir results/gcn_search/path_reranker_models
+python src/gcn_search/legacy_rts79/evaluate_path_reranker_fulltruth.py --dataset-dir results/gcn_search/path_reranker_dataset --model-dir results/gcn_search/path_reranker_models --output-dir results/gcn_search/path_reranker_fulltruth_eval
 python scripts/gcn_search/check_pio_gcn_artifacts.py
 ```
 
@@ -75,6 +78,7 @@ Current PIO-GCN PathRank preliminary conclusion:
 - Candidate mask, original physics loss, and pairwise rank-loss are not the main contributors in the current preliminary results.
 - The 5-seed extension shows a depth tradeoff: PIO-GCN PathRank remains better at Top-20/50/100, while a stronger paper-feature baseline can surpass it at Top-200.
 - The latest hard-negative-aware rerank improves Top-100 and Top-200 in the 5-seed preliminary check; simple score-level ensemble is feasible but not decisive.
+- The learned path reranker is the strongest current result, but it is still only a 5-seed RTS-79 preliminary result.
 - The synthetic renewable perturbation run is completed for 3 seeds at 0.30 penetration ratio, but it is only a synthetic RTS-79 robustness check.
 - These are RTS-79 3-seed preliminary results, not final paper-scale performance claims.
 - The online-state feature is a JSON measured-state interface only; it is not connected to field SCADA/PMU systems.
@@ -89,6 +93,8 @@ docs/pio_gcn_reproduction_commands.md
 docs/pio_gcn_renewable_preliminary.md
 docs/pio_gcn_topk_depth_tradeoff.md
 docs/pio_gcn_ensemble_rerank_preliminary.md
+docs/pio_gcn_path_reranker.md
+docs/pio_gcn_hard_negative_analysis.md
 ```
 
 ### 2. RL cascade mitigation reproduction

@@ -1,0 +1,3 @@
+﻿type,count,mean_pio_score,mean_paper_score,mean_lodf_score,mean_max_loading_ratio,mean_first_outage_max_loading_ratio,top_first_lines,top_second_lines
+hard_negative,232,0.5825295106604181,0.49823393698396357,0.897228628785169,0.9044917460847561,0.9044917460847561,"L05,L27,L07,L21,L04","L11,L07,L27,L17,L15"
+missed_positive,16,0.569140300154686,0.5039146635681391,0.8208074065816473,0.8394024347600928,0.8394024347600928,"L19,L38,L02,L01,L13","L23,L27,L31,L11,L16"

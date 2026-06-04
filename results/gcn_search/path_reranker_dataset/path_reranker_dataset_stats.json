@@ -1,0 +1,44 @@
+{
+  "num_samples": 7030,
+  "num_critical": 283,
+  "positive_ratio": 0.040256045519203414,
+  "train_seeds": [
+    20260722,
+    20260723,
+    20260724
+  ],
+  "val_seeds": [
+    20260725
+  ],
+  "test_seeds": [
+    20260726
+  ],
+  "per_seed": [
+    {
+      "seed": 20260722,
+      "num_samples": 1406,
+      "num_critical": 55
+    },
+    {
+      "seed": 20260723,
+      "num_samples": 1406,
+      "num_critical": 52
+    },
+    {
+      "seed": 20260724,
+      "num_samples": 1406,
+      "num_critical": 59
+    },
+    {
+      "seed": 20260725,
+      "num_samples": 1406,
+      "num_critical": 52
+    },
+    {
+      "seed": 20260726,
+      "num_samples": 1406,
+      "num_critical": 65
+    }
+  ],
+  "notes": "Compact path-level dataset; full-truth detail files remain local under ignored seed directories."
+}

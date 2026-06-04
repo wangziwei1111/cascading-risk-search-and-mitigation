@@ -1,0 +1,29 @@
+{
+  "output_dir": "results\\gcn_search\\path_reranker_dataset",
+  "extended_dir": "results\\gcn_search\\pio_extended_fulltruth_5seed",
+  "pio_model": "results/gcn_search/pio_extended_fulltruth_5seed/training/physics_informed/rts79_physics_gcn_model.pt",
+  "pio_normalizer": "results/gcn_search/pio_extended_fulltruth_5seed/training/physics_dataset/rts79_step2_state_feature_normalizer_physics.json",
+  "paper_model": "results/gcn_search/paper_baseline_strong/paper_train_ce_only/rts79_physics_gcn_model.pt",
+  "paper_normalizer": "results/gcn_search/paper_baseline_strong/paper_dataset/rts79_step2_state_feature_normalizer.json",
+  "test_seed_start": 20260722,
+  "test_num_seeds": 5,
+  "train_seeds": [
+    20260722,
+    20260723,
+    20260724
+  ],
+  "val_seeds": [
+    20260725
+  ],
+  "test_seeds": [
+    20260726
+  ],
+  "top_k": [
+    20,
+    50,
+    100,
+    200
+  ],
+  "beta": 1.2,
+  "security_limit": 1.0
+}

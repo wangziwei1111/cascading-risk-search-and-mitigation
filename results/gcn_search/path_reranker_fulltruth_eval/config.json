@@ -1,0 +1,13 @@
+{
+  "dataset_dir": "results\\gcn_search\\path_reranker_dataset",
+  "model_dir": "results\\gcn_search\\path_reranker_models",
+  "rerank_dir": "results/gcn_search/pio_rerank_preliminary",
+  "ensemble_dir": "results/gcn_search/pio_ensemble_preliminary",
+  "output_dir": "results\\gcn_search\\path_reranker_fulltruth_eval",
+  "top_k": [
+    20,
+    50,
+    100,
+    200
+  ]
+}

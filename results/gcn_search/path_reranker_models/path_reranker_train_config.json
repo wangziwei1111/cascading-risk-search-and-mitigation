@@ -1,0 +1,13 @@
+{
+  "dataset_dir": "results\\gcn_search\\path_reranker_dataset",
+  "output_dir": "results\\gcn_search\\path_reranker_models",
+  "model_type": "both",
+  "seed_split_mode": "leave_one_seed_out",
+  "epochs": 80,
+  "learning_rate": 0.01,
+  "positive_weight": null,
+  "use_load_shed_weight": false,
+  "focal_gamma": 0.0,
+  "lambda_pairwise_rank": 0.05,
+  "random_seed": 20260801
+}

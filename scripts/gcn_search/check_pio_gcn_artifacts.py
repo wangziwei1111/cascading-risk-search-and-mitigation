@@ -21,6 +21,8 @@ REQUIRED_FILES = [
     "docs/pio_gcn_topk_depth_tradeoff.md",
     "docs/pio_gcn_ensemble_feasibility.md",
     "docs/pio_gcn_ensemble_rerank_preliminary.md",
+    "docs/pio_gcn_path_reranker.md",
+    "docs/pio_gcn_hard_negative_analysis.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/pio_formal_preliminary_3seed/config.json",
     "results/gcn_search/pio_formal_preliminary_3seed/aggregate_method_comparison.csv",
@@ -51,6 +53,10 @@ REQUIRED_FILES = [
     "results/gcn_search/pio_rerank_preliminary/config.json",
     "results/gcn_search/pio_rerank_preliminary/rerank_method_comparison.csv",
     "results/gcn_search/pio_rerank_preliminary/diagnostics/rerank_weight_sweep.csv",
+    "results/gcn_search/path_reranker_dataset/path_reranker_dataset_stats.json",
+    "results/gcn_search/path_reranker_models/path_reranker_metrics.csv",
+    "results/gcn_search/path_reranker_fulltruth_eval/path_reranker_method_comparison.csv",
+    "results/gcn_search/path_reranker_hard_negative_mining/hard_negative_summary.csv",
 ]
 
 
@@ -68,11 +74,15 @@ SUMMARY_FILES = [
     "results/gcn_search/pio_topk_depth_tradeoff/topk_depth_tradeoff_summary.csv",
     "results/gcn_search/pio_ensemble_preliminary/ensemble_method_comparison.csv",
     "results/gcn_search/pio_rerank_preliminary/rerank_method_comparison.csv",
+    "results/gcn_search/path_reranker_models/path_reranker_metrics.csv",
+    "results/gcn_search/path_reranker_fulltruth_eval/path_reranker_method_comparison.csv",
+    "results/gcn_search/path_reranker_hard_negative_mining/hard_negative_summary.csv",
 ]
 
 
 DISALLOWED_TRACKED_SUBSTRINGS = [
     ".pt",
+    ".pkl",
     ".npz",
     "full_truth",
     "smoke_truth",
@@ -155,6 +165,18 @@ def main() -> int:
         failures.append("Stage summary contains nonexistent script: run_pio_gcn_formal_experiment.py")
     if "real SCADA/PMU integration" in stage_text:
         failures.append("Stage summary contains an overstated SCADA/PMU integration claim.")
+    forbidden_doc_phrases = ["production ready", "final proof", "real SCADA/PMU integration completed", "真实在线部署已完成"]
+    for rel_doc in [
+        "docs/pio_gcn_stage_summary.md",
+        "docs/pio_gcn_pr_description.md",
+        "docs/gcn_current_progress.md",
+        "docs/pio_gcn_path_reranker.md",
+    ]:
+        if (ROOT / rel_doc).exists():
+            text = _read_text(rel_doc).lower()
+            for phrase in forbidden_doc_phrases:
+                if phrase.lower() in text:
+                    failures.append(f"Overstated phrase in {rel_doc}: {phrase}")
 
     renewable_text = _read_text("docs/pio_gcn_renewable_preliminary.md") if (ROOT / "docs/pio_gcn_renewable_preliminary.md").exists() else ""
     if "synthetic renewable" not in renewable_text.lower():

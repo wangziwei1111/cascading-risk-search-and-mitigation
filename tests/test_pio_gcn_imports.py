@@ -29,6 +29,10 @@ def test_pio_gcn_key_modules_import() -> None:
         "analyze_topk_depth_tradeoff",
         "evaluate_pio_gcn_ensemble_ranking",
         "evaluate_pio_gcn_hard_negative_rerank",
+        "build_path_reranker_dataset",
+        "train_path_reranker",
+        "evaluate_path_reranker_fulltruth",
+        "mine_hard_negative_paths",
         "analyze_pio_gcn_loss_diagnostics",
     ]
 

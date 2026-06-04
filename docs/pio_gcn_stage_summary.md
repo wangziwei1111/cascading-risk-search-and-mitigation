@@ -170,3 +170,12 @@ PIO-GCN PathRank is better for shallow Top-K screening, while the stronger paper
 | rerank_physical_stress | 0.280 | 0.439 | 0.532 | 0.587 |
 
 The simple score-level ensemble is feasible but not decisive. The hard-negative-aware rerank is the clearest improvement in this round because it raises Top-100 and Top-200 simultaneously. This remains a preliminary RTS-79 result.
+
+## Latest Learned Path Reranker
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| learned_logistic_reranker | 0.322 | 0.566 | 0.792 | 0.954 |
+| learned_mlp_reranker | 0.333 | 0.698 | 0.944 | 0.997 |
+
+The learned path reranker shows that path-level supervised features are much more effective than hand-written score combinations on this 5-seed RTS-79 preliminary dataset. It reaches the requested Top-100 and Top-200 targets, but it still needs larger seed coverage before being used as a final claim.

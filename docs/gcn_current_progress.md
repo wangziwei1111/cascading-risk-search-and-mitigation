@@ -481,3 +481,15 @@ Score-level ensemble and hard-negative-aware rerank were evaluated on the same 5
 | rerank_physical_stress | 0.280 | 0.439 | 0.532 | 0.587 |
 
 Current interpretation: simple ensemble improves some Top-100 behavior but does not fully solve the Top-200 issue. Hard-negative-aware rerank gives the clearest improvement and lifts Top-200 above the stronger paper-feature baseline in this preliminary 5-seed check.
+
+## Latest Learned Path Reranker Result
+
+A compact path-level dataset was built from 5 RTS-79 full-truth seeds. Each ordered N-2 path is one sample, with PIO score, paper score, LODF score, rank features, loading stress, relay margin, and first-outage stress features. Two lightweight PyTorch rerankers were trained with leave-one-seed-out prediction.
+
+| Method | Recall@20 | Recall@50 | Recall@100 | Recall@200 |
+|---|---:|---:|---:|---:|
+| rerank_physical_stress | 0.280 | 0.439 | 0.532 | 0.587 |
+| learned_logistic_reranker | 0.322 | 0.566 | 0.792 | 0.954 |
+| learned_mlp_reranker | 0.333 | 0.698 | 0.944 | 0.997 |
+
+The learned MLP reranker exceeds the requested Recall@100 > 0.60 and Recall@200 > 0.65 targets in this 5-seed preliminary check. This is promising, but it is still only RTS-79 preliminary and needs more seeds before final claims.
