@@ -22,6 +22,8 @@ def test_mock_dynamic_results_analysis_without_recall(tmp_path: Path) -> None:
     export_simulink_dynamic_cases(SimulinkDynamicCaseExportConfig(output_dir=str(cases_dir), make_demo_cases=True))
     mock_csv = results_dir / "simulink_dynamic_simulation_results.csv"
     make_mock_simulink_dynamic_results(cases_dir / "simulink_dynamic_case_manifest.csv", mock_csv)
+    mock_results = pd.read_csv(mock_csv)
+    assert set(mock_results["result_source"]) == {"mock"}
     analyze_simulink_dynamic_results(mock_csv, cases_dir / "simulink_topk_paths.csv", analysis_dir)
     precision = pd.read_csv(analysis_dir / "simulink_dynamic_precision_at_k.csv")
     overlap = pd.read_csv(analysis_dir / "simulink_opa_dynamic_overlap.csv")
@@ -33,3 +35,45 @@ def test_mock_dynamic_results_analysis_without_recall(tmp_path: Path) -> None:
     assert (overlap["metric"] == "opa_critical_and_dynamic_unstable_count").any()
     assert failures_path.exists()
     assert len(failures) >= 0
+
+
+def test_dynamic_recall_uses_full_truth_denominator(tmp_path: Path) -> None:
+    topk_paths = tmp_path / "topk.csv"
+    dynamic_results = tmp_path / "dynamic_results.csv"
+    dynamic_truth = tmp_path / "dynamic_truth.csv"
+    out = tmp_path / "analysis"
+    pd.DataFrame(
+        [
+            {"case_id": "case_1", "path_rank": 1, "opa_is_critical": True},
+            {"case_id": "case_2", "path_rank": 2, "opa_is_critical": False},
+        ]
+    ).to_csv(topk_paths, index=False)
+    pd.DataFrame(
+        [
+            {
+                "case_id": "case_1",
+                "dynamic_unstable": True,
+                "frequency_nadir_hz": 48.9,
+                "max_rotor_angle_separation_deg": 90.0,
+            },
+            {
+                "case_id": "case_2",
+                "dynamic_unstable": False,
+                "frequency_nadir_hz": 49.5,
+                "max_rotor_angle_separation_deg": 80.0,
+            },
+        ]
+    ).to_csv(dynamic_results, index=False)
+    pd.DataFrame(
+        [
+            {"case_id": "case_1", "dynamic_unstable": True},
+            {"case_id": "case_2", "dynamic_unstable": False},
+            {"case_id": "case_3", "dynamic_unstable": True},
+            {"case_id": "case_4", "dynamic_unstable": True},
+        ]
+    ).to_csv(dynamic_truth, index=False)
+    analyze_simulink_dynamic_results(dynamic_results, topk_paths, out, dynamic_truth_csv=dynamic_truth)
+    precision = pd.read_csv(out / "simulink_dynamic_precision_at_k.csv")
+    assert "dynamic_recall_at_k" in precision.columns
+    assert precision.loc[precision["top_k"] == 20, "dynamic_precision_at_k"].iloc[0] == 0.5
+    assert precision.loc[precision["top_k"] == 20, "dynamic_recall_at_k"].iloc[0] == 1 / 3

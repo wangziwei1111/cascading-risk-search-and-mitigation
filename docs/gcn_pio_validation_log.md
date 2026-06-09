@@ -47,3 +47,23 @@ learned reranker / PIO-GCN Top-K paths
 ```
 
 Current limitation: this is a Simulink dynamic validation prototype only. It is not EMT, not a real engineering-grade dynamic model, not a renewable dynamic model, and mock results are only for no-MATLAB workflow testing.
+
+## Round 11: Simplified Swing-Equation Trajectory Engine
+
+Round 11 moves the dynamic validation scaffold from event export plus mock metrics to a real simplified electromechanical trajectory workflow.
+
+Implemented changes:
+
+```text
+src/gcn_search/legacy_rts79/export_simulink_dynamic_cases.py --input-csv
+src/gcn_search/legacy_rts79/analyze_simulink_dynamic_results.py --dynamic-truth-csv
+matlab/simulink_rts79/simulate_rts79_swing_case.m
+matlab/simulink_rts79/run_rts79_dynamic_path_case.m
+matlab/simulink_rts79/run_rts79_dynamic_batch.m
+```
+
+The MATLAB engine reads RTS-79 basecase CSV files, applies two ordered line-trip events segment by segment, integrates a simplified multi-machine swing-equation model with `ode45`, and computes frequency nadir, frequency zenith, rotor-angle separation, and approximate line-loading metrics from the trajectory. MATLAB-generated rows are marked as `result_source=simulink_swing_prototype`; mock rows remain marked as `result_source=mock`.
+
+Dynamic precision and dynamic recall are now separated. Top-K-only simulations report `dynamic_precision@K`; `dynamic_recall@K` is emitted only when a full dynamic truth CSV is provided or the result CSV is explicitly marked as full dynamic truth.
+
+Current limitation: this is still a simplified swing-equation prototype. It is not EMT, has no renewable dynamics, has no detailed controls, uses assumed default dynamic parameters, and supplements rather than replaces improved OPA full-truth validation.

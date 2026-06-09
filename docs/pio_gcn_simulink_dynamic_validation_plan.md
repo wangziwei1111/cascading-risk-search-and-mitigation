@@ -24,6 +24,7 @@ The current Simulink dynamic validation is a prototype with the following assump
 - simplified synchronous-machine swing-equation representation;
 - simplified DC-network / susceptance-matrix style network representation;
 - branch trip events are driven by exported event tables;
+- trajectory metrics are computed by `simulate_rts79_swing_case.m` using MATLAB `ode45`;
 - missing inertia and damping parameters use assumed defaults;
 - no renewable generation model;
 - no inverter model;
@@ -51,6 +52,15 @@ python src/gcn_search/legacy_rts79/export_simulink_dynamic_cases.py `
   --event-2-time 5.0 `
   --simulation-end-time 20.0 `
   --method learned_mlp_reranker_strict
+```
+
+If the path-level ranking CSV is local and not a tracked artifact, pass it explicitly:
+
+```powershell
+python src/gcn_search/legacy_rts79/export_simulink_dynamic_cases.py `
+  --input-csv results/gcn_search/local_topk_paths.csv `
+  --output-dir results/gcn_search/simulink_dynamic_cases `
+  --top-k 20 50 100
 ```
 
 3. If no real path-level ranking CSV is available, generate demo cases:
@@ -89,9 +99,20 @@ python src/gcn_search/legacy_rts79/analyze_simulink_dynamic_results.py `
   --output-dir results/gcn_search/simulink_dynamic_analysis
 ```
 
+If a full dynamic truth CSV is available, dynamic recall can be reported:
+
+```powershell
+python src/gcn_search/legacy_rts79/analyze_simulink_dynamic_results.py `
+  --dynamic-results-csv results/gcn_search/simulink_dynamic_results/simulink_dynamic_simulation_results.csv `
+  --topk-paths-csv results/gcn_search/simulink_dynamic_cases/simulink_topk_paths.csv `
+  --dynamic-truth-csv results/gcn_search/simulink_dynamic_truth/full_dynamic_truth.csv `
+  --output-dir results/gcn_search/simulink_dynamic_analysis
+```
+
 ## Metrics
 
 - `dynamic_precision@K`: fraction of simulated Top-K paths that are dynamically unstable.
+- `dynamic_recall@K`: Top-K dynamically unstable count divided by all dynamically unstable paths in a provided full dynamic truth set.
 - `OPA critical and dynamic unstable count`: paths critical in OPA / OPF and unstable in dynamic prototype.
 - `OPA critical but dynamic stable count`: static critical paths not unstable in the dynamic prototype.
 - `OPA non-critical but dynamic unstable count`: static non-critical paths that show dynamic instability.
@@ -99,7 +120,20 @@ python src/gcn_search/legacy_rts79/analyze_simulink_dynamic_results.py `
 - `min_frequency_nadir_hz`: worst minimum frequency.
 - `max_rotor_angle_separation_deg`: largest rotor-angle separation.
 
-If only Top-K paths are simulated, report `dynamic_precision@K` only. Do not report `dynamic_recall@K` unless `full_dynamic_truth=true`.
+If only Top-K paths are simulated, report `dynamic_precision@K` only. Do not report `dynamic_recall@K` unless `--dynamic-truth-csv` is provided or the dynamic result CSV is explicitly marked as full dynamic truth.
+
+## Round 11 Update
+
+Round 10 provided the scaffold, event export, mock results, and analysis interface. Round 11 adds a simplified swing-equation trajectory engine:
+
+- `simulate_rts79_swing_case.m` reads RTS-79 basecase CSV files and two trip events for each `case_id`;
+- line outages are applied segment by segment at the exported event times;
+- MATLAB `ode45` integrates generator rotor angle `delta_i` and speed `omega_i`;
+- frequency nadir, frequency zenith, rotor-angle separation, and approximate line loading are computed from the trajectory;
+- `run_rts79_dynamic_batch.m` writes `result_source=simulink_swing_prototype`;
+- mock results still write `result_source=mock`.
+
+This validation is a supplement to learned-reranker Top-K assessment. It does not replace improved OPA full-truth evaluation, does not include renewable dynamics, and remains dependent on assumed default dynamic parameters unless the user replaces them.
 
 ## Next Steps
 

@@ -37,3 +37,44 @@ def test_demo_simulink_dynamic_case_export(tmp_path: Path) -> None:
     assert "total_load_shed_mw" not in event_table.columns
     assert "opa_total_load_shed_mw" in event_table.columns
     assert "reranker_score" in event_table.columns
+
+
+def test_input_csv_export_uses_explicit_ranking_and_not_label_score(tmp_path: Path) -> None:
+    input_csv = tmp_path / "ranked_paths.csv"
+    pd.DataFrame(
+        [
+            {
+                "path": "L27->L02",
+                "rank": 2,
+                "score": 0.2,
+                "total_load_shed_mw": 999.0,
+                "opa_total_load_shed_mw": 80.0,
+            },
+            {
+                "first_line": "L10",
+                "second_line": "L05",
+                "rank": 1,
+                "score": 0.8,
+                "total_load_shed_mw": 1.0,
+                "opa_total_load_shed_mw": 120.0,
+            },
+        ]
+    ).to_csv(input_csv, index=False)
+    out = tmp_path / "cases_from_csv"
+    export_simulink_dynamic_cases(
+        SimulinkDynamicCaseExportConfig(
+            input_csv=str(input_csv),
+            input_dir=str(tmp_path / "does_not_matter"),
+            output_dir=str(out),
+            top_k=(20,),
+            event_1_time=1.25,
+            event_2_time=4.75,
+        )
+    )
+    paths = pd.read_csv(out / "simulink_topk_paths.csv")
+    event_table = pd.read_csv(out / "simulink_dynamic_event_table.csv")
+    assert paths["path"].tolist() == ["L10->L05", "L27->L02"]
+    assert paths["reranker_score"].tolist() == [0.8, 0.2]
+    assert event_table["event_time"].tolist() == [1.25, 4.75, 1.25, 4.75]
+    assert "total_load_shed_mw" not in event_table.columns
+    assert "opa_total_load_shed_mw" in event_table.columns

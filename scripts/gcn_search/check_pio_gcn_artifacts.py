@@ -16,6 +16,7 @@ REQUIRED_FILES = [
     "src/gcn_search/legacy_rts79/make_mock_simulink_dynamic_results.py",
     "src/gcn_search/legacy_rts79/analyze_simulink_dynamic_results.py",
     "matlab/simulink_rts79/build_rts79_swing_simulink_model.m",
+    "matlab/simulink_rts79/simulate_rts79_swing_case.m",
     "matlab/simulink_rts79/run_rts79_dynamic_path_case.m",
     "matlab/simulink_rts79/run_rts79_dynamic_batch.m",
     "matlab/simulink_rts79/README.md",
@@ -83,19 +84,34 @@ def main() -> int:
         log_text = _read_text("docs/gcn_pio_validation_log.md")
         if "Round 10" not in log_text:
             failures.append("Validation log does not contain the Round 10 record.")
+        if "Round 11" not in log_text:
+            failures.append("Validation log does not contain the Round 11 record.")
 
     plan_path = ROOT / "docs/pio_gcn_simulink_dynamic_validation_plan.md"
     if plan_path.exists():
         plan_text = _read_text("docs/pio_gcn_simulink_dynamic_validation_plan.md").lower()
         overstated_phrases = [
+            "final dynamic proof",
             "emt validation completed",
             "production ready",
             "real scada/pmu integration completed",
             "renewable dynamic validation completed",
+            "real-time deployment completed",
+            "工程级动态模型已完成",
+            "真实动态稳定结论已完成",
         ]
         for phrase in overstated_phrases:
             if phrase in plan_text:
                 failures.append(f"Overstated phrase in Simulink validation plan: {phrase}")
+
+    for rel_matlab in [
+        "matlab/simulink_rts79/run_rts79_dynamic_path_case.m",
+        "matlab/simulink_rts79/run_rts79_dynamic_batch.m",
+        "matlab/simulink_rts79/simulate_rts79_swing_case.m",
+    ]:
+        matlab_text = _read_text(rel_matlab).lower() if (ROOT / rel_matlab).exists() else ""
+        if "placeholder metrics" in matlab_text:
+            failures.append(f"MATLAB file still refers to placeholder metrics: {rel_matlab}")
 
     mock_script = ROOT / "src/gcn_search/legacy_rts79/make_mock_simulink_dynamic_results.py"
     if mock_script.exists() and '"result_source": "mock"' not in _read_text(str(mock_script.relative_to(ROOT)).replace("\\", "/")):

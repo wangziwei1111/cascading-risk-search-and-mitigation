@@ -16,6 +16,7 @@ SCORE_CANDIDATES = ["reranker_score", "learned_score", "score", "path_score", "p
 
 @dataclass(frozen=True)
 class SimulinkDynamicCaseExportConfig:
+    input_csv: str | None = None
     input_dir: str = "results/gcn_search/path_reranker_strict_heldout_eval"
     output_dir: str = "results/gcn_search/simulink_dynamic_cases"
     top_k: tuple[int, ...] = (20, 50, 100, 200)
@@ -30,7 +31,12 @@ def export_simulink_dynamic_cases(config: SimulinkDynamicCaseExportConfig) -> di
     out = Path(config.output_dir)
     out.mkdir(parents=True, exist_ok=True)
     (out / "simulink_dynamic_config.json").write_text(json.dumps(asdict(config), ensure_ascii=False, indent=2), encoding="utf-8")
-    paths = _make_demo_paths(config) if config.make_demo_cases else _load_ranked_paths(Path(config.input_dir), config)
+    if config.make_demo_cases:
+        paths = _make_demo_paths(config)
+    elif config.input_csv:
+        paths = _load_input_csv(Path(config.input_csv))
+    else:
+        paths = _load_ranked_paths(Path(config.input_dir), config)
     if paths.empty:
         raise RuntimeError("No valid ordered N-2 paths were found for Simulink export.")
     paths = _normalize_path_table(paths, config).head(max(config.top_k)).reset_index(drop=True)
@@ -56,6 +62,20 @@ def _make_demo_paths(config: SimulinkDynamicCaseExportConfig) -> pd.DataFrame:
         {"source_seed": 20260723, "path": "L16->L17", "reranker_score": 0.81, "pio_score": 0.55, "opa_is_critical": False, "opa_total_load_shed_mw": 0.0},
     ]
     return pd.DataFrame(rows)
+
+
+def _load_input_csv(input_csv: Path) -> pd.DataFrame:
+    if not input_csv.exists():
+        raise FileNotFoundError(f"Input path-level CSV does not exist: {input_csv}. Use --make-demo-cases to test the interface.")
+    try:
+        table = pd.read_csv(input_csv)
+    except Exception as exc:
+        raise RuntimeError(f"Failed to read input path-level CSV: {input_csv}") from exc
+    normalized = {col.lower(): col for col in table.columns}
+    has_path = "path" in normalized or {"first_line", "second_line"}.issubset(normalized)
+    if not has_path:
+        raise RuntimeError(f"Input CSV must contain either path or first_line/second_line columns: {input_csv}")
+    return table
 
 
 def _load_ranked_paths(input_dir: Path, config: SimulinkDynamicCaseExportConfig) -> pd.DataFrame:
@@ -98,6 +118,10 @@ def _normalize_path_table(table: pd.DataFrame, config: SimulinkDynamicCaseExport
         work = work[work["method"].astype(str) == config.method].copy()
     if "path" not in work.columns:
         work["path"] = work["first_line"].astype(str) + "->" + work["second_line"].astype(str)
+    elif {"first_line", "second_line"}.issubset(work.columns):
+        fallback_path = work["first_line"].astype(str) + "->" + work["second_line"].astype(str)
+        path_missing = work["path"].isna() | (work["path"].astype(str).str.strip() == "")
+        work.loc[path_missing, "path"] = fallback_path.loc[path_missing]
     parsed = work["path"].astype(str).map(_parse_path)
     work["first_line"] = [item[0] for item in parsed]
     work["second_line"] = [item[1] for item in parsed]
@@ -210,6 +234,7 @@ def _make_manifest(paths: pd.DataFrame, config: SimulinkDynamicCaseExportConfig)
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Export learned-reranker / PIO-GCN Top-K ordered N-2 paths as Simulink dynamic trip events.")
+    parser.add_argument("--input-csv", default=None, help="Explicit path-level ranking CSV. Takes priority over --input-dir.")
     parser.add_argument("--input-dir", default=SimulinkDynamicCaseExportConfig.input_dir)
     parser.add_argument("--output-dir", default=SimulinkDynamicCaseExportConfig.output_dir)
     parser.add_argument("--top-k", type=int, nargs="+", default=list(SimulinkDynamicCaseExportConfig.top_k))
@@ -226,6 +251,7 @@ def main() -> None:
     export_simulink_dynamic_cases(
         SimulinkDynamicCaseExportConfig(
             input_dir=args.input_dir,
+            input_csv=args.input_csv,
             output_dir=args.output_dir,
             top_k=tuple(args.top_k),
             event_1_time=args.event_1_time,
