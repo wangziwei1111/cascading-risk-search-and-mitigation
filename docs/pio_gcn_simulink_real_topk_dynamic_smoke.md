@@ -109,3 +109,43 @@ Current limitations:
 - no exciter, governor, or PSS;
 - preliminary dynamic smoke / preliminary dynamic validation only;
 - not an engineering-grade dynamic stability conclusion.
+
+## Round 17 Result
+
+Round 17 first checked git history and found historical path-reranker scripts. The source files were restored, then adapted into a minimal reproducible smoke pipeline because the current checkout does not contain the full historical model/dataset artifacts.
+
+Restored/rebuilt source files:
+
+```text
+src/gcn_search/legacy_rts79/build_path_reranker_dataset.py
+src/gcn_search/legacy_rts79/train_path_reranker.py
+src/gcn_search/legacy_rts79/evaluate_path_reranker_strict_heldout.py
+```
+
+Local smoke artifacts were generated:
+
+```text
+results/gcn_search/path_reranker_dataset/path_reranker_dataset.csv
+results/gcn_search/path_reranker_models/path_reranker_model.pkl
+results/gcn_search/simulink_dynamic_real_per_path_ranking/learned_mlp_per_path_ranking.csv
+```
+
+These files are ignored runtime artifacts and should not be committed.
+
+Round 17 ran MATLAB Top20 preliminary dynamic smoke:
+
+```text
+result_scope = top20_preliminary_dynamic_smoke
+num_dynamic_cases = 20
+dynamic_precision@20 = 1.0
+opa_critical_and_dynamic_unstable_count = 0
+opa_critical_but_dynamic_stable_count = 0
+opa_noncritical_but_dynamic_unstable_count = 20
+cases_with_security_redispatch_or_load_shed = 0
+cases_with_passive_relay_trip = 20
+total_dynamic_load_shed_mw = 0.0
+```
+
+This is a smoke result from a minimal learned-reranker dataset, not a formal final conclusion. No dynamic recall is reported.
+
+Next step: expand from Top20 smoke to Top50/Top100 using a non-smoke learned-reranker dataset and then compare dynamic precision across learned reranker, PIO-GCN, and LODF inputs.

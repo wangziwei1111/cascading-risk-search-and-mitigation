@@ -30,6 +30,9 @@ REQUIRED_FILES = [
     "src/gcn_search/legacy_rts79/prepare_real_topk_for_simulink_dynamic.py",
     "src/gcn_search/legacy_rts79/prepare_dynamic_method_comparison_topk.py",
     "src/gcn_search/legacy_rts79/export_path_reranker_per_path_ranking.py",
+    "src/gcn_search/legacy_rts79/build_path_reranker_dataset.py",
+    "src/gcn_search/legacy_rts79/train_path_reranker.py",
+    "src/gcn_search/legacy_rts79/evaluate_path_reranker_strict_heldout.py",
     "src/gcn_search/legacy_rts79/run_real_topk_dynamic_validation_pipeline.py",
     "src/gcn_search/legacy_rts79/summarize_real_topk_dynamic_validation.py",
     "src/gcn_search/legacy_rts79/check_simulink_dynamic_sanity_artifacts.py",
@@ -53,12 +56,15 @@ REQUIRED_FILES = [
     "docs/pio_gcn_simulink_real_topk_dynamic_smoke.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
+    "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
+    "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.json",
 ]
 
 
 DISALLOWED_TRACKED_SUBSTRINGS = [
     ".pt",
     ".npz",
+    ".pkl",
     ".slx",
     ".mat",
     ".mdl",
@@ -71,6 +77,7 @@ DISALLOWED_TRACKED_SUBSTRINGS = [
     "simulink_dynamic_results",
     "learned_mlp_per_path_ranking.csv",
     "per_path_ranking.csv",
+    "path_reranker_dataset.csv",
     "large_simulink_log",
 ]
 
@@ -128,6 +135,8 @@ def main() -> int:
             failures.append("Validation log does not contain the Round 15 record.")
         if "Round 16" not in log_text:
             failures.append("Validation log does not contain the Round 16 record.")
+        if "Round 17" not in log_text:
+            failures.append("Validation log does not contain the Round 17 record.")
 
     plan_path = ROOT / "docs/pio_gcn_simulink_dynamic_validation_plan.md"
     if plan_path.exists():
@@ -219,6 +228,21 @@ def main() -> int:
         ]:
             if forbidden in smoke_text:
                 failures.append(f"Round 16 smoke doc contains an overstatement: {forbidden}")
+
+    smoke_summary = ROOT / "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv"
+    if smoke_summary.exists():
+        try:
+            import pandas as pd
+
+            table = pd.read_csv(smoke_summary)
+            if "result_scope" not in table.columns:
+                failures.append("Real Top-K dynamic smoke summary is missing result_scope.")
+            elif not (table["result_scope"].astype(str) == "top20_preliminary_dynamic_smoke").all():
+                failures.append("Real Top-K dynamic smoke summary result_scope must be top20_preliminary_dynamic_smoke.")
+            if any("dynamic_recall" in col.lower() for col in table.columns):
+                failures.append("Real Top-K dynamic smoke summary must not contain dynamic recall columns.")
+        except Exception as exc:
+            failures.append(f"Failed to read real Top-K dynamic smoke summary: {exc}")
 
     relay_doc = ROOT / "docs/pio_gcn_relay_vs_security_constraint.md"
     if relay_doc.exists():

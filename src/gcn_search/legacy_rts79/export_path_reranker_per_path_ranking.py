@@ -52,6 +52,8 @@ class PathRerankerPerPathExportConfig:
     split: str = "test"
     top_k: tuple[int, ...] = (20, 50, 100, 200)
     retrain_if_missing: bool = False
+    smoke: bool = False
+    max_paths_per_seed: int | None = 200
 
 
 def export_path_reranker_per_path_ranking(config: PathRerankerPerPathExportConfig) -> dict:
@@ -59,9 +61,14 @@ def export_path_reranker_per_path_ranking(config: PathRerankerPerPathExportConfi
     out.mkdir(parents=True, exist_ok=True)
 
     source_csv = _find_source_ranking_csv(config)
+    rebuilt_dataset = False
     retrained = False
+    evaluated = False
     if source_csv is None and config.retrain_if_missing:
-        retrained = _try_retrain(config)
+        rebuild_result = _try_rebuild_and_retrain(config)
+        rebuilt_dataset = rebuild_result["rebuilt_dataset"]
+        retrained = rebuild_result["retrained_model"]
+        evaluated = rebuild_result["evaluated_strict_heldout"]
         source_csv = _find_source_ranking_csv(config)
 
     if source_csv is None:
@@ -80,7 +87,11 @@ def export_path_reranker_per_path_ranking(config: PathRerankerPerPathExportConfi
     payload = {
         **asdict(config),
         "source_csv": str(source_csv),
+        "rebuilt_dataset": bool(rebuilt_dataset),
         "retrained": bool(retrained),
+        "retrained_model": bool(retrained),
+        "evaluated_strict_heldout": bool(evaluated),
+        "smoke_mode": bool(config.smoke),
         "num_paths": int(len(normalized)),
         "output_csv": str(ranking_csv),
         "topk_preview_csv": str(preview_csv),
@@ -126,12 +137,18 @@ def _find_source_ranking_csv(config: PathRerankerPerPathExportConfig) -> Path | 
                     priority += 10
                 if config.method.lower() in lower:
                     priority += 8
+                if "learned_mlp_per_path_ranking" in lower:
+                    priority += 30
+                if "strict_heldout_eval" in lower:
+                    priority += 12
                 if "per_path" in lower:
                     priority += 6
                 if "reranker" in lower or "learned" in lower:
                     priority += 5
                 if has_score:
                     priority += 3
+                if any(name in lower for name in ["path_reranker_train.csv", "path_reranker_val.csv", "path_reranker_test.csv", "path_reranker_dataset.csv"]):
+                    priority -= 25
                 candidates.append((priority, csv_path))
     if not candidates:
         return None
@@ -139,22 +156,57 @@ def _find_source_ranking_csv(config: PathRerankerPerPathExportConfig) -> Path | 
     return candidates[0][1]
 
 
-def _try_retrain(config: PathRerankerPerPathExportConfig) -> bool:
+def _try_rebuild_and_retrain(config: PathRerankerPerPathExportConfig) -> dict:
+    build_script = Path(__file__).with_name("build_path_reranker_dataset.py")
     train_script = Path(__file__).with_name("train_path_reranker.py")
-    if not train_script.exists():
-        return False
+    eval_script = Path(__file__).with_name("evaluate_path_reranker_strict_heldout.py")
+    missing = [str(path.name) for path in [build_script, train_script, eval_script] if not path.exists()]
+    if missing:
+        raise RuntimeError(f"Missing path reranker source script(s): {', '.join(missing)}")
+    build_cmd = [
+        sys.executable,
+        str(build_script),
+        "--output-dir",
+        config.dataset_dir,
+        "--max-paths-per-seed",
+        str(config.max_paths_per_seed or 200),
+    ]
+    if config.smoke:
+        build_cmd.append("--smoke")
+    subprocess.run(build_cmd, check=True)
     subprocess.run(
         [
             sys.executable,
             str(train_script),
             "--dataset-dir",
             config.dataset_dir,
-            "--model-dir",
+            "--output-dir",
             config.model_dir,
         ],
         check=True,
     )
-    return True
+    eval_dir = Path(config.model_dir) / "strict_heldout_eval"
+    subprocess.run(
+        [
+            sys.executable,
+            str(eval_script),
+            "--dataset-dir",
+            config.dataset_dir,
+            "--model-dir",
+            config.model_dir,
+            "--output-dir",
+            str(eval_dir),
+            "--split",
+            config.split,
+            "--method",
+            config.method,
+            "--top-k",
+            *[str(k) for k in config.top_k],
+            "--export-per-path-ranking",
+        ],
+        check=True,
+    )
+    return {"rebuilt_dataset": True, "retrained_model": True, "evaluated_strict_heldout": True}
 
 
 def _normalize_ranking_table(table: pd.DataFrame, config: PathRerankerPerPathExportConfig) -> pd.DataFrame:
@@ -185,6 +237,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--split", default=PathRerankerPerPathExportConfig.split)
     parser.add_argument("--top-k", nargs="+", type=int, default=[20, 50, 100, 200])
     parser.add_argument("--retrain-if-missing", action="store_true")
+    parser.add_argument("--smoke", action="store_true")
+    parser.add_argument("--max-paths-per-seed", type=int, default=200)
     return parser.parse_args()
 
 
@@ -199,6 +253,8 @@ def main() -> None:
             split=args.split,
             top_k=tuple(args.top_k),
             retrain_if_missing=args.retrain_if_missing,
+            smoke=args.smoke,
+            max_paths_per_seed=args.max_paths_per_seed,
         )
     )
 

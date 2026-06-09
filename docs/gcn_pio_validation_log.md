@@ -236,3 +236,67 @@ PASS: GCN Simulink dynamic validation artifacts are review-ready.
 ```
 
 RL mitigation files were not modified.
+
+## Round 17: Rebuilt Learned-Reranker Per-Path Ranking Export and Top20 Dynamic Smoke
+
+Round 17 fixes the upstream blocker from Round 16. Git history contained historical path-reranker source scripts, so the source files were restored and adapted into a minimal reproducible smoke pipeline:
+
+```text
+src/gcn_search/legacy_rts79/build_path_reranker_dataset.py
+src/gcn_search/legacy_rts79/train_path_reranker.py
+src/gcn_search/legacy_rts79/evaluate_path_reranker_strict_heldout.py
+```
+
+The restored pipeline generated local ignored artifacts:
+
+```text
+results/gcn_search/path_reranker_dataset/path_reranker_dataset.csv
+results/gcn_search/path_reranker_models/path_reranker_model.pkl
+results/gcn_search/simulink_dynamic_real_per_path_ranking/learned_mlp_per_path_ranking.csv
+```
+
+Dataset stats:
+
+```text
+num_samples = 1000
+num_critical = 17
+positive_ratio = 0.017
+train_seeds = 20260722, 20260723, 20260724
+test_seeds = 20260726
+smoke = true
+```
+
+MATLAB Top20 preliminary dynamic smoke was run through:
+
+```powershell
+python src/gcn_search/legacy_rts79/run_real_topk_dynamic_validation_pipeline.py --retrain-if-missing --smoke --top-k 20 --max-cases 20 --max-paths-per-seed 200 --run-matlab --output-dir results/gcn_search/simulink_dynamic_real_pipeline
+```
+
+Compact summary:
+
+```text
+result_scope = top20_preliminary_dynamic_smoke
+num_dynamic_cases = 20
+dynamic_precision_at_k = 1.0
+opa_critical_and_dynamic_unstable_count = 0
+opa_critical_but_dynamic_stable_count = 0
+opa_noncritical_but_dynamic_unstable_count = 20
+cases_with_security_redispatch_or_load_shed = 0
+cases_with_passive_relay_trip = 20
+total_dynamic_load_shed_mw = 0.0
+matlab_executed = true
+```
+
+No dynamic recall is reported because no full dynamic truth is available. This remains a simplified swing-equation Top20 preliminary dynamic smoke, not a formal engineering dynamic stability conclusion.
+
+Validation:
+
+```text
+python -m pytest tests/test_simulink_dynamic_case_export.py tests/test_simulink_dynamic_result_analysis.py tests/test_simulink_dynamic_disagreement.py tests/test_simulink_real_topk_preparation.py tests/test_relay_vs_security_logic.py tests/test_event_driven_dynamic_loop.py tests/test_real_topk_dynamic_pipeline.py tests/test_dynamic_method_comparison_inputs.py tests/test_export_path_reranker_per_path_ranking.py tests/test_real_topk_dynamic_validation_pipeline.py tests/test_real_topk_dynamic_summary.py tests/test_path_reranker_minimal_pipeline.py tests/test_real_topk_dynamic_smoke_summary.py
+26 passed
+
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+PASS: GCN Simulink dynamic validation artifacts are review-ready.
+```
+
+RL mitigation files were not modified. Generated `.pkl`, `.slx`, `.mat`, full per-path ranking, and raw dynamic artifacts remain local ignored artifacts and are not intended for commit.
