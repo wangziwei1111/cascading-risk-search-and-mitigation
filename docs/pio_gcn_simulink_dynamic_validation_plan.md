@@ -159,6 +159,12 @@ Round 13 adds relay threshold vs security constraint handling:
 
 The current redispatch/load shedding model is an approximation around overloaded line terminal buses. It is not a full OPF.
 
+## Round 14 Update
+
+Round 14 changes relay/security handling from post-processing into an event-driven closed-loop prototype. Passive relay trips affect subsequent topology. Security redispatch/load shedding affects subsequent loads and the simplified `Pm` approximation. Two MATLAB demos were added to separately verify mild overload security action and severe overload relay action.
+
+The closed-loop behavior is still a prototype. It is not full OPF redispatch, not EMT, and has no renewable generation or detailed controls.
+
 ## Next Steps
 
 - Add passive overload relay tripping in the time-domain prototype.

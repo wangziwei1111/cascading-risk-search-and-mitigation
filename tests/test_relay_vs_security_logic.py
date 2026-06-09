@@ -73,3 +73,5 @@ def test_relay_vs_security_event_analysis_outputs_summary(tmp_path: Path) -> Non
     assert (out / "security_redispatch_cases.csv").exists()
     assert (out / "passive_relay_trip_cases.csv").exists()
     assert (out / "load_shed_due_to_security_constraint.csv").exists()
+    assert (out / "relay_security_event_sequence_check.csv").exists()
+    assert (out / "passive_trip_topology_update_check.csv").exists()

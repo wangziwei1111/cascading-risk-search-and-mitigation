@@ -55,30 +55,44 @@ allT = [];
 allY = [];
 lineRows = {};
 offlineLines = strings(0, 1);
-segmentStarts = [0; double(caseEvents.event_time(:))];
 if height(caseEvents) == 0
     simulationEndTime = options.simulation_end_time;
 else
     simulationEndTime = max(double(caseEvents.simulation_end_time(1)), double(caseEvents.event_time(end)));
 end
-segmentEnds = [double(caseEvents.event_time(:)); simulationEndTime];
 currentY = y0;
+currentTime = 0.0;
+currentLoads = loads;
+eventRows = {};
+eventRowIdx = 0;
+cumulativeLoadShedMw = 0.0;
+passiveRelayTripCount = 0;
+securityRedispatchCount = 0;
+maxSecurityViolationLoadingRatio = 0.0;
+maxRelayViolationLoadingRatio = 0.0;
+eventRound = 0;
 
-for segIdx = 1:numel(segmentEnds)
-    if segIdx > 1
-        offlineLines(end + 1, 1) = caseEvents.event_line(segIdx - 1);
+while currentTime < simulationEndTime && eventRound < options.max_event_rounds
+    futureEvents = caseEvents(double(caseEvents.event_time) > currentTime + options.min_event_separation_s, :);
+    if isempty(futureEvents)
+        nextScheduledTime = simulationEndTime;
+    else
+        nextScheduledTime = min(double(futureEvents.event_time));
+    end
+    nextCheckTime = min(currentTime + options.loading_check_interval_s, simulationEndTime);
+    tEnd = min(nextScheduledTime, nextCheckTime);
+    if tEnd <= currentTime + options.min_event_separation_s
+        tEnd = min(currentTime + options.loading_check_interval_s, simulationEndTime);
     end
     [Bbus, activeBranches] = buildBbusLocal(branches, offlineLines);
     Bred = kronReduceToGeneratorsLocal(Bbus, genBus);
     Bred = normalizeCouplingLocal(Bred, options.coupling_scale);
-    tStart = segmentStarts(segIdx);
-    tEnd = segmentEnds(segIdx);
-    if tEnd <= tStart
+    if tEnd <= currentTime
         continue;
     end
     ode = @(t, y) swingOdeLocal(t, y, Pm, M, D, Bred, f0);
     opts = odeset("RelTol", 1e-5, "AbsTol", 1e-7, "MaxStep", options.max_step_s);
-    [tSeg, ySeg] = ode45(ode, [tStart tEnd], currentY, opts);
+    [tSeg, ySeg] = ode45(ode, [currentTime tEnd], currentY, opts);
     if ~isempty(allT) && abs(tSeg(1) - allT(end)) < 1e-9
         tSeg = tSeg(2:end);
         ySeg = ySeg(2:end, :);
@@ -86,7 +100,57 @@ for segIdx = 1:numel(segmentEnds)
     allT = [allT; tSeg]; %#ok<AGROW>
     allY = [allY; ySeg]; %#ok<AGROW>
     currentY = ySeg(end, :)';
-    lineRows = [lineRows; lineLoadingRowsLocal(tSeg, ySeg, activeBranches, genBus, systemBaseMva)]; %#ok<AGROW>
+    segmentRows = lineLoadingRowsLocal(tSeg, ySeg, activeBranches, genBus, systemBaseMva);
+    lineRows = [lineRows; segmentRows]; %#ok<AGROW>
+    currentTime = tEnd;
+
+    scheduledNow = caseEvents(abs(double(caseEvents.event_time) - currentTime) <= options.min_event_separation_s, :);
+    for evIdx = 1:height(scheduledNow)
+        lineLabel = string(scheduledNow.event_line(evIdx));
+        if ~ismember(lineLabel, offlineLines)
+            offlineLines(end + 1, 1) = lineLabel; %#ok<AGROW>
+        end
+        eventRound = eventRound + 1;
+        if evIdx == 1 && sum(double(caseEvents.event_time) <= currentTime + options.min_event_separation_s) == 1
+            eventType = "active_trip_first_line";
+        else
+            eventType = "active_trip_second_line";
+        end
+        eventRowIdx = eventRowIdx + 1;
+        eventRows(eventRowIdx, :) = {string(caseId), currentTime, eventType, strjoin(offlineLines, ";"), lineLabel, NaN, options.relay_beta, NaN, 0.0, cumulativeLoadShedMw, "scheduled_active_trip"}; %#ok<AGROW>
+    end
+
+    if ~isempty(segmentRows)
+        segmentTable = cell2table(segmentRows, "VariableNames", ["time_s", "line_label", "loading_ratio"]);
+        segmentTable.loading_ratio = double(segmentTable.loading_ratio) * options.line_loading_scale;
+        [maxLoadingRatio, maxIdx] = max(double(segmentTable.loading_ratio));
+        maxLineLabel = string(segmentTable.line_label(maxIdx));
+        if maxLoadingRatio > options.relay_beta && options.enable_passive_relay_trips && passiveRelayTripCount < options.max_passive_trip_rounds
+            if ~ismember(maxLineLabel, offlineLines)
+                offlineLines(end + 1, 1) = maxLineLabel; %#ok<AGROW>
+            end
+            passiveRelayTripCount = passiveRelayTripCount + 1;
+            maxRelayViolationLoadingRatio = max(maxRelayViolationLoadingRatio, maxLoadingRatio);
+            eventRound = eventRound + 1;
+            eventRowIdx = eventRowIdx + 1;
+            eventRows(eventRowIdx, :) = {string(caseId), currentTime + options.relay_trip_delay_s, "passive_relay_trip", strjoin(offlineLines, ";"), maxLineLabel, maxLoadingRatio, options.relay_beta, NaN, 0.0, cumulativeLoadShedMw, "loading_ratio_above_beta"}; %#ok<AGROW>
+            continue;
+        elseif maxLoadingRatio > options.overload_security_threshold && maxLoadingRatio <= options.relay_beta && options.enable_security_redispatch_approx
+            oldLoads = currentLoads;
+            oldPm = Pm;
+            [currentLoads, loadShedMw, affectedBusId, reason] = apply_security_redispatch_approx(currentLoads, branches, maxLineLabel, maxLoadingRatio, options);
+            if options.redispatch_updates_pm
+                Pm = update_swing_power_after_load_shed(generators, oldLoads, currentLoads, oldPm);
+            end
+            cumulativeLoadShedMw = cumulativeLoadShedMw + loadShedMw;
+            securityRedispatchCount = securityRedispatchCount + 1;
+            maxSecurityViolationLoadingRatio = max(maxSecurityViolationLoadingRatio, maxLoadingRatio);
+            eventRound = eventRound + 1;
+            eventRowIdx = eventRowIdx + 1;
+            eventRows(eventRowIdx, :) = {string(caseId), currentTime, "security_redispatch_or_load_shed", strjoin(offlineLines, ";"), maxLineLabel, maxLoadingRatio, options.relay_beta, affectedBusId, loadShedMw, cumulativeLoadShedMw, reason}; %#ok<AGROW>
+            continue;
+        end
+    end
 end
 
 if isempty(allT)
@@ -102,8 +166,12 @@ maxRotorAngleSeparationDeg = max((max(delta, [], 2) - min(delta, [], 2)) * 180 /
 lineLoadingSummary = cell2table(lineRows, "VariableNames", ["time_s", "line_label", "loading_ratio"]);
 lineLoadingSummary.loading_ratio = double(lineLoadingSummary.loading_ratio) * options.line_loading_scale;
 maxLineLoadingRatio = max(double(lineLoadingSummary.loading_ratio));
-[eventLog, passiveRelayTripCount, securityRedispatchCount, dynamicLoadShedMw, maxSecurityViolationLoadingRatio, maxRelayViolationLoadingRatio] = ...
-    classifyRelayAndSecurityEventsLocal(caseId, caseEvents, lineLoadingSummary, branches, loads, offlineLines, options);
+if isempty(eventRows)
+    eventLog = cell2table(cell(0, numel(eventLogColumnsLocal())), "VariableNames", eventLogColumnsLocal());
+else
+    eventLog = cell2table(eventRows, "VariableNames", eventLogColumnsLocal());
+end
+dynamicLoadShedMw = cumulativeLoadShedMw;
 [dynamicUnstable, unstableReason] = classifyDynamicStabilityLocal( ...
     frequencyNadirHz, maxRotorAngleSeparationDeg, maxLineLoadingRatio, maxRelayViolationLoadingRatio, passiveRelayTripCount, options);
 
@@ -153,6 +221,10 @@ options.relay_trip_delay_s = 0.2;
 options.max_passive_trip_rounds = 5;
 options.load_shed_step_fraction = 0.05;
 options.max_load_shed_fraction_per_bus = 0.5;
+options.max_event_rounds = 20;
+options.loading_check_interval_s = 0.2;
+options.min_event_separation_s = 1e-3;
+options.redispatch_updates_pm = true;
 end
 
 function options = mergeSwingOptionsLocal(optionsIn)

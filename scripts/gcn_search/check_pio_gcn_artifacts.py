@@ -22,16 +22,21 @@ REQUIRED_FILES = [
     "matlab/simulink_rts79/check_rts79_swing_model_sanity.m",
     "matlab/simulink_rts79/calibrate_rts79_swing_scales.m",
     "matlab/simulink_rts79/run_real_topk_dynamic_validation.m",
+    "matlab/simulink_rts79/update_swing_power_after_load_shed.m",
+    "matlab/simulink_rts79/run_mild_overload_security_demo.m",
+    "matlab/simulink_rts79/run_severe_overload_relay_demo.m",
     "matlab/simulink_rts79/README.md",
     "src/gcn_search/legacy_rts79/prepare_real_topk_for_simulink_dynamic.py",
     "src/gcn_search/legacy_rts79/check_simulink_dynamic_sanity_artifacts.py",
     "src/gcn_search/legacy_rts79/analyze_opa_dynamic_disagreement.py",
     "src/gcn_search/legacy_rts79/analyze_relay_vs_security_events.py",
+    "src/gcn_search/legacy_rts79/check_relay_security_demo_artifacts.py",
     "tests/test_simulink_dynamic_case_export.py",
     "tests/test_simulink_dynamic_result_analysis.py",
     "tests/test_simulink_dynamic_disagreement.py",
     "tests/test_simulink_real_topk_preparation.py",
     "tests/test_relay_vs_security_logic.py",
+    "tests/test_event_driven_dynamic_loop.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
@@ -102,6 +107,8 @@ def main() -> int:
             failures.append("Validation log does not contain the Round 12 record.")
         if "Round 13" not in log_text:
             failures.append("Validation log does not contain the Round 13 record.")
+        if "Round 14" not in log_text:
+            failures.append("Validation log does not contain the Round 14 record.")
 
     plan_path = ROOT / "docs/pio_gcn_simulink_dynamic_validation_plan.md"
     if plan_path.exists():
@@ -115,6 +122,7 @@ def main() -> int:
             "real-time deployment completed",
             "engineering-grade dynamic model completed",
             "loading_ratio > 1.0 triggers relay trip",
+            "full OPF redispatch completed",
             "工程级动态模型已完成",
             "真实动态稳定结论已完成",
             "新能源动态验证已完成",
@@ -145,7 +153,7 @@ def main() -> int:
     relay_doc = ROOT / "docs/pio_gcn_relay_vs_security_constraint.md"
     if relay_doc.exists():
         relay_text = _read_text("docs/pio_gcn_relay_vs_security_constraint.md").lower()
-        for required in ["beta", "relay threshold", "security constraint"]:
+        for required in ["1.0 < loading_ratio <= beta", "security redispatch/load shedding", "loading_ratio > beta", "passive relay trip"]:
             if required not in relay_text:
                 failures.append(f"Relay/security doc is missing required term: {required}")
 

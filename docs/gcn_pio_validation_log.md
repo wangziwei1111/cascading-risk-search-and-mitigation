@@ -105,3 +105,19 @@ loading_ratio > beta: passive relay trip
 The default `relay_beta` is `1.2`. This means `loading_ratio > 1.0` is a security constraint violation, not a relay trip by itself. The Simulink prototype now writes `dynamic_case_event_log_<case_id>.csv` with `active_trip_first_line`, `active_trip_second_line`, `security_redispatch_or_load_shed`, and `passive_relay_trip` event types. Summary rows include passive relay trip counts, security redispatch counts, dynamic load shedding, and separate maximum security and relay violation loading ratios.
 
 Current limitation: the redispatch/load shedding step is an approximation near overloaded branch terminal buses. It is not a full OPF, not EMT, and not an engineering-grade dynamic model.
+
+## Round 14: Event-Driven Closed-Loop Dynamic Prototype
+
+Round 13 separated relay/security events in post-processing. Round 14 upgrades the prototype to an event-driven closed-loop simulation:
+
+- scheduled active trips change `offlineLines` before later integration segments;
+- passive relay trips add the tripped line to `offlineLines`, so subsequent segments rebuild topology without that line;
+- security redispatch/load shedding updates `currentLoads` and scales the subsequent `Pm` approximation through `update_swing_power_after_load_shed.m`;
+- the event loop repeats until simulation end, `max_passive_trip_rounds`, or `max_event_rounds`.
+
+Round 14 also adds two MATLAB demos:
+
+- mild overload demo: validates `1.0 < loading_ratio <= beta` causes `security_redispatch_or_load_shed` and no passive relay trip;
+- severe overload demo: validates `loading_ratio > beta` causes passive relay trip.
+
+Current limitation: this is still a simplified swing-equation prototype. Redispatch/load shedding is not full OPF, relay logic is not an engineering-grade protection model, and demos are not formal dynamic stability conclusions.

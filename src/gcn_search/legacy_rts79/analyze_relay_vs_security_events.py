@@ -59,6 +59,10 @@ def analyze_relay_vs_security_events(
     relay_events.to_csv(out / "relay_threshold_violation_cases.csv", index=False, encoding="utf-8-sig")
     security_events.sort_values("load_shed_mw", ascending=False).head(10).to_csv(out / "top10_security_load_shedding_cases.csv", index=False, encoding="utf-8-sig")
     relay_events.sort_values("loading_ratio", ascending=False).head(10).to_csv(out / "top10_relay_trip_cases.csv", index=False, encoding="utf-8-sig")
+    sequence_check = _event_order_check(events)
+    topology_check = _passive_trip_topology_update_check(events)
+    sequence_check.to_csv(out / "relay_security_event_sequence_check.csv", index=False, encoding="utf-8-sig")
+    topology_check.to_csv(out / "passive_trip_topology_update_check.csv", index=False, encoding="utf-8-sig")
     return {"output_dir": str(out), "summary_csv": str(out / "relay_vs_security_summary.csv")}
 
 
@@ -66,6 +70,58 @@ def _filter_event(events: pd.DataFrame, event_type: str) -> pd.DataFrame:
     if events.empty or "event_type" not in events.columns:
         return pd.DataFrame()
     return events[events["event_type"].astype(str) == event_type].copy()
+
+
+def _event_order_check(events: pd.DataFrame) -> pd.DataFrame:
+    rows = []
+    if events.empty:
+        return pd.DataFrame(columns=["case_id", "first_active_time_s", "first_protection_or_security_time_s", "passed", "reason"])
+    work = events.copy()
+    work["time_s"] = pd.to_numeric(work["time_s"], errors="coerce")
+    for case_id, group in work.groupby("case_id"):
+        active = group[group["event_type"].astype(str).str.startswith("active_trip")]
+        follow = group[group["event_type"].astype(str).isin(["security_redispatch_or_load_shed", "passive_relay_trip"])]
+        first_active = active["time_s"].min() if not active.empty else float("nan")
+        first_follow = follow["time_s"].min() if not follow.empty else float("nan")
+        passed = follow.empty or (not active.empty and first_follow >= first_active)
+        rows.append(
+            {
+                "case_id": case_id,
+                "first_active_time_s": first_active,
+                "first_protection_or_security_time_s": first_follow,
+                "passed": bool(passed),
+                "reason": "ok" if passed else "protection_or_security_before_active_trip",
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def _passive_trip_topology_update_check(events: pd.DataFrame) -> pd.DataFrame:
+    rows = []
+    if events.empty:
+        return pd.DataFrame(columns=["case_id", "line_label", "time_s", "passed", "reason"])
+    work = events.copy()
+    work["time_s"] = pd.to_numeric(work["time_s"], errors="coerce")
+    relays = work[work["event_type"].astype(str) == "passive_relay_trip"]
+    for _, relay in relays.iterrows():
+        case_id = relay["case_id"]
+        line = str(relay["line_label"])
+        group = work[(work["case_id"] == case_id) & (work["time_s"] >= relay["time_s"])]
+        if "offlineLines" in group.columns:
+            offline_text = ";".join(group["offlineLines"].fillna("").astype(str).tolist())
+        else:
+            offline_text = ""
+        passed = line in offline_text
+        rows.append(
+            {
+                "case_id": case_id,
+                "line_label": line,
+                "time_s": relay["time_s"],
+                "passed": bool(passed),
+                "reason": "ok" if passed else "passive_trip_line_missing_from_offlineLines",
+            }
+        )
+    return pd.DataFrame(rows)
 
 
 def parse_args() -> argparse.Namespace:

@@ -125,3 +125,27 @@ dynamic_case_event_log_<case_id>.csv
 ```
 
 The event log distinguishes active trips, security actions, and passive relay trips. The security action is a prototype approximation, not a full OPF.
+
+## Event-Driven Closed Loop
+
+Round 14 uses an event-driven loop:
+
+- active trips update later topology;
+- passive relay trips update later topology;
+- security redispatch/load shedding updates later loads and the simplified `Pm` approximation.
+
+Demo commands:
+
+```matlab
+run_mild_overload_security_demo( ...
+  "../../results/gcn_search/simulink_dynamic_basecase/rts79_simulink_basecase.json", ...
+  "../../results/gcn_search/simulink_dynamic_mild_overload_demo" ...
+)
+
+run_severe_overload_relay_demo( ...
+  "../../results/gcn_search/simulink_dynamic_basecase/rts79_simulink_basecase.json", ...
+  "../../results/gcn_search/simulink_dynamic_severe_overload_demo" ...
+)
+```
+
+These demos validate prototype logic only. They are not formal dynamic stability conclusions.

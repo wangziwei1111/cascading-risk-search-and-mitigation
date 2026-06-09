@@ -100,3 +100,5 @@ python src/gcn_search/legacy_rts79/analyze_relay_vs_security_events.py `
 ```
 
 This analysis helps avoid confusing a long-term security limit violation with a relay trip.
+
+Round 14 makes these events affect subsequent simulation segments: passive relay trips alter topology, while security redispatch/load shedding alters subsequent loads and the simplified `Pm` approximation. Demo outputs are useful for logic validation only and must not be reported as formal engineering dynamic stability conclusions.

@@ -49,3 +49,14 @@ The current Simulink dynamic validation uses an approximation:
 - security redispatch/load shedding is approximated by reducing load near the overloaded line terminal buses.
 
 This redispatch/load shedding approximation is not a full AC OPF or DC OPF. It is only a prototype hook to preserve the physical distinction between security constraints and relay thresholds.
+
+## Round 14 Closed-Loop Behavior
+
+Round 13 recorded relay/security events after the trajectory was produced. Round 14 changes the prototype into an event-driven closed-loop flow:
+
+- a passive relay trip changes later topology by adding the line to `offlineLines`;
+- a security redispatch/load shedding action changes later `loads` and the subsequent `Pm` approximation;
+- the mild overload demo checks `1.0 < loading_ratio <= beta` with security redispatch/load shedding and no passive relay trip;
+- the severe overload demo checks `loading_ratio > beta` with passive relay trip.
+
+This is still not full OPF redispatch, not EMT, and not an engineering-grade dynamic protection model.
