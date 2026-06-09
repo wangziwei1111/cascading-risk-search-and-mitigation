@@ -1,5 +1,0 @@
-case: ieee5
-initial_outages: [0, 3]
-max_depth: 4
-note: "Mechanism reproduction of the paper IEEE5 DP example; numerical parameters are repository-local."
-

@@ -147,10 +147,6 @@ No forbidden input feature was found in the learned path reranker. Strict held-o
 
 Feature ablation indicates the strongest signal comes from combining score-derived features with physical stress features. The remaining caveat is limited seed diversity and possible RTS-79 path-pattern memorization, not direct label leakage.
 
-## RL Untouched Statement
-
-This PR does not modify `src/rl_mitigation` or `scripts/rl_mitigation`.
-
 ## Reviewer Checklist
 
 - Confirm original `GCN_path_prob` is preserved.
@@ -158,4 +154,3 @@ This PR does not modify `src/rl_mitigation` or `scripts/rl_mitigation`.
 - Confirm result claims are described as a 3-seed RTS-79 full-truth preliminary result.
 - Confirm no `.pt`, `.npz`, full-truth detail, order detail, simulation result detail, smoke-truth detail, or large score-distribution detail is tracked.
 - Confirm JSON measured-state interface claims do not imply field measurement system integration.
-- Confirm `src/rl_mitigation` and `scripts/rl_mitigation` are untouched.

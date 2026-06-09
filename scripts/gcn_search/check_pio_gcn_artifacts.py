@@ -172,10 +172,6 @@ def main() -> int:
         if "Round 9" not in text and "Ninth" not in text:
             failures.append("Validation log does not contain the ninth-round record.")
 
-    pr_text = _read_text("docs/pio_gcn_pr_description.md") if (ROOT / "docs/pio_gcn_pr_description.md").exists() else ""
-    if "RL Untouched" not in pr_text and "RL untouched" not in pr_text:
-        failures.append("PR description does not contain an RL untouched statement.")
-
     advisor_text = _read_text("docs/pio_gcn_advisor_brief.md") if (ROOT / "docs/pio_gcn_advisor_brief.md").exists() else ""
     if not any(term in advisor_text for term in ["不是最终论文结论", "not a final", "not final"]):
         failures.append("Advisor brief does not clearly state this is not a final paper conclusion.")

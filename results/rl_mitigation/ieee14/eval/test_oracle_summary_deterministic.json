@@ -1,7 +1,0 @@
-{
-  "do_nothing_mean_negative_return": 75.18514158804321,
-  "ppo_agent_mean_negative_return": 75.1901415880432,
-  "oracle_mean_negative_return": 67.06,
-  "oracle_gap": 8.125141588043206,
-  "agent_gap_vs_do_nothing": -0.0049999999999954525
-}

@@ -1,7 +1,0 @@
-{
-  "episodes": 100,
-  "policies": [
-    "ppo_do_nothing_init"
-  ],
-  "mean_negative_return": 90.78153285368542
-}

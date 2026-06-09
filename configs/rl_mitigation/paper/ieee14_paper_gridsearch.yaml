@@ -1,4 +1,0 @@
-base_config: configs/rl_mitigation/paper/ieee14_paper_ppo.yaml
-learning_rates: [1.0e-3, 1.0e-4, 1.0e-5]
-entropy_coefs: [0.1, 0.01, 0.001]
-

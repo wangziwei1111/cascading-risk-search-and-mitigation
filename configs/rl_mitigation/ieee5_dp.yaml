@@ -1,4 +1,0 @@
-case: ieee5
-initial_outages: [0, 1]
-max_depth: 4
-gamma: 1.0

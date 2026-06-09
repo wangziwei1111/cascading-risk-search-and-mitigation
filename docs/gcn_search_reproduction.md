@@ -29,10 +29,6 @@ python -m scripts.gcn_search.evaluate_search
 python -m scripts.gcn_search.make_figures
 ```
 
-## Relationship to RL Module
+## Scope
 
-The GCN module answers: which fault paths are dangerous?
-
-The RL module answers: after danger starts propagating, how should the operator intervene?
-
-They are staged components of one defense framework rather than competing methods.
+This repository now keeps the GCN cascading-failure path-search reproduction as the active public scope.

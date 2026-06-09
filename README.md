@@ -101,25 +101,6 @@ docs/pio_gcn_hard_negative_analysis.md
 docs/pio_gcn_path_reranker_leakage_audit.md
 ```
 
-### 2. RL cascade mitigation reproduction
-
-This part records a separate reinforcement-learning mitigation reproduction line based on IEEE14/IEEE118 experiments.
-
-Read first:
-
-```text
-docs/rl_paper_reproduction_status.md
-docs/rl_paper_figure_index.md
-docs/rl_mitigation_reproduction.md
-```
-
-Key source code:
-
-```text
-src/rl_mitigation/
-scripts/rl_mitigation/
-```
-
 ## Current RTS-79 GCN Result Boundary
 
 The RTS-79 GCN work has completed:
