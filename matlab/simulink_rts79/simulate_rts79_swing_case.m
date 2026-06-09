@@ -1,4 +1,4 @@
-﻿function [resultTable, trajectorySummary, lineLoadingSummary] = simulate_rts79_swing_case(basecasePath, eventTablePath, caseId, outputDir, saveTrajectories)
+﻿function [resultTable, trajectorySummary, lineLoadingSummary] = simulate_rts79_swing_case(basecasePath, eventTablePath, caseId, outputDir, saveTrajectories, options)
 %SIMULATE_RTS79_SWING_CASE Run a simplified RTS-79 multi-machine swing simulation.
 %
 % This is a simplified electromechanical swing-equation prototype. It is not
@@ -12,6 +12,11 @@ end
 if nargin < 5 || isempty(saveTrajectories)
     saveTrajectories = false;
 end
+if nargin < 6 || isempty(options)
+    options = defaultSwingOptionsLocal();
+else
+    options = mergeSwingOptionsLocal(options);
+end
 if ~exist(outputDir, "dir")
     mkdir(outputDir);
 end
@@ -21,23 +26,29 @@ branches = readtable(fullfile(baseDir, "rts79_simulink_branches.csv"), "TextType
 generators = readtable(fullfile(baseDir, "rts79_simulink_generators.csv"), "TextType", "string");
 loads = readtable(fullfile(baseDir, "rts79_simulink_loads.csv"), "TextType", "string");
 events = readtable(eventTablePath, "TextType", "string");
+if ~isstring(events.case_id)
+    events.case_id = string(events.case_id);
+end
+if ~isstring(events.event_line)
+    events.event_line = string(events.event_line);
+end
 caseEvents = sortrows(events(events.case_id == string(caseId), :), "event_time");
-if height(caseEvents) ~= 2
-    error("Expected two trip events for case_id=%s, got %d", string(caseId), height(caseEvents));
+if ~(height(caseEvents) == 0 || height(caseEvents) == 2)
+    error("Expected zero or two trip events for case_id=%s, got %d", string(caseId), height(caseEvents));
 end
 
 systemBaseMva = readSystemBaseMvaLocal(basecasePath);
 f0 = 50.0;
 genBus = double(generators.bus_id);
 ng = height(generators);
-M = 2.0 * max(double(generators.H_s), 0.1);
-D = max(double(generators.D_pu), 10.0);
+M = options.inertia_scale * 2.0 * max(double(generators.H_s), 0.1);
+D = options.damping_scale * max(double(generators.D_pu), 10.0);
 delta0 = initialGeneratorAnglesLocal(branches, generators, loads, systemBaseMva);
 omega0 = ones(ng, 1);
 y0 = [delta0; omega0];
 [Bbus0, ~] = buildBbusLocal(branches, strings(0, 1));
 Bred0 = kronReduceToGeneratorsLocal(Bbus0, genBus);
-Bred0 = normalizeCouplingLocal(Bred0);
+Bred0 = normalizeCouplingLocal(Bred0, options.coupling_scale);
 Pm = electricalPowerLocal(delta0, Bred0);
 
 allT = [];
@@ -45,7 +56,12 @@ allY = [];
 lineRows = {};
 offlineLines = strings(0, 1);
 segmentStarts = [0; double(caseEvents.event_time(:))];
-segmentEnds = [double(caseEvents.event_time(:)); max(double(caseEvents.simulation_end_time(1)), double(caseEvents.event_time(end)))];
+if height(caseEvents) == 0
+    simulationEndTime = options.simulation_end_time;
+else
+    simulationEndTime = max(double(caseEvents.simulation_end_time(1)), double(caseEvents.event_time(end)));
+end
+segmentEnds = [double(caseEvents.event_time(:)); simulationEndTime];
 currentY = y0;
 
 for segIdx = 1:numel(segmentEnds)
@@ -54,14 +70,14 @@ for segIdx = 1:numel(segmentEnds)
     end
     [Bbus, activeBranches] = buildBbusLocal(branches, offlineLines);
     Bred = kronReduceToGeneratorsLocal(Bbus, genBus);
-    Bred = normalizeCouplingLocal(Bred);
+    Bred = normalizeCouplingLocal(Bred, options.coupling_scale);
     tStart = segmentStarts(segIdx);
     tEnd = segmentEnds(segIdx);
     if tEnd <= tStart
         continue;
     end
     ode = @(t, y) swingOdeLocal(t, y, Pm, M, D, Bred, f0);
-    opts = odeset("RelTol", 1e-5, "AbsTol", 1e-7, "MaxStep", 0.05);
+    opts = odeset("RelTol", 1e-5, "AbsTol", 1e-7, "MaxStep", options.max_step_s);
     [tSeg, ySeg] = ode45(ode, [tStart tEnd], currentY, opts);
     if ~isempty(allT) && abs(tSeg(1) - allT(end)) < 1e-9
         tSeg = tSeg(2:end);
@@ -84,8 +100,9 @@ frequencyZenithHz = max(frequencyHz, [], "all");
 delta = allY(:, 1:ng);
 maxRotorAngleSeparationDeg = max((max(delta, [], 2) - min(delta, [], 2)) * 180 / pi);
 lineLoadingSummary = cell2table(lineRows, "VariableNames", ["time_s", "line_label", "loading_ratio"]);
+lineLoadingSummary.loading_ratio = double(lineLoadingSummary.loading_ratio) * options.line_loading_scale;
 maxLineLoadingRatio = max(double(lineLoadingSummary.loading_ratio));
-[dynamicUnstable, unstableReason] = classifyDynamicStabilityLocal(frequencyNadirHz, maxRotorAngleSeparationDeg, maxLineLoadingRatio);
+[dynamicUnstable, unstableReason] = classifyDynamicStabilityLocal(frequencyNadirHz, maxRotorAngleSeparationDeg, maxLineLoadingRatio, options);
 
 resultTable = table( ...
     string(caseId), true, true, frequencyNadirHz, frequencyZenithHz, ...
@@ -109,6 +126,26 @@ if saveTrajectories
 end
 end
 
+function options = defaultSwingOptionsLocal()
+options = struct();
+options.coupling_scale = 2.0;
+options.damping_scale = 1.0;
+options.inertia_scale = 1.0;
+options.line_loading_scale = 1.0;
+options.frequency_unstable_threshold_hz = 49.0;
+options.rotor_angle_unstable_threshold_deg = 180.0;
+options.line_loading_unstable_threshold = 1.5;
+options.simulation_end_time = 20.0;
+options.max_step_s = 0.05;
+end
+
+function options = mergeSwingOptionsLocal(optionsIn)
+options = defaultSwingOptionsLocal();
+fields = fieldnames(optionsIn);
+for idx = 1:numel(fields)
+    options.(fields{idx}) = optionsIn.(fields{idx});
+end
+end
 function systemBaseMva = readSystemBaseMvaLocal(basecasePath)
 systemBaseMva = 100.0;
 try
@@ -169,12 +206,12 @@ for i = 1:ng
 end
 end
 
-function Bscaled = normalizeCouplingLocal(Bred)
+function Bscaled = normalizeCouplingLocal(Bred, couplingScale)
 scale = max(abs(Bred), [], "all");
 if scale < 1e-9
     Bscaled = Bred;
 else
-    Bscaled = 2.0 * Bred / scale;
+    Bscaled = couplingScale * Bred / scale;
 end
 end
 
@@ -265,15 +302,15 @@ end
 trajectorySummary = cell2table(rows, "VariableNames", ["time_s", "gen_id", "delta_rad", "omega_pu", "frequency_hz"]);
 end
 
-function [dynamicUnstable, unstableReason] = classifyDynamicStabilityLocal(frequencyNadirHz, maxRotorAngleSeparationDeg, maxLineLoadingRatio)
+function [dynamicUnstable, unstableReason] = classifyDynamicStabilityLocal(frequencyNadirHz, maxRotorAngleSeparationDeg, maxLineLoadingRatio, options)
 reasons = strings(0, 1);
-if frequencyNadirHz < 49.0
+if frequencyNadirHz < options.frequency_unstable_threshold_hz
     reasons(end + 1, 1) = "frequency_nadir_below_49hz";
 end
-if maxRotorAngleSeparationDeg > 180.0
+if maxRotorAngleSeparationDeg > options.rotor_angle_unstable_threshold_deg
     reasons(end + 1, 1) = "rotor_angle_separation_above_180deg";
 end
-if maxLineLoadingRatio > 1.5
+if maxLineLoadingRatio > options.line_loading_unstable_threshold
     reasons(end + 1, 1) = "line_loading_above_1p5";
 end
 dynamicUnstable = ~isempty(reasons);
@@ -283,4 +320,6 @@ else
     unstableReason = "stable_by_swing_prototype_thresholds";
 end
 end
+
+
 

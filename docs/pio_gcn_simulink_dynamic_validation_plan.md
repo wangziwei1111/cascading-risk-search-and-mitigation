@@ -135,6 +135,19 @@ Round 10 provided the scaffold, event export, mock results, and analysis interfa
 
 This validation is a supplement to learned-reranker Top-K assessment. It does not replace improved OPA full-truth evaluation, does not include renewable dynamics, and remains dependent on assumed default dynamic parameters unless the user replaces them.
 
+## Round 12 Update
+
+Round 12 adds the real Top-K preparation and calibration layer:
+
+- `prepare_real_topk_for_simulink_dynamic.py` prepares `real_topk_input_paths.csv` for `--input-csv`;
+- missing per-path ranking artifacts now produce an explicit error unless `--use-demo-fallback` is requested;
+- `check_rts79_swing_model_sanity.m` runs a no-disturbance sanity case;
+- `calibrate_rts79_swing_scales.m` searches prototype coupling, damping, inertia, and line-loading scales;
+- `run_real_topk_dynamic_validation.m` runs calibrated real Top-K cases;
+- `analyze_opa_dynamic_disagreement.py` reports OPA/dynamic disagreement categories.
+
+Demo dynamic precision is not a formal dynamic conclusion. Real Top-K dynamic precision should be documented only after running a real local per-path ranking CSV through the calibrated prototype.
+
 ## Next Steps
 
 - Add passive overload relay tripping in the time-domain prototype.

@@ -19,10 +19,19 @@ REQUIRED_FILES = [
     "matlab/simulink_rts79/simulate_rts79_swing_case.m",
     "matlab/simulink_rts79/run_rts79_dynamic_path_case.m",
     "matlab/simulink_rts79/run_rts79_dynamic_batch.m",
+    "matlab/simulink_rts79/check_rts79_swing_model_sanity.m",
+    "matlab/simulink_rts79/calibrate_rts79_swing_scales.m",
+    "matlab/simulink_rts79/run_real_topk_dynamic_validation.m",
     "matlab/simulink_rts79/README.md",
+    "src/gcn_search/legacy_rts79/prepare_real_topk_for_simulink_dynamic.py",
+    "src/gcn_search/legacy_rts79/check_simulink_dynamic_sanity_artifacts.py",
+    "src/gcn_search/legacy_rts79/analyze_opa_dynamic_disagreement.py",
     "tests/test_simulink_dynamic_case_export.py",
     "tests/test_simulink_dynamic_result_analysis.py",
+    "tests/test_simulink_dynamic_disagreement.py",
+    "tests/test_simulink_real_topk_preparation.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
+    "docs/pio_gcn_simulink_real_topk_validation.md",
     "docs/gcn_pio_validation_log.md",
 ]
 
@@ -86,6 +95,8 @@ def main() -> int:
             failures.append("Validation log does not contain the Round 10 record.")
         if "Round 11" not in log_text:
             failures.append("Validation log does not contain the Round 11 record.")
+        if "Round 12" not in log_text:
+            failures.append("Validation log does not contain the Round 12 record.")
 
     plan_path = ROOT / "docs/pio_gcn_simulink_dynamic_validation_plan.md"
     if plan_path.exists():
@@ -97,8 +108,10 @@ def main() -> int:
             "real scada/pmu integration completed",
             "renewable dynamic validation completed",
             "real-time deployment completed",
+            "engineering-grade dynamic model completed",
             "工程级动态模型已完成",
             "真实动态稳定结论已完成",
+            "新能源动态验证已完成",
         ]
         for phrase in overstated_phrases:
             if phrase in plan_text:
@@ -116,6 +129,12 @@ def main() -> int:
     mock_script = ROOT / "src/gcn_search/legacy_rts79/make_mock_simulink_dynamic_results.py"
     if mock_script.exists() and '"result_source": "mock"' not in _read_text(str(mock_script.relative_to(ROOT)).replace("\\", "/")):
         failures.append("Mock dynamic result script does not mark result_source as mock.")
+
+    real_topk_doc = ROOT / "docs/pio_gcn_simulink_real_topk_validation.md"
+    if real_topk_doc.exists():
+        real_topk_text = _read_text("docs/pio_gcn_simulink_real_topk_validation.md").lower()
+        if "demo precision is not a formal dynamic conclusion" not in real_topk_text:
+            failures.append("Real Top-K validation doc does not warn against treating demo precision as a formal conclusion.")
 
     tracked_results = set(_git_ls_files("results/gcn_search"))
     branch_changed = set(_git_changed_files_against_main())

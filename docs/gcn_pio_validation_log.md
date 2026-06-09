@@ -67,3 +67,25 @@ The MATLAB engine reads RTS-79 basecase CSV files, applies two ordered line-trip
 Dynamic precision and dynamic recall are now separated. Top-K-only simulations report `dynamic_precision@K`; `dynamic_recall@K` is emitted only when a full dynamic truth CSV is provided or the result CSV is explicitly marked as full dynamic truth.
 
 Current limitation: this is still a simplified swing-equation prototype. It is not EMT, has no renewable dynamics, has no detailed controls, uses assumed default dynamic parameters, and supplements rather than replaces improved OPA full-truth validation.
+
+## Round 12: Real Top-K Dynamic Validation And Calibration
+
+Round 12 adds the workflow needed to move from demo cases to real learned-reranker Top-K dynamic review.
+
+New components:
+
+```text
+src/gcn_search/legacy_rts79/prepare_real_topk_for_simulink_dynamic.py
+src/gcn_search/legacy_rts79/check_simulink_dynamic_sanity_artifacts.py
+src/gcn_search/legacy_rts79/analyze_opa_dynamic_disagreement.py
+matlab/simulink_rts79/check_rts79_swing_model_sanity.m
+matlab/simulink_rts79/calibrate_rts79_swing_scales.m
+matlab/simulink_rts79/run_real_topk_dynamic_validation.m
+docs/pio_gcn_simulink_real_topk_validation.md
+```
+
+The real Top-K preparation script fails explicitly when a per-path ranking CSV is missing; it does not silently fall back to demo paths. The calibration scripts produce `no_disturbance_sanity.csv`, `swing_scale_grid.csv`, and `recommended_swing_options.json` as local ignored artifacts. OPA/dynamic disagreement diagnostics separate static OPA-critical but dynamic-stable cases from static non-critical but dynamic-unstable cases.
+
+Current limitation: real Top-K dynamic precision depends on a local per-path ranking CSV. Demo precision must not be reported as a formal dynamic conclusion. No full dynamic truth means no dynamic recall.
+
+Local validation note: in the current repository checkout, no tracked real per-path learned-reranker ranking CSV was found, so the end-to-end real Top-K entry was exercised with explicit demo fallback only. The no-disturbance sanity check passed with frequency max deviation 0 Hz, rotor-angle separation about 35.66 degrees, and max line loading ratio about 1.38. The full scale grid calibration was attempted but did not finish within the local timeout, so the temporary recommended options remain sanity-passing default prototype values until a complete calibration run is available.
