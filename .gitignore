@@ -12,6 +12,9 @@ results/**/*.pdf
 !results/gcn_search/**
 results/gcn_search/**/*.pt
 results/gcn_search/**/*.npz
+results/gcn_search/**/*.slx
+results/gcn_search/**/*.mat
+results/gcn_search/**/*.mdl
 results/gcn_search/**/scenario_checkpoints/
 results/gcn_search/**/*order.csv
 results/gcn_search/**/*curve.csv
@@ -39,3 +42,7 @@ results/gcn_search/paper_baseline_strong_v2/paper_dataset/
 results/gcn_search/paper_baseline_strong_v2/paper_train_ce_only/
 results/gcn_search/pio_extended_fulltruth_5seed/training/
 results/gcn_search/**/diagnostics/per_seed_candidate_count.csv
+results/gcn_search/**/raw_trajectories/
+results/gcn_search/**/dynamic_trajectories/
+results/gcn_search/simulink_dynamic_models/
+results/gcn_search/simulink_dynamic_results/
