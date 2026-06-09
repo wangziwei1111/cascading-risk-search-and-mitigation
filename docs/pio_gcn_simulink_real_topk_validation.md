@@ -82,3 +82,21 @@ Without full dynamic truth, report dynamic precision only. Do not report dynamic
 Demo precision is not a formal dynamic conclusion. Formal Top-K dynamic precision requires a real local per-path ranking CSV. The Simulink validation supplements learned reranker / PIO-GCN Top-K analysis and does not replace improved OPA full-truth validation. Passive overload relay tripping and renewable dynamic validation are future work.
 
 For the current repository checkout, tracked artifacts did not include a real per-path learned-reranker ranking CSV. The real Top-K workflow therefore requires the user to provide a local ignored CSV through `--input-csv`. Demo fallback can test the pipeline but must not be reported as formal Top-K dynamic precision.
+
+## Relay And Security Event Analysis
+
+Round 13 separates security constraint events from relay threshold events:
+
+- `security_redispatch_or_load_shed`: `1.0 < loading_ratio <= beta`.
+- `passive_relay_trip`: `loading_ratio > beta`.
+
+Use:
+
+```powershell
+python src/gcn_search/legacy_rts79/analyze_relay_vs_security_events.py `
+  --dynamic-results-csv results/gcn_search/simulink_dynamic_real_results/simulink_dynamic_simulation_results.csv `
+  --event-log-glob "results/gcn_search/simulink_dynamic_real_results/dynamic_case_event_log_*.csv" `
+  --output-dir results/gcn_search/simulink_dynamic_relay_security_analysis
+```
+
+This analysis helps avoid confusing a long-term security limit violation with a relay trip.

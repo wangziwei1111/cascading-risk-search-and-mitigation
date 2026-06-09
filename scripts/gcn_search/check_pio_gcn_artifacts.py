@@ -26,12 +26,15 @@ REQUIRED_FILES = [
     "src/gcn_search/legacy_rts79/prepare_real_topk_for_simulink_dynamic.py",
     "src/gcn_search/legacy_rts79/check_simulink_dynamic_sanity_artifacts.py",
     "src/gcn_search/legacy_rts79/analyze_opa_dynamic_disagreement.py",
+    "src/gcn_search/legacy_rts79/analyze_relay_vs_security_events.py",
     "tests/test_simulink_dynamic_case_export.py",
     "tests/test_simulink_dynamic_result_analysis.py",
     "tests/test_simulink_dynamic_disagreement.py",
     "tests/test_simulink_real_topk_preparation.py",
+    "tests/test_relay_vs_security_logic.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
+    "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
 ]
 
@@ -97,6 +100,8 @@ def main() -> int:
             failures.append("Validation log does not contain the Round 11 record.")
         if "Round 12" not in log_text:
             failures.append("Validation log does not contain the Round 12 record.")
+        if "Round 13" not in log_text:
+            failures.append("Validation log does not contain the Round 13 record.")
 
     plan_path = ROOT / "docs/pio_gcn_simulink_dynamic_validation_plan.md"
     if plan_path.exists():
@@ -109,6 +114,7 @@ def main() -> int:
             "renewable dynamic validation completed",
             "real-time deployment completed",
             "engineering-grade dynamic model completed",
+            "loading_ratio > 1.0 triggers relay trip",
             "工程级动态模型已完成",
             "真实动态稳定结论已完成",
             "新能源动态验证已完成",
@@ -135,6 +141,13 @@ def main() -> int:
         real_topk_text = _read_text("docs/pio_gcn_simulink_real_topk_validation.md").lower()
         if "demo precision is not a formal dynamic conclusion" not in real_topk_text:
             failures.append("Real Top-K validation doc does not warn against treating demo precision as a formal conclusion.")
+
+    relay_doc = ROOT / "docs/pio_gcn_relay_vs_security_constraint.md"
+    if relay_doc.exists():
+        relay_text = _read_text("docs/pio_gcn_relay_vs_security_constraint.md").lower()
+        for required in ["beta", "relay threshold", "security constraint"]:
+            if required not in relay_text:
+                failures.append(f"Relay/security doc is missing required term: {required}")
 
     tracked_results = set(_git_ls_files("results/gcn_search"))
     branch_changed = set(_git_changed_files_against_main())

@@ -109,3 +109,19 @@ run_real_topk_dynamic_validation( ...
   "../../results/gcn_search/simulink_dynamic_calibration/recommended_swing_options.json" ...
 )
 ```
+
+## Relay Threshold vs Security Constraint
+
+Default `relay_beta` is `1.2`.
+
+- `loading_ratio <= 1.0`: no overload action.
+- `1.0 < loading_ratio <= relay_beta`: security redispatch/load shedding approximation.
+- `loading_ratio > relay_beta`: passive relay trip.
+
+Each case writes:
+
+```text
+dynamic_case_event_log_<case_id>.csv
+```
+
+The event log distinguishes active trips, security actions, and passive relay trips. The security action is a prototype approximation, not a full OPF.

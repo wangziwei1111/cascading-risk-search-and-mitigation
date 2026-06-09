@@ -102,19 +102,27 @@ maxRotorAngleSeparationDeg = max((max(delta, [], 2) - min(delta, [], 2)) * 180 /
 lineLoadingSummary = cell2table(lineRows, "VariableNames", ["time_s", "line_label", "loading_ratio"]);
 lineLoadingSummary.loading_ratio = double(lineLoadingSummary.loading_ratio) * options.line_loading_scale;
 maxLineLoadingRatio = max(double(lineLoadingSummary.loading_ratio));
-[dynamicUnstable, unstableReason] = classifyDynamicStabilityLocal(frequencyNadirHz, maxRotorAngleSeparationDeg, maxLineLoadingRatio, options);
+[eventLog, passiveRelayTripCount, securityRedispatchCount, dynamicLoadShedMw, maxSecurityViolationLoadingRatio, maxRelayViolationLoadingRatio] = ...
+    classifyRelayAndSecurityEventsLocal(caseId, caseEvents, lineLoadingSummary, branches, loads, offlineLines, options);
+[dynamicUnstable, unstableReason] = classifyDynamicStabilityLocal( ...
+    frequencyNadirHz, maxRotorAngleSeparationDeg, maxLineLoadingRatio, maxRelayViolationLoadingRatio, passiveRelayTripCount, options);
 
 resultTable = table( ...
     string(caseId), true, true, frequencyNadirHz, frequencyZenithHz, ...
     maxRotorAngleSeparationDeg, maxLineLoadingRatio, height(caseEvents), ...
-    dynamicUnstable, string(unstableReason), "simulink_swing_prototype", ...
+    dynamicUnstable, string(unstableReason), passiveRelayTripCount, securityRedispatchCount, ...
+    dynamicLoadShedMw, maxSecurityViolationLoadingRatio, maxRelayViolationLoadingRatio, options.relay_beta, ...
+    "simulink_swing_prototype", ...
     'VariableNames', ["case_id", "sim_completed", "converged", "frequency_nadir_hz", ...
     "frequency_zenith_hz", "max_rotor_angle_separation_deg", "max_line_loading_ratio", ...
-    "dynamic_trip_count", "dynamic_unstable", "unstable_reason", "result_source"]);
+    "dynamic_trip_count", "dynamic_unstable", "unstable_reason", "passive_relay_trip_count", ...
+    "security_redispatch_count", "dynamic_load_shed_mw", "max_security_violation_loading_ratio", ...
+    "max_relay_violation_loading_ratio", "relay_beta", "result_source"]);
 
 trajectorySummary = trajectorySummaryTableLocal(allT, allY, generators, f0);
 writetable(resultTable, fullfile(outputDir, "dynamic_case_result_" + string(caseId) + ".csv"));
 writetable(trajectorySummary, fullfile(outputDir, "dynamic_case_trajectory_summary_" + string(caseId) + ".csv"));
+writetable(eventLog, fullfile(outputDir, "dynamic_case_event_log_" + string(caseId) + ".csv"));
 
 if saveTrajectories
     rawDir = fullfile(outputDir, "raw_trajectories");
@@ -137,6 +145,14 @@ options.rotor_angle_unstable_threshold_deg = 180.0;
 options.line_loading_unstable_threshold = 1.5;
 options.simulation_end_time = 20.0;
 options.max_step_s = 0.05;
+options.relay_beta = 1.2;
+options.enable_passive_relay_trips = true;
+options.enable_security_redispatch_approx = true;
+options.overload_security_threshold = 1.0;
+options.relay_trip_delay_s = 0.2;
+options.max_passive_trip_rounds = 5;
+options.load_shed_step_fraction = 0.05;
+options.max_load_shed_fraction_per_bus = 0.5;
 end
 
 function options = mergeSwingOptionsLocal(optionsIn)
@@ -302,7 +318,70 @@ end
 trajectorySummary = cell2table(rows, "VariableNames", ["time_s", "gen_id", "delta_rad", "omega_pu", "frequency_hz"]);
 end
 
-function [dynamicUnstable, unstableReason] = classifyDynamicStabilityLocal(frequencyNadirHz, maxRotorAngleSeparationDeg, maxLineLoadingRatio, options)
+function [eventLog, passiveRelayTripCount, securityRedispatchCount, dynamicLoadShedMw, maxSecurityViolationLoadingRatio, maxRelayViolationLoadingRatio] = classifyRelayAndSecurityEventsLocal(caseId, caseEvents, lineLoadingSummary, branches, loads, offlineLines, options)
+eventRows = {};
+rowIdx = 0;
+cumulativeLoadShedMw = 0.0;
+
+for idx = 1:height(caseEvents)
+    if idx == 1
+        eventType = "active_trip_first_line";
+    else
+        eventType = "active_trip_second_line";
+    end
+    rowIdx = rowIdx + 1;
+    offlineText = strjoin(offlineLines, ";");
+    eventRows(rowIdx, :) = {string(caseId), double(caseEvents.event_time(idx)), eventType, offlineText, string(caseEvents.event_line(idx)), NaN, options.relay_beta, NaN, 0.0, cumulativeLoadShedMw, "scheduled_active_trip"}; %#ok<AGROW>
+end
+
+if isempty(lineLoadingSummary)
+    eventLog = cell2table(eventRows, "VariableNames", eventLogColumnsLocal());
+    passiveRelayTripCount = 0;
+    securityRedispatchCount = 0;
+    dynamicLoadShedMw = 0.0;
+    maxSecurityViolationLoadingRatio = 0.0;
+    maxRelayViolationLoadingRatio = 0.0;
+    return;
+end
+
+summary = groupsummary(lineLoadingSummary, "line_label", "max", "loading_ratio");
+summary.Properties.VariableNames(end) = "max_loading_ratio";
+passiveRelayTripCount = 0;
+securityRedispatchCount = 0;
+maxSecurityViolationLoadingRatio = 0.0;
+maxRelayViolationLoadingRatio = 0.0;
+for idx = 1:height(summary)
+    lineLabel = string(summary.line_label(idx));
+    loadingRatio = double(summary.max_loading_ratio(idx));
+    eventTime = min(double(lineLoadingSummary.time_s(lineLoadingSummary.line_label == lineLabel)));
+    if loadingRatio > options.relay_beta && options.enable_passive_relay_trips && passiveRelayTripCount < options.max_passive_trip_rounds
+        passiveRelayTripCount = passiveRelayTripCount + 1;
+        maxRelayViolationLoadingRatio = max(maxRelayViolationLoadingRatio, loadingRatio);
+        offlineLines(end + 1, 1) = lineLabel; %#ok<AGROW>
+        rowIdx = rowIdx + 1;
+        eventRows(rowIdx, :) = {string(caseId), eventTime + options.relay_trip_delay_s, "passive_relay_trip", strjoin(offlineLines, ";"), lineLabel, loadingRatio, options.relay_beta, NaN, 0.0, cumulativeLoadShedMw, "loading_ratio_above_beta"}; %#ok<AGROW>
+    elseif loadingRatio > options.overload_security_threshold && loadingRatio <= options.relay_beta && options.enable_security_redispatch_approx
+        securityRedispatchCount = securityRedispatchCount + 1;
+        maxSecurityViolationLoadingRatio = max(maxSecurityViolationLoadingRatio, loadingRatio);
+        [~, loadShedMw, affectedBusId, reason] = apply_security_redispatch_approx(loads, branches, lineLabel, loadingRatio, options);
+        cumulativeLoadShedMw = cumulativeLoadShedMw + loadShedMw;
+        rowIdx = rowIdx + 1;
+        eventRows(rowIdx, :) = {string(caseId), eventTime, "security_redispatch_or_load_shed", strjoin(offlineLines, ";"), lineLabel, loadingRatio, options.relay_beta, affectedBusId, loadShedMw, cumulativeLoadShedMw, reason}; %#ok<AGROW>
+    end
+end
+dynamicLoadShedMw = cumulativeLoadShedMw;
+if isempty(eventRows)
+    eventLog = cell2table(cell(0, numel(eventLogColumnsLocal())), "VariableNames", eventLogColumnsLocal());
+else
+    eventLog = cell2table(eventRows, "VariableNames", eventLogColumnsLocal());
+end
+end
+
+function columns = eventLogColumnsLocal()
+columns = ["case_id", "time_s", "event_type", "offlineLines", "line_label", "loading_ratio", "relay_beta", "affected_bus_id", "load_shed_mw", "cumulative_load_shed_mw", "reason"];
+end
+
+function [dynamicUnstable, unstableReason] = classifyDynamicStabilityLocal(frequencyNadirHz, maxRotorAngleSeparationDeg, maxLineLoadingRatio, maxRelayViolationLoadingRatio, passiveRelayTripCount, options)
 reasons = strings(0, 1);
 if frequencyNadirHz < options.frequency_unstable_threshold_hz
     reasons(end + 1, 1) = "frequency_nadir_below_49hz";
@@ -310,8 +389,8 @@ end
 if maxRotorAngleSeparationDeg > options.rotor_angle_unstable_threshold_deg
     reasons(end + 1, 1) = "rotor_angle_separation_above_180deg";
 end
-if maxLineLoadingRatio > options.line_loading_unstable_threshold
-    reasons(end + 1, 1) = "line_loading_above_1p5";
+if maxRelayViolationLoadingRatio > options.relay_beta && passiveRelayTripCount == 0
+    reasons(end + 1, 1) = "relay_violation_not_eliminated";
 end
 dynamicUnstable = ~isempty(reasons);
 if dynamicUnstable

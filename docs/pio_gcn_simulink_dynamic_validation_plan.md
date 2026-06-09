@@ -148,6 +148,17 @@ Round 12 adds the real Top-K preparation and calibration layer:
 
 Demo dynamic precision is not a formal dynamic conclusion. Real Top-K dynamic precision should be documented only after running a real local per-path ranking CSV through the calibrated prototype.
 
+## Round 13 Update
+
+Round 13 adds relay threshold vs security constraint handling:
+
+- `L_m^max` is the line security constraint used by OPF/security checks.
+- `beta * L_m^max` is the relay threshold.
+- `loading_ratio > 1.0` and `loading_ratio <= beta` triggers a security redispatch/load shedding approximation, not relay trip.
+- `loading_ratio > beta` triggers passive relay trip logic.
+
+The current redispatch/load shedding model is an approximation around overloaded line terminal buses. It is not a full OPF.
+
 ## Next Steps
 
 - Add passive overload relay tripping in the time-domain prototype.
