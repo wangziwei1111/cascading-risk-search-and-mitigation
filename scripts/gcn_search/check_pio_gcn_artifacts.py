@@ -29,6 +29,9 @@ REQUIRED_FILES = [
     "matlab/simulink_rts79/README.md",
     "src/gcn_search/legacy_rts79/prepare_real_topk_for_simulink_dynamic.py",
     "src/gcn_search/legacy_rts79/prepare_dynamic_method_comparison_topk.py",
+    "src/gcn_search/legacy_rts79/export_path_reranker_per_path_ranking.py",
+    "src/gcn_search/legacy_rts79/run_real_topk_dynamic_validation_pipeline.py",
+    "src/gcn_search/legacy_rts79/summarize_real_topk_dynamic_validation.py",
     "src/gcn_search/legacy_rts79/check_simulink_dynamic_sanity_artifacts.py",
     "src/gcn_search/legacy_rts79/analyze_opa_dynamic_disagreement.py",
     "src/gcn_search/legacy_rts79/analyze_relay_vs_security_events.py",
@@ -41,9 +44,13 @@ REQUIRED_FILES = [
     "tests/test_event_driven_dynamic_loop.py",
     "tests/test_real_topk_dynamic_pipeline.py",
     "tests/test_dynamic_method_comparison_inputs.py",
+    "tests/test_export_path_reranker_per_path_ranking.py",
+    "tests/test_real_topk_dynamic_validation_pipeline.py",
+    "tests/test_real_topk_dynamic_summary.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
     "docs/pio_gcn_simulink_real_topk_event_driven_validation.md",
+    "docs/pio_gcn_simulink_real_topk_dynamic_smoke.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
 ]
@@ -62,6 +69,9 @@ DISALLOWED_TRACKED_SUBSTRINGS = [
     "raw_trajectories",
     "dynamic_trajectories",
     "simulink_dynamic_results",
+    "learned_mlp_per_path_ranking.csv",
+    "per_path_ranking.csv",
+    "large_simulink_log",
 ]
 
 
@@ -116,6 +126,8 @@ def main() -> int:
             failures.append("Validation log does not contain the Round 14 record.")
         if "Round 15" not in log_text:
             failures.append("Validation log does not contain the Round 15 record.")
+        if "Round 16" not in log_text:
+            failures.append("Validation log does not contain the Round 16 record.")
 
     plan_path = ROOT / "docs/pio_gcn_simulink_dynamic_validation_plan.md"
     if plan_path.exists():
@@ -181,6 +193,32 @@ def main() -> int:
         for term in forbidden_terms:
             if term in event_doc_text:
                 failures.append(f"Round 15 real Top-K event-driven doc contains an overstatement: {term}")
+
+    smoke_doc = ROOT / "docs/pio_gcn_simulink_real_topk_dynamic_smoke.md"
+    if smoke_doc.exists():
+        smoke_text = _read_text("docs/pio_gcn_simulink_real_topk_dynamic_smoke.md").lower()
+        for required in [
+            "per-path ranking csv",
+            "preliminary dynamic smoke",
+            "dynamic_precision@k",
+            "opa/dynamic overlap",
+            "relay/security",
+            "no dynamic recall",
+            "not emt",
+            "not full opf",
+        ]:
+            if required not in smoke_text:
+                failures.append(f"Round 16 smoke doc is missing required term: {required}")
+        for forbidden in [
+            "final dynamic proof",
+            "emt validation completed",
+            "renewable dynamic validation completed",
+            "engineering-grade dynamic model completed",
+            "full opf redispatch completed",
+            "dynamic recall@k",
+        ]:
+            if forbidden in smoke_text:
+                failures.append(f"Round 16 smoke doc contains an overstatement: {forbidden}")
 
     relay_doc = ROOT / "docs/pio_gcn_relay_vs_security_constraint.md"
     if relay_doc.exists():

@@ -69,6 +69,35 @@ python src/gcn_search/legacy_rts79/prepare_real_topk_for_simulink_dynamic.py --a
 
 Demo outputs must not be reported as real Top-K dynamic validation.
 
+## Round 16 Per-Path Export
+
+Round 16 adds a reproducible export entry for the learned path-reranker per-path ranking CSV:
+
+```powershell
+python src/gcn_search/legacy_rts79/export_path_reranker_per_path_ranking.py `
+  --dataset-dir results/gcn_search/path_reranker_dataset `
+  --model-dir results/gcn_search/path_reranker_models `
+  --output-dir results/gcn_search/simulink_dynamic_real_per_path_ranking `
+  --method learned_mlp_reranker_strict `
+  --split test `
+  --top-k 20 50 100 `
+  --retrain-if-missing
+```
+
+If local dataset/model artifacts are missing, the script fails explicitly and asks the user to run the path-reranker dataset builder and training script first. The full ranking CSV is a local ignored artifact and should not be committed.
+
+Round 16 also adds a wrapper:
+
+```powershell
+python src/gcn_search/legacy_rts79/run_real_topk_dynamic_validation_pipeline.py `
+  --top-k 20 50 100 `
+  --max-cases 20 `
+  --skip-matlab `
+  --output-dir results/gcn_search/simulink_dynamic_real_pipeline
+```
+
+This wrapper exports ranking input, prepares real Top-K paths, exports dynamic cases, and writes a MATLAB command file. With `--run-matlab`, it attempts to execute the event-driven MATLAB validation.
+
 ## Event Export
 
 After preparing the normalized Top-K path CSV, export MATLAB event cases:
@@ -134,6 +163,17 @@ python src/gcn_search/legacy_rts79/analyze_relay_vs_security_events.py `
 ```
 
 Without full dynamic truth, report only `dynamic_precision_at_k`. Do not report dynamic recall.
+
+Compact summary:
+
+```powershell
+python src/gcn_search/legacy_rts79/summarize_real_topk_dynamic_validation.py `
+  --precision-csv results/gcn_search/simulink_dynamic_real_analysis/simulink_dynamic_precision_at_k.csv `
+  --overlap-csv results/gcn_search/simulink_dynamic_real_analysis/simulink_opa_dynamic_overlap.csv `
+  --relay-security-summary-csv results/gcn_search/simulink_dynamic_real_relay_security_analysis/relay_vs_security_summary.csv `
+  --output-dir results/gcn_search/simulink_dynamic_real_pipeline_summary `
+  --result-scope top20_preliminary_smoke
+```
 
 ## Method Comparison Inputs
 

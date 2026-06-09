@@ -170,3 +170,69 @@ PASS: GCN Simulink dynamic validation artifacts are review-ready.
 ```
 
 Automatic real CSV search was run without demo fallback. After excluding generated `simulink_dynamic*` artifacts and non-RTS-79 files, no real learned-reranker per-path ranking CSV was found in the local checkout. Therefore real Top-K dynamic validation was not run in this round. RL mitigation files were not modified.
+
+## Round 16: Per-Path Ranking Export And Real Top-K Dynamic Smoke Pipeline
+
+Round 16 addresses the main Round 15 blocker: the checkout did not contain a real learned-reranker per-path ranking CSV. The new workflow adds a reproducible local export path and a one-step dynamic smoke pipeline.
+
+Added:
+
+```text
+src/gcn_search/legacy_rts79/export_path_reranker_per_path_ranking.py
+src/gcn_search/legacy_rts79/run_real_topk_dynamic_validation_pipeline.py
+src/gcn_search/legacy_rts79/summarize_real_topk_dynamic_validation.py
+docs/pio_gcn_simulink_real_topk_dynamic_smoke.md
+tests/test_export_path_reranker_per_path_ranking.py
+tests/test_real_topk_dynamic_validation_pipeline.py
+tests/test_real_topk_dynamic_summary.py
+```
+
+The per-path exporter normalizes local learned-reranker artifacts into:
+
+```text
+learned_mlp_per_path_ranking.csv
+```
+
+with the required path, score, OPA label, split, and method fields. This full CSV is a local ignored runtime artifact and should not be committed. If dataset/model artifacts are unavailable, the exporter fails explicitly and asks the user to run the dataset builder and training script first.
+
+The pipeline wrapper can generate dynamic inputs and a MATLAB command file with `--skip-matlab`, or attempt MATLAB execution with `--run-matlab`. The summary script reports dynamic precision, OPA/dynamic overlap, and relay/security counts. It does not report dynamic recall without full dynamic truth.
+
+Round 16 validation commands:
+
+```powershell
+python -m pytest tests/test_simulink_dynamic_case_export.py tests/test_simulink_dynamic_result_analysis.py tests/test_simulink_dynamic_disagreement.py tests/test_simulink_real_topk_preparation.py tests/test_relay_vs_security_logic.py tests/test_event_driven_dynamic_loop.py tests/test_real_topk_dynamic_pipeline.py tests/test_dynamic_method_comparison_inputs.py tests/test_export_path_reranker_per_path_ranking.py tests/test_real_topk_dynamic_validation_pipeline.py tests/test_real_topk_dynamic_summary.py
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+git diff -- src/rl_mitigation scripts/rl_mitigation
+```
+
+Local validation result:
+
+```text
+python -m pytest tests/test_simulink_dynamic_case_export.py tests/test_simulink_dynamic_result_analysis.py tests/test_simulink_dynamic_disagreement.py tests/test_simulink_real_topk_preparation.py tests/test_relay_vs_security_logic.py tests/test_event_driven_dynamic_loop.py tests/test_real_topk_dynamic_pipeline.py tests/test_dynamic_method_comparison_inputs.py tests/test_export_path_reranker_per_path_ranking.py tests/test_real_topk_dynamic_validation_pipeline.py tests/test_real_topk_dynamic_summary.py
+23 passed
+```
+
+Real export attempt:
+
+```text
+python src/gcn_search/legacy_rts79/export_path_reranker_per_path_ranking.py --dataset-dir results/gcn_search/path_reranker_dataset --model-dir results/gcn_search/path_reranker_models --output-dir results/gcn_search/simulink_dynamic_real_per_path_ranking --method learned_mlp_reranker_strict --split test --top-k 20 50 100 --retrain-if-missing
+RuntimeError: path reranker dataset/model artifacts not available; run build_path_reranker_dataset.py and train_path_reranker.py first.
+```
+
+Pipeline attempt:
+
+```text
+python src/gcn_search/legacy_rts79/run_real_topk_dynamic_validation_pipeline.py --top-k 20 --max-cases 20 --skip-matlab --output-dir results/gcn_search/simulink_dynamic_real_pipeline
+RuntimeError: path reranker dataset/model artifacts not available; run build_path_reranker_dataset.py and train_path_reranker.py first.
+```
+
+Therefore no real learned-reranker per-path ranking CSV was exported in this checkout, no retraining was performed, MATLAB was not run, and no real Top20/Top50/Top100 dynamic validation result was produced in Round 16.
+
+Artifact check:
+
+```text
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+PASS: GCN Simulink dynamic validation artifacts are review-ready.
+```
+
+RL mitigation files were not modified.

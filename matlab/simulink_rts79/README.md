@@ -152,6 +152,19 @@ These demos validate prototype logic only. They are not formal dynamic stability
 
 ## Round 15 Real Learned-Reranker Top-K Event-Driven Flow
 
+Round 16 can first export a local learned-reranker per-path ranking CSV:
+
+```powershell
+python src/gcn_search/legacy_rts79/export_path_reranker_per_path_ranking.py `
+  --dataset-dir results/gcn_search/path_reranker_dataset `
+  --model-dir results/gcn_search/path_reranker_models `
+  --output-dir results/gcn_search/simulink_dynamic_real_per_path_ranking `
+  --method learned_mlp_reranker_strict `
+  --split test `
+  --top-k 20 50 100 `
+  --retrain-if-missing
+```
+
 Prepare a real learned-reranker Top-K table. The script searches common local per-path ranking locations by default and fails if no real CSV is found:
 
 ```powershell
@@ -192,3 +205,15 @@ run_real_topk_event_driven_dynamic_validation( ...
 ```
 
 For Top-K-only simulations, report dynamic precision only. Do not report dynamic recall unless a full dynamic truth table exists.
+
+One-step input generation and MATLAB command-file export:
+
+```powershell
+python src/gcn_search/legacy_rts79/run_real_topk_dynamic_validation_pipeline.py `
+  --top-k 20 50 100 `
+  --max-cases 20 `
+  --skip-matlab `
+  --output-dir results/gcn_search/simulink_dynamic_real_pipeline
+```
+
+Use Top20 as preliminary dynamic smoke if runtime is limited.
