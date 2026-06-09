@@ -12,9 +12,12 @@ from export_simulink_dynamic_cases import SimulinkDynamicCaseExportConfig, expor
 
 
 SEARCH_DIRS = (
-    "results/gcn_search/path_reranker_extended_strict_eval",
     "results/gcn_search/path_reranker_strict_heldout_eval",
+    "results/gcn_search/path_reranker_extended_strict_eval",
     "results/gcn_search/path_reranker_fulltruth_eval",
+    "results/gcn_search/path_reranker_renewable_eval",
+    "results/gcn_search/simulink_dynamic_real_topk",
+    "results/gcn_search",
 )
 
 
@@ -23,14 +26,15 @@ class RealTopKPreparationConfig:
     output_dir: str = "results/gcn_search/simulink_dynamic_real_topk"
     input_csv: str | None = None
     search_dirs: tuple[str, ...] = SEARCH_DIRS
-    top_k: tuple[int, ...] = (20, 50, 100)
+    method: str = "learned_mlp_reranker_strict"
+    top_k: tuple[int, ...] = (20, 50, 100, 200)
     use_demo_fallback: bool = False
 
 
 def prepare_real_topk_for_simulink_dynamic(config: RealTopKPreparationConfig) -> dict:
     out = Path(config.output_dir)
     out.mkdir(parents=True, exist_ok=True)
-    source_csv = Path(config.input_csv) if config.input_csv else _find_real_per_path_csv(config.search_dirs)
+    source_csv = Path(config.input_csv) if config.input_csv else _find_real_per_path_csv(config.search_dirs, config.method)
     used_demo_fallback = False
     if source_csv is None:
         if not config.use_demo_fallback:
@@ -68,13 +72,16 @@ def prepare_real_topk_for_simulink_dynamic(config: RealTopKPreparationConfig) ->
     return {"output_dir": str(out), "paths_csv": str(paths_csv), **export_result}
 
 
-def _find_real_per_path_csv(search_dirs: tuple[str, ...]) -> Path | None:
+def _find_real_per_path_csv(search_dirs: tuple[str, ...], method: str = "learned_mlp_reranker_strict") -> Path | None:
     candidates: list[tuple[int, Path]] = []
     for root in search_dirs:
         path = Path(root)
         if not path.exists():
             continue
-        for csv_path in path.rglob("*.csv"):
+        for csv_path in _iter_candidate_csvs(path):
+            lower_csv_path = str(csv_path).lower()
+            if any(part in lower_csv_path for part in ["ieee14", "simulink_dynamic"]):
+                continue
             try:
                 table = pd.read_csv(csv_path, nrows=5)
             except Exception:
@@ -84,6 +91,8 @@ def _find_real_per_path_csv(search_dirs: tuple[str, ...]) -> Path | None:
             has_rank_or_score = bool(cols & {"path_rank", "rank", "learned_rank", "rank_in_pio", "reranker_score", "learned_score", "score", "path_score"})
             if has_path and has_rank_or_score and len(table) > 0:
                 priority = 10
+                if any(token in lower_csv_path for token in ["path_reranker", "reranker", "per_path", "rank", "score", "diagnostics"]):
+                    priority += 5
                 if "reranker_score" in cols or "learned_score" in cols:
                     priority += 5
                 if "path_rank" in cols or "rank" in cols:
@@ -93,6 +102,20 @@ def _find_real_per_path_csv(search_dirs: tuple[str, ...]) -> Path | None:
         return None
     candidates.sort(key=lambda item: (-item[0], str(item[1])))
     return candidates[0][1]
+
+
+def _iter_candidate_csvs(path: Path) -> list[Path]:
+    if path.is_file() and path.suffix.lower() == ".csv":
+        return [path]
+    patterns = ["**/per_path*.csv", "**/*rank*.csv", "**/*score*.csv", "**/diagnostics/*.csv", "**/*.csv"]
+    seen: set[Path] = set()
+    result: list[Path] = []
+    for pattern in patterns:
+        for item in path.glob(pattern):
+            if item not in seen:
+                seen.add(item)
+                result.append(item)
+    return result
 
 
 def _normalize_real_topk(table: pd.DataFrame, max_k: int) -> pd.DataFrame:
@@ -114,19 +137,26 @@ def _normalize_real_topk(table: pd.DataFrame, max_k: int) -> pd.DataFrame:
     for col in ["case_id", "source_seed", "pio_score", "paper_score", "lodf_score", "reranker_score", "opa_is_critical", "opa_total_load_shed_mw"]:
         if col not in work.columns:
             work[col] = np.nan
+    work["case_id"] = work["case_id"].astype("object")
     if work["reranker_score"].isna().all():
         score_col = _first_existing(work, ["learned_score", "score", "path_score", "pio_score"])
         if score_col:
             work["reranker_score"] = pd.to_numeric(work[score_col], errors="coerce")
     work = work.sort_values(["path_rank", "path"]).head(max_k).reset_index(drop=True)
-    if work["case_id"].isna().all():
-        work["case_id"] = [f"real_topk_{idx:04d}" for idx in range(1, len(work) + 1)]
+    parsed = work["path"].astype(str).str.extract(r"L?(\d+)\s*->\s*L?(\d+)", expand=True)
+    work["first_line"] = ["L" + str(int(v)).zfill(2) if pd.notna(v) else "" for v in parsed[0]]
+    work["second_line"] = ["L" + str(int(v)).zfill(2) if pd.notna(v) else "" for v in parsed[1]]
+    work = work[(work["first_line"] != "") & (work["second_line"] != "") & (work["first_line"] != work["second_line"])].copy()
+    case_missing = work["case_id"].isna() | (work["case_id"].astype(str).str.strip() == "")
+    work.loc[case_missing, "case_id"] = [f"real_topk_{idx:04d}" for idx in range(1, int(case_missing.sum()) + 1)]
     return work[
         [
             "case_id",
             "source_seed",
             "path_rank",
             "path",
+            "first_line",
+            "second_line",
             "pio_score",
             "paper_score",
             "lodf_score",
@@ -159,9 +189,11 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Prepare real learned-reranker Top-K paths for Simulink dynamic validation.")
     parser.add_argument("--output-dir", default=RealTopKPreparationConfig.output_dir)
     parser.add_argument("--input-csv", default=None)
+    parser.add_argument("--method", default=RealTopKPreparationConfig.method)
     parser.add_argument("--search-dirs", nargs="*", default=list(SEARCH_DIRS))
-    parser.add_argument("--top-k", nargs="+", type=int, default=[20, 50, 100])
+    parser.add_argument("--top-k", nargs="+", type=int, default=[20, 50, 100, 200])
     parser.add_argument("--use-demo-fallback", action="store_true")
+    parser.add_argument("--allow-demo-fallback", action="store_true", help="Alias for --use-demo-fallback.")
     return parser.parse_args()
 
 
@@ -172,8 +204,9 @@ def main() -> None:
             output_dir=args.output_dir,
             input_csv=args.input_csv,
             search_dirs=tuple(args.search_dirs),
+            method=args.method,
             top_k=tuple(args.top_k),
-            use_demo_fallback=args.use_demo_fallback,
+            use_demo_fallback=args.use_demo_fallback or args.allow_demo_fallback,
         )
     )
 

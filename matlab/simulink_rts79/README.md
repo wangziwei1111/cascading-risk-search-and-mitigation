@@ -149,3 +149,46 @@ run_severe_overload_relay_demo( ...
 ```
 
 These demos validate prototype logic only. They are not formal dynamic stability conclusions.
+
+## Round 15 Real Learned-Reranker Top-K Event-Driven Flow
+
+Prepare a real learned-reranker Top-K table. The script searches common local per-path ranking locations by default and fails if no real CSV is found:
+
+```powershell
+python src/gcn_search/legacy_rts79/prepare_real_topk_for_simulink_dynamic.py `
+  --method learned_mlp_reranker_strict `
+  --top-k 20 50 100 200 `
+  --output-dir results/gcn_search/simulink_dynamic_real_topk
+```
+
+If the ranking table is local and ignored, pass it explicitly:
+
+```powershell
+python src/gcn_search/legacy_rts79/prepare_real_topk_for_simulink_dynamic.py `
+  --input-csv results/gcn_search/local_real_per_path_ranking.csv `
+  --method learned_mlp_reranker_strict `
+  --top-k 20 50 100 200 `
+  --output-dir results/gcn_search/simulink_dynamic_real_topk
+```
+
+Export event cases:
+
+```powershell
+python src/gcn_search/legacy_rts79/export_simulink_dynamic_cases.py `
+  --input-csv results/gcn_search/simulink_dynamic_real_topk/real_topk_input_paths.csv `
+  --output-dir results/gcn_search/simulink_dynamic_real_cases `
+  --top-k 20 50 100 200
+```
+
+Run the event-driven wrapper from MATLAB:
+
+```matlab
+run_real_topk_event_driven_dynamic_validation( ...
+  "../../results/gcn_search/simulink_dynamic_basecase/rts79_simulink_basecase.json", ...
+  "../../results/gcn_search/simulink_dynamic_real_cases/matlab_batch_input.csv", ...
+  "../../results/gcn_search/simulink_dynamic_real_results", ...
+  "../../results/gcn_search/simulink_dynamic_calibration/recommended_swing_options.json" ...
+)
+```
+
+For Top-K-only simulations, report dynamic precision only. Do not report dynamic recall unless a full dynamic truth table exists.

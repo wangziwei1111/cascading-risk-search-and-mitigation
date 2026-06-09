@@ -121,3 +121,52 @@ Round 14 also adds two MATLAB demos:
 - severe overload demo: validates `loading_ratio > beta` causes passive relay trip.
 
 Current limitation: this is still a simplified swing-equation prototype. Redispatch/load shedding is not full OPF, relay logic is not an engineering-grade protection model, and demos are not formal dynamic stability conclusions.
+
+## Round 15: Real Learned-Reranker Top-K Event-Driven Dynamic Validation
+
+Round 15 connects the event-driven closed-loop dynamic prototype to real learned path-reranker Top-K ranking artifacts when a local per-path CSV is available.
+
+Added or updated:
+
+```text
+src/gcn_search/legacy_rts79/prepare_real_topk_for_simulink_dynamic.py
+src/gcn_search/legacy_rts79/prepare_dynamic_method_comparison_topk.py
+matlab/simulink_rts79/run_real_topk_event_driven_dynamic_validation.m
+docs/pio_gcn_simulink_real_topk_event_driven_validation.md
+tests/test_real_topk_dynamic_pipeline.py
+tests/test_dynamic_method_comparison_inputs.py
+```
+
+The preparation script now searches common local ignored ranking directories and writes:
+
+```text
+results/gcn_search/simulink_dynamic_real_topk/real_topk_input_paths.csv
+```
+
+with `case_id`, `source_seed`, `path_rank`, `path`, `first_line`, `second_line`, `pio_score`, `paper_score`, `lodf_score`, `reranker_score`, `opa_is_critical`, and `opa_total_load_shed_mw`.
+
+Default behavior is strict: if no real per-path ranking CSV is available, the script fails. Demo fallback is only enabled by `--allow-demo-fallback` and is for interface testing only.
+
+Method-comparison input preparation can create learned-reranker, PIO-GCN, and LODF Top-K dynamic input CSVs from the same per-path table when the relevant score columns exist.
+
+Required validation commands for this round:
+
+```powershell
+python -m pytest tests/test_simulink_dynamic_case_export.py tests/test_simulink_dynamic_result_analysis.py tests/test_simulink_dynamic_disagreement.py tests/test_simulink_real_topk_preparation.py tests/test_relay_vs_security_logic.py tests/test_event_driven_dynamic_loop.py tests/test_real_topk_dynamic_pipeline.py tests/test_dynamic_method_comparison_inputs.py
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+git diff -- src/rl_mitigation scripts/rl_mitigation
+```
+
+If no real per-path ranking CSV is found in the local checkout, the correct status is: real per-path ranking CSV not available; real Top-K dynamic validation was not run.
+
+Local validation result:
+
+```text
+python -m pytest tests/test_simulink_dynamic_case_export.py tests/test_simulink_dynamic_result_analysis.py tests/test_simulink_dynamic_disagreement.py tests/test_simulink_real_topk_preparation.py tests/test_relay_vs_security_logic.py tests/test_event_driven_dynamic_loop.py tests/test_real_topk_dynamic_pipeline.py tests/test_dynamic_method_comparison_inputs.py
+18 passed
+
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+PASS: GCN Simulink dynamic validation artifacts are review-ready.
+```
+
+Automatic real CSV search was run without demo fallback. After excluding generated `simulink_dynamic*` artifacts and non-RTS-79 files, no real learned-reranker per-path ranking CSV was found in the local checkout. Therefore real Top-K dynamic validation was not run in this round. RL mitigation files were not modified.

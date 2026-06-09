@@ -22,11 +22,13 @@ REQUIRED_FILES = [
     "matlab/simulink_rts79/check_rts79_swing_model_sanity.m",
     "matlab/simulink_rts79/calibrate_rts79_swing_scales.m",
     "matlab/simulink_rts79/run_real_topk_dynamic_validation.m",
+    "matlab/simulink_rts79/run_real_topk_event_driven_dynamic_validation.m",
     "matlab/simulink_rts79/update_swing_power_after_load_shed.m",
     "matlab/simulink_rts79/run_mild_overload_security_demo.m",
     "matlab/simulink_rts79/run_severe_overload_relay_demo.m",
     "matlab/simulink_rts79/README.md",
     "src/gcn_search/legacy_rts79/prepare_real_topk_for_simulink_dynamic.py",
+    "src/gcn_search/legacy_rts79/prepare_dynamic_method_comparison_topk.py",
     "src/gcn_search/legacy_rts79/check_simulink_dynamic_sanity_artifacts.py",
     "src/gcn_search/legacy_rts79/analyze_opa_dynamic_disagreement.py",
     "src/gcn_search/legacy_rts79/analyze_relay_vs_security_events.py",
@@ -37,8 +39,11 @@ REQUIRED_FILES = [
     "tests/test_simulink_real_topk_preparation.py",
     "tests/test_relay_vs_security_logic.py",
     "tests/test_event_driven_dynamic_loop.py",
+    "tests/test_real_topk_dynamic_pipeline.py",
+    "tests/test_dynamic_method_comparison_inputs.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
+    "docs/pio_gcn_simulink_real_topk_event_driven_validation.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
 ]
@@ -109,6 +114,8 @@ def main() -> int:
             failures.append("Validation log does not contain the Round 13 record.")
         if "Round 14" not in log_text:
             failures.append("Validation log does not contain the Round 14 record.")
+        if "Round 15" not in log_text:
+            failures.append("Validation log does not contain the Round 15 record.")
 
     plan_path = ROOT / "docs/pio_gcn_simulink_dynamic_validation_plan.md"
     if plan_path.exists():
@@ -149,6 +156,31 @@ def main() -> int:
         real_topk_text = _read_text("docs/pio_gcn_simulink_real_topk_validation.md").lower()
         if "demo precision is not a formal dynamic conclusion" not in real_topk_text:
             failures.append("Real Top-K validation doc does not warn against treating demo precision as a formal conclusion.")
+
+    event_real_topk_doc = ROOT / "docs/pio_gcn_simulink_real_topk_event_driven_validation.md"
+    if event_real_topk_doc.exists():
+        event_doc_text = _read_text("docs/pio_gcn_simulink_real_topk_event_driven_validation.md").lower()
+        required_terms = [
+            "real per-path ranking csv",
+            "real_topk_input_paths.csv",
+            "run_real_topk_event_driven_dynamic_validation",
+            "prepare_dynamic_method_comparison_topk.py",
+            "dynamic_precision_at_k",
+        ]
+        for required in required_terms:
+            if required not in event_doc_text:
+                failures.append(f"Round 15 real Top-K event-driven doc is missing required term: {required}")
+        forbidden_terms = [
+            "final dynamic proof",
+            "emt validation completed",
+            "renewable dynamic validation completed",
+            "engineering-grade dynamic model completed",
+            "full opf redispatch completed",
+            "dynamic recall@k",
+        ]
+        for term in forbidden_terms:
+            if term in event_doc_text:
+                failures.append(f"Round 15 real Top-K event-driven doc contains an overstatement: {term}")
 
     relay_doc = ROOT / "docs/pio_gcn_relay_vs_security_constraint.md"
     if relay_doc.exists():

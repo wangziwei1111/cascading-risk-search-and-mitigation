@@ -165,9 +165,41 @@ Round 14 changes relay/security handling from post-processing into an event-driv
 
 The closed-loop behavior is still a prototype. It is not full OPF redispatch, not EMT, and has no renewable generation or detailed controls.
 
+## Round 15 Update
+
+Round 15 connects the event-driven closed-loop prototype to a real learned path-reranker Top-K CSV when that local ignored artifact is available.
+
+New or updated workflow:
+
+```powershell
+python src/gcn_search/legacy_rts79/prepare_real_topk_for_simulink_dynamic.py `
+  --method learned_mlp_reranker_strict `
+  --top-k 20 50 100 200 `
+  --output-dir results/gcn_search/simulink_dynamic_real_topk
+
+python src/gcn_search/legacy_rts79/export_simulink_dynamic_cases.py `
+  --input-csv results/gcn_search/simulink_dynamic_real_topk/real_topk_input_paths.csv `
+  --output-dir results/gcn_search/simulink_dynamic_real_cases `
+  --top-k 20 50 100 200
+```
+
+Event-driven MATLAB wrapper:
+
+```matlab
+run_real_topk_event_driven_dynamic_validation( ...
+  "../../results/gcn_search/simulink_dynamic_basecase/rts79_simulink_basecase.json", ...
+  "../../results/gcn_search/simulink_dynamic_real_cases/matlab_batch_input.csv", ...
+  "../../results/gcn_search/simulink_dynamic_real_results", ...
+  "../../results/gcn_search/simulink_dynamic_calibration/recommended_swing_options.json" ...
+)
+```
+
+If a real per-path ranking CSV is not found, the preparation script fails by default. Demo fallback is allowed only for interface tests through `--allow-demo-fallback`; it must not be reported as real Top-K dynamic validation.
+
+Round 15 also adds `prepare_dynamic_method_comparison_topk.py`, which can derive learned reranker, PIO-GCN, and LODF Top-K dynamic inputs from the same per-path CSV when the corresponding score columns are present.
+
 ## Next Steps
 
-- Add passive overload relay tripping in the time-domain prototype.
 - Add more detailed synchronous-machine controls.
 - Add voltage-stability indicators.
 - Add renewable inverter models in a later round.
