@@ -75,6 +75,8 @@ def train_path_reranker(config: TrainPathRerankerConfig) -> dict:
     predictions.to_csv(out / "path_reranker_validation_predictions.csv", index=False, encoding="utf-8-sig")
     metrics = pd.DataFrame([_metrics(predictions[predictions["split"] == split], split, config.model_type) for split in ["train", "val", "test"]])
     metrics.to_csv(out / "path_reranker_metrics.csv", index=False, encoding="utf-8-sig")
+    summary = _make_model_summary(metrics, feature_columns, config)
+    (out / "path_reranker_model_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     return {"output_dir": str(out), "model_path": str(model_path), "metrics": str(out / "path_reranker_metrics.csv")}
 
 
@@ -139,8 +141,55 @@ def _metrics(predictions: pd.DataFrame, split: str, model_type: str) -> dict:
         "num_critical": int(predictions["y_critical"].sum()),
         "precision_at_20": float(top20["y_critical"].mean()) if len(top20) else 0.0,
         "recall_at_20": float(top20["y_critical"].sum() / total),
+        "auc": _binary_auc(predictions["y_critical"].to_numpy(dtype=float), predictions["learned_score"].to_numpy(dtype=float)),
+        "average_precision": _average_precision(predictions["y_critical"].to_numpy(dtype=float), predictions["learned_score"].to_numpy(dtype=float)),
         "mean_positive_score": float(predictions.loc[predictions["y_critical"] == 1, "learned_score"].mean()),
         "mean_negative_score": float(predictions.loc[predictions["y_critical"] == 0, "learned_score"].mean()),
+    }
+
+
+def _binary_auc(y: np.ndarray, score: np.ndarray) -> float:
+    y = np.asarray(y, dtype=float)
+    score = np.asarray(score, dtype=float)
+    pos = y > 0.5
+    neg = ~pos
+    if pos.sum() == 0 or neg.sum() == 0:
+        return 0.0
+    order = np.argsort(score)
+    ranks = np.empty_like(order, dtype=float)
+    ranks[order] = np.arange(1, len(score) + 1)
+    pos_rank_sum = float(ranks[pos].sum())
+    return float((pos_rank_sum - pos.sum() * (pos.sum() + 1) / 2) / (pos.sum() * neg.sum()))
+
+
+def _average_precision(y: np.ndarray, score: np.ndarray) -> float:
+    y = np.asarray(y, dtype=float)
+    score = np.asarray(score, dtype=float)
+    if y.sum() == 0:
+        return 0.0
+    order = np.argsort(-score)
+    y_sorted = y[order]
+    cum_pos = np.cumsum(y_sorted)
+    precision = cum_pos / np.arange(1, len(y_sorted) + 1)
+    return float((precision * y_sorted).sum() / y.sum())
+
+
+def _make_model_summary(metrics: pd.DataFrame, feature_columns: list[str], config: TrainPathRerankerConfig) -> dict:
+    test = metrics[metrics["split"] == "test"]
+    test_row = test.iloc[0].to_dict() if not test.empty else {}
+    return {
+        "model_type": config.model_type,
+        "epochs": config.epochs,
+        "learning_rate": config.learning_rate,
+        "random_seed": config.random_seed,
+        "num_features": int(len(feature_columns)),
+        "feature_columns": feature_columns,
+        "forbidden_label_columns_excluded": sorted(FORBIDDEN_LABEL_COLUMNS),
+        "test_auc": float(test_row.get("auc", 0.0)),
+        "test_average_precision": float(test_row.get("average_precision", 0.0)),
+        "test_precision_at_20": float(test_row.get("precision_at_20", 0.0)),
+        "test_recall_at_20": float(test_row.get("recall_at_20", 0.0)),
+        "notes": "Compact summary only; model pkl remains a local ignored artifact.",
     }
 
 

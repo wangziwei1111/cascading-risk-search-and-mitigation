@@ -70,6 +70,14 @@ If any required control level fails, the gate must output `continue_dynamic_cali
 
 Round 22 performed this Top50/Top100 expansion. The result has `calibration_warning = true` because all learned, PIO-GCN, and LODF Top100 cases are dynamically stable under the recommended post-fault options.
 
+Round 23 expanded the learned-reranker dataset to a medium non-smoke dataset. The non-smoke Top50/Top100 comparison is still all stable, so the updated gate now recommends:
+
+```text
+allowed_next_step = tune_post_fault_event_strength
+```
+
+This means the post-fault dynamic event strength should be tuned before making stronger dynamic-method claims.
+
 ## Limits
 
 No dynamic recall is reported because no full dynamic truth exists.

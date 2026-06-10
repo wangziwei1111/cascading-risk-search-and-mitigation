@@ -616,6 +616,63 @@ empty
 
 RL mitigation files were not modified. Generated `.slx`, `.mat`, full per-case dynamic results, raw event logs, and full per-path ranking artifacts remain local ignored artifacts and are not intended for commit.
 
+## Round 23: Non-Smoke Dynamic Method Comparison
+
+Round 23 expands the learned path-reranker diagnosis from the minimal smoke dataset to a medium non-smoke dataset. This remains a simplified swing-equation preliminary diagnostic, not a formal dynamic stability conclusion.
+
+Dataset:
+
+```text
+dataset_source = simulator_derived_medium
+dataset_scale = medium
+num_samples = 8000
+num_critical = 471
+positive_ratio = 0.058875
+train/val/test seeds = 10/3/3
+max_paths_per_seed = 500
+```
+
+Learned reranker held-out metrics:
+
+```text
+test_auc = 0.7907
+test_average_precision = 0.1340
+test_precision_at_20 = 0.1500
+test_recall_at_20 = 0.0370
+```
+
+Dynamic method comparison:
+
+| method | Top50 precision | Top100 precision | Top50 mean stress | Top100 mean stress |
+| --- | ---: | ---: | ---: | ---: |
+| learned_mlp | 0.0000 | 0.0000 | 0.1034 | 0.1040 |
+| pio_gcn | 0.0000 | 0.0000 | 0.1034 | 0.1040 |
+| lodf | 0.0000 | 0.0000 | 0.0856 | 0.0949 |
+
+The non-smoke Top50/Top100 comparison is still all stable, so `calibration_warning = true` and `dynamic_discrimination_signal = false`.
+
+Rank-depth curve: learned and PIO-GCN are identical in this run; learned does not concentrate dynamic stress earlier than PIO-GCN or LODF.
+
+OPA/dynamic alignment: OPA load-shed label and dynamic stress correlation remains weak. Learned Top100 `corr(stress, OPA shed) = -0.0829`; LODF Top100 `corr(stress, OPA shed) = -0.0288`.
+
+Updated gate:
+
+```text
+allowed_next_step = tune_post_fault_event_strength
+```
+
+No dynamic recall is reported because no full dynamic truth exists. Generated `.pkl`, `.slx`, `.mat`, full per-path ranking, full dataset CSVs, input paths, event logs, and raw dynamic results remain local ignored artifacts and are not intended for commit.
+
+Validation to run for this round:
+
+```text
+python -m pytest tests/test_simulink_dynamic_case_export.py tests/test_simulink_dynamic_result_analysis.py tests/test_simulink_dynamic_disagreement.py tests/test_simulink_real_topk_preparation.py tests/test_relay_vs_security_logic.py tests/test_event_driven_dynamic_loop.py tests/test_real_topk_dynamic_pipeline.py tests/test_dynamic_method_comparison_inputs.py tests/test_export_path_reranker_per_path_ranking.py tests/test_real_topk_dynamic_validation_pipeline.py tests/test_real_topk_dynamic_summary.py tests/test_path_reranker_minimal_pipeline.py tests/test_real_topk_dynamic_smoke_summary.py tests/test_dynamic_smoke_degeneracy.py tests/test_default_vs_calibrated_dynamic_smoke.py tests/test_dynamic_instability_reasons.py tests/test_dynamic_stress_score.py tests/test_dynamic_negative_controls.py tests/test_swing_equilibrium_diagnostics.py tests/test_dynamic_threshold_sensitivity.py tests/test_negative_controls_v2_summary.py tests/test_post_fault_sanity_ladder.py tests/test_dynamic_interpretability_gate.py tests/test_negative_control_v3_summary.py tests/test_dynamic_method_comparison_cases.py tests/test_dynamic_method_comparison_analysis.py tests/test_dynamic_rank_depth_curve.py tests/test_non_smoke_path_reranker_dataset.py tests/test_non_smoke_dynamic_method_comparison.py tests/test_non_smoke_label_dynamic_alignment.py
+
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+
+git diff -- src/rl_mitigation scripts/rl_mitigation
+```
+
 ## Round 22: Top50/Top100 Dynamic Method Comparison
 
 Round 22 expands the event-driven dynamic diagnostic after the Round 21 post-fault sanity ladder passed. The comparison covers learned MLP reranker, PIO-GCN, and LODF Top50/Top100 inputs. This remains a simplified swing-equation preliminary diagnostic, not a formal dynamic stability conclusion.

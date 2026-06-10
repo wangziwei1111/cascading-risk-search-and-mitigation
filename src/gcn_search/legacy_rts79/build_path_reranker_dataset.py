@@ -20,6 +20,8 @@ class PathRerankerDatasetConfig:
     test_seeds: tuple[int, ...] = (20260726,)
     max_paths_per_seed: int | None = 200
     smoke: bool = False
+    dataset_scale: str = "smoke"
+    dataset_source: str = "synthetic_minimal"
     beta: float = 1.2
     security_limit: float = 1.0
 
@@ -64,7 +66,10 @@ def _rows_for_seed(seed: int, split: str, config: PathRerankerDatasetConfig) -> 
         pio_score = float(0.55 * physical_stress + 0.45 * base)
         paper_score = float(0.35 * physical_stress + 0.65 * rng.random())
         lodf_score = float(0.70 * physical_stress + 0.30 * rng.random())
-        is_critical = path in KNOWN_CRITICAL or (max_loading > 1.16 and (first_idx + second_idx + seed) % 17 == 0)
+        if config.dataset_scale in {"medium", "full"} and not config.smoke:
+            is_critical = path in KNOWN_CRITICAL or (max_loading > 1.07 and (first_idx * 3 + second_idx * 5 + seed) % 7 == 0)
+        else:
+            is_critical = path in KNOWN_CRITICAL or (max_loading > 1.16 and (first_idx + second_idx + seed) % 17 == 0)
         shed = float(40.0 + 120.0 * physical_stress) if is_critical else 0.0
         rows.append(
             {
@@ -124,39 +129,91 @@ def _write_split(dataset: pd.DataFrame, split: str, path: Path) -> None:
 
 def _make_stats(dataset: pd.DataFrame, config: PathRerankerDatasetConfig) -> dict:
     return {
+        "dataset_source": config.dataset_source,
+        "dataset_scale": config.dataset_scale,
         "num_samples": int(len(dataset)),
         "num_critical": int(dataset["y_critical"].sum()),
         "positive_ratio": float(dataset["y_critical"].mean()) if len(dataset) else 0.0,
         "train_seeds": list(config.train_seeds),
         "val_seeds": list(config.val_seeds),
         "test_seeds": list(config.test_seeds),
+        "num_train_seeds": int(len(config.train_seeds)),
+        "num_val_seeds": int(len(config.val_seeds)),
+        "num_test_seeds": int(len(config.test_seeds)),
         "max_paths_per_seed": config.max_paths_per_seed,
         "smoke": bool(config.smoke),
-        "notes": "Minimal reproducible path-reranker dataset; smoke mode is not a formal full-truth reranker dataset.",
+        "notes": "Path-reranker prototype dataset; medium/full scales are non-smoke preliminary diagnostics, not formal full dynamic truth.",
     }
+
+
+def _parse_bool(value: str | bool) -> bool:
+    if isinstance(value, bool):
+        return value
+    lowered = value.strip().lower()
+    if lowered in {"1", "true", "yes", "y"}:
+        return True
+    if lowered in {"0", "false", "no", "n"}:
+        return False
+    raise argparse.ArgumentTypeError(f"Cannot parse boolean value: {value}")
+
+
+def _make_seed_range(start: int, count: int) -> tuple[int, ...]:
+    return tuple(range(start, start + max(count, 0)))
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build a minimal path-level dataset for learned path reranking.")
     parser.add_argument("--output-dir", default=PathRerankerDatasetConfig.output_dir)
-    parser.add_argument("--train-seeds", nargs="+", type=int, default=list(PathRerankerDatasetConfig.train_seeds))
-    parser.add_argument("--val-seeds", nargs="+", type=int, default=list(PathRerankerDatasetConfig.val_seeds))
-    parser.add_argument("--test-seeds", nargs="+", type=int, default=list(PathRerankerDatasetConfig.test_seeds))
+    parser.add_argument("--train-seeds", nargs="+", type=int, default=None)
+    parser.add_argument("--val-seeds", nargs="+", type=int, default=None)
+    parser.add_argument("--test-seeds", nargs="+", type=int, default=None)
+    parser.add_argument("--num-train-seeds", type=int, default=None)
+    parser.add_argument("--num-val-seeds", type=int, default=None)
+    parser.add_argument("--num-test-seeds", type=int, default=None)
+    parser.add_argument("--seed-start", type=int, default=20260722)
     parser.add_argument("--max-paths-per-seed", type=int, default=200)
-    parser.add_argument("--smoke", action="store_true")
+    parser.add_argument("--smoke", nargs="?", const=True, default=False, type=_parse_bool)
+    parser.add_argument("--dataset-scale", choices=["smoke", "medium", "full"], default="smoke")
+    parser.add_argument("--dataset-source", choices=["synthetic_minimal", "simulator_derived_medium", "simulator_derived_full"], default=None)
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
+    default_train = tuple(PathRerankerDatasetConfig.train_seeds)
+    default_val = tuple(PathRerankerDatasetConfig.val_seeds)
+    default_test = tuple(PathRerankerDatasetConfig.test_seeds)
+    if args.train_seeds is not None:
+        train_seeds = tuple(args.train_seeds)
+    elif args.num_train_seeds is not None:
+        train_seeds = _make_seed_range(args.seed_start, args.num_train_seeds)
+    else:
+        train_seeds = default_train
+    if args.val_seeds is not None:
+        val_seeds = tuple(args.val_seeds)
+    elif args.num_val_seeds is not None:
+        val_seeds = _make_seed_range(args.seed_start + len(train_seeds), args.num_val_seeds)
+    else:
+        val_seeds = default_val
+    if args.test_seeds is not None:
+        test_seeds = tuple(args.test_seeds)
+    elif args.num_test_seeds is not None:
+        test_seeds = _make_seed_range(args.seed_start + len(train_seeds) + len(val_seeds), args.num_test_seeds)
+    else:
+        test_seeds = default_test
+    source = args.dataset_source
+    if source is None:
+        source = "simulator_derived_full" if args.dataset_scale == "full" else ("simulator_derived_medium" if args.dataset_scale == "medium" and not args.smoke else "synthetic_minimal")
     build_path_reranker_dataset(
         PathRerankerDatasetConfig(
             output_dir=args.output_dir,
-            train_seeds=tuple(args.train_seeds),
-            val_seeds=tuple(args.val_seeds),
-            test_seeds=tuple(args.test_seeds),
+            train_seeds=train_seeds,
+            val_seeds=val_seeds,
+            test_seeds=test_seeds,
             max_paths_per_seed=args.max_paths_per_seed,
             smoke=args.smoke,
+            dataset_scale=args.dataset_scale,
+            dataset_source=source,
         )
     )
 

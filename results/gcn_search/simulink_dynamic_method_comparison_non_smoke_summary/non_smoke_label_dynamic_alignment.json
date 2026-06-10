@@ -1,0 +1,8 @@
+{
+  "ranking_csv": "results/gcn_search/simulink_dynamic_real_per_path_ranking_non_smoke/learned_mlp_per_path_ranking.csv",
+  "summary_csv": "results/gcn_search/simulink_dynamic_method_comparison_non_smoke_summary/dynamic_method_comparison_non_smoke_summary.csv",
+  "rank_depth_csv": "results/gcn_search/simulink_dynamic_method_comparison_non_smoke_summary/dynamic_rank_depth_curve_non_smoke.csv",
+  "cases_root": "results\\gcn_search\\simulink_dynamic_method_comparison_cases_non_smoke",
+  "num_rows": 6,
+  "note": "preliminary diagnostic alignment only; no dynamic recall is reported"
+}

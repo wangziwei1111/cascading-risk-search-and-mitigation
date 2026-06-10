@@ -28,6 +28,7 @@ REQUIRED_FILES = [
     "src/gcn_search/legacy_rts79/export_dynamic_method_comparison_cases.py",
     "src/gcn_search/legacy_rts79/analyze_dynamic_method_comparison.py",
     "src/gcn_search/legacy_rts79/analyze_dynamic_rank_depth_curve.py",
+    "src/gcn_search/legacy_rts79/analyze_non_smoke_label_dynamic_alignment.py",
     "matlab/simulink_rts79/build_rts79_swing_simulink_model.m",
     "matlab/simulink_rts79/simulate_rts79_swing_case.m",
     "matlab/simulink_rts79/run_rts79_dynamic_path_case.m",
@@ -86,6 +87,9 @@ REQUIRED_FILES = [
     "tests/test_dynamic_method_comparison_cases.py",
     "tests/test_dynamic_method_comparison_analysis.py",
     "tests/test_dynamic_rank_depth_curve.py",
+    "tests/test_non_smoke_path_reranker_dataset.py",
+    "tests/test_non_smoke_dynamic_method_comparison.py",
+    "tests/test_non_smoke_label_dynamic_alignment.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
     "docs/pio_gcn_simulink_real_topk_event_driven_validation.md",
@@ -94,6 +98,7 @@ REQUIRED_FILES = [
     "docs/pio_gcn_swing_equilibrium_and_threshold_calibration.md",
     "docs/pio_gcn_post_fault_sanity_ladder.md",
     "docs/pio_gcn_dynamic_method_comparison_top100.md",
+    "docs/pio_gcn_dynamic_method_comparison_non_smoke.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -121,6 +126,9 @@ DISALLOWED_TRACKED_SUBSTRINGS = [
     "learned_mlp_per_path_ranking.csv",
     "per_path_ranking.csv",
     "path_reranker_dataset.csv",
+    "path_reranker_train.csv",
+    "path_reranker_val.csv",
+    "path_reranker_test.csv",
     "large_simulink_log",
     "event_grid_",
 ]
@@ -191,6 +199,8 @@ def main() -> int:
             failures.append("Validation log does not contain the Round 21 record.")
         if "Round 22" not in log_text:
             failures.append("Validation log does not contain the Round 22 record.")
+        if "Round 23" not in log_text:
+            failures.append("Validation log does not contain the Round 23 record.")
 
     plan_path = ROOT / "docs/pio_gcn_simulink_dynamic_validation_plan.md"
     if plan_path.exists():
@@ -387,6 +397,23 @@ def main() -> int:
             if required not in text:
                 failures.append(f"Round 22 method comparison doc is missing required term: {required}")
 
+    non_smoke_doc = ROOT / "docs/pio_gcn_dynamic_method_comparison_non_smoke.md"
+    if non_smoke_doc.exists():
+        text = _read_text("docs/pio_gcn_dynamic_method_comparison_non_smoke.md").lower()
+        for required in ["preliminary diagnostic", "non-smoke", "no dynamic recall", "calibration_warning", "not emt", "not full opf"]:
+            if required not in text:
+                failures.append(f"Round 23 non-smoke method comparison doc is missing required term: {required}")
+        for forbidden in [
+            "final dynamic proof",
+            "emt validation completed",
+            "renewable dynamic validation completed",
+            "engineering-grade dynamic model completed",
+            "full opf redispatch completed",
+            "dynamic recall@k",
+        ]:
+            if forbidden in text:
+                failures.append(f"Round 23 non-smoke doc contains an overstatement: {forbidden}")
+
     sanity_summary = ROOT / "results/gcn_search/simulink_dynamic_equilibrium_sanity/swing_equilibrium_sanity_summary.json"
     if sanity_summary.exists():
         try:
@@ -407,7 +434,14 @@ def main() -> int:
         try:
             payload = __import__("json").loads(gate_summary.read_text(encoding="utf-8"))
             allowed = payload.get("allowed_next_step")
-            if allowed not in {"expand_top50_top100", "expand_non_smoke_dataset", "continue_dynamic_calibration"}:
+            if allowed not in {
+                "expand_top50_top100",
+                "expand_non_smoke_dataset",
+                "continue_dynamic_calibration",
+                "tune_post_fault_event_strength",
+                "expand_full_dataset",
+                "prepare_paper_figures_preliminary",
+            }:
                 failures.append("Interpretability gate allowed_next_step has an invalid value.")
         except Exception as exc:
             failures.append(f"Failed to read interpretability gate summary: {exc}")
@@ -429,6 +463,24 @@ def main() -> int:
                         failures.append("All-zero/all-one method comparison requires calibration_warning in the Round 22 doc.")
         except Exception as exc:
             failures.append(f"Failed to read dynamic method comparison summary: {exc}")
+
+    non_smoke_summary = ROOT / "results/gcn_search/simulink_dynamic_method_comparison_non_smoke_summary/dynamic_method_comparison_non_smoke_summary.csv"
+    if non_smoke_summary.exists():
+        try:
+            import pandas as pd
+
+            table = pd.read_csv(non_smoke_summary)
+            if any("dynamic_recall" in col.lower() for col in table.columns):
+                failures.append("Non-smoke dynamic method comparison summary must not contain dynamic recall columns.")
+            if not table.empty:
+                top100 = table[table["top_k"].astype(int) == 100]
+                if not top100.empty:
+                    precision = top100["dynamic_precision_at_k"].astype(float)
+                    all_zero_or_one = (precision == 0.0).all() or (precision == 1.0).all()
+                    if all_zero_or_one and "calibration_warning" not in " ".join(_read_text("docs/pio_gcn_dynamic_method_comparison_non_smoke.md").lower().split()):
+                        failures.append("All-zero/all-one non-smoke comparison requires calibration_warning in the Round 23 doc.")
+        except Exception as exc:
+            failures.append(f"Failed to read non-smoke dynamic method comparison summary: {exc}")
 
     negative_summary = ROOT / "results/gcn_search/simulink_dynamic_negative_control_summary/dynamic_negative_control_comparison.csv"
     if negative_summary.exists():

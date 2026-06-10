@@ -50,7 +50,15 @@ results/gcn_search/**/learned_mlp_per_path_ranking.csv
 results/gcn_search/**/*per_path_ranking*.csv
 results/gcn_search/**/*large_simulink_log*
 results/gcn_search/**/path_reranker_dataset.csv
+results/gcn_search/**/path_reranker_train.csv
+results/gcn_search/**/path_reranker_val.csv
+results/gcn_search/**/path_reranker_test.csv
 results/gcn_search/**/path_reranker_model.pkl
+results/gcn_search/**/*input_paths.csv
+results/gcn_search/**/matlab_batch_input.csv
+results/gcn_search/**/simulink_dynamic_event_table.csv
+results/gcn_search/**/simulink_dynamic_case_manifest.csv
+results/gcn_search/**/dynamic_case_event_log_*.csv
 results/gcn_search/**/event_grid_*/
 !results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv
 !results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.json

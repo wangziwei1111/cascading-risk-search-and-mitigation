@@ -1,0 +1,14 @@
+{
+  "options_json": "results/gcn_search/simulink_dynamic_calibration/recommended_post_fault_options.json",
+  "num_rows": 6,
+  "calibration_warning": true,
+  "dynamic_discrimination_signal": false,
+  "dataset_source": "simulator_derived_medium",
+  "dataset_scale": "medium",
+  "num_dataset_samples": 8000,
+  "num_dataset_positives": 471,
+  "positive_ratio": 0.058875,
+  "model_auc": 0.7906976744186046,
+  "model_ap": 0.13398730627246017,
+  "note": "preliminary diagnostic comparison only; no dynamic recall is reported"
+}

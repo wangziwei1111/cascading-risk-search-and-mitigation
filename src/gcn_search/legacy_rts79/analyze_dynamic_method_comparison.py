@@ -20,6 +20,9 @@ def analyze_dynamic_method_comparison(
     results_root: str | Path,
     output_dir: str | Path = "results/gcn_search/simulink_dynamic_method_comparison_summary",
     options_json: str | Path | None = None,
+    summary_prefix: str = "dynamic_method_comparison",
+    dataset_stats_json: str | Path | None = None,
+    model_summary_json: str | Path | None = None,
 ) -> dict:
     cases_root = Path(cases_root)
     results_root = Path(results_root)
@@ -75,19 +78,23 @@ def analyze_dynamic_method_comparison(
     summary = pd.DataFrame(rows)
     calibration_warning = _calibration_warning(summary)
     signal = _diagnostic_signal(summary)
+    extra = _load_extra_metadata(dataset_stats_json, model_summary_json)
     if not summary.empty:
         summary["calibration_warning"] = calibration_warning
         summary["dynamic_discrimination_signal"] = signal
-    summary_csv = out / "dynamic_method_comparison_summary.csv"
-    summary_json = out / "dynamic_method_comparison_summary.json"
-    brief_md = out / "dynamic_method_comparison_brief.md"
-    stress_rank_csv = out / "dynamic_method_comparison_stress_ranks.csv"
+        for key, value in extra.items():
+            summary[key] = value
+    summary_csv = out / f"{summary_prefix}_summary.csv"
+    summary_json = out / f"{summary_prefix}_summary.json"
+    brief_md = out / f"{summary_prefix}_brief.md"
+    stress_rank_csv = out / f"{summary_prefix}_stress_ranks.csv"
     summary.to_csv(summary_csv, index=False, encoding="utf-8-sig")
     payload = {
         "options_json": str(options_json) if options_json else None,
         "num_rows": int(len(summary)),
         "calibration_warning": calibration_warning,
         "dynamic_discrimination_signal": signal,
+        **extra,
         "note": "preliminary diagnostic comparison only; no dynamic recall is reported",
     }
     summary_json.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -129,6 +136,31 @@ def _diagnostic_signal(summary: pd.DataFrame) -> bool:
     return bool(len(controls) and learned > controls.max() * 1.05)
 
 
+def _load_json(path: str | Path | None) -> dict:
+    if path is None or not Path(path).exists():
+        return {}
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def _load_extra_metadata(dataset_stats_json: str | Path | None, model_summary_json: str | Path | None) -> dict:
+    dataset = _load_json(dataset_stats_json)
+    model = _load_json(model_summary_json)
+    extra: dict[str, object] = {}
+    mapping = {
+        "dataset_source": dataset.get("dataset_source"),
+        "dataset_scale": dataset.get("dataset_scale"),
+        "num_dataset_samples": dataset.get("num_samples"),
+        "num_dataset_positives": dataset.get("num_critical"),
+        "positive_ratio": dataset.get("positive_ratio"),
+        "model_auc": model.get("test_auc"),
+        "model_ap": model.get("test_average_precision"),
+    }
+    for key, value in mapping.items():
+        if value is not None:
+            extra[key] = value
+    return extra
+
+
 def _brief(summary: pd.DataFrame, payload: dict, path: Path) -> None:
     lines = [
         "# Dynamic Method Comparison Brief",
@@ -157,12 +189,23 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--results-root", required=True)
     parser.add_argument("--output-dir", default="results/gcn_search/simulink_dynamic_method_comparison_summary")
     parser.add_argument("--options-json")
+    parser.add_argument("--summary-prefix", default="dynamic_method_comparison")
+    parser.add_argument("--dataset-stats-json")
+    parser.add_argument("--model-summary-json")
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    analyze_dynamic_method_comparison(args.cases_root, args.results_root, args.output_dir, args.options_json)
+    analyze_dynamic_method_comparison(
+        args.cases_root,
+        args.results_root,
+        args.output_dir,
+        args.options_json,
+        args.summary_prefix,
+        args.dataset_stats_json,
+        args.model_summary_json,
+    )
 
 
 if __name__ == "__main__":

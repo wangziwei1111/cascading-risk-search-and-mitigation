@@ -16,6 +16,7 @@ def analyze_dynamic_rank_depth_curve(
     results_root: str | Path,
     output_dir: str | Path = "results/gcn_search/simulink_dynamic_method_comparison_summary",
     ks: tuple[int, ...] = (10, 20, 50, 100),
+    output_prefix: str = "dynamic_rank_depth_curve",
 ) -> dict:
     cases_root = Path(cases_root)
     results_root = Path(results_root)
@@ -52,8 +53,8 @@ def analyze_dynamic_rank_depth_curve(
                 }
             )
     table = pd.DataFrame(rows)
-    csv_path = out / "dynamic_rank_depth_curve.csv"
-    brief_path = out / "dynamic_rank_depth_curve_brief.md"
+    csv_path = out / f"{output_prefix}.csv"
+    brief_path = out / f"{output_prefix}_brief.md"
     table.to_csv(csv_path, index=False, encoding="utf-8-sig")
     _brief(table, brief_path)
     return {"csv": str(csv_path), "brief": str(brief_path), "num_rows": int(len(table))}
@@ -81,12 +82,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--results-root", required=True)
     parser.add_argument("--output-dir", default="results/gcn_search/simulink_dynamic_method_comparison_summary")
     parser.add_argument("--ks", type=int, nargs="+", default=[10, 20, 50, 100])
+    parser.add_argument("--output-prefix", default="dynamic_rank_depth_curve")
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    analyze_dynamic_rank_depth_curve(args.cases_root, args.results_root, args.output_dir, tuple(args.ks))
+    analyze_dynamic_rank_depth_curve(args.cases_root, args.results_root, args.output_dir, tuple(args.ks), args.output_prefix)
 
 
 if __name__ == "__main__":

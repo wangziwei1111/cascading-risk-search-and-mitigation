@@ -67,6 +67,8 @@ Thus there is no preliminary dynamic discrimination signal in favor of learned r
 
 Round 22 allows the next step to expand to a non-smoke dataset for diagnosis, but it does not prove dynamic superiority.
 
+Round 23 performs this non-smoke expansion. The medium dataset has 8000 samples and 471 positives, but the learned / PIO-GCN / LODF Top100 dynamic precision values are still all 0. The non-smoke result therefore remains a `calibration_warning`, with `dynamic_discrimination_signal = false`.
+
 No dynamic recall is reported because no full dynamic truth exists.
 
 This remains:

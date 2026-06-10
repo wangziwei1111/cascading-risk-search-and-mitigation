@@ -1,0 +1,38 @@
+{
+  "model_type": "mlp",
+  "epochs": 120,
+  "learning_rate": 0.08,
+  "random_seed": 20260801,
+  "num_features": 14,
+  "feature_columns": [
+    "rank_in_pio",
+    "rank_in_paper",
+    "rank_in_lodf",
+    "pio_score",
+    "paper_score",
+    "lodf_score",
+    "first_loading_ratio",
+    "second_loading_ratio",
+    "max_endpoint_loading_ratio",
+    "min_security_margin",
+    "min_relay_margin",
+    "first_outage_num_overloaded_lines",
+    "first_outage_max_loading_ratio",
+    "candidate_position_min_rank"
+  ],
+  "forbidden_label_columns_excluded": [
+    "is_critical",
+    "opa_is_critical",
+    "opa_total_load_shed_mw",
+    "oracle_rank",
+    "total_load_shed_mw",
+    "truth_rank",
+    "y_critical",
+    "y_load_shed"
+  ],
+  "test_auc": 0.7906976744186046,
+  "test_average_precision": 0.13398730627246017,
+  "test_precision_at_20": 0.15,
+  "test_recall_at_20": 0.037037037037037035,
+  "notes": "Compact summary only; model pkl remains a local ignored artifact."
+}

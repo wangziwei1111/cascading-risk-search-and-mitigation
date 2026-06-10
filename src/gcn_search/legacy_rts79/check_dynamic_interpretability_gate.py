@@ -12,6 +12,8 @@ def check_dynamic_interpretability_gate(
     negative_control_v3_csv: str | Path,
     output_dir: str | Path = "results/gcn_search/simulink_dynamic_interpretability_gate",
     method_comparison_summary_csv: str | Path | None = None,
+    non_smoke_method_comparison_summary_csv: str | Path | None = None,
+    non_smoke_label_dynamic_alignment_json: str | Path | None = None,
 ) -> dict:
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -39,7 +41,35 @@ def check_dynamic_interpretability_gate(
             if not learned.empty and not controls2.empty:
                 learned_higher_stress = bool(float(learned["mean_dynamic_stress_score"].iloc[0]) > float(controls2["mean_dynamic_stress_score"].max()) * 1.05)
                 learned_higher_precision = bool(float(learned["dynamic_precision_at_k"].iloc[0]) > float(controls2["dynamic_precision_at_k"].max()))
-    if method_comparison_summary_csv and Path(method_comparison_summary_csv).exists():
+    non_smoke_has_variation = False
+    non_smoke_all_stable_or_unstable = False
+    non_smoke_learned_signal = False
+    if non_smoke_method_comparison_summary_csv and Path(non_smoke_method_comparison_summary_csv).exists():
+        non_smoke_summary = pd.read_csv(non_smoke_method_comparison_summary_csv)
+        top100 = non_smoke_summary[non_smoke_summary["top_k"].astype(int) == 100] if "top_k" in non_smoke_summary.columns else non_smoke_summary
+        if not top100.empty:
+            precision = top100["dynamic_precision_at_k"].astype(float)
+            stress = top100["mean_dynamic_stress_score"].astype(float)
+            non_smoke_has_variation = bool(precision.nunique() > 1 or stress.nunique() > 1)
+            non_smoke_all_stable_or_unstable = bool((precision == 0.0).all() or (precision == 1.0).all())
+            learned = top100[top100["method"].astype(str) == "learned_mlp"]
+            controls2 = top100[top100["method"].astype(str) != "learned_mlp"]
+            if not learned.empty and not controls2.empty:
+                non_smoke_learned_signal = bool(
+                    float(learned["mean_dynamic_stress_score"].iloc[0]) > float(controls2["mean_dynamic_stress_score"].max()) * 1.05
+                    or float(learned["dynamic_precision_at_k"].iloc[0]) > float(controls2["dynamic_precision_at_k"].max())
+                )
+    alignment_available = bool(non_smoke_label_dynamic_alignment_json and Path(non_smoke_label_dynamic_alignment_json).exists())
+    if non_smoke_method_comparison_summary_csv and Path(non_smoke_method_comparison_summary_csv).exists():
+        if non_smoke_all_stable_or_unstable:
+            allowed_next_step = "tune_post_fault_event_strength"
+        elif non_smoke_learned_signal:
+            allowed_next_step = "prepare_paper_figures_preliminary"
+        elif non_smoke_has_variation:
+            allowed_next_step = "expand_full_dataset"
+        else:
+            allowed_next_step = "continue_dynamic_calibration"
+    elif method_comparison_summary_csv and Path(method_comparison_summary_csv).exists():
         allowed_next_step = "expand_non_smoke_dataset" if method_has_variation else "continue_dynamic_calibration"
     else:
         allowed_next_step = "expand_top50_top100" if default_interpretable else "continue_dynamic_calibration"
@@ -53,7 +83,10 @@ def check_dynamic_interpretability_gate(
         "method_comparison_has_variation": method_has_variation,
         "learned_has_higher_stress_than_controls": learned_higher_stress,
         "learned_has_higher_dynamic_precision_than_controls": learned_higher_precision,
-        "dynamic_discrimination_signal": "preliminary_diagnostic_only" if learned_higher_stress or learned_higher_precision else "false",
+        "non_smoke_method_comparison_has_variation": non_smoke_has_variation,
+        "non_smoke_all_stable_or_unstable": non_smoke_all_stable_or_unstable,
+        "non_smoke_label_dynamic_alignment_available": alignment_available,
+        "dynamic_discrimination_signal": "preliminary_diagnostic_only" if learned_higher_stress or learned_higher_precision or non_smoke_learned_signal else "false",
         "allowed_next_step": allowed_next_step,
     }
     csv_path = out / "dynamic_interpretability_gate_summary.csv"
@@ -82,13 +115,22 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--post-fault-sanity-csv", required=True)
     parser.add_argument("--negative-control-v3-csv", required=True)
     parser.add_argument("--method-comparison-summary-csv")
+    parser.add_argument("--non-smoke-method-comparison-summary-csv")
+    parser.add_argument("--non-smoke-label-dynamic-alignment-json")
     parser.add_argument("--output-dir", default="results/gcn_search/simulink_dynamic_interpretability_gate")
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    check_dynamic_interpretability_gate(args.post_fault_sanity_csv, args.negative_control_v3_csv, args.output_dir, args.method_comparison_summary_csv)
+    check_dynamic_interpretability_gate(
+        args.post_fault_sanity_csv,
+        args.negative_control_v3_csv,
+        args.output_dir,
+        args.method_comparison_summary_csv,
+        args.non_smoke_method_comparison_summary_csv,
+        args.non_smoke_label_dynamic_alignment_json,
+    )
 
 
 if __name__ == "__main__":

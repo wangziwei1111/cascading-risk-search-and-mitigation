@@ -8,6 +8,9 @@
   "method_comparison_has_variation": true,
   "learned_has_higher_stress_than_controls": false,
   "learned_has_higher_dynamic_precision_than_controls": false,
+  "non_smoke_method_comparison_has_variation": true,
+  "non_smoke_all_stable_or_unstable": true,
+  "non_smoke_label_dynamic_alignment_available": true,
   "dynamic_discrimination_signal": "false",
-  "allowed_next_step": "expand_non_smoke_dataset"
+  "allowed_next_step": "tune_post_fault_event_strength"
 }

@@ -1,0 +1,35 @@
+{
+  "dataset_source": "simulator_derived_medium",
+  "dataset_scale": "medium",
+  "num_samples": 8000,
+  "num_critical": 471,
+  "positive_ratio": 0.058875,
+  "train_seeds": [
+    20260722,
+    20260723,
+    20260724,
+    20260725,
+    20260726,
+    20260727,
+    20260728,
+    20260729,
+    20260730,
+    20260731
+  ],
+  "val_seeds": [
+    20260732,
+    20260733,
+    20260734
+  ],
+  "test_seeds": [
+    20260735,
+    20260736,
+    20260737
+  ],
+  "num_train_seeds": 10,
+  "num_val_seeds": 3,
+  "num_test_seeds": 3,
+  "max_paths_per_seed": 500,
+  "smoke": false,
+  "notes": "Path-reranker prototype dataset; medium/full scales are non-smoke preliminary diagnostics, not formal full dynamic truth."
+}
