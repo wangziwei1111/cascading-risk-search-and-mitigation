@@ -21,6 +21,8 @@ def test_ieee39_dynamic_label_schema(tmp_path: Path) -> None:
         [
             {
                 "test_case": "ordered_N2_trip",
+                "simulation_success": True,
+                "physical_fault_or_breaker_action_executed": True,
                 "unstable_flag": True,
                 "tripped_line": "L01->L02",
                 "min_frequency_hz": 49.0,

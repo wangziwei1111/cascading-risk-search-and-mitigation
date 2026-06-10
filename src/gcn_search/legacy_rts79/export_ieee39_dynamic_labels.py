@@ -31,14 +31,49 @@ def export_ieee39_dynamic_labels(
     events = pd.read_csv(event_log_csv) if event_log_csv and Path(event_log_csv).exists() else pd.DataFrame()
     path_table = pd.read_csv(path_table_csv) if path_table_csv and Path(path_table_csv).exists() else pd.DataFrame()
 
-    labels = _build_label_preview(summary, events, path_table)
+    training_ready = _training_ready_rows(summary)
+    labels = _build_label_preview(training_ready, events, path_table)
+    quality = _quality_summary(summary, training_ready)
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
     preview_csv = out / "ieee39_dynamic_label_preview.csv"
     schema_json = out / "ieee39_dynamic_label_schema.json"
+    quality_json = out / "ieee39_dynamic_label_quality_summary.json"
     labels.to_csv(preview_csv, index=False, encoding="utf-8-sig")
     schema_json.write_text(json.dumps(_schema_payload(), ensure_ascii=False, indent=2), encoding="utf-8")
-    return {"preview_csv": str(preview_csv), "schema_json": str(schema_json), "num_rows": str(len(labels))}
+    quality_json.write_text(json.dumps(quality, ensure_ascii=False, indent=2), encoding="utf-8")
+    return {"preview_csv": str(preview_csv), "schema_json": str(schema_json), "quality_json": str(quality_json), "num_rows": str(len(labels))}
+
+
+def _training_ready_rows(summary: pd.DataFrame) -> pd.DataFrame:
+    if "simulation_success" not in summary.columns:
+        return summary.iloc[0:0].copy()
+    if "physical_fault_or_breaker_action_executed" not in summary.columns:
+        return summary.iloc[0:0].copy()
+    success = summary["simulation_success"].astype(str).str.lower().isin({"1", "true", "yes"})
+    physical = summary["physical_fault_or_breaker_action_executed"].astype(str).str.lower().isin({"1", "true", "yes"})
+    return summary[success & physical].copy()
+
+
+def _quality_summary(summary: pd.DataFrame, training_ready: pd.DataFrame) -> dict:
+    has_physical = "physical_fault_or_breaker_action_executed" in summary.columns
+    physical_count = int(summary["physical_fault_or_breaker_action_executed"].astype(str).str.lower().isin({"1", "true", "yes"}).sum()) if has_physical else 0
+    ready_count = int(len(training_ready))
+    schema_only = int(len(summary) - ready_count)
+    if ready_count == 0:
+        status = "schema_only"
+    elif ready_count < 10:
+        status = "insufficient_physical_fault_rows"
+    else:
+        status = "training_ready"
+    return {
+        "num_fault_rows": int(len(summary)),
+        "num_physical_executed_rows": physical_count,
+        "num_training_ready_labels": ready_count,
+        "num_schema_only_rows": schema_only,
+        "label_quality_status": status,
+        "allowed_for_dynamic_aware_training": bool(ready_count >= 10),
+    }
 
 
 def _build_label_preview(summary: pd.DataFrame, events: pd.DataFrame, path_table: pd.DataFrame) -> pd.DataFrame:
@@ -134,7 +169,7 @@ def _schema_payload() -> dict:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Export IEEE39 dynamic label preview and schema.")
-    parser.add_argument("--fault-test-summary-csv", required=True)
+    parser.add_argument("--fault-test-summary-csv", "--fault-summary-csv", dest="fault_test_summary_csv", required=True)
     parser.add_argument("--event-log-csv", default=None)
     parser.add_argument("--path-table-csv", default=None)
     parser.add_argument("--output-dir", default="results/gcn_search/ieee39_dynamic_labels")

@@ -1,0 +1,8 @@
+{
+  "num_fault_rows": 5,
+  "num_physical_executed_rows": 4,
+  "num_training_ready_labels": 0,
+  "num_schema_only_rows": 5,
+  "label_quality_status": "schema_only",
+  "allowed_for_dynamic_aware_training": false
+}

@@ -806,6 +806,57 @@ git diff -- src/rl_mitigation scripts/rl_mitigation
 
 RL mitigation files were not modified. No third-party `.slx`, generated wrapper `.slx`, raw trajectories, or large `.mat` files are intended for commit.
 
+## Round 27: IEEE39 Fault / Breaker / Relay Wrapper Pilot
+
+Round 27 starts real wrapper wiring around the local IEEE39 graphical model. It does not train a dynamic-aware reranker.
+
+Added / updated MATLAB scripts:
+
+```text
+matlab/simulink_ieee39/setup_ieee39_dynamic_experiment_wrapper.m
+matlab/simulink_ieee39/map_ieee39_lines_and_breakers.m
+matlab/simulink_ieee39/add_ieee39_basic_relay_proxy.m
+matlab/simulink_ieee39/run_ieee39_fault_test_suite.m
+```
+
+Key outputs:
+
+```text
+results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json
+results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map.csv
+results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv
+results/gcn_search/ieee39_graphical_dynamic_model/protection/ieee39_basic_relay_settings.csv
+results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary.csv
+results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_relay_trip_log.csv
+results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_label_quality_summary.json
+```
+
+Current result:
+
+- Existing `Fault (Three-Phase)` block was found.
+- Five pilot transmission-line blocks were mapped.
+- No explicit breaker block was found automatically.
+- Pilot line trips use line-block disabling, not timed breaker-control hardware.
+- Basic relay proxy was added as a research-grade threshold proxy, not engineering-grade relay coordination.
+- A real no-fault graphical simulation and a pilot disabled-line graphical simulation were verified during development, but the full five-case automated run exceeded the available tool timeout.
+- The committed label quality summary remains conservative:
+
+```text
+label_quality_status = schema_only
+allowed_for_dynamic_aware_training = false
+```
+
+Validation:
+
+```text
+python -m pytest tests/test_ieee39_line_breaker_mapping.py tests/test_ieee39_fault_test_summary.py tests/test_ieee39_dynamic_label_quality_gate.py tests/test_ieee39_relay_proxy_docs.py
+python -m pytest tests/test_ieee39_model_inventory.py tests/test_ieee39_dynamic_label_schema.py tests/test_ieee39_graphical_status_docs.py
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+git diff -- src/rl_mitigation scripts/rl_mitigation
+```
+
+The model remains classified as `phasor_RMS`, not EMT. Generated wrapper `.slx`, raw trajectories, and large `.mat` files are not committed.
+
 ## Round 23: Non-Smoke Dynamic Method Comparison
 
 Round 23 expands the learned path-reranker diagnosis from the minimal smoke dataset to a medium non-smoke dataset. This remains a simplified swing-equation preliminary diagnostic, not a formal dynamic stability conclusion.

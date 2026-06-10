@@ -51,3 +51,15 @@ The dynamic-label schema contains:
 ## Next Step
 
 The next technical step is to wire real fault and breaker injection into the generated IEEE39 wrapper, rerun fault tests with physical signal outputs, and then train the dynamic-aware reranker on IEEE39 dynamic labels.
+
+## Round 27 Plan Refinement
+
+Round 27 adds a pilot wrapper path:
+
+- use the existing `Fault (Three-Phase)` block for temporal fault injection;
+- map at least five transmission-line blocks for pilot line outage tests;
+- record missing breaker paths as `manual_required`;
+- add a basic relay proxy with undervoltage, underfrequency, and optional overcurrent thresholds;
+- export relay settings, event logs, signal summaries, and dynamic-label quality summary.
+
+Dynamic-aware reranker training remains blocked until the quality gate reports enough physical executed and simulation-successful labels.

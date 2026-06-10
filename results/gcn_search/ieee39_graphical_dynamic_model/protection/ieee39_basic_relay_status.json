@@ -1,0 +1,12 @@
+{
+  "wrapper_model_path": "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper.slx",
+  "proxy_type": "basic relay proxy",
+  "not_engineering_grade": true,
+  "undervoltage_threshold_pu": 0.8,
+  "underfrequency_threshold_hz": 49,
+  "overcurrent_threshold_pu": 1.5,
+  "delay_s": 0.05,
+  "trip_latch": true,
+  "breaker_command_output": "logical proxy in fault-test suite",
+  "note": "basic relay proxy, not engineering-grade relay coordination"
+}

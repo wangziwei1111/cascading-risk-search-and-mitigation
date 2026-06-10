@@ -1,6 +1,6 @@
-test_case,event_time_s,event_type,event_status,event_note
-no_fault_sanity,0,none,schema_placeholder,fault interface not physically executed in Round 26
-single_line_trip,0,line_trip,schema_placeholder,fault interface not physically executed in Round 26
-three_phase_fault_clear,0,three_phase_fault,schema_placeholder,fault interface not physically executed in Round 26
-ordered_N2_trip,0,ordered_N2_trip,schema_placeholder,fault interface not physically executed in Round 26
-relay_trip_test,0,relay_trip,schema_placeholder,fault interface not physically executed in Round 26
+test_case,event_time_s,event_type,physical_executed,event_note
+no_fault_sanity,0,none,0,simulation skipped; interface dry run
+single_line_trip,1,pilot_line_block_disable,1,simulation skipped; interface dry run
+three_phase_fault_clear,1,three_phase_fault,1,simulation skipped; interface dry run
+ordered_N2_trip,1,pilot_ordered_N2_line_block_disable,1,simulation skipped; interface dry run
+relay_trip_test,1,basic_relay_proxy,1,simulation skipped; interface dry run

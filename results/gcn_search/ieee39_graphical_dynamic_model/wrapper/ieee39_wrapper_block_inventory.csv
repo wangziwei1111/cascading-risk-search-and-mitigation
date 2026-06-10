@@ -1,0 +1,1172 @@
+block_path,block_type,mask_type
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Bus
+Creator1",BusCreator,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/From",From,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/From1",From,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/From2",From,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/From3",From,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/From4",From,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/From5",From,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/From6",From,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/From7",From,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/From8",From,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/From9",From,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/Constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/Field Circuit10",SimscapeBlock,Synchronous Machine
+Field Circuit
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/Gain",Gain,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/PS-Simulink
+Converter",SubSystem,PS-Simulink
+Converter
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/PS-Simulink
+Converter/EVAL_KEY",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/PS-Simulink
+Converter/EVAL_KEY/Ground",Ground,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/PS-Simulink
+Converter/EVAL_KEY/output",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/PS-Simulink
+Converter/input",PMIOPort,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/PS-Simulink
+Converter/output",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/PS-Simulink
+Converter1",SubSystem,PS-Simulink
+Converter
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/PS-Simulink
+Converter1/EVAL_KEY",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/PS-Simulink
+Converter1/EVAL_KEY/Ground",Ground,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/PS-Simulink
+Converter1/EVAL_KEY/output",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/PS-Simulink
+Converter1/input",PMIOPort,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/PS-Simulink
+Converter1/output",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/PS-Simulink
+Converter2",SubSystem,PS-Simulink
+Converter
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/PS-Simulink
+Converter2/EVAL_KEY",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/PS-Simulink
+Converter2/EVAL_KEY/Ground",Ground,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/PS-Simulink
+Converter2/EVAL_KEY/output",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/PS-Simulink
+Converter2/input",PMIOPort,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/PS-Simulink
+Converter2/output",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/Rotor velocity
+measurement",SimscapeBlock,Synchronous Machine
+Measurement
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C",SubSystem,SM AC1C
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/V_REF",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/V_S",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/V_T",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/I_T",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/V_OEL",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/V_UEL",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/V_SCLsum",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/V_SCLoel",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/V_SCLuel",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Ifd_pu",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)",SubSystem,Lead-Lag (Discrete or Continuous)
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/1//T1",Product,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/x",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Avoid Divide
+by Zero",Fcn,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Avoid Divide
+by Zero1",Fcn,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Avoid Divide
+by Zero2",Fcn,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Bias",Bias,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Compare
+To Zero",SubSystem,Compare To Zero
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Compare
+To Zero/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Compare
+To Zero/Compare",RelationalOperator,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Compare
+To Zero/Constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Compare
+To Zero/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Compare
+To Zero1",SubSystem,Compare To Zero
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Compare
+To Zero1/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Compare
+To Zero1/Compare",RelationalOperator,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Compare
+To Zero1/Constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Compare
+To Zero1/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Constant1",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited",SubSystem,Conversion Inherited
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited/DTS reference",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited/Conversion",DataTypeConversion,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited/Data Type
+Duplicate",DataTypeDuplicate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited1",SubSystem,Conversion Inherited
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited1/DTS reference",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited1/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited1/Conversion",DataTypeConversion,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited1/Data Type
+Duplicate",DataTypeDuplicate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited1/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited2",SubSystem,Conversion Inherited
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited2/DTS reference",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited2/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited2/Conversion",DataTypeConversion,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited2/Data Type
+Duplicate",DataTypeDuplicate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited2/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited3",SubSystem,Conversion Inherited
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited3/DTS reference",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited3/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited3/Conversion",DataTypeConversion,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited3/Data Type
+Duplicate",DataTypeDuplicate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Data Type
+Conversion
+Inherited3/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Lag time
+constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Lead time
+constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Logical
+Operator",Logic,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/MinMax1",MinMax,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/MinMax2",MinMax,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Probe",Probe,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Selector",Selector,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Sum1",Sum,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Sum3",Sum,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Switch",Switch,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Switch1",Switch,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/product1",Product,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/product2",Product,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/T2//T1-1",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/reset",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/T1//T2",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/T1",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Initialization",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Initialization/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Initialization/Init_u",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Initialization/Init_u/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Initialization/Init_u/x0",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Initialization/x0",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Integrator
+(Discrete or Continuous)",SubSystem,Integrator (Discrete or Continuous)
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Integrator
+(Discrete or Continuous)/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Integrator
+(Discrete or Continuous)/Reset",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Integrator
+(Discrete or Continuous)/x0",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Integrator
+(Discrete or Continuous)/Discrete",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Integrator
+(Discrete or Continuous)/Discrete/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Integrator
+(Discrete or Continuous)/Discrete/Reset",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Integrator
+(Discrete or Continuous)/Discrete/x0",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Integrator
+(Discrete or Continuous)/Discrete/Integrator",DiscreteIntegrator,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Integrator
+(Discrete or Continuous)/Discrete/Saturation",Saturate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Integrator
+(Discrete or Continuous)/Discrete/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Integrator
+(Discrete or Continuous)/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Sum1",Sum,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Sum2",Sum,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/T1//T2",Product,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/T2//T1-1",Product,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/[A,B]",Saturate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/E_FE",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Ifd",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Data Type
+Conversion
+Inherited",SubSystem,Conversion Inherited
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Data Type
+Conversion
+Inherited/DTS reference",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Data Type
+Conversion
+Inherited/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Data Type
+Conversion
+Inherited/Conversion",DataTypeConversion,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Data Type
+Conversion
+Inherited/Data Type
+Duplicate",DataTypeDuplicate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Data Type
+Conversion
+Inherited/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Data Type
+Conversion
+Inherited1",SubSystem,Conversion Inherited
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Data Type
+Conversion
+Inherited1/DTS reference",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Data Type
+Conversion
+Inherited1/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Data Type
+Conversion
+Inherited1/Conversion",DataTypeConversion,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Data Type
+Conversion
+Inherited1/Data Type
+Duplicate",DataTypeDuplicate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Data Type
+Conversion
+Inherited1/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Fex",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Fex/V_E",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Fex/Ifd",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Fex/Data Type
+Conversion
+Inherited",SubSystem,Conversion Inherited
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Fex/Data Type
+Conversion
+Inherited/DTS reference",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Fex/Data Type
+Conversion
+Inherited/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Fex/Data Type
+Conversion
+Inherited/Conversion",DataTypeConversion,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Fex/Data Type
+Conversion
+Inherited/Data Type
+Duplicate",DataTypeDuplicate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Fex/Data Type
+Conversion
+Inherited/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Fex/Divide",Product,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Fex/Gain",Gain,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Fex/Prevent
+divide by zero",Fcn,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Fex/fex",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Fex/fex/I_N",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Fex/fex/ Demux ",Demux,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Fex/fex/ SFunction ",S-Function,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Fex/fex/ Terminator ",Terminator,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Fex/fex/F_EX",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Fex/F_EX",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Gain",Gain,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Gain2",Gain,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Gain3",Gain,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/x0",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/up",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/lo",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Constant1",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Integrator
+(Discrete or Continuous)",SubSystem,Integrator (Discrete or Continuous)
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Integrator
+(Discrete or Continuous)/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Integrator
+(Discrete or Continuous)/Reset",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Integrator
+(Discrete or Continuous)/x0",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Integrator
+(Discrete or Continuous)/Discrete",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Integrator
+(Discrete or Continuous)/Discrete/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Integrator
+(Discrete or Continuous)/Discrete/Reset",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Integrator
+(Discrete or Continuous)/Discrete/x0",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Integrator
+(Discrete or Continuous)/Discrete/Integrator",DiscreteIntegrator,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Integrator
+(Discrete or Continuous)/Discrete/Saturation",Saturate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Integrator
+(Discrete or Continuous)/Discrete/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Integrator
+(Discrete or Continuous)/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/up",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/lo",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/x",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/Abs",Abs,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/Compare
+To Zero1",SubSystem,Compare To Zero
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/Compare
+To Zero1/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/Compare
+To Zero1/Compare",RelationalOperator,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/Compare
+To Zero1/Constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/Compare
+To Zero1/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/Constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/Logical
+Operator",Logic,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/Logical
+Operator1",Logic,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/Logical
+Operator2",Logic,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/Logical
+Operator3",Logic,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/Product",Product,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/Relational
+Operator",RelationalOperator,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/Relational
+Operator1",RelationalOperator,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/Saturation",Saturate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/Sum",Sum,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/Sum1",Sum,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/Switch",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Saturation
+Dynamic",SubSystem,Saturation Dynamic
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Saturation
+Dynamic/up",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Saturation
+Dynamic/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Saturation
+Dynamic/lo",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Saturation
+Dynamic/Data Type
+Duplicate",DataTypeDuplicate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Saturation
+Dynamic/Data Type
+Propagation",S-Function,Data Type Propagation
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Saturation
+Dynamic/LowerRelop1",RelationalOperator,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Saturation
+Dynamic/Switch",Switch,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Saturation
+Dynamic/Switch2",Switch,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Saturation
+Dynamic/UpperRelop",RelationalOperator,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Saturation
+Dynamic/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Switch",Switch,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Product",Product,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Saturation",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Saturation/V_E",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Saturation/Product",Product,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Saturation/Saturation",Lookup_n-D,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Saturation/S_E(V_E)",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Saturation/V_X",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Sum2",Sum,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Sum4",Sum,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/Ifd*K_D",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/S_E(V_E)",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/Bias1",Bias,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/Bias2",Bias,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)",SubSystem,First-order transfer function (Discrete or Continuous)
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/1//T",Product,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Constant1",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Data Type
+Conversion
+Inherited",SubSystem,Conversion Inherited
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Data Type
+Conversion
+Inherited/DTS reference",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Data Type
+Conversion
+Inherited/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Data Type
+Conversion
+Inherited/Conversion",DataTypeConversion,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Data Type
+Conversion
+Inherited/Data Type
+Duplicate",DataTypeDuplicate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Data Type
+Conversion
+Inherited/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Enable//disable
+time constant",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Enable//disable
+time constant/x",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Enable//disable
+time constant/Avoid Divide
+by Zero",Fcn,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Enable//disable
+time constant/Max",MinMax,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Enable//disable
+time constant/Probe",Probe,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Enable//disable
+time constant/Selector",Selector,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Enable//disable
+time constant/Time
+constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Enable//disable
+time constant/max(T,Ts)",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Integrator
+(Discrete or Continuous)",SubSystem,Integrator (Discrete or Continuous)
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Integrator
+(Discrete or Continuous)/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Integrator
+(Discrete or Continuous)/Reset",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Integrator
+(Discrete or Continuous)/x0",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Integrator
+(Discrete or Continuous)/Discrete",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Integrator
+(Discrete or Continuous)/Discrete/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Integrator
+(Discrete or Continuous)/Discrete/Reset",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Integrator
+(Discrete or Continuous)/Discrete/x0",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Integrator
+(Discrete or Continuous)/Discrete/Integrator",DiscreteIntegrator,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Integrator
+(Discrete or Continuous)/Discrete/Saturation",Saturate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Integrator
+(Discrete or Continuous)/Discrete/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Integrator
+(Discrete or Continuous)/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/Sum1",Sum,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/First-order transfer function
+(Discrete or Continuous)/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/Gain",Gain,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/Product",Product,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/Saturation1",Saturate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_Emax/V_Emax",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/x0",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/x1",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Efd",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/V_FE",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/E_FE
+maxmin",Saturate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Gain1",Gain,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Math
+Function",Math,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback",SubSystem,Filtered Derivative (Discrete or Continuous)
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/1//T",Product,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Enable//disable
+time constant",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Enable//disable
+time constant/x",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Enable//disable
+time constant/Avoid Divide
+by Zero",Fcn,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Enable//disable
+time constant/MinMax",MinMax,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Enable//disable
+time constant/Minimum sampling
+to time constant
+ratio",Gain,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Enable//disable
+time constant/Probe",Probe,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Enable//disable
+time constant/Selector",Selector,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Enable//disable
+time constant/Time
+constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Enable//disable
+time constant/max(T,r*Ts)",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Gain",Gain,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Initialization",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Initialization/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Initialization/Init_u",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Initialization/Init_u/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Initialization/Init_u/x0",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Initialization/x0",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Integrator
+(Discrete or Continuous)",SubSystem,Integrator (Discrete or Continuous)
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Integrator
+(Discrete or Continuous)/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Integrator
+(Discrete or Continuous)/Reset",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Integrator
+(Discrete or Continuous)/x0",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Integrator
+(Discrete or Continuous)/Discrete",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Integrator
+(Discrete or Continuous)/Discrete/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Integrator
+(Discrete or Continuous)/Discrete/Reset",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Integrator
+(Discrete or Continuous)/Discrete/x0",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Integrator
+(Discrete or Continuous)/Discrete/Integrator",DiscreteIntegrator,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Integrator
+(Discrete or Continuous)/Discrete/Saturation",Saturate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Integrator
+(Discrete or Continuous)/Discrete/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Integrator
+(Discrete or Continuous)/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/Sum1",Sum,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/[A,B]",Saturate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Rate Feedback/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Sqrt",Sqrt,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Sum",Sum,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Sum1",Sum,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Sum3",Sum,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Sum5",Sum,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Summation Point
+Logic",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Summation Point
+Logic/V_OEL",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Summation Point
+Logic/V_UEL",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Summation Point
+Logic/V_SCLsum",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Summation Point
+Logic/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Summation Point
+Logic/Constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Summation Point
+Logic/Constant1",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Summation Point
+Logic/Constant2",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Summation Point
+Logic/Sum",Sum,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Summation Point
+Logic/Switch2",Switch,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Summation Point
+Logic/Switch3",Switch,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Summation Point
+Logic/Switch4",Switch,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Summation Point
+Logic/notIsUelSummationPoint1",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Summation Point
+Logic/notIsUelSummationPoint3",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Summation Point
+Logic/notIsUelSummationPoint4",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Summation Point
+Logic/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Take-over
+Logic",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Take-over
+Logic/V_OEL",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Take-over
+Logic/V_UEL",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Take-over
+Logic/V_SCLoel",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Take-over
+Logic/V_SCLuel",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Take-over
+Logic/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Take-over
+Logic/HV
+Gate",MinMax,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Take-over
+Logic/LV
+Gate",MinMax,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Take-over
+Logic/Switch2",Switch,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Take-over
+Logic/Switch3",Switch,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Take-over
+Logic/Switch4",Switch,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Take-over
+Logic/Switch5",Switch,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Take-over
+Logic/notIsUelSummationPoint1",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Take-over
+Logic/notIsUelSummationPoint2",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Take-over
+Logic/notIsUelSummationPoint3",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Take-over
+Logic/notIsUelSummationPoint4",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Take-over
+Logic/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/V_OEL1",InportShadow,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/V_UEL1",InportShadow,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax",SubSystem,Low-Pass Filter (Discrete or Continuous)
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/1//T",Product,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Enable//disable
+time constant",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Enable//disable
+time constant/x",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Enable//disable
+time constant/Avoid Divide
+by Zero",Fcn,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Enable//disable
+time constant/Compare
+To Constant",SubSystem,Compare To Constant
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Enable//disable
+time constant/Compare
+To Constant/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Enable//disable
+time constant/Compare
+To Constant/Compare",RelationalOperator,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Enable//disable
+time constant/Compare
+To Constant/Constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Enable//disable
+time constant/Compare
+To Constant/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Enable//disable
+time constant/Compare
+To Zero",SubSystem,Compare To Zero
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Enable//disable
+time constant/Compare
+To Zero/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Enable//disable
+time constant/Compare
+To Zero/Compare",RelationalOperator,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Enable//disable
+time constant/Compare
+To Zero/Constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Enable//disable
+time constant/Compare
+To Zero/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Enable//disable
+time constant/Constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Enable//disable
+time constant/Logical
+Operator",Logic,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Enable//disable
+time constant/Max",MinMax,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Enable//disable
+time constant/Probe",Probe,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Enable//disable
+time constant/Selector",Selector,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Enable//disable
+time constant/Sum1",Sum,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Enable//disable
+time constant/Time
+constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Enable//disable
+time constant/max(T,Ts)",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Enable//disable
+time constant/reset",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Initialization",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Initialization/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Initialization/Init_u",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Initialization/Init_u/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Initialization/Init_u/x0",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Initialization/x0",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Integrator
+(Discrete or Continuous)",SubSystem,Integrator (Discrete or Continuous)
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Integrator
+(Discrete or Continuous)/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Integrator
+(Discrete or Continuous)/Reset",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Integrator
+(Discrete or Continuous)/x0",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Integrator
+(Discrete or Continuous)/Discrete",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Integrator
+(Discrete or Continuous)/Discrete/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Integrator
+(Discrete or Continuous)/Discrete/Reset",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Integrator
+(Discrete or Continuous)/Discrete/x0",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Integrator
+(Discrete or Continuous)/Discrete/Integrator",DiscreteIntegrator,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Integrator
+(Discrete or Continuous)/Discrete/Saturation",Saturate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Integrator
+(Discrete or Continuous)/Discrete/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Integrator
+(Discrete or Continuous)/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/K",Gain,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/Sum1",Sum,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Vaminmax/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer",SubSystem,Low-Pass Filter (Discrete or Continuous)
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/1//T",Product,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Enable//disable
+time constant",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Enable//disable
+time constant/x",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Enable//disable
+time constant/Avoid Divide
+by Zero",Fcn,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Enable//disable
+time constant/Compare
+To Constant",SubSystem,Compare To Constant
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Enable//disable
+time constant/Compare
+To Constant/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Enable//disable
+time constant/Compare
+To Constant/Compare",RelationalOperator,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Enable//disable
+time constant/Compare
+To Constant/Constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Enable//disable
+time constant/Compare
+To Constant/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Enable//disable
+time constant/Compare
+To Zero",SubSystem,Compare To Zero
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Enable//disable
+time constant/Compare
+To Zero/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Enable//disable
+time constant/Compare
+To Zero/Compare",RelationalOperator,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Enable//disable
+time constant/Compare
+To Zero/Constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Enable//disable
+time constant/Compare
+To Zero/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Enable//disable
+time constant/Constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Enable//disable
+time constant/Logical
+Operator",Logic,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Enable//disable
+time constant/Max",MinMax,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Enable//disable
+time constant/Probe",Probe,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Enable//disable
+time constant/Selector",Selector,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Enable//disable
+time constant/Sum1",Sum,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Enable//disable
+time constant/Time
+constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Enable//disable
+time constant/max(T,Ts)",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Enable//disable
+time constant/reset",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Initialization",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Initialization/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Initialization/Init_u",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Initialization/Init_u/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Initialization/Init_u/x0",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Initialization/x0",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Integrator
+(Discrete or Continuous)",SubSystem,Integrator (Discrete or Continuous)
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Integrator
+(Discrete or Continuous)/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Integrator
+(Discrete or Continuous)/Reset",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Integrator
+(Discrete or Continuous)/x0",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Integrator
+(Discrete or Continuous)/Discrete",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Integrator
+(Discrete or Continuous)/Discrete/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Integrator
+(Discrete or Continuous)/Discrete/Reset",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Integrator
+(Discrete or Continuous)/Discrete/x0",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Integrator
+(Discrete or Continuous)/Discrete/Integrator",DiscreteIntegrator,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Integrator
+(Discrete or Continuous)/Discrete/Saturation",Saturate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Integrator
+(Discrete or Continuous)/Discrete/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Integrator
+(Discrete or Continuous)/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/K",Gain,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/Sum1",Sum,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Voltage Transducer/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Efd_pu",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A",SubSystem,SM PSS1A
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/V_SI",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Gain",Gain,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag",SubSystem,Lead-Lag (Discrete or Continuous)
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/1//T1",Product,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains",SubSystem,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/x",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Avoid Divide
+by Zero",Fcn,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Avoid Divide
+by Zero1",Fcn,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Avoid Divide
+by Zero2",Fcn,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Bias",Bias,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Compare
+To Zero",SubSystem,Compare To Zero
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Compare
+To Zero/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Compare
+To Zero/Compare",RelationalOperator,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Compare
+To Zero/Constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Compare
+To Zero/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Compare
+To Zero1",SubSystem,Compare To Zero
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Compare
+To Zero1/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Compare
+To Zero1/Compare",RelationalOperator,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Compare
+To Zero1/Constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Compare
+To Zero1/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Constant",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Constant1",Constant,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited",SubSystem,Conversion Inherited
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited/DTS reference",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited/Conversion",DataTypeConversion,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited/Data Type
+Duplicate",DataTypeDuplicate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited1",SubSystem,Conversion Inherited
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited1/DTS reference",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited1/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited1/Conversion",DataTypeConversion,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited1/Data Type
+Duplicate",DataTypeDuplicate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited1/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited2",SubSystem,Conversion Inherited
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited2/DTS reference",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited2/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited2/Conversion",DataTypeConversion,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited2/Data Type
+Duplicate",DataTypeDuplicate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited2/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited3",SubSystem,Conversion Inherited
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited3/DTS reference",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited3/u",Inport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited3/Conversion",DataTypeConversion,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited3/Data Type
+Duplicate",DataTypeDuplicate,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Data Type
+Conversion
+Inherited3/y",Outport,
+"IEEE39BusSystem_dynamic_experiment_wrapper/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Lag time
+constant",Constant,

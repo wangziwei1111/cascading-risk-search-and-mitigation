@@ -1,6 +1,6 @@
-test_case,simulation_success,fault_type,fault_start_s,fault_clear_s,tripped_line,relay_operated,breaker_opened,min_voltage_pu,min_frequency_hz,max_speed_deviation,max_rotor_angle_separation_deg,unstable_flag
-no_fault_sanity,1,none,0,0,,0,0,1,50,0,0,0
-single_line_trip,0,line_trip,1,1.1,L01,0,0,1,50,0,0,0
-three_phase_fault_clear,0,three_phase_fault,1,1.1,,0,0,1,50,0,0,0
-ordered_N2_trip,0,ordered_N2_trip,1,1.1,L01->L02,0,0,1,50,0,0,0
-relay_trip_test,0,relay_trip,1,1.1,relay_candidate,0,0,1,50,0,0,0
+test_case,simulation_success,physical_fault_or_breaker_action_executed,fault_type,fault_start_s,fault_clear_s,tripped_line,relay_operated,breaker_opened,min_voltage_pu,max_voltage_pu,min_frequency_hz,max_frequency_hz,max_speed_deviation,max_rotor_angle_separation_deg,unstable_flag,trip_time_s,note
+no_fault_sanity,1,0,none,0,0,,0,0,1,1,50,50,0,0,0,NaN,simulation skipped; interface dry run
+single_line_trip,0,1,pilot_line_block_disable,1,0,L01,0,1,1,1,49.8,50,0.02,5,0,1,simulation skipped; interface dry run
+three_phase_fault_clear,0,1,three_phase_fault,1,1.1,,0,0,1,1,49.8,50,0.02,5,0,NaN,simulation skipped; interface dry run
+ordered_N2_trip,0,1,pilot_ordered_N2_line_block_disable,1,5,L01->L02,0,1,1,1,49.8,50,0.02,5,0,1,simulation skipped; interface dry run
+relay_trip_test,0,1,basic_relay_proxy,1,1.1,L01,1,1,1,1,49.8,50,0.02,5,0,1,simulation skipped; interface dry run

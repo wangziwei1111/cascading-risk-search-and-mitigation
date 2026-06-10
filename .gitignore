@@ -13,6 +13,7 @@ results/**/*.pdf
 results/gcn_search/**/*.pt
 results/gcn_search/**/*.npz
 results/gcn_search/**/*.slx
+results/gcn_search/**/*.slxc
 results/gcn_search/**/*.mat
 results/gcn_search/**/*.mdl
 results/gcn_search/**/scenario_checkpoints/
@@ -61,5 +62,7 @@ results/gcn_search/**/simulink_dynamic_event_table.csv
 results/gcn_search/**/simulink_dynamic_case_manifest.csv
 results/gcn_search/**/dynamic_case_event_log_*.csv
 results/gcn_search/**/event_grid_*/
+matlab/**/slprj/
+matlab/**/*.slxc
 !results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv
 !results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.json

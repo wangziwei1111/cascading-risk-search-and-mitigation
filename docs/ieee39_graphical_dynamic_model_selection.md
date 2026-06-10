@@ -60,3 +60,7 @@ This is a conservative project-side classification for the current dynamic-label
 - The protection interface is not engineering-grade.
 - If real machine/protection settings are missing, later dynamic conclusions must remain preliminary.
 - This round only establishes a reusable dynamic-label interface; it does not train a dynamic-aware reranker.
+
+## Round 27 Caveat
+
+Round 27 found an existing three-phase fault block and mapped pilot transmission lines, but automatic breaker discovery remains incomplete. The wrapper currently uses pilot line-block disabling for line outages and a basic relay proxy for relay status. This is a useful bridge toward dynamic labels, but it is still not a full protection model.

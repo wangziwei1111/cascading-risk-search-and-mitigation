@@ -1,0 +1,7 @@
+signal_name,source_hint,mapping_status
+bus_voltage,Measurements subsystem,available_or_mapped
+line_current_proxy,Simscape logging or mapped line current,manual_extraction_required
+frequency_proxy,generator speed derived proxy,proxy_required
+generator_speed,generator measurement blocks,available_in_generator_subsystems
+rotor_angle,generator measurement blocks,available_in_generator_subsystems
+relay_trip_signal,basic relay proxy output,external_proxy

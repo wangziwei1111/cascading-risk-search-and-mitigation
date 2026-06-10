@@ -58,6 +58,8 @@ REQUIRED_FILES = [
     "matlab/simulink_rts79/README.md",
     "matlab/simulink_ieee39/check_ieee39_model_toolboxes.m",
     "matlab/simulink_ieee39/setup_ieee39_dynamic_experiment_wrapper.m",
+    "matlab/simulink_ieee39/map_ieee39_lines_and_breakers.m",
+    "matlab/simulink_ieee39/add_ieee39_basic_relay_proxy.m",
     "matlab/simulink_ieee39/run_ieee39_fault_test_suite.m",
     "src/gcn_search/legacy_rts79/prepare_real_topk_for_simulink_dynamic.py",
     "src/gcn_search/legacy_rts79/prepare_dynamic_method_comparison_topk.py",
@@ -111,6 +113,10 @@ REQUIRED_FILES = [
     "tests/test_ieee39_model_inventory.py",
     "tests/test_ieee39_dynamic_label_schema.py",
     "tests/test_ieee39_graphical_status_docs.py",
+    "tests/test_ieee39_line_breaker_mapping.py",
+    "tests/test_ieee39_fault_test_summary.py",
+    "tests/test_ieee39_dynamic_label_quality_gate.py",
+    "tests/test_ieee39_relay_proxy_docs.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
     "docs/pio_gcn_simulink_real_topk_event_driven_validation.md",
@@ -125,6 +131,7 @@ REQUIRED_FILES = [
     "docs/ieee39_graphical_dynamic_model_selection.md",
     "docs/ieee39_graphical_dynamic_model_plan.md",
     "docs/ieee39_graphical_dynamic_model_status.md",
+    "docs/ieee39_fault_breaker_relay_wrapper.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -138,8 +145,17 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_event_log.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_signal_summary.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_relay_trip_log.csv",
     "results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_label_preview.csv",
     "results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_label_schema.json",
+    "results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_label_quality_summary.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/protection/ieee39_basic_relay_settings.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/protection/ieee39_basic_relay_status.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/ieee39_vs_simplified_comparison.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/ieee39_vs_simplified_comparison.json",
 ]
@@ -664,6 +680,43 @@ def main() -> int:
         for required in ["dynamic_stress_score", "relay_trip_count", "breaker_trip_count", "this round does not train"]:
             if required not in text:
                 failures.append(f"IEEE39 dynamic label schema missing: {required}")
+
+    validation_log = ROOT / "docs/gcn_pio_validation_log.md"
+    if validation_log.exists() and "round 27" not in _read_text("docs/gcn_pio_validation_log.md").lower():
+        failures.append("Validation log must contain Round 27.")
+
+    relay_doc = ROOT / "docs/ieee39_fault_breaker_relay_wrapper.md"
+    if relay_doc.exists():
+        text = _read_text("docs/ieee39_fault_breaker_relay_wrapper.md").lower()
+        for required in ["basic relay proxy", "not engineering-grade", "phasor_rms", "pilot"]:
+            if required not in text:
+                failures.append(f"IEEE39 relay wrapper doc missing: {required}")
+        for overstated in ["emt validation completed", "engineering-grade protection completed", "full protection model completed"]:
+            if overstated in text:
+                failures.append(f"Overstated IEEE39 relay wrapper claim: {overstated}")
+
+    quality_summary = ROOT / "results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_label_quality_summary.json"
+    if quality_summary.exists():
+        import json
+
+        quality = json.loads(quality_summary.read_text(encoding="utf-8"))
+        if not quality.get("allowed_for_dynamic_aware_training", False):
+            status_text = _read_text("docs/ieee39_graphical_dynamic_model_status.md").lower()
+            if "allowed_for_dynamic_aware_training = false" not in status_text:
+                failures.append("IEEE39 status doc must block training when label quality gate is false.")
+
+    line_map = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map.csv"
+    if line_map.exists():
+        try:
+            import pandas as pd
+
+            table = pd.read_csv(line_map)
+            if len(table) < 3:
+                failures.append("IEEE39 line/breaker map must contain at least three pilot lines.")
+            if "mapping_status" not in table.columns:
+                failures.append("IEEE39 line/breaker map missing mapping_status.")
+        except Exception as exc:
+            failures.append(f"Failed to read IEEE39 line/breaker map: {exc}")
 
     negative_summary = ROOT / "results/gcn_search/simulink_dynamic_negative_control_summary/dynamic_negative_control_comparison.csv"
     if negative_summary.exists():

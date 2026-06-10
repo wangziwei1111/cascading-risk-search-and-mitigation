@@ -1,0 +1,2 @@
+fault_id,fault_block_path,mapping_status,note
+F01,IEEE39BusSystem_dynamic_experiment_wrapper/Grid/Fault (Three-Phase),existing_three_phase_fault_block,Temporal fault parameters can be set on this block.

@@ -102,3 +102,31 @@ The schema is ready for later dynamic-aware reranker training, but the current l
 ## Next Step
 
 Wire physical fault blocks, breaker controls, and measurement export into the IEEE39 wrapper, then run real IEEE39 N-1/N-2 dynamic cases and train the dynamic-aware reranker from the generated labels.
+
+## Round 27 Update
+
+Round 27 started the fault / breaker / measurement / relay wrapper.
+
+New outputs:
+
+- `results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json`
+- `results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv`
+- `results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv`
+- `results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map.csv`
+- `results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv`
+- `results/gcn_search/ieee39_graphical_dynamic_model/protection/ieee39_basic_relay_settings.csv`
+- `results/gcn_search/ieee39_graphical_dynamic_model/protection/ieee39_basic_relay_status.json`
+- `results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_relay_trip_log.csv`
+- `results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_label_quality_summary.json`
+
+Current Round 27 interpretation:
+
+- Existing three-phase fault block was found in the IEEE39 grid subsystem.
+- Five pilot line blocks were mapped.
+- No explicit breaker block was found automatically.
+- Pilot line trips currently use line-block disabling, not timed breaker controls.
+- Basic relay proxy was added as settings/status output only; it is not engineering-grade relay coordination.
+- Full five-case automated graphical simulation exceeded the available tool timeout, so the current quality gate remains conservative.
+- `allowed_for_dynamic_aware_training = false`.
+
+The model is still treated as `phasor_RMS`, not EMT.

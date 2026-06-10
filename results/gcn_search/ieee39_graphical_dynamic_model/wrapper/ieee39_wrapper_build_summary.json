@@ -1,0 +1,24 @@
+{
+  "source_model_path": "C:/Users/24186/Documents/MATLAB/Examples/R2024b/simscapeelectrical/IEEE39BusSystemExample/IEEE39BusSystem.slx",
+  "generated_model_path": "..\\..\\results\\gcn_search\\ieee39_graphical_dynamic_model\\generated_models\\IEEE39BusSystem_dynamic_experiment_wrapper.slx",
+  "original_model_preserved": true,
+  "wrapper_directory": "..\\..\\results\\gcn_search\\ieee39_graphical_dynamic_model\\wrapper",
+  "block_inventory_csv": "..\\..\\results\\gcn_search\\ieee39_graphical_dynamic_model\\wrapper\\ieee39_wrapper_block_inventory.csv",
+  "signal_map_csv": "..\\..\\results\\gcn_search\\ieee39_graphical_dynamic_model\\wrapper\\ieee39_wrapper_signal_map.csv",
+  "fault_wiring_status": "existing_three_phase_fault_block_available",
+  "breaker_wiring_status": "manual_required",
+  "line_trip_status": "pilot_line_block_disable_supported",
+  "added_fault_injection_interface": "existing_three_phase_fault_block_available",
+  "added_line_trip_interface": "pilot_line_block_disable_supported",
+  "added_measurement_outputs": [
+    "bus_voltage",
+    "generator_speed",
+    "frequency",
+    "rotor_angle",
+    "line_loading_proxy",
+    "relay_trip_signal"
+  ],
+  "protection_status": "protection wrapper not engineering-grade; relay logic still preliminary",
+  "result_export_status": "fault-test scripts export CSV summaries and event logs",
+  "do_not_commit_generated_slx": true
+}

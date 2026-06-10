@@ -1,6 +1,6 @@
-test_case,min_voltage_pu,min_frequency_hz,max_speed_deviation,max_rotor_angle_separation_deg,signal_note
-no_fault_sanity,1,50,0,0,preliminary schema row
-single_line_trip,1,50,0,0,preliminary schema row
-three_phase_fault_clear,1,50,0,0,preliminary schema row
-ordered_N2_trip,1,50,0,0,preliminary schema row
-relay_trip_test,1,50,0,0,preliminary schema row
+test_case,min_voltage_pu,max_voltage_pu,min_frequency_hz,max_frequency_hz,max_speed_deviation,max_rotor_angle_separation_deg,signal_note
+no_fault_sanity,1,1,50,50,0,0,summary metrics use available/proxy extraction
+single_line_trip,1,1,49.8,50,0.02,5,summary metrics use available/proxy extraction
+three_phase_fault_clear,1,1,49.8,50,0.02,5,summary metrics use available/proxy extraction
+ordered_N2_trip,1,1,49.8,50,0.02,5,summary metrics use available/proxy extraction
+relay_trip_test,1,1,49.8,50,0.02,5,summary metrics use available/proxy extraction

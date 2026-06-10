@@ -1,0 +1,4 @@
+relay_element,threshold,unit,delay_s,note
+undervoltage,0.8,pu,0.05,basic proxy only
+underfrequency,49,Hz,0.05,basic proxy only
+overcurrent,1.5,pu,0.05,used only if current proxy is available
