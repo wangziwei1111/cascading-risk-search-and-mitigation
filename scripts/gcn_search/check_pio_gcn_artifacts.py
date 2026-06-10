@@ -17,6 +17,10 @@ REQUIRED_FILES = [
     "src/gcn_search/legacy_rts79/analyze_simulink_dynamic_results.py",
     "src/gcn_search/legacy_rts79/analyze_dynamic_smoke_degeneracy.py",
     "src/gcn_search/legacy_rts79/compare_default_vs_calibrated_dynamic_smoke.py",
+    "src/gcn_search/legacy_rts79/analyze_dynamic_instability_reasons.py",
+    "src/gcn_search/legacy_rts79/compute_dynamic_stress_score.py",
+    "src/gcn_search/legacy_rts79/prepare_dynamic_negative_control_inputs.py",
+    "src/gcn_search/legacy_rts79/run_dynamic_negative_control_pipeline.py",
     "matlab/simulink_rts79/build_rts79_swing_simulink_model.m",
     "matlab/simulink_rts79/simulate_rts79_swing_case.m",
     "matlab/simulink_rts79/run_rts79_dynamic_path_case.m",
@@ -24,6 +28,7 @@ REQUIRED_FILES = [
     "matlab/simulink_rts79/check_rts79_swing_model_sanity.m",
     "matlab/simulink_rts79/calibrate_rts79_swing_scales.m",
     "matlab/simulink_rts79/calibrate_event_driven_dynamic_scales.m",
+    "matlab/simulink_rts79/run_dynamic_negative_control_batch.m",
     "matlab/simulink_rts79/run_real_topk_dynamic_validation.m",
     "matlab/simulink_rts79/run_real_topk_event_driven_dynamic_validation.m",
     "matlab/simulink_rts79/update_swing_power_after_load_shed.m",
@@ -57,10 +62,14 @@ REQUIRED_FILES = [
     "tests/test_real_topk_dynamic_smoke_summary.py",
     "tests/test_dynamic_smoke_degeneracy.py",
     "tests/test_default_vs_calibrated_dynamic_smoke.py",
+    "tests/test_dynamic_instability_reasons.py",
+    "tests/test_dynamic_stress_score.py",
+    "tests/test_dynamic_negative_controls.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
     "docs/pio_gcn_simulink_real_topk_event_driven_validation.md",
     "docs/pio_gcn_simulink_real_topk_dynamic_smoke.md",
+    "docs/pio_gcn_simulink_dynamic_negative_controls.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -148,6 +157,10 @@ def main() -> int:
             failures.append("Validation log does not contain the Round 16 record.")
         if "Round 17" not in log_text:
             failures.append("Validation log does not contain the Round 17 record.")
+        if "Round 18" not in log_text:
+            failures.append("Validation log does not contain the Round 18 record.")
+        if "Round 19" not in log_text:
+            failures.append("Validation log does not contain the Round 19 record.")
 
     plan_path = ROOT / "docs/pio_gcn_simulink_dynamic_validation_plan.md"
     if plan_path.exists():
@@ -293,6 +306,36 @@ def main() -> int:
         for required in ["1.0 < loading_ratio <= beta", "security redispatch/load shedding", "loading_ratio > beta", "passive relay trip"]:
             if required not in relay_text:
                 failures.append(f"Relay/security doc is missing required term: {required}")
+
+    negative_doc = ROOT / "docs/pio_gcn_simulink_dynamic_negative_controls.md"
+    if negative_doc.exists():
+        negative_text = _read_text("docs/pio_gcn_simulink_dynamic_negative_controls.md").lower()
+        for required in [
+            "negative controls",
+            "learned_top20",
+            "low_score_top20",
+            "random_top20",
+            "line_order_top20",
+            "no dynamic recall",
+            "not emt",
+            "not full opf",
+        ]:
+            if required not in negative_text:
+                failures.append(f"Negative-control doc is missing required term: {required}")
+
+    negative_summary = ROOT / "results/gcn_search/simulink_dynamic_negative_control_summary/dynamic_negative_control_comparison.csv"
+    if negative_summary.exists():
+        try:
+            import pandas as pd
+
+            table = pd.read_csv(negative_summary)
+            if any("dynamic_recall" in col.lower() for col in table.columns):
+                failures.append("Negative-control summary must not contain dynamic recall columns.")
+            if not table.empty and (table["dynamic_precision_at_20"].astype(float) == 1.0).all():
+                if "global_degeneracy_warning" not in table.columns or not table["global_degeneracy_warning"].astype(bool).all():
+                    failures.append("Negative-control summary with all precision=1.0 must set global_degeneracy_warning=true.")
+        except Exception as exc:
+            failures.append(f"Failed to read negative-control summary: {exc}")
 
     tracked_results = set(_git_ls_files("results/gcn_search"))
     branch_changed = set(_git_changed_files_against_main())

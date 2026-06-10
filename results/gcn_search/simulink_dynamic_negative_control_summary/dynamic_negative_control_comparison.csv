@@ -1,0 +1,5 @@
+﻿group,num_cases,dynamic_precision_at_20,dynamic_unstable_count,mean_frequency_nadir_hz,min_frequency_nadir_hz,mean_rotor_angle_separation_deg,max_rotor_angle_separation_deg,mean_dynamic_stress_score,cases_with_security_redispatch_or_load_shed,cases_with_passive_relay_trip,total_dynamic_load_shed_mw,degeneracy_warning,global_degeneracy_warning,dynamic_discrimination_signal,matlab_executed
+learned_top20,20,1.0,20,48.212432845132334,48.0114304278038,660.2295410875001,905.220252769689,4.961352266606939,20,0,231.32117491281207,True,True,False,True
+low_score_top20,20,1.0,20,48.195825935318084,48.0114304278038,735.8650426183765,905.2202527697,5.188335377807708,15,0,182.37585892721705,True,True,False,True
+random_top20,20,1.0,20,48.21554580674139,48.0114304278038,674.9669231867967,900.46991938089,4.964962835166896,18,0,212.92771221758844,True,True,False,True
+line_order_top20,20,1.0,20,48.25617669346114,48.0850287361846,737.1473117347625,906.279722616583,4.975634907613574,12,0,145.90068714177363,True,True,False,True

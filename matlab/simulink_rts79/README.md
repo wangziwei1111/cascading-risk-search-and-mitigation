@@ -239,3 +239,30 @@ results/gcn_search/simulink_dynamic_calibration/event_driven_calibration_summary
 ```
 
 The current calibrated Top20 smoke removes the all-passive-relay-trip condition, but all 20 cases remain dynamically unstable. This is still a preliminary smoke result, not EMT, not full OPF, and not an engineering-grade dynamic stability conclusion.
+
+## Round 19 Negative Controls
+
+Round 19 adds a four-group negative-control wrapper:
+
+```matlab
+run_dynamic_negative_control_batch( ...
+  "../../results/gcn_search/simulink_dynamic_basecase/rts79_simulink_basecase.json", ...
+  "../../results/gcn_search/simulink_dynamic_negative_controls/cases", ...
+  "../../results/gcn_search/simulink_dynamic_negative_controls/results", ...
+  "../../results/gcn_search/simulink_dynamic_calibration/recommended_event_driven_options.json", ...
+  20 ...
+)
+```
+
+The Python driver prepares learned, low-score, random, and line-order Top20 inputs and can call MATLAB automatically:
+
+```powershell
+python src/gcn_search/legacy_rts79/run_dynamic_negative_control_pipeline.py `
+  --input-csv results/gcn_search/simulink_dynamic_real_per_path_ranking/learned_mlp_per_path_ranking.csv `
+  --output-dir results/gcn_search/simulink_dynamic_negative_controls `
+  --top-k 20 `
+  --run-matlab `
+  --options-json-path results/gcn_search/simulink_dynamic_calibration/recommended_event_driven_options.json
+```
+
+Current result: all four groups remain 20/20 dynamically unstable, with no passive relay trips. The learned group is not more stressful than all controls, so the calibrated dynamic validation layer still carries a global degeneracy warning.

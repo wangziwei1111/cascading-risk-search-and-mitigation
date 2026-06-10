@@ -364,3 +364,76 @@ PASS: GCN Simulink dynamic validation artifacts are review-ready.
 ```
 
 RL mitigation files were not modified. Generated `.pkl`, `.slx`, `.mat`, raw per-case calibration outputs, and full per-path ranking artifacts remain local ignored artifacts and are not intended for commit.
+
+## Round 19: Dynamic Instability Reasons and Negative Controls
+
+Round 19 diagnoses the calibrated Top20 result from Round 18. The goal is to answer whether the event-driven dynamic validation layer has discrimination, or whether it still marks almost every tested path as unstable.
+
+Added:
+
+```text
+src/gcn_search/legacy_rts79/analyze_dynamic_instability_reasons.py
+src/gcn_search/legacy_rts79/compute_dynamic_stress_score.py
+src/gcn_search/legacy_rts79/prepare_dynamic_negative_control_inputs.py
+src/gcn_search/legacy_rts79/run_dynamic_negative_control_pipeline.py
+matlab/simulink_rts79/run_dynamic_negative_control_batch.m
+tests/test_dynamic_instability_reasons.py
+tests/test_dynamic_stress_score.py
+tests/test_dynamic_negative_controls.py
+docs/pio_gcn_simulink_dynamic_negative_controls.md
+```
+
+The MATLAB stability classifier was checked. Security redispatch/load shedding is not directly treated as `dynamic_unstable`. The calibrated Top20 instability reasons are frequency and rotor-angle based:
+
+```text
+num_cases = 20
+dynamic_unstable_count = 20
+frequency_nadir_below_threshold = 20
+rotor_angle_above_threshold = 20
+relay_violation_not_eliminated = 0
+sim_failed = 0
+passive_relay_trip_count = 0
+security_redispatch_count = 38
+```
+
+Round 19 negative-control command:
+
+```powershell
+python src/gcn_search/legacy_rts79/run_dynamic_negative_control_pipeline.py `
+  --input-csv results/gcn_search/simulink_dynamic_real_per_path_ranking/learned_mlp_per_path_ranking.csv `
+  --output-dir results/gcn_search/simulink_dynamic_negative_controls `
+  --top-k 20 `
+  --run-matlab `
+  --options-json-path results/gcn_search/simulink_dynamic_calibration/recommended_event_driven_options.json
+```
+
+Negative-control result:
+
+| group | dynamic precision@20 | passive relay trips | security actions | mean dynamic stress |
+| --- | ---: | ---: | ---: | ---: |
+| learned_top20 | 1.0000 | 0 | 20 | 4.9614 |
+| low_score_top20 | 1.0000 | 0 | 15 | 5.1883 |
+| random_top20 | 1.0000 | 0 | 18 | 4.9650 |
+| line_order_top20 | 1.0000 | 0 | 12 | 4.9756 |
+
+Summary:
+
+```text
+global_degeneracy_warning = true
+dynamic_discrimination_signal = false
+matlab_executed = true
+```
+
+Interpretation: the calibrated dynamic layer still lacks discrimination because all four groups are 20/20 dynamically unstable and the learned group is not more stressful than all controls. Therefore dynamic precision@20 should not be used as a performance claim at this stage. No dynamic recall is reported because no full dynamic truth set exists.
+
+Validation:
+
+```text
+python -m pytest tests/test_simulink_dynamic_case_export.py tests/test_simulink_dynamic_result_analysis.py tests/test_simulink_dynamic_disagreement.py tests/test_simulink_real_topk_preparation.py tests/test_relay_vs_security_logic.py tests/test_event_driven_dynamic_loop.py tests/test_real_topk_dynamic_pipeline.py tests/test_dynamic_method_comparison_inputs.py tests/test_export_path_reranker_per_path_ranking.py tests/test_real_topk_dynamic_validation_pipeline.py tests/test_real_topk_dynamic_summary.py tests/test_path_reranker_minimal_pipeline.py tests/test_real_topk_dynamic_smoke_summary.py tests/test_dynamic_smoke_degeneracy.py tests/test_default_vs_calibrated_dynamic_smoke.py tests/test_dynamic_instability_reasons.py tests/test_dynamic_stress_score.py tests/test_dynamic_negative_controls.py
+35 passed
+
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+PASS: GCN Simulink dynamic validation artifacts are review-ready.
+```
+
+RL mitigation files were not modified. Generated `.pkl`, `.slx`, `.mat`, dynamic case folders, raw event logs, and full per-path ranking artifacts remain local ignored artifacts and are not intended for commit.

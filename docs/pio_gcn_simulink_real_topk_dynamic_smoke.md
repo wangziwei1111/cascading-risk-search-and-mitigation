@@ -198,3 +198,31 @@ total_dynamic_load_shed_mw = 231.32117491281207
 Calibration removed the all-passive-relay-trip degeneracy, but dynamic_precision@20 remained 1.0, so the calibrated result still carries a degeneracy warning. This means the line-loading relay scale was improved, but the instability criterion or swing-equation scale still needs further calibration.
 
 No dynamic recall is reported. This is still a simplified swing-equation preliminary dynamic smoke, not EMT, not full OPF, and not an engineering-grade dynamic stability conclusion.
+
+## Round 19 Dynamic Negative Controls
+
+Round 19 added instability-reason diagnostics and negative controls to test whether the calibrated dynamic layer can discriminate learned Top20 paths from easy controls.
+
+Calibrated learned Top20 instability reasons:
+
+```text
+num_cases = 20
+dynamic_unstable_count = 20
+frequency_nadir_below_threshold = 20
+rotor_angle_above_threshold = 20
+relay_violation_not_eliminated = 0
+sim_failed = 0
+passive_relay_trip_count = 0
+security_redispatch_count = 38
+```
+
+Negative-control comparison:
+
+| group | precision@20 | passive relay trips | security actions | mean dynamic stress |
+| --- | ---: | ---: | ---: | ---: |
+| learned_top20 | 1.0000 | 0 | 20 | 4.9614 |
+| low_score_top20 | 1.0000 | 0 | 15 | 5.1883 |
+| random_top20 | 1.0000 | 0 | 18 | 4.9650 |
+| line_order_top20 | 1.0000 | 0 | 12 | 4.9756 |
+
+The result still has `global_degeneracy_warning = true` and `dynamic_discrimination_signal = false`. The important conclusion is conservative: the event-driven Simulink wrapper now runs real learned and control Top20 batches, but the current calibrated swing-equation instability threshold is still too broad to support a learned-method performance claim.
