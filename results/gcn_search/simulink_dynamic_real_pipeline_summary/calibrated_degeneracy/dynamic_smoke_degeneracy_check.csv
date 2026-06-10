@@ -1,0 +1,2 @@
+﻿dynamic_precision_at_k,num_dynamic_cases,passive_relay_trip_case_fraction,security_redispatch_case_fraction,opa_dynamic_agreement_count,opa_noncritical_dynamic_unstable_count,all_cases_dynamic_unstable,all_cases_passive_relay_trip,no_security_actions,degeneracy_warning,note
+1.0,20,0.0,1.0,1,19,True,False,False,True,Warning indicates possible scale sensitivity or non-degeneracy calibration need; it does not by itself prove the pipeline is wrong.

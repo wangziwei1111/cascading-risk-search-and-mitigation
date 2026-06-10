@@ -1,0 +1,7 @@
+{
+  "method": "learned_mlp_reranker_strict",
+  "result_scope": "default_top20_preliminary_dynamic_smoke",
+  "scope_note": "Top-K preliminary dynamic validation only; no dynamic recall is reported.",
+  "num_rows": 1,
+  "summary_csv": "results\\gcn_search\\simulink_dynamic_real_pipeline_summary\\default_top20_dynamic_smoke_summary.csv"
+}

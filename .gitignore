@@ -51,5 +51,6 @@ results/gcn_search/**/*per_path_ranking*.csv
 results/gcn_search/**/*large_simulink_log*
 results/gcn_search/**/path_reranker_dataset.csv
 results/gcn_search/**/path_reranker_model.pkl
+results/gcn_search/**/event_grid_*/
 !results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv
 !results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.json

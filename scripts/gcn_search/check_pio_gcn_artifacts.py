@@ -15,12 +15,15 @@ REQUIRED_FILES = [
     "src/gcn_search/legacy_rts79/export_rts79_simulink_basecase.py",
     "src/gcn_search/legacy_rts79/make_mock_simulink_dynamic_results.py",
     "src/gcn_search/legacy_rts79/analyze_simulink_dynamic_results.py",
+    "src/gcn_search/legacy_rts79/analyze_dynamic_smoke_degeneracy.py",
+    "src/gcn_search/legacy_rts79/compare_default_vs_calibrated_dynamic_smoke.py",
     "matlab/simulink_rts79/build_rts79_swing_simulink_model.m",
     "matlab/simulink_rts79/simulate_rts79_swing_case.m",
     "matlab/simulink_rts79/run_rts79_dynamic_path_case.m",
     "matlab/simulink_rts79/run_rts79_dynamic_batch.m",
     "matlab/simulink_rts79/check_rts79_swing_model_sanity.m",
     "matlab/simulink_rts79/calibrate_rts79_swing_scales.m",
+    "matlab/simulink_rts79/calibrate_event_driven_dynamic_scales.m",
     "matlab/simulink_rts79/run_real_topk_dynamic_validation.m",
     "matlab/simulink_rts79/run_real_topk_event_driven_dynamic_validation.m",
     "matlab/simulink_rts79/update_swing_power_after_load_shed.m",
@@ -50,6 +53,10 @@ REQUIRED_FILES = [
     "tests/test_export_path_reranker_per_path_ranking.py",
     "tests/test_real_topk_dynamic_validation_pipeline.py",
     "tests/test_real_topk_dynamic_summary.py",
+    "tests/test_path_reranker_minimal_pipeline.py",
+    "tests/test_real_topk_dynamic_smoke_summary.py",
+    "tests/test_dynamic_smoke_degeneracy.py",
+    "tests/test_default_vs_calibrated_dynamic_smoke.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
     "docs/pio_gcn_simulink_real_topk_event_driven_validation.md",
@@ -58,6 +65,9 @@ REQUIRED_FILES = [
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.json",
+    "results/gcn_search/simulink_dynamic_real_pipeline_summary/default_top20_dynamic_smoke_summary.csv",
+    "results/gcn_search/simulink_dynamic_real_pipeline_summary/calibrated_top20_dynamic_smoke_summary.csv",
+    "results/gcn_search/simulink_dynamic_real_pipeline_summary/default_vs_calibrated_dynamic_smoke_comparison.csv",
 ]
 
 
@@ -79,6 +89,7 @@ DISALLOWED_TRACKED_SUBSTRINGS = [
     "per_path_ranking.csv",
     "path_reranker_dataset.csv",
     "large_simulink_log",
+    "event_grid_",
 ]
 
 
@@ -237,12 +248,44 @@ def main() -> int:
             table = pd.read_csv(smoke_summary)
             if "result_scope" not in table.columns:
                 failures.append("Real Top-K dynamic smoke summary is missing result_scope.")
-            elif not (table["result_scope"].astype(str) == "top20_preliminary_dynamic_smoke").all():
-                failures.append("Real Top-K dynamic smoke summary result_scope must be top20_preliminary_dynamic_smoke.")
+            elif not table["result_scope"].astype(str).isin(
+                [
+                    "top20_preliminary_dynamic_smoke",
+                    "default_top20_preliminary_dynamic_smoke",
+                    "calibrated_top20_preliminary_dynamic_smoke",
+                ]
+            ).all():
+                failures.append("Real Top-K dynamic smoke summary result_scope must be a Top20 preliminary dynamic smoke scope.")
             if any("dynamic_recall" in col.lower() for col in table.columns):
                 failures.append("Real Top-K dynamic smoke summary must not contain dynamic recall columns.")
         except Exception as exc:
             failures.append(f"Failed to read real Top-K dynamic smoke summary: {exc}")
+
+    calibrated_summary = ROOT / "results/gcn_search/simulink_dynamic_real_pipeline_summary/calibrated_top20_dynamic_smoke_summary.csv"
+    if calibrated_summary.exists():
+        try:
+            import pandas as pd
+
+            table = pd.read_csv(calibrated_summary)
+            if "result_scope" not in table.columns or not (table["result_scope"].astype(str) == "calibrated_top20_preliminary_dynamic_smoke").all():
+                failures.append("Calibrated Top20 smoke summary result_scope must be calibrated_top20_preliminary_dynamic_smoke.")
+            if "degeneracy_warning" not in table.columns:
+                failures.append("Calibrated Top20 smoke summary must contain degeneracy_warning.")
+            if any("dynamic_recall" in col.lower() for col in table.columns):
+                failures.append("Calibrated Top20 smoke summary must not contain dynamic recall columns.")
+        except Exception as exc:
+            failures.append(f"Failed to read calibrated Top20 smoke summary: {exc}")
+
+    comparison_path = ROOT / "results/gcn_search/simulink_dynamic_real_pipeline_summary/default_vs_calibrated_dynamic_smoke_comparison.csv"
+    if comparison_path.exists():
+        try:
+            import pandas as pd
+
+            comparison = pd.read_csv(comparison_path)
+            if "variant" not in comparison.columns or set(comparison["variant"].astype(str)) != {"default", "calibrated"}:
+                failures.append("Default-vs-calibrated comparison must contain default and calibrated variants.")
+        except Exception as exc:
+            failures.append(f"Failed to read default-vs-calibrated comparison: {exc}")
 
     relay_doc = ROOT / "docs/pio_gcn_relay_vs_security_constraint.md"
     if relay_doc.exists():

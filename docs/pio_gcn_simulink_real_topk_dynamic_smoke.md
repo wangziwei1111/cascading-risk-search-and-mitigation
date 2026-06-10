@@ -138,9 +138,9 @@ Round 17 ran MATLAB Top20 preliminary dynamic smoke:
 result_scope = top20_preliminary_dynamic_smoke
 num_dynamic_cases = 20
 dynamic_precision@20 = 1.0
-opa_critical_and_dynamic_unstable_count = 0
+opa_critical_and_dynamic_unstable_count = 1
 opa_critical_but_dynamic_stable_count = 0
-opa_noncritical_but_dynamic_unstable_count = 20
+opa_noncritical_but_dynamic_unstable_count = 19
 cases_with_security_redispatch_or_load_shed = 0
 cases_with_passive_relay_trip = 20
 total_dynamic_load_shed_mw = 0.0
@@ -149,3 +149,52 @@ total_dynamic_load_shed_mw = 0.0
 This is a smoke result from a minimal learned-reranker dataset, not a formal final conclusion. No dynamic recall is reported.
 
 Next step: expand from Top20 smoke to Top50/Top100 using a non-smoke learned-reranker dataset and then compare dynamic precision across learned reranker, PIO-GCN, and LODF inputs.
+
+## Round 18 Non-Degeneracy Calibration
+
+Round 17 default Top20 smoke showed a degeneracy warning:
+
+```text
+dynamic_precision@20 = 1.0
+opa_critical_and_dynamic_unstable_count = 1
+opa_critical_but_dynamic_stable_count = 0
+opa_noncritical_but_dynamic_unstable_count = 19
+cases_with_security_redispatch_or_load_shed = 0
+cases_with_passive_relay_trip = 20
+```
+
+The important issue is not that the pipeline failed. The issue is that the default dynamic scaling made all Top20 cases unstable and all 20 cases caused passive relay trips. That is a non-degeneracy warning: the prototype parameters are too sensitive for interpretation and should be calibrated before expanding to Top50/Top100.
+
+Round 18 added:
+
+```text
+src/gcn_search/legacy_rts79/analyze_dynamic_smoke_degeneracy.py
+matlab/simulink_rts79/calibrate_event_driven_dynamic_scales.m
+src/gcn_search/legacy_rts79/compare_default_vs_calibrated_dynamic_smoke.py
+```
+
+The small event-driven calibration grid recommended:
+
+```text
+line_loading_scale = 0.005
+coupling_scale = 0.5
+damping_scale = 1.0
+inertia_scale = 1.0
+relay_beta = 1.2
+```
+
+Calibrated Top20 smoke result:
+
+```text
+dynamic_precision@20 = 1.0
+opa_critical_and_dynamic_unstable_count = 1
+opa_critical_but_dynamic_stable_count = 0
+opa_noncritical_but_dynamic_unstable_count = 19
+cases_with_security_redispatch_or_load_shed = 20
+cases_with_passive_relay_trip = 0
+total_dynamic_load_shed_mw = 231.32117491281207
+```
+
+Calibration removed the all-passive-relay-trip degeneracy, but dynamic_precision@20 remained 1.0, so the calibrated result still carries a degeneracy warning. This means the line-loading relay scale was improved, but the instability criterion or swing-equation scale still needs further calibration.
+
+No dynamic recall is reported. This is still a simplified swing-equation preliminary dynamic smoke, not EMT, not full OPF, and not an engineering-grade dynamic stability conclusion.

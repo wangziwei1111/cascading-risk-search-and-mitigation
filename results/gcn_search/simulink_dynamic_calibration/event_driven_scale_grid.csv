@@ -1,0 +1,5 @@
+line_loading_scale,coupling_scale,damping_scale,inertia_scale,relay_beta,num_cases,dynamic_precision,passive_relay_trip_fraction,security_redispatch_fraction,mean_frequency_nadir_hz,max_line_loading_ratio,nondegenerate_score,recommended
+0.005,0.5,1,1,1.2,5,1,0,1,48.2385873417789,1.06125221086106,0.25,1
+0.005,0.5,1,1,1.5,5,1,0,1,48.2385873417789,1.06125221086106,0.25,0
+0.005,0.5,1,2,1.2,5,1,0,1,48.6710650035638,1.10797172008137,0.25,0
+0.005,0.5,1,2,1.5,5,1,0,1,48.6710650035638,1.10797172008137,0.25,0

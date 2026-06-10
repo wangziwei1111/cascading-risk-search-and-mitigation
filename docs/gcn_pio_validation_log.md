@@ -278,9 +278,9 @@ Compact summary:
 result_scope = top20_preliminary_dynamic_smoke
 num_dynamic_cases = 20
 dynamic_precision_at_k = 1.0
-opa_critical_and_dynamic_unstable_count = 0
+opa_critical_and_dynamic_unstable_count = 1
 opa_critical_but_dynamic_stable_count = 0
-opa_noncritical_but_dynamic_unstable_count = 20
+opa_noncritical_but_dynamic_unstable_count = 19
 cases_with_security_redispatch_or_load_shed = 0
 cases_with_passive_relay_trip = 20
 total_dynamic_load_shed_mw = 0.0
@@ -300,3 +300,67 @@ PASS: GCN Simulink dynamic validation artifacts are review-ready.
 ```
 
 RL mitigation files were not modified. Generated `.pkl`, `.slx`, `.mat`, full per-path ranking, and raw dynamic artifacts remain local ignored artifacts and are not intended for commit.
+
+## Round 18: Non-Degeneracy Diagnostics and Event-Driven Calibration
+
+Round 18 fixes the documentation mismatch by treating the tracked CSV as authoritative:
+
+```text
+opa_critical_and_dynamic_unstable_count = 1
+opa_noncritical_but_dynamic_unstable_count = 19
+```
+
+The default Top20 dynamic smoke showed:
+
+```text
+dynamic_precision_at_k = 1.0
+cases_with_passive_relay_trip = 20
+cases_with_security_redispatch_or_load_shed = 0
+degeneracy_warning = true
+```
+
+This is a non-degeneracy warning. It does not prove the pipeline is wrong; it indicates that default dynamic scale parameters are too sensitive for interpretation.
+
+Added:
+
+```text
+src/gcn_search/legacy_rts79/analyze_dynamic_smoke_degeneracy.py
+matlab/simulink_rts79/calibrate_event_driven_dynamic_scales.m
+src/gcn_search/legacy_rts79/compare_default_vs_calibrated_dynamic_smoke.py
+```
+
+Small calibration grid recommendation:
+
+```text
+line_loading_scale = 0.005
+coupling_scale = 0.5
+damping_scale = 1.0
+inertia_scale = 1.0
+relay_beta = 1.2
+```
+
+Calibrated Top20 result:
+
+```text
+dynamic_precision_at_k = 1.0
+cases_with_passive_relay_trip = 0
+cases_with_security_redispatch_or_load_shed = 20
+total_dynamic_load_shed_mw = 231.32117491281207
+opa_critical_and_dynamic_unstable_count = 1
+opa_noncritical_but_dynamic_unstable_count = 19
+degeneracy_warning = true
+```
+
+Calibration removed the all-passive-relay-trip degeneracy, but all cases remain dynamically unstable, so the calibrated smoke still carries a degeneracy warning. No dynamic recall is reported because no full dynamic truth exists. This remains a simplified swing-equation preliminary dynamic smoke, not EMT, not full OPF, and not an engineering-grade dynamic stability conclusion.
+
+Validation:
+
+```text
+python -m pytest tests/test_simulink_dynamic_case_export.py tests/test_simulink_dynamic_result_analysis.py tests/test_simulink_dynamic_disagreement.py tests/test_simulink_real_topk_preparation.py tests/test_relay_vs_security_logic.py tests/test_event_driven_dynamic_loop.py tests/test_real_topk_dynamic_pipeline.py tests/test_dynamic_method_comparison_inputs.py tests/test_export_path_reranker_per_path_ranking.py tests/test_real_topk_dynamic_validation_pipeline.py tests/test_real_topk_dynamic_summary.py tests/test_path_reranker_minimal_pipeline.py tests/test_real_topk_dynamic_smoke_summary.py tests/test_dynamic_smoke_degeneracy.py tests/test_default_vs_calibrated_dynamic_smoke.py
+30 passed
+
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+PASS: GCN Simulink dynamic validation artifacts are review-ready.
+```
+
+RL mitigation files were not modified. Generated `.pkl`, `.slx`, `.mat`, raw per-case calibration outputs, and full per-path ranking artifacts remain local ignored artifacts and are not intended for commit.

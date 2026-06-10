@@ -1,0 +1,8 @@
+{
+  "line_loading_scale": 0.005,
+  "coupling_scale": 0.5,
+  "damping_scale": 1,
+  "inertia_scale": 1,
+  "relay_beta": 1.2,
+  "enable_passive_relay_trips": true
+}

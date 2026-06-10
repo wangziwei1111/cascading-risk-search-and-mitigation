@@ -1,0 +1,8 @@
+# Default vs Calibrated Dynamic Smoke Comparison
+
+Default result demonstrates pipeline execution. Calibrated result is intended to reduce all-passive-trip degeneracy. Both remain smoke-level only.
+
+| variant | result_scope | top_k | dynamic_precision_at_k | passive_relay_trip_cases | security_redispatch_cases | opa_critical_and_dynamic_unstable_count | opa_critical_but_dynamic_stable_count | opa_noncritical_but_dynamic_unstable_count | total_dynamic_load_shed_mw | degeneracy_warning | note |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| default | default_top20_preliminary_dynamic_smoke | 20 | 1.0 | 20 | 0 | 1 | 0 | 19 | 0.0 | True | smoke-level only; no dynamic recall without full dynamic truth |
+| calibrated | calibrated_top20_preliminary_dynamic_smoke | 20 | 1.0 | 0 | 20 | 1 | 0 | 19 | 231.32117491281207 | True | smoke-level only; no dynamic recall without full dynamic truth |

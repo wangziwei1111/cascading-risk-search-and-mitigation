@@ -1,0 +1,13 @@
+{
+  "num_grid_rows": 4,
+  "max_grid_rows": 4,
+  "recommended_event_driven_options": {
+    "line_loading_scale": 0.005,
+    "coupling_scale": 0.5,
+    "damping_scale": 1,
+    "inertia_scale": 1,
+    "relay_beta": 1.2,
+    "enable_passive_relay_trips": true
+  },
+  "warning": "Small calibration grid for preliminary smoke only; not an engineering-grade parameter identification."
+}

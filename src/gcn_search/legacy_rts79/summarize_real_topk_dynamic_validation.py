@@ -7,7 +7,17 @@ from pathlib import Path
 import pandas as pd
 
 
-VALID_SCOPES = {"top20_preliminary_dynamic_smoke", "top20_preliminary_smoke", "top50_preliminary", "top100_preliminary", "full_dynamic_truth"}
+VALID_SCOPES = {
+    "default_top20_preliminary_dynamic_smoke",
+    "calibrated_top20_preliminary_dynamic_smoke",
+    "top20_preliminary_dynamic_smoke",
+    "top20_preliminary_smoke",
+    "top50_preliminary_dynamic_validation",
+    "top100_preliminary_dynamic_validation",
+    "top50_preliminary",
+    "top100_preliminary",
+    "full_dynamic_truth",
+}
 
 
 def summarize_real_topk_dynamic_validation(
@@ -22,6 +32,9 @@ def summarize_real_topk_dynamic_validation(
     matlab_executed: bool = True,
     num_train_seeds: int = 3,
     num_test_seeds: int = 1,
+    calibrated: bool = False,
+    calibration_options_json: str | None = None,
+    degeneracy_check_json: str | None = None,
 ) -> dict:
     if result_scope not in VALID_SCOPES:
         raise ValueError(f"result_scope must be one of {sorted(VALID_SCOPES)}")
@@ -33,10 +46,11 @@ def summarize_real_topk_dynamic_validation(
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
     precision = pd.read_csv(precision_csv)
-    if result_scope == "top20_preliminary_dynamic_smoke" and "top_k" in precision.columns:
+    if result_scope in {"top20_preliminary_dynamic_smoke", "default_top20_preliminary_dynamic_smoke", "calibrated_top20_preliminary_dynamic_smoke"} and "top_k" in precision.columns:
         precision = precision[pd.to_numeric(precision["top_k"], errors="coerce") == 20].copy()
     overlap = _metric_table(pd.read_csv(overlap_csv))
     relay = _metric_table(pd.read_csv(relay_security_summary_csv))
+    degeneracy_warning = _load_degeneracy_warning(degeneracy_check_json)
 
     rows = []
     for _, item in precision.iterrows():
@@ -60,6 +74,11 @@ def summarize_real_topk_dynamic_validation(
             "num_train_seeds": int(num_train_seeds),
             "num_test_seeds": int(num_test_seeds),
             "matlab_executed": bool(matlab_executed),
+            "calibrated": bool(calibrated),
+            "calibration_options_json": calibration_options_json or "",
+            "degeneracy_warning": bool(degeneracy_warning),
+            "passive_relay_trip_case_fraction": float(int(relay.get("cases_with_passive_relay_trip", 0)) / max(int(item["num_simulated"]), 1)),
+            "security_redispatch_case_fraction": float(int(relay.get("cases_with_security_redispatch_or_load_shed", 0)) / max(int(item["num_simulated"]), 1)),
             "note": scope_note,
         }
         rows.append(row)
@@ -68,9 +87,12 @@ def summarize_real_topk_dynamic_validation(
     summary_json = out / "real_topk_dynamic_validation_summary.json"
     smoke_summary_csv = out / "real_topk_dynamic_smoke_summary.csv"
     smoke_summary_json = out / "real_topk_dynamic_smoke_summary.json"
+    scoped_csv = out / _scoped_summary_name(result_scope, "csv")
+    scoped_json = out / _scoped_summary_name(result_scope, "json")
     brief_md = out / "real_topk_dynamic_validation_brief.md"
     summary.to_csv(summary_csv, index=False, encoding="utf-8-sig")
     summary.to_csv(smoke_summary_csv, index=False, encoding="utf-8-sig")
+    summary.to_csv(scoped_csv, index=False, encoding="utf-8-sig")
     payload = {
         "method": method,
         "result_scope": result_scope,
@@ -80,8 +102,9 @@ def summarize_real_topk_dynamic_validation(
     }
     summary_json.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     smoke_summary_json.write_text(json.dumps({**payload, "summary_csv": str(smoke_summary_csv)}, ensure_ascii=False, indent=2), encoding="utf-8")
+    scoped_json.write_text(json.dumps({**payload, "summary_csv": str(scoped_csv)}, ensure_ascii=False, indent=2), encoding="utf-8")
     brief_md.write_text(_make_brief(summary, scope_note), encoding="utf-8")
-    return {"summary_csv": str(summary_csv), "summary_json": str(summary_json), "smoke_summary_csv": str(smoke_summary_csv), "smoke_summary_json": str(smoke_summary_json), "brief_md": str(brief_md)}
+    return {"summary_csv": str(summary_csv), "summary_json": str(summary_json), "smoke_summary_csv": str(smoke_summary_csv), "smoke_summary_json": str(smoke_summary_json), "scoped_summary_csv": str(scoped_csv), "scoped_summary_json": str(scoped_json), "brief_md": str(brief_md)}
 
 
 def _metric_table(table: pd.DataFrame) -> dict[str, float]:
@@ -125,6 +148,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--matlab-executed", action="store_true")
     parser.add_argument("--num-train-seeds", type=int, default=3)
     parser.add_argument("--num-test-seeds", type=int, default=1)
+    parser.add_argument("--calibrated", action="store_true")
+    parser.add_argument("--calibration-options-json", default=None)
+    parser.add_argument("--degeneracy-check-json", default=None)
     return parser.parse_args()
 
 
@@ -142,7 +168,31 @@ def main() -> None:
         args.matlab_executed,
         args.num_train_seeds,
         args.num_test_seeds,
+        args.calibrated,
+        args.calibration_options_json,
+        args.degeneracy_check_json,
     )
+
+
+def _load_degeneracy_warning(path_text: str | None) -> bool:
+    if not path_text:
+        return False
+    path = Path(path_text)
+    if not path.exists():
+        return False
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return False
+    return bool(payload.get("degeneracy_warning", False))
+
+
+def _scoped_summary_name(result_scope: str, suffix: str) -> str:
+    if result_scope == "default_top20_preliminary_dynamic_smoke":
+        return f"default_top20_dynamic_smoke_summary.{suffix}"
+    if result_scope == "calibrated_top20_preliminary_dynamic_smoke":
+        return f"calibrated_top20_dynamic_smoke_summary.{suffix}"
+    return f"{result_scope}_summary.{suffix}"
 
 
 if __name__ == "__main__":

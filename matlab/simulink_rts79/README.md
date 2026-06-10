@@ -217,3 +217,25 @@ python src/gcn_search/legacy_rts79/run_real_topk_dynamic_validation_pipeline.py 
 ```
 
 Use Top20 as preliminary dynamic smoke if runtime is limited.
+
+## Event-Driven Calibration
+
+Round 18 adds a small event-driven calibration grid for the Top20 preliminary dynamic smoke:
+
+```matlab
+calibrate_event_driven_dynamic_scales( ...
+  "../../results/gcn_search/simulink_dynamic_basecase/rts79_simulink_basecase.json", ...
+  "../../results/gcn_search/simulink_dynamic_real_pipeline/dynamic_cases/matlab_batch_input.csv", ...
+  "../../results/gcn_search/simulink_dynamic_calibration" ...
+)
+```
+
+The default Top20 smoke produced a non-degeneracy warning: all 20 cases caused passive relay trips and `dynamic_precision@20 = 1.0`. The calibration grid writes:
+
+```text
+results/gcn_search/simulink_dynamic_calibration/event_driven_scale_grid.csv
+results/gcn_search/simulink_dynamic_calibration/recommended_event_driven_options.json
+results/gcn_search/simulink_dynamic_calibration/event_driven_calibration_summary.json
+```
+
+The current calibrated Top20 smoke removes the all-passive-relay-trip condition, but all 20 cases remain dynamically unstable. This is still a preliminary smoke result, not EMT, not full OPF, and not an engineering-grade dynamic stability conclusion.
