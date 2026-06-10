@@ -521,3 +521,97 @@ empty
 ```
 
 RL mitigation files were not modified. Generated `.slx`, `.mat`, dynamic case folders, raw event logs, full per-case dynamic results, and full per-path ranking artifacts remain local ignored artifacts and are not intended for commit.
+
+## Round 21: Post-Fault Sanity Ladder Calibration
+
+Round 21 calibrates post-fault dynamic response after Round 20 made no-trip stable. The purpose is not to improve learned precision; it is to make low-risk and random controls physically interpretable.
+
+Added:
+
+```text
+matlab/simulink_rts79/run_post_fault_sanity_ladder.m
+matlab/simulink_rts79/calibrate_post_fault_dynamic_response.m
+src/gcn_search/legacy_rts79/check_dynamic_interpretability_gate.py
+docs/pio_gcn_post_fault_sanity_ladder.md
+tests/test_post_fault_sanity_ladder.py
+tests/test_dynamic_interpretability_gate.py
+tests/test_negative_control_v3_summary.py
+```
+
+MATLAB commands:
+
+```matlab
+run_post_fault_sanity_ladder( ...
+  "../../results/gcn_search/simulink_dynamic_basecase/rts79_simulink_basecase.json", ...
+  "../../results/gcn_search/simulink_dynamic_negative_controls/inputs", ...
+  "../../results/gcn_search/simulink_dynamic_post_fault_sanity", ...
+  "../../results/gcn_search/simulink_dynamic_calibration/recommended_event_driven_options.json" ...
+)
+
+calibrate_post_fault_dynamic_response( ...
+  "../../results/gcn_search/simulink_dynamic_basecase/rts79_simulink_basecase.json", ...
+  "../../results/gcn_search/simulink_dynamic_negative_controls/inputs", ...
+  "../../results/gcn_search/simulink_dynamic_calibration", ...
+  4 ...
+)
+```
+
+Recommended post-fault options:
+
+```text
+damping_scale = 2
+inertia_scale = 2
+coupling_scale = 0.2
+line_loading_scale = 0.002
+relay_beta = 1.5
+load_shed_step_fraction = 0.01
+pm_update_mode = rebalance_to_current_pe
+```
+
+Post-fault sanity ladder with recommended options:
+
+| case group | unstable fraction | passive trip fraction | mean stress | passed |
+| --- | ---: | ---: | ---: | --- |
+| no_trip | 0.00 | 0.00 | 0.0000 | true |
+| single_mild_trip | 0.00 | 0.00 | 0.2423 | true |
+| low_risk_ordered_n2 | 0.00 | 0.00 | 0.1137 | true |
+| random_ordered_n2 | 0.00 | 0.00 | 0.0782 | true |
+| learned_high_risk_n2 | 0.00 | 0.00 | 0.1137 | true |
+
+Negative controls v3:
+
+| group | unstable fraction | mean frequency nadir | mean stress | passive trip fraction |
+| --- | ---: | ---: | ---: | ---: |
+| learned_top20 | 0.00 | 49.3998 | 0.1002 | 0.00 |
+| low_score_top20 | 0.00 | 49.3804 | 0.1217 | 0.00 |
+| random_top20 | 0.00 | 49.3682 | 0.1336 | 0.00 |
+| line_order_top20 | 0.00 | 49.4051 | 0.0986 | 0.00 |
+
+Interpretability gate:
+
+```text
+no_trip_passed = true
+single_mild_trip_passed = true
+low_risk_not_all_unstable = true
+random_not_all_unstable = true
+controls_have_variation = true
+default_dynamic_precision_interpretable = true
+allowed_next_step = expand_top50_top100
+```
+
+Interpretation: Round 21 removes the all-unstable post-fault degeneracy. However, the current Top20 v3 groups are all stable, so there is still no learned dynamic discrimination signal. Top50/Top100 expansion is allowed for diagnostic coverage, not as a formal performance conclusion. No dynamic recall is reported because no full dynamic truth exists.
+
+Validation:
+
+```text
+python -m pytest tests/test_simulink_dynamic_case_export.py tests/test_simulink_dynamic_result_analysis.py tests/test_simulink_dynamic_disagreement.py tests/test_simulink_real_topk_preparation.py tests/test_relay_vs_security_logic.py tests/test_event_driven_dynamic_loop.py tests/test_real_topk_dynamic_pipeline.py tests/test_dynamic_method_comparison_inputs.py tests/test_export_path_reranker_per_path_ranking.py tests/test_real_topk_dynamic_validation_pipeline.py tests/test_real_topk_dynamic_summary.py tests/test_path_reranker_minimal_pipeline.py tests/test_real_topk_dynamic_smoke_summary.py tests/test_dynamic_smoke_degeneracy.py tests/test_default_vs_calibrated_dynamic_smoke.py tests/test_dynamic_instability_reasons.py tests/test_dynamic_stress_score.py tests/test_dynamic_negative_controls.py tests/test_swing_equilibrium_diagnostics.py tests/test_dynamic_threshold_sensitivity.py tests/test_negative_controls_v2_summary.py tests/test_post_fault_sanity_ladder.py tests/test_dynamic_interpretability_gate.py tests/test_negative_control_v3_summary.py
+45 passed
+
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+PASS: GCN Simulink dynamic validation artifacts are review-ready.
+
+git diff -- src/rl_mitigation scripts/rl_mitigation
+empty
+```
+
+RL mitigation files were not modified. Generated `.slx`, `.mat`, full per-case dynamic results, raw event logs, and full per-path ranking artifacts remain local ignored artifacts and are not intended for commit.

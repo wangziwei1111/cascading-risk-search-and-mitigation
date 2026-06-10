@@ -1,0 +1,5 @@
+{
+  "low_risk_mode": "combined_low_stress",
+  "label_columns_used": [],
+  "note": "Low-risk selection uses ranking/physics score columns only and does not use OPA labels."
+}

@@ -1,0 +1,9 @@
+{
+  "no_trip_passed": true,
+  "single_mild_trip_passed": true,
+  "low_risk_not_all_unstable": true,
+  "random_not_all_unstable": true,
+  "controls_have_variation": true,
+  "default_dynamic_precision_interpretable": true,
+  "allowed_next_step": "expand_top50_top100"
+}

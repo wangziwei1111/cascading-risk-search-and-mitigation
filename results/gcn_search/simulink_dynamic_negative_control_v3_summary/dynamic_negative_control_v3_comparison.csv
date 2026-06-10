@@ -1,0 +1,5 @@
+﻿group,num_cases,unstable_fraction_default_threshold,unstable_fraction_post_fault_calibrated,mean_frequency_nadir_hz,mean_rotor_angle_separation_coi_deg,mean_dynamic_stress_score,passive_trip_fraction,security_action_fraction,learned_vs_control_stress_delta,global_degeneracy_warning,sanity_ladder_passed,dynamic_discrimination_signal
+learned_top20,20,0.0,0.0,49.39981134439242,179.875112077575,0.10018865560758954,0.0,0.0,0.0,False,True,False
+low_score_top20,20,0.0,0.0,49.38042120591538,179.82082018602804,0.12169286913830071,0.0,0.0,-0.021504213530711178,False,True,False
+random_top20,20,0.0,0.0,49.36824223670532,179.84067475047132,0.1336287777045154,0.0,0.0,-0.03344012209692586,False,True,False
+line_order_top20,20,0.0,0.0,49.405149025349836,179.84299865817056,0.09856270349382967,0.0,0.0,0.0016259521137598626,False,True,False

@@ -106,3 +106,7 @@ The updated negative-control Top20 comparison still has default-threshold degene
 | line_order_top20 | 1.00 | 0.40 | 0.60 | 9.1307 |
 
 Threshold sensitivity shows a diagnostic separation signal, but the default result is still globally degenerate. This should be reported only as a calibration clue, not as a formal dynamic validation result.
+
+## Round 21 Link
+
+Round 21 adds the post-fault sanity ladder. The recommended post-fault options make no-trip, single mild trip, low-risk N-2, and random N-2 controls stable. This removes the all-unstable degeneracy, but the current Top20 v3 groups are also all stable, so there is still no learned dynamic discrimination signal.

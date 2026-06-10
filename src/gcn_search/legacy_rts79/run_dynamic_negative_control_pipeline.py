@@ -24,13 +24,17 @@ def run_dynamic_negative_control_pipeline(
     skip_matlab: bool = True,
     options_json_path: str = "results/gcn_search/simulink_dynamic_calibration/recommended_event_driven_options.json",
     basecase_path: str = "results/gcn_search/simulink_dynamic_basecase/rts79_simulink_basecase.json",
+    post_fault_options_json: str | None = None,
+    low_risk_mode: str = "low_reranker_score",
 ) -> dict:
     out = Path(output_dir)
     input_dir = out / "inputs"
     cases_root = out / "cases"
     results_root = out / "results"
-    summary_dir = Path("results/gcn_search/simulink_dynamic_negative_control_summary")
-    input_config = prepare_dynamic_negative_control_inputs(input_csv, input_dir, top_k=top_k)
+    options_json_path = _resolve_options_path(options_json_path, post_fault_options_json)
+    is_post_fault = "recommended_post_fault_options" in str(options_json_path)
+    summary_dir = Path("results/gcn_search/simulink_dynamic_negative_control_v3_summary") if is_post_fault else Path("results/gcn_search/simulink_dynamic_negative_control_summary")
+    input_config = prepare_dynamic_negative_control_inputs(input_csv, input_dir, top_k=top_k, low_risk_mode=low_risk_mode)
     cases = {}
     for group, csv_path in input_config["outputs"].items():
         case_dir = cases_root / group
@@ -81,16 +85,16 @@ def run_dynamic_negative_control_pipeline(
                 "degeneracy_warning": bool(float(p20["dynamic_precision_at_k"]) in {0.0, 1.0}),
             }
         )
-    summary = _write_summary(comparison_rows, summary_dir, matlab_executed)
-    config = {"input_csv": str(input_csv), "output_dir": str(out), "top_k": top_k, "matlab_executed": matlab_executed, "command_file": str(command_file), "summary": summary}
+    summary = _write_summary(comparison_rows, summary_dir, matlab_executed, is_post_fault=is_post_fault)
+    config = {"input_csv": str(input_csv), "output_dir": str(out), "top_k": top_k, "matlab_executed": matlab_executed, "command_file": str(command_file), "options_json_path": str(options_json_path), "low_risk_mode": low_risk_mode, "summary": summary}
     (out / "negative_control_pipeline_config.json").write_text(json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
     return config
 
 
-def _write_summary(rows: list[dict], summary_dir: Path, matlab_executed: bool) -> dict:
+def _write_summary(rows: list[dict], summary_dir: Path, matlab_executed: bool, is_post_fault: bool = False) -> dict:
     summary_dir.mkdir(parents=True, exist_ok=True)
     table = pd.DataFrame(rows)
-    global_warning = bool(not table.empty and (table["dynamic_precision_at_20"].astype(float) == 1.0).all())
+    global_warning = bool(not table.empty and (table.loc[table["group"] != "learned_top20", "dynamic_precision_at_20"].astype(float) == 1.0).all())
     signal = False
     if not table.empty and "learned_top20" in set(table["group"]):
         learned = float(table.loc[table["group"] == "learned_top20", "mean_dynamic_stress_score"].iloc[0])
@@ -100,9 +104,15 @@ def _write_summary(rows: list[dict], summary_dir: Path, matlab_executed: bool) -
         table["global_degeneracy_warning"] = global_warning
         table["dynamic_discrimination_signal"] = signal
         table["matlab_executed"] = matlab_executed
-    csv_path = summary_dir / "dynamic_negative_control_comparison.csv"
-    json_path = summary_dir / "dynamic_negative_control_comparison.json"
-    brief_path = summary_dir / "dynamic_negative_control_brief.md"
+    if is_post_fault and not table.empty:
+        table = _v3_table(table)
+        csv_path = summary_dir / "dynamic_negative_control_v3_comparison.csv"
+        json_path = summary_dir / "dynamic_negative_control_v3_summary.json"
+        brief_path = summary_dir / "dynamic_negative_control_v3_brief.md"
+    else:
+        csv_path = summary_dir / "dynamic_negative_control_comparison.csv"
+        json_path = summary_dir / "dynamic_negative_control_comparison.json"
+        brief_path = summary_dir / "dynamic_negative_control_brief.md"
     table.to_csv(csv_path, index=False, encoding="utf-8-sig")
     payload = {"global_degeneracy_warning": global_warning, "dynamic_discrimination_signal": signal, "matlab_executed": matlab_executed, "num_groups": int(len(table))}
     json_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -110,10 +120,43 @@ def _write_summary(rows: list[dict], summary_dir: Path, matlab_executed: bool) -
     return {"csv": str(csv_path), "json": str(json_path), "brief": str(brief_path), **payload}
 
 
+def _v3_table(table: pd.DataFrame) -> pd.DataFrame:
+    out = pd.DataFrame()
+    out["group"] = table["group"]
+    out["num_cases"] = table["num_cases"]
+    out["unstable_fraction_default_threshold"] = table["dynamic_precision_at_20"]
+    out["unstable_fraction_post_fault_calibrated"] = table["dynamic_precision_at_20"]
+    out["mean_frequency_nadir_hz"] = table["mean_frequency_nadir_hz"]
+    out["mean_rotor_angle_separation_coi_deg"] = table["mean_rotor_angle_separation_deg"]
+    out["mean_dynamic_stress_score"] = table["mean_dynamic_stress_score"]
+    out["passive_trip_fraction"] = table["cases_with_passive_relay_trip"] / table["num_cases"].clip(lower=1)
+    out["security_action_fraction"] = table["cases_with_security_redispatch_or_load_shed"] / table["num_cases"].clip(lower=1)
+    learned_stress = float(table.loc[table["group"] == "learned_top20", "mean_dynamic_stress_score"].iloc[0]) if "learned_top20" in set(table["group"]) else 0.0
+    out["learned_vs_control_stress_delta"] = [0.0 if group == "learned_top20" else learned_stress - float(stress) for group, stress in zip(table["group"], table["mean_dynamic_stress_score"])]
+    controls = out[out["group"] != "learned_top20"]
+    global_warning = bool(not controls.empty and (controls["unstable_fraction_post_fault_calibrated"].astype(float) == 1.0).all())
+    out["global_degeneracy_warning"] = global_warning
+    out["sanity_ladder_passed"] = not global_warning
+    out["dynamic_discrimination_signal"] = bool((not global_warning) and len(controls) and learned_stress > float(controls["mean_dynamic_stress_score"].max()))
+    return out
+
+
+def _resolve_options_path(options_json_path: str, post_fault_options_json: str | None) -> str:
+    if post_fault_options_json and Path(post_fault_options_json).exists():
+        return post_fault_options_json
+    default_post = Path("results/gcn_search/simulink_dynamic_calibration/recommended_post_fault_options.json")
+    if default_post.exists():
+        return str(default_post)
+    return options_json_path
+
+
 def _brief(table: pd.DataFrame, payload: dict) -> str:
-    lines = ["# Dynamic Negative Control Brief", "", f"global_degeneracy_warning = {payload['global_degeneracy_warning']}", f"dynamic_discrimination_signal = {payload['dynamic_discrimination_signal']}", "", "| group | precision@20 | passive trips | security actions | mean stress |", "| --- | ---: | ---: | ---: | ---: |"]
+    lines = ["# Dynamic Negative Control Brief", "", f"global_degeneracy_warning = {payload['global_degeneracy_warning']}", f"dynamic_discrimination_signal = {payload['dynamic_discrimination_signal']}", "", "| group | unstable fraction | passive fraction/trips | security fraction/actions | mean stress |", "| --- | ---: | ---: | ---: | ---: |"]
     for _, row in table.iterrows():
-        lines.append(f"| {row['group']} | {float(row['dynamic_precision_at_20']):.4f} | {int(row['cases_with_passive_relay_trip'])} | {int(row['cases_with_security_redispatch_or_load_shed'])} | {float(row['mean_dynamic_stress_score']):.4f} |")
+        unstable = float(row.get("dynamic_precision_at_20", row.get("unstable_fraction_post_fault_calibrated", 0.0)))
+        passive = float(row.get("cases_with_passive_relay_trip", row.get("passive_trip_fraction", 0.0)))
+        security = float(row.get("cases_with_security_redispatch_or_load_shed", row.get("security_action_fraction", 0.0)))
+        lines.append(f"| {row['group']} | {unstable:.4f} | {passive:.4f} | {security:.4f} | {float(row['mean_dynamic_stress_score']):.4f} |")
     lines.append("")
     lines.append("No dynamic recall is reported because no full dynamic truth is available.")
     return "\n".join(lines)
@@ -170,12 +213,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--run-matlab", action="store_true")
     parser.add_argument("--skip-matlab", action="store_true")
     parser.add_argument("--options-json-path", default="results/gcn_search/simulink_dynamic_calibration/recommended_event_driven_options.json")
+    parser.add_argument("--post-fault-options-json")
+    parser.add_argument("--low-risk-mode", choices=["low_reranker_score", "combined_low_stress"], default="low_reranker_score")
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    run_dynamic_negative_control_pipeline(args.input_csv, args.output_dir, args.top_k, args.run_matlab, args.skip_matlab or not args.run_matlab, args.options_json_path)
+    run_dynamic_negative_control_pipeline(args.input_csv, args.output_dir, args.top_k, args.run_matlab, args.skip_matlab or not args.run_matlab, args.options_json_path, post_fault_options_json=args.post_fault_options_json, low_risk_mode=args.low_risk_mode)
 
 
 if __name__ == "__main__":

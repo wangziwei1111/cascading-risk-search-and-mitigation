@@ -24,6 +24,7 @@ REQUIRED_FILES = [
     "src/gcn_search/legacy_rts79/analyze_swing_equilibrium_diagnostics.py",
     "src/gcn_search/legacy_rts79/analyze_dynamic_threshold_sensitivity.py",
     "src/gcn_search/legacy_rts79/summarize_dynamic_negative_controls_v2.py",
+    "src/gcn_search/legacy_rts79/check_dynamic_interpretability_gate.py",
     "matlab/simulink_rts79/build_rts79_swing_simulink_model.m",
     "matlab/simulink_rts79/simulate_rts79_swing_case.m",
     "matlab/simulink_rts79/run_rts79_dynamic_path_case.m",
@@ -37,6 +38,8 @@ REQUIRED_FILES = [
     "matlab/simulink_rts79/update_swing_power_after_load_shed.m",
     "matlab/simulink_rts79/initialize_swing_equilibrium.m",
     "matlab/simulink_rts79/run_swing_equilibrium_sanity_demo.m",
+    "matlab/simulink_rts79/run_post_fault_sanity_ladder.m",
+    "matlab/simulink_rts79/calibrate_post_fault_dynamic_response.m",
     "matlab/simulink_rts79/run_mild_overload_security_demo.m",
     "matlab/simulink_rts79/run_severe_overload_relay_demo.m",
     "matlab/simulink_rts79/README.md",
@@ -73,12 +76,16 @@ REQUIRED_FILES = [
     "tests/test_swing_equilibrium_diagnostics.py",
     "tests/test_dynamic_threshold_sensitivity.py",
     "tests/test_negative_controls_v2_summary.py",
+    "tests/test_post_fault_sanity_ladder.py",
+    "tests/test_dynamic_interpretability_gate.py",
+    "tests/test_negative_control_v3_summary.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
     "docs/pio_gcn_simulink_real_topk_event_driven_validation.md",
     "docs/pio_gcn_simulink_real_topk_dynamic_smoke.md",
     "docs/pio_gcn_simulink_dynamic_negative_controls.md",
     "docs/pio_gcn_swing_equilibrium_and_threshold_calibration.md",
+    "docs/pio_gcn_post_fault_sanity_ladder.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -172,6 +179,8 @@ def main() -> int:
             failures.append("Validation log does not contain the Round 19 record.")
         if "Round 20" not in log_text:
             failures.append("Validation log does not contain the Round 20 record.")
+        if "Round 21" not in log_text:
+            failures.append("Validation log does not contain the Round 21 record.")
 
     plan_path = ROOT / "docs/pio_gcn_simulink_dynamic_validation_plan.md"
     if plan_path.exists():
@@ -354,6 +363,13 @@ def main() -> int:
             if forbidden in calibration_text:
                 failures.append(f"Round 20 calibration doc contains an overstatement: {forbidden}")
 
+    post_fault_doc = ROOT / "docs/pio_gcn_post_fault_sanity_ladder.md"
+    if post_fault_doc.exists():
+        text = _read_text("docs/pio_gcn_post_fault_sanity_ladder.md").lower()
+        for required in ["post-fault sanity ladder", "no dynamic recall", "not emt", "not full opf", "continue_dynamic_calibration"]:
+            if required not in text:
+                failures.append(f"Round 21 post-fault doc is missing required term: {required}")
+
     sanity_summary = ROOT / "results/gcn_search/simulink_dynamic_equilibrium_sanity/swing_equilibrium_sanity_summary.json"
     if sanity_summary.exists():
         try:
@@ -368,6 +384,16 @@ def main() -> int:
         text = threshold_summary.read_text(encoding="utf-8", errors="ignore").lower()
         if "formal dynamic conclusion" not in text:
             failures.append("Threshold sensitivity summary must state it is not a formal dynamic conclusion.")
+
+    gate_summary = ROOT / "results/gcn_search/simulink_dynamic_interpretability_gate/dynamic_interpretability_gate_summary.json"
+    if gate_summary.exists():
+        try:
+            payload = __import__("json").loads(gate_summary.read_text(encoding="utf-8"))
+            allowed = payload.get("allowed_next_step")
+            if allowed not in {"expand_top50_top100", "continue_dynamic_calibration"}:
+                failures.append("Interpretability gate allowed_next_step has an invalid value.")
+        except Exception as exc:
+            failures.append(f"Failed to read interpretability gate summary: {exc}")
 
     negative_summary = ROOT / "results/gcn_search/simulink_dynamic_negative_control_summary/dynamic_negative_control_comparison.csv"
     if negative_summary.exists():

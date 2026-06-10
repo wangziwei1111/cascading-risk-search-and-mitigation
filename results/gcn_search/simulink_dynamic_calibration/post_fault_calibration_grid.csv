@@ -1,0 +1,5 @@
+damping_scale,inertia_scale,coupling_scale,line_loading_scale,relay_beta,load_shed_step_fraction,pm_update_mode,no_trip_stable,single_mild_trip_stable,low_risk_unstable_fraction,random_unstable_fraction,learned_unstable_fraction,mean_frequency_nadir_hz,mean_coi_angle_separation_deg,passive_trip_fraction,security_action_fraction,sanity_ladder_score,recommended
+2,2,0.2,0.002,1.5,0.01,rebalance_to_current_pe,1,1,0,0,0,49.4898596427753,147.621432121785,0,0,4.5,1
+2,2,0.2,0.002,1.5,0.01,subtract_load_shed_by_gen_weight,1,1,0,0,0,49.4898596427753,147.621432121785,0,0,4.5,0
+2,2,0.2,0.002,1.5,0.01,keep_total_mechanical_power,1,1,0,0,0,49.4898596427753,147.621432121785,0,0,4.5,0
+2,2,0.2,0.002,1.5,0.02,rebalance_to_current_pe,1,1,0,0,0,49.4898596427753,147.621432121785,0,0,4.5,0

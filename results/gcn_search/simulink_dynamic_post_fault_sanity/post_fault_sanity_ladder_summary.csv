@@ -1,0 +1,6 @@
+case_group,num_cases,unstable_count,unstable_fraction,mean_frequency_nadir_hz,min_frequency_nadir_hz,mean_rotor_angle_separation_coi_deg,max_rotor_angle_separation_coi_deg,passive_trip_fraction,security_action_fraction,mean_dynamic_load_shed_mw,mean_dynamic_stress_score,sanity_level_passed
+no_trip,1,0,0,50,50,18.6714158614942,18.6714158614942,0,0,0,0,1
+single_mild_trip,1,0,0,49.2576621936674,49.2576621936674,179.738989815308,179.738989815308,0,0,0,0.242337806332635,1
+low_risk_ordered_n2,3,0,0,49.3862524381902,49.2588100356441,179.898361402526,179.994633953965,0,0,0,0.113747561809835,1
+random_ordered_n2,3,0,0,49.4267165284922,49.2764501903343,179.88721411017,179.981936638736,0,0,0,0.0782467463605367,1
+learned_high_risk_n2,3,0,0,49.3862820685509,49.229436581994,179.931255698612,179.992899768333,0,0,0,0.113717931449128,1

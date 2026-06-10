@@ -1,0 +1,12 @@
+{
+  "damping_scale": 2,
+  "inertia_scale": 2,
+  "coupling_scale": 0.2,
+  "line_loading_scale": 0.002,
+  "relay_beta": 1.5,
+  "load_shed_step_fraction": 0.01,
+  "pm_update_mode": "rebalance_to_current_pe",
+  "simulation_end_time": 10,
+  "enable_passive_relay_trips": true,
+  "enable_security_redispatch_approx": true
+}

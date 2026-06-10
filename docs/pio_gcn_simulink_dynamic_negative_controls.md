@@ -94,3 +94,17 @@ dynamic_discrimination_signal = false
 ```
 
 So the dynamic layer now passes the no-trip equilibrium sanity check, but default Top20 dynamic precision is still not interpretable because all groups remain unstable at the default threshold.
+
+## Round 21 Post-Fault Calibration
+
+Round 21 recommended post-fault options remove the all-unstable behavior for the sanity ladder and negative controls v3. The new issue is the opposite: learned, low-risk, random, and line-order Top20 groups are all stable under the calibrated options.
+
+Therefore:
+
+```text
+global_degeneracy_warning = false
+dynamic_discrimination_signal = false
+allowed_next_step = expand_top50_top100
+```
+
+Top50/Top100 expansion is allowed as diagnostic coverage, but not as a final dynamic proof.
