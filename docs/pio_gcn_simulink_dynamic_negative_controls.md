@@ -108,3 +108,5 @@ allowed_next_step = expand_top50_top100
 ```
 
 Top50/Top100 expansion is allowed as diagnostic coverage, but not as a final dynamic proof.
+
+Round 22 performed learned / PIO-GCN / LODF Top50/Top100 comparison. All Top100 groups are stable under the recommended post-fault options, so the result carries `calibration_warning = true` and no preliminary dynamic discrimination signal.

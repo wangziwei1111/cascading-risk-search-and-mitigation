@@ -110,3 +110,5 @@ Threshold sensitivity shows a diagnostic separation signal, but the default resu
 ## Round 21 Link
 
 Round 21 adds the post-fault sanity ladder. The recommended post-fault options make no-trip, single mild trip, low-risk N-2, and random N-2 controls stable. This removes the all-unstable degeneracy, but the current Top20 v3 groups are also all stable, so there is still no learned dynamic discrimination signal.
+
+Round 22 extends to learned / PIO-GCN / LODF Top50 and Top100. All Top100 dynamic precision values remain 0, so `calibration_warning = true` and the result is still preliminary diagnostic only.

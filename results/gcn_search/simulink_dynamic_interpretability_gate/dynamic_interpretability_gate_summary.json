@@ -5,5 +5,9 @@
   "random_not_all_unstable": true,
   "controls_have_variation": true,
   "default_dynamic_precision_interpretable": true,
-  "allowed_next_step": "expand_top50_top100"
+  "method_comparison_has_variation": true,
+  "learned_has_higher_stress_than_controls": false,
+  "learned_has_higher_dynamic_precision_than_controls": false,
+  "dynamic_discrimination_signal": "false",
+  "allowed_next_step": "expand_non_smoke_dataset"
 }

@@ -615,3 +615,63 @@ empty
 ```
 
 RL mitigation files were not modified. Generated `.slx`, `.mat`, full per-case dynamic results, raw event logs, and full per-path ranking artifacts remain local ignored artifacts and are not intended for commit.
+
+## Round 22: Top50/Top100 Dynamic Method Comparison
+
+Round 22 expands the event-driven dynamic diagnostic after the Round 21 post-fault sanity ladder passed. The comparison covers learned MLP reranker, PIO-GCN, and LODF Top50/Top100 inputs. This remains a simplified swing-equation preliminary diagnostic, not a formal dynamic stability conclusion.
+
+Commands:
+
+```powershell
+python src/gcn_search/legacy_rts79/prepare_dynamic_method_comparison_topk.py --input-csv results/gcn_search/simulink_dynamic_real_per_path_ranking/learned_mlp_per_path_ranking.csv --output-dir results/gcn_search/simulink_dynamic_method_comparison_inputs_top100 --top-k 100
+
+python src/gcn_search/legacy_rts79/export_dynamic_method_comparison_cases.py --input-root results/gcn_search/simulink_dynamic_method_comparison_inputs_top100 --output-root results/gcn_search/simulink_dynamic_method_comparison_cases --top-k 50 100 --event-1-time 1.0 --event-2-time 5.0 --simulation-end-time 10.0
+```
+
+MATLAB:
+
+```matlab
+run_dynamic_method_comparison_batch( ...
+  "../../results/gcn_search/simulink_dynamic_basecase/rts79_simulink_basecase.json", ...
+  "../../results/gcn_search/simulink_dynamic_method_comparison_cases", ...
+  "../../results/gcn_search/simulink_dynamic_method_comparison_results", ...
+  "../../results/gcn_search/simulink_dynamic_calibration/recommended_post_fault_options.json", ...
+  100 ...
+)
+```
+
+Dynamic method comparison summary:
+
+| method | top_k | dynamic precision | mean stress |
+| --- | ---: | ---: | ---: |
+| learned_mlp | 50 | 0.0000 | 0.0936 |
+| learned_mlp | 100 | 0.0000 | 0.0881 |
+| pio_gcn | 50 | 0.0000 | 0.0823 |
+| pio_gcn | 100 | 0.0000 | 0.1013 |
+| lodf | 50 | 0.0000 | 0.0912 |
+| lodf | 100 | 0.0000 | 0.1007 |
+
+Interpretation:
+
+```text
+calibration_warning = true
+dynamic_discrimination_signal = false
+allowed_next_step = expand_non_smoke_dataset
+```
+
+All Top100 methods are dynamically stable under the recommended post-fault options. This removes the all-unstable degeneracy but creates an all-stable calibration warning. The rank-depth curve does not show learned concentrating higher dynamic stress earlier than PIO-GCN or LODF. No dynamic recall is reported because no full dynamic truth exists.
+
+Validation:
+
+```text
+python -m pytest tests/test_simulink_dynamic_case_export.py tests/test_simulink_dynamic_result_analysis.py tests/test_simulink_dynamic_disagreement.py tests/test_simulink_real_topk_preparation.py tests/test_relay_vs_security_logic.py tests/test_event_driven_dynamic_loop.py tests/test_real_topk_dynamic_pipeline.py tests/test_dynamic_method_comparison_inputs.py tests/test_export_path_reranker_per_path_ranking.py tests/test_real_topk_dynamic_validation_pipeline.py tests/test_real_topk_dynamic_summary.py tests/test_path_reranker_minimal_pipeline.py tests/test_real_topk_dynamic_smoke_summary.py tests/test_dynamic_smoke_degeneracy.py tests/test_default_vs_calibrated_dynamic_smoke.py tests/test_dynamic_instability_reasons.py tests/test_dynamic_stress_score.py tests/test_dynamic_negative_controls.py tests/test_swing_equilibrium_diagnostics.py tests/test_dynamic_threshold_sensitivity.py tests/test_negative_controls_v2_summary.py tests/test_post_fault_sanity_ladder.py tests/test_dynamic_interpretability_gate.py tests/test_negative_control_v3_summary.py tests/test_dynamic_method_comparison_cases.py tests/test_dynamic_method_comparison_analysis.py tests/test_dynamic_rank_depth_curve.py
+48 passed
+
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+PASS: GCN Simulink dynamic validation artifacts are review-ready.
+
+git diff -- src/rl_mitigation scripts/rl_mitigation
+empty
+```
+
+RL mitigation files were not modified. Generated `.slx`, `.mat`, full per-case dynamic results, raw event logs, and full per-path ranking artifacts remain local ignored artifacts and are not intended for commit.

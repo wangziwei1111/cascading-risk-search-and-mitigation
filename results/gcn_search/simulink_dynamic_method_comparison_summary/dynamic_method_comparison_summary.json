@@ -1,0 +1,7 @@
+{
+  "options_json": "results/gcn_search/simulink_dynamic_calibration/recommended_post_fault_options.json",
+  "num_rows": 6,
+  "calibration_warning": true,
+  "dynamic_discrimination_signal": false,
+  "note": "preliminary diagnostic comparison only; no dynamic recall is reported"
+}

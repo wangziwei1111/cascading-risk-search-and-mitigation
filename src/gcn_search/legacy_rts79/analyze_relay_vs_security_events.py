@@ -46,19 +46,27 @@ def analyze_relay_vs_security_events(
             {"metric": "cases_with_passive_relay_trip", "value": int(len(relay_cases))},
             {"metric": "cases_with_both_security_and_relay", "value": int(len(security_cases & relay_cases))},
             {"metric": "total_dynamic_load_shed_mw", "value": float(pd.to_numeric(results.get("dynamic_load_shed_mw", 0.0), errors="coerce").fillna(0.0).sum())},
-            {"metric": "max_security_violation_loading_ratio", "value": float(pd.to_numeric(results.get("max_security_violation_loading_ratio", 0.0), errors="coerce").fillna(0.0).max())},
-            {"metric": "max_relay_violation_loading_ratio", "value": float(pd.to_numeric(results.get("max_relay_violation_loading_ratio", 0.0), errors="coerce").fillna(0.0).max())},
+            {"metric": "max_security_violation_loading_ratio", "value": _numeric_max(results, "max_security_violation_loading_ratio")},
+            {"metric": "max_relay_violation_loading_ratio", "value": _numeric_max(results, "max_relay_violation_loading_ratio")},
         ]
     )
     summary.to_csv(out / "relay_vs_security_summary.csv", index=False, encoding="utf-8-sig")
     security_events.to_csv(out / "security_redispatch_cases.csv", index=False, encoding="utf-8-sig")
     relay_events.to_csv(out / "passive_relay_trip_cases.csv", index=False, encoding="utf-8-sig")
-    security_events[pd.to_numeric(security_events.get("load_shed_mw", 0.0), errors="coerce").fillna(0.0) > 0].to_csv(
+    security_events[_numeric_series(security_events, "load_shed_mw") > 0].to_csv(
         out / "load_shed_due_to_security_constraint.csv", index=False, encoding="utf-8-sig"
     )
     relay_events.to_csv(out / "relay_threshold_violation_cases.csv", index=False, encoding="utf-8-sig")
-    security_events.sort_values("load_shed_mw", ascending=False).head(10).to_csv(out / "top10_security_load_shedding_cases.csv", index=False, encoding="utf-8-sig")
-    relay_events.sort_values("loading_ratio", ascending=False).head(10).to_csv(out / "top10_relay_trip_cases.csv", index=False, encoding="utf-8-sig")
+    if "load_shed_mw" in security_events.columns:
+        top_security = security_events.sort_values("load_shed_mw", ascending=False).head(10)
+    else:
+        top_security = security_events.head(10)
+    top_security.to_csv(out / "top10_security_load_shedding_cases.csv", index=False, encoding="utf-8-sig")
+    if "loading_ratio" in relay_events.columns:
+        top_relay = relay_events.sort_values("loading_ratio", ascending=False).head(10)
+    else:
+        top_relay = relay_events.head(10)
+    top_relay.to_csv(out / "top10_relay_trip_cases.csv", index=False, encoding="utf-8-sig")
     sequence_check = _event_order_check(events)
     topology_check = _passive_trip_topology_update_check(events)
     sequence_check.to_csv(out / "relay_security_event_sequence_check.csv", index=False, encoding="utf-8-sig")
@@ -70,6 +78,21 @@ def _filter_event(events: pd.DataFrame, event_type: str) -> pd.DataFrame:
     if events.empty or "event_type" not in events.columns:
         return pd.DataFrame()
     return events[events["event_type"].astype(str) == event_type].copy()
+
+
+def _numeric_max(table: pd.DataFrame, col: str) -> float:
+    if col not in table.columns:
+        return 0.0
+    values = pd.to_numeric(table[col], errors="coerce").fillna(0.0)
+    if values.empty:
+        return 0.0
+    return float(values.max())
+
+
+def _numeric_series(table: pd.DataFrame, col: str) -> pd.Series:
+    if col not in table.columns:
+        return pd.Series([0.0] * len(table), index=table.index)
+    return pd.to_numeric(table[col], errors="coerce").fillna(0.0)
 
 
 def _event_order_check(events: pd.DataFrame) -> pd.DataFrame:

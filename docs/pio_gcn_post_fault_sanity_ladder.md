@@ -68,6 +68,8 @@ This means Top50/Top100 can be expanded for diagnostic coverage, but current Top
 
 If any required control level fails, the gate must output `continue_dynamic_calibration` instead of allowing expansion.
 
+Round 22 performed this Top50/Top100 expansion. The result has `calibration_warning = true` because all learned, PIO-GCN, and LODF Top100 cases are dynamically stable under the recommended post-fault options.
+
 ## Limits
 
 No dynamic recall is reported because no full dynamic truth exists.

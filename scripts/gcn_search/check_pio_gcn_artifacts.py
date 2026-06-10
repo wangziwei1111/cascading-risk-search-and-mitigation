@@ -25,6 +25,9 @@ REQUIRED_FILES = [
     "src/gcn_search/legacy_rts79/analyze_dynamic_threshold_sensitivity.py",
     "src/gcn_search/legacy_rts79/summarize_dynamic_negative_controls_v2.py",
     "src/gcn_search/legacy_rts79/check_dynamic_interpretability_gate.py",
+    "src/gcn_search/legacy_rts79/export_dynamic_method_comparison_cases.py",
+    "src/gcn_search/legacy_rts79/analyze_dynamic_method_comparison.py",
+    "src/gcn_search/legacy_rts79/analyze_dynamic_rank_depth_curve.py",
     "matlab/simulink_rts79/build_rts79_swing_simulink_model.m",
     "matlab/simulink_rts79/simulate_rts79_swing_case.m",
     "matlab/simulink_rts79/run_rts79_dynamic_path_case.m",
@@ -40,6 +43,7 @@ REQUIRED_FILES = [
     "matlab/simulink_rts79/run_swing_equilibrium_sanity_demo.m",
     "matlab/simulink_rts79/run_post_fault_sanity_ladder.m",
     "matlab/simulink_rts79/calibrate_post_fault_dynamic_response.m",
+    "matlab/simulink_rts79/run_dynamic_method_comparison_batch.m",
     "matlab/simulink_rts79/run_mild_overload_security_demo.m",
     "matlab/simulink_rts79/run_severe_overload_relay_demo.m",
     "matlab/simulink_rts79/README.md",
@@ -79,6 +83,9 @@ REQUIRED_FILES = [
     "tests/test_post_fault_sanity_ladder.py",
     "tests/test_dynamic_interpretability_gate.py",
     "tests/test_negative_control_v3_summary.py",
+    "tests/test_dynamic_method_comparison_cases.py",
+    "tests/test_dynamic_method_comparison_analysis.py",
+    "tests/test_dynamic_rank_depth_curve.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
     "docs/pio_gcn_simulink_real_topk_event_driven_validation.md",
@@ -86,6 +93,7 @@ REQUIRED_FILES = [
     "docs/pio_gcn_simulink_dynamic_negative_controls.md",
     "docs/pio_gcn_swing_equilibrium_and_threshold_calibration.md",
     "docs/pio_gcn_post_fault_sanity_ladder.md",
+    "docs/pio_gcn_dynamic_method_comparison_top100.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -181,6 +189,8 @@ def main() -> int:
             failures.append("Validation log does not contain the Round 20 record.")
         if "Round 21" not in log_text:
             failures.append("Validation log does not contain the Round 21 record.")
+        if "Round 22" not in log_text:
+            failures.append("Validation log does not contain the Round 22 record.")
 
     plan_path = ROOT / "docs/pio_gcn_simulink_dynamic_validation_plan.md"
     if plan_path.exists():
@@ -370,6 +380,13 @@ def main() -> int:
             if required not in text:
                 failures.append(f"Round 21 post-fault doc is missing required term: {required}")
 
+    method_doc = ROOT / "docs/pio_gcn_dynamic_method_comparison_top100.md"
+    if method_doc.exists():
+        text = _read_text("docs/pio_gcn_dynamic_method_comparison_top100.md").lower()
+        for required in ["preliminary diagnostic", "no dynamic recall", "calibration_warning", "not emt", "not full opf"]:
+            if required not in text:
+                failures.append(f"Round 22 method comparison doc is missing required term: {required}")
+
     sanity_summary = ROOT / "results/gcn_search/simulink_dynamic_equilibrium_sanity/swing_equilibrium_sanity_summary.json"
     if sanity_summary.exists():
         try:
@@ -390,10 +407,28 @@ def main() -> int:
         try:
             payload = __import__("json").loads(gate_summary.read_text(encoding="utf-8"))
             allowed = payload.get("allowed_next_step")
-            if allowed not in {"expand_top50_top100", "continue_dynamic_calibration"}:
+            if allowed not in {"expand_top50_top100", "expand_non_smoke_dataset", "continue_dynamic_calibration"}:
                 failures.append("Interpretability gate allowed_next_step has an invalid value.")
         except Exception as exc:
             failures.append(f"Failed to read interpretability gate summary: {exc}")
+
+    method_summary = ROOT / "results/gcn_search/simulink_dynamic_method_comparison_summary/dynamic_method_comparison_summary.csv"
+    if method_summary.exists():
+        try:
+            import pandas as pd
+
+            table = pd.read_csv(method_summary)
+            if any("dynamic_recall" in col.lower() for col in table.columns):
+                failures.append("Dynamic method comparison summary must not contain dynamic recall columns.")
+            if not table.empty:
+                top100 = table[table["top_k"].astype(int) == 100]
+                if not top100.empty:
+                    precision = top100["dynamic_precision_at_k"].astype(float)
+                    all_zero_or_one = (precision == 0.0).all() or (precision == 1.0).all()
+                    if all_zero_or_one and "calibration_warning" not in " ".join(_read_text("docs/pio_gcn_dynamic_method_comparison_top100.md").lower().split()):
+                        failures.append("All-zero/all-one method comparison requires calibration_warning in the Round 22 doc.")
+        except Exception as exc:
+            failures.append(f"Failed to read dynamic method comparison summary: {exc}")
 
     negative_summary = ROOT / "results/gcn_search/simulink_dynamic_negative_control_summary/dynamic_negative_control_comparison.csv"
     if negative_summary.exists():

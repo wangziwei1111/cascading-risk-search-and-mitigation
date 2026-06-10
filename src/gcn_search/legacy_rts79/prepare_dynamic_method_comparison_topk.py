@@ -30,18 +30,32 @@ def prepare_dynamic_method_comparison_topk(input_csv: str | Path, output_dir: st
             continue
         ranked = table.copy()
         ranked[score_col] = pd.to_numeric(ranked[score_col], errors="coerce")
-        ranked = ranked.sort_values(score_col, ascending=False).copy()
+        if method == "learned_mlp" and "path_rank" in ranked.columns:
+            ranked = ranked.sort_values(["reranker_score", "path_rank", "path"], ascending=[False, True, True]).copy()
+        else:
+            ranked = ranked.sort_values([score_col, "path"], ascending=[False, True]).copy()
         ranked["path_rank"] = np.arange(1, len(ranked) + 1)
         normalized = _normalize_real_topk(ranked, top_k)
-        output_name = {
-            "learned_mlp": "learned_mlp_topk_input_paths.csv",
-            "pio_gcn": "pio_gcn_topk_input_paths.csv",
-            "lodf": "lodf_topk_input_paths.csv",
-        }[method]
-        output_path = out / output_name
-        normalized.to_csv(output_path, index=False, encoding="utf-8-sig")
-        outputs[method] = str(output_path)
-    config = {"input_csv": str(input_csv), "output_dir": str(out), "top_k": top_k, "outputs": outputs, "warnings": warnings}
+        method_outputs: dict[str, str] = {}
+        for k in sorted({50, int(top_k)}):
+            if k > top_k:
+                continue
+            output_path = out / f"{method}_top{k}_input_paths.csv"
+            normalized.head(k).to_csv(output_path, index=False, encoding="utf-8-sig")
+            method_outputs[f"top{k}"] = str(output_path)
+        legacy_path = out / f"{method}_topk_input_paths.csv"
+        normalized.head(top_k).to_csv(legacy_path, index=False, encoding="utf-8-sig")
+        method_outputs["topk"] = str(legacy_path)
+        outputs[method] = method_outputs
+    config = {
+        "input_csv": str(input_csv),
+        "output_dir": str(out),
+        "top_k": top_k,
+        "outputs": outputs,
+        "warnings": warnings,
+        "label_columns_used_for_sorting": [],
+        "forbidden_label_columns": ["opa_is_critical", "opa_total_load_shed_mw"],
+    }
     (out / "dynamic_method_comparison_input_config.json").write_text(json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
     return config
 

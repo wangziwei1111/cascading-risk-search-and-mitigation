@@ -236,3 +236,5 @@ The main rule remains: no dynamic recall is reported without full dynamic truth,
 Round 20 no-trip sanity passed, but single mild trip and low-risk N-2 still became dynamically unstable. Negative controls v2 still reports `global_degeneracy_warning = true`. Threshold sensitivity contains a diagnostic separation signal, but this is not a formal performance claim.
 
 Round 21 post-fault calibration removes the all-unstable control behavior. The interpretability gate allows Top50/Top100 diagnostic expansion, but the current v3 Top20 groups are all stable, so there is no learned dynamic discrimination signal yet.
+
+Round 22 Top50/Top100 method comparison remains diagnostic: learned, PIO-GCN, and LODF all have dynamic precision 0 at Top100, so the dynamic layer is currently too conservative for a method superiority claim.

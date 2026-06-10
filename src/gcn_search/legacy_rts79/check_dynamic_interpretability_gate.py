@@ -11,6 +11,7 @@ def check_dynamic_interpretability_gate(
     post_fault_sanity_csv: str | Path,
     negative_control_v3_csv: str | Path,
     output_dir: str | Path = "results/gcn_search/simulink_dynamic_interpretability_gate",
+    method_comparison_summary_csv: str | Path | None = None,
 ) -> dict:
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -25,7 +26,23 @@ def check_dynamic_interpretability_gate(
     if not controls.empty:
         controls_have_variation = controls_have_variation or bool((controls["unstable_fraction_post_fault_calibrated"].astype(float) < 1.0).any())
     default_interpretable = bool(no_trip_passed and controls_have_variation and low_risk_not_all and random_not_all)
-    allowed_next_step = "expand_top50_top100" if default_interpretable else "continue_dynamic_calibration"
+    method_has_variation = False
+    learned_higher_stress = False
+    learned_higher_precision = False
+    if method_comparison_summary_csv and Path(method_comparison_summary_csv).exists():
+        method_summary = pd.read_csv(method_comparison_summary_csv)
+        top100 = method_summary[method_summary["top_k"].astype(int) == 100] if "top_k" in method_summary.columns else method_summary
+        if not top100.empty:
+            method_has_variation = bool(top100["dynamic_precision_at_k"].astype(float).nunique() > 1 or top100["mean_dynamic_stress_score"].astype(float).nunique() > 1)
+            learned = top100[top100["method"].astype(str) == "learned_mlp"]
+            controls2 = top100[top100["method"].astype(str) != "learned_mlp"]
+            if not learned.empty and not controls2.empty:
+                learned_higher_stress = bool(float(learned["mean_dynamic_stress_score"].iloc[0]) > float(controls2["mean_dynamic_stress_score"].max()) * 1.05)
+                learned_higher_precision = bool(float(learned["dynamic_precision_at_k"].iloc[0]) > float(controls2["dynamic_precision_at_k"].max()))
+    if method_comparison_summary_csv and Path(method_comparison_summary_csv).exists():
+        allowed_next_step = "expand_non_smoke_dataset" if method_has_variation else "continue_dynamic_calibration"
+    else:
+        allowed_next_step = "expand_top50_top100" if default_interpretable else "continue_dynamic_calibration"
     summary = {
         "no_trip_passed": no_trip_passed,
         "single_mild_trip_passed": single_mild_passed,
@@ -33,6 +50,10 @@ def check_dynamic_interpretability_gate(
         "random_not_all_unstable": random_not_all,
         "controls_have_variation": controls_have_variation,
         "default_dynamic_precision_interpretable": default_interpretable,
+        "method_comparison_has_variation": method_has_variation,
+        "learned_has_higher_stress_than_controls": learned_higher_stress,
+        "learned_has_higher_dynamic_precision_than_controls": learned_higher_precision,
+        "dynamic_discrimination_signal": "preliminary_diagnostic_only" if learned_higher_stress or learned_higher_precision else "false",
         "allowed_next_step": allowed_next_step,
     }
     csv_path = out / "dynamic_interpretability_gate_summary.csv"
@@ -60,13 +81,14 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Check whether dynamic Top-K precision is interpretable.")
     parser.add_argument("--post-fault-sanity-csv", required=True)
     parser.add_argument("--negative-control-v3-csv", required=True)
+    parser.add_argument("--method-comparison-summary-csv")
     parser.add_argument("--output-dir", default="results/gcn_search/simulink_dynamic_interpretability_gate")
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    check_dynamic_interpretability_gate(args.post_fault_sanity_csv, args.negative_control_v3_csv, args.output_dir)
+    check_dynamic_interpretability_gate(args.post_fault_sanity_csv, args.negative_control_v3_csv, args.output_dir, args.method_comparison_summary_csv)
 
 
 if __name__ == "__main__":
