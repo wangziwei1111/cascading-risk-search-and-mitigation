@@ -157,6 +157,62 @@ python scripts/gcn_search/check_pio_gcn_artifacts.py
 git diff -- src/rl_mitigation scripts/rl_mitigation
 ```
 
+## Round 25: Robustness, Bootstrap CI, And Report-Ready Diagnostic Result
+
+Round 25 turns the Round 24 nondegenerate dynamic comparison into a report-ready preliminary diagnostic result. No new MATLAB simulation is required; this round uses the Round 24 event-strength calibrated results.
+
+Robustness summary:
+
+```text
+num_nondegenerate_settings = 9
+learned_best_count = 0
+pio_best_count = 9
+lodf_best_count = 0
+learned_advantage_robust = false
+top100_best_method = pio_gcn
+```
+
+Bootstrap CI highlights:
+
+```text
+learned_precision_minus_pio_gcn Top100 = -0.09, 95% CI [-0.22, 0.04]
+learned_precision_minus_lodf Top100 = -0.03, 95% CI [-0.15, 0.09]
+learned_stress_minus_pio_gcn Top100 = -0.0158, 95% CI [-0.0474, 0.0133]
+```
+
+Report-ready figures:
+
+```text
+results/gcn_search/simulink_dynamic_method_comparison_figures/fig_dynamic_precision_top50_top100.png
+results/gcn_search/simulink_dynamic_method_comparison_figures/fig_mean_dynamic_stress_top50_top100.png
+results/gcn_search/simulink_dynamic_method_comparison_figures/fig_rank_depth_stress_curve.png
+results/gcn_search/simulink_dynamic_method_comparison_figures/fig_opa_dynamic_alignment.png
+```
+
+Preliminary report:
+
+```text
+docs/pio_gcn_dynamic_preliminary_diagnostic_report.md
+```
+
+Gate conclusion:
+
+```text
+report_conclusion = no_dynamic_advantage_observed_preliminary
+```
+
+Conservative conclusion: no observed learned dynamic advantage in the current simplified swing-equation preliminary diagnostic. PIO-GCN Top100 precision is higher than learned under the current calibrated setting. No dynamic recall is reported because no full dynamic truth exists. This is not EMT, not full OPF, has no renewable dynamic model, and has no exciter, governor, or PSS models.
+
+Validation to run:
+
+```text
+python -m pytest tests/test_simulink_dynamic_case_export.py tests/test_simulink_dynamic_result_analysis.py tests/test_simulink_dynamic_disagreement.py tests/test_simulink_real_topk_preparation.py tests/test_relay_vs_security_logic.py tests/test_event_driven_dynamic_loop.py tests/test_real_topk_dynamic_pipeline.py tests/test_dynamic_method_comparison_inputs.py tests/test_export_path_reranker_per_path_ranking.py tests/test_real_topk_dynamic_validation_pipeline.py tests/test_real_topk_dynamic_summary.py tests/test_path_reranker_minimal_pipeline.py tests/test_real_topk_dynamic_smoke_summary.py tests/test_dynamic_smoke_degeneracy.py tests/test_default_vs_calibrated_dynamic_smoke.py tests/test_dynamic_instability_reasons.py tests/test_dynamic_stress_score.py tests/test_dynamic_negative_controls.py tests/test_swing_equilibrium_diagnostics.py tests/test_dynamic_threshold_sensitivity.py tests/test_negative_controls_v2_summary.py tests/test_post_fault_sanity_ladder.py tests/test_dynamic_interpretability_gate.py tests/test_negative_control_v3_summary.py tests/test_dynamic_method_comparison_cases.py tests/test_dynamic_method_comparison_analysis.py tests/test_dynamic_rank_depth_curve.py tests/test_non_smoke_path_reranker_dataset.py tests/test_non_smoke_dynamic_method_comparison.py tests/test_non_smoke_label_dynamic_alignment.py tests/test_dynamic_topk_case_coverage.py tests/test_post_fault_event_strength_calibration.py tests/test_event_strength_dynamic_summary.py tests/test_event_strength_robustness.py tests/test_dynamic_method_bootstrap_ci.py tests/test_dynamic_method_figures.py tests/test_preliminary_diagnostic_report.py
+
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+
+git diff -- src/rl_mitigation scripts/rl_mitigation
+```
+
 ## Round 24: TopK Coverage Fix And Event Strength Calibration
 
 Round 24 first fixes non-smoke TopK case coverage, then calibrates post-fault event strength so the simplified dynamic layer is no longer all-stable or all-unstable. This remains a preliminary diagnostic result, not a formal dynamic stability conclusion.

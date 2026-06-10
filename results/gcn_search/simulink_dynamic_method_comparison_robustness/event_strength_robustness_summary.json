@@ -1,0 +1,14 @@
+{
+  "num_nondegenerate_settings": 9,
+  "robustness_limited_by_available_grid": false,
+  "learned_best_count": 0,
+  "pio_best_count": 9,
+  "lodf_best_count": 0,
+  "learned_mean_precision_over_settings": 0.27,
+  "pio_mean_precision_over_settings": 0.36,
+  "lodf_mean_precision_over_settings": 0.3,
+  "learned_advantage_robust": false,
+  "top100_best_method": "pio_gcn",
+  "rank_depth_rows": 12,
+  "note": "preliminary diagnostic robustness envelope; no dynamic recall is reported"
+}

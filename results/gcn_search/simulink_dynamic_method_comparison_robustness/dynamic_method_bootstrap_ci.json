@@ -1,0 +1,8 @@
+{
+  "summary_csv": "results/gcn_search/simulink_dynamic_method_comparison_non_smoke_event_strength_summary/dynamic_method_comparison_event_strength_summary.csv",
+  "bootstrap_n": 1000,
+  "random_seed": 20260824,
+  "num_rows": 32,
+  "conclusion": "no robust learned dynamic advantage observed",
+  "note": "preliminary diagnostic bootstrap; no dynamic recall is reported"
+}

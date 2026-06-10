@@ -99,6 +99,8 @@ Round 24 also calibrates event-strength thresholds using `recommended_event_stre
 
 This removes the all-stable `calibration_warning`, but it does not create a learned advantage. The updated gate recommends `report_no_dynamic_advantage_preliminary`.
 
+Round 25 confirms this conservative result with robustness and bootstrap checks. The current report-ready conclusion is no observed learned dynamic advantage in the simplified dynamic diagnostic.
+
 ## Limits
 
 No dynamic recall is reported because no full dynamic truth exists.

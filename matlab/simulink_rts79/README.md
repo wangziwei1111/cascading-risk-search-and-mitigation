@@ -369,3 +369,5 @@ lodf = 0.30
 ```
 
 This is still preliminary diagnostic evidence only. It does not show learned dynamic superiority, and it is not EMT, not full OPF, and not an engineering-grade dynamic stability conclusion.
+
+Round 25 adds robustness, bootstrap CI, and report-ready figures. The current report conclusion is no observed learned dynamic advantage in the simplified dynamic diagnostic. MATLAB does not need to be rerun for Round 25 because it uses the Round 24 event-strength calibrated results.

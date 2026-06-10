@@ -16,6 +16,8 @@ def check_dynamic_interpretability_gate(
     non_smoke_label_dynamic_alignment_json: str | Path | None = None,
     topk_coverage_diagnostics_csv: str | Path | None = None,
     event_strength_method_comparison_summary_csv: str | Path | None = None,
+    robustness_summary_json: str | Path | None = None,
+    bootstrap_ci_json: str | Path | None = None,
 ) -> dict:
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -101,6 +103,18 @@ def check_dynamic_interpretability_gate(
         allowed_next_step = "expand_non_smoke_dataset" if method_has_variation else "continue_dynamic_calibration"
     else:
         allowed_next_step = "expand_top50_top100" if default_interpretable else "continue_dynamic_calibration"
+    robustness_checked = bool(robustness_summary_json and Path(robustness_summary_json).exists())
+    bootstrap_ci_available = bool(bootstrap_ci_json and Path(bootstrap_ci_json).exists())
+    learned_dynamic_advantage_robust = False
+    if robustness_checked:
+        payload = json.loads(Path(robustness_summary_json).read_text(encoding="utf-8"))
+        learned_dynamic_advantage_robust = bool(payload.get("learned_advantage_robust", False))
+    if not event_strength_calibrated or not event_nondegenerate:
+        report_conclusion = "inconclusive_due_to_calibration_warning"
+    elif learned_dynamic_advantage_robust or event_learned_signal:
+        report_conclusion = "learned_advantage_observed_preliminary"
+    else:
+        report_conclusion = "no_dynamic_advantage_observed_preliminary"
     summary = {
         "no_trip_passed": no_trip_passed,
         "single_mild_trip_passed": single_mild_passed,
@@ -118,6 +132,10 @@ def check_dynamic_interpretability_gate(
         "nondegenerate_dynamic_layer": event_nondegenerate,
         "event_strength_calibrated": event_strength_calibrated,
         "preliminary_dynamic_discrimination_signal": event_learned_signal,
+        "robustness_checked": robustness_checked,
+        "bootstrap_ci_available": bootstrap_ci_available,
+        "learned_dynamic_advantage_robust": learned_dynamic_advantage_robust,
+        "report_conclusion": report_conclusion,
         "dynamic_discrimination_signal": "preliminary_diagnostic_only" if learned_higher_stress or learned_higher_precision or non_smoke_learned_signal or event_learned_signal else "false",
         "allowed_next_step": allowed_next_step,
     }
@@ -160,6 +178,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--non-smoke-label-dynamic-alignment-json")
     parser.add_argument("--topk-coverage-diagnostics-csv")
     parser.add_argument("--event-strength-method-comparison-summary-csv")
+    parser.add_argument("--robustness-summary-json")
+    parser.add_argument("--bootstrap-ci-json")
     parser.add_argument("--output-dir", default="results/gcn_search/simulink_dynamic_interpretability_gate")
     return parser.parse_args()
 
@@ -175,6 +195,8 @@ def main() -> None:
         args.non_smoke_label_dynamic_alignment_json,
         args.topk_coverage_diagnostics_csv,
         args.event_strength_method_comparison_summary_csv,
+        args.robustness_summary_json,
+        args.bootstrap_ci_json,
     )
 
 

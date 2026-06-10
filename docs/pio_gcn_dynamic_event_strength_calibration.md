@@ -66,6 +66,8 @@ dynamic_discrimination_signal = false
 
 PIO-GCN has higher Top100 dynamic precision and mean stress than learned MLP in this preliminary diagnostic. Therefore there is no learned dynamic advantage observed in this round.
 
+Round 25 adds robustness and bootstrap checks. Across 9 nondegenerate event-strength settings, learned is not the best Top100 precision method; PIO-GCN is best in the available envelope. Bootstrap confidence intervals also do not support learned being robustly above PIO-GCN or LODF. The report conclusion is `no_dynamic_advantage_observed_preliminary`.
+
 ## OPA / Dynamic Alignment
 
 The event-strength calibrated alignment remains mixed:

@@ -15,6 +15,10 @@
   "nondegenerate_dynamic_layer": true,
   "event_strength_calibrated": true,
   "preliminary_dynamic_discrimination_signal": false,
+  "robustness_checked": true,
+  "bootstrap_ci_available": true,
+  "learned_dynamic_advantage_robust": false,
+  "report_conclusion": "no_dynamic_advantage_observed_preliminary",
   "dynamic_discrimination_signal": "false",
   "allowed_next_step": "report_no_dynamic_advantage_preliminary"
 }

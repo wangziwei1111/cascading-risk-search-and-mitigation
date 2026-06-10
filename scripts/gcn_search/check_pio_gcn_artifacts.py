@@ -31,6 +31,9 @@ REQUIRED_FILES = [
     "src/gcn_search/legacy_rts79/analyze_non_smoke_label_dynamic_alignment.py",
     "src/gcn_search/legacy_rts79/diagnose_dynamic_topk_case_coverage.py",
     "src/gcn_search/legacy_rts79/calibrate_post_fault_event_strength.py",
+    "src/gcn_search/legacy_rts79/analyze_event_strength_robustness.py",
+    "src/gcn_search/legacy_rts79/bootstrap_dynamic_method_comparison.py",
+    "src/gcn_search/legacy_rts79/make_dynamic_method_comparison_figures.py",
     "matlab/simulink_rts79/build_rts79_swing_simulink_model.m",
     "matlab/simulink_rts79/simulate_rts79_swing_case.m",
     "matlab/simulink_rts79/run_rts79_dynamic_path_case.m",
@@ -95,6 +98,10 @@ REQUIRED_FILES = [
     "tests/test_dynamic_topk_case_coverage.py",
     "tests/test_post_fault_event_strength_calibration.py",
     "tests/test_event_strength_dynamic_summary.py",
+    "tests/test_event_strength_robustness.py",
+    "tests/test_dynamic_method_bootstrap_ci.py",
+    "tests/test_dynamic_method_figures.py",
+    "tests/test_preliminary_diagnostic_report.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
     "docs/pio_gcn_simulink_real_topk_event_driven_validation.md",
@@ -105,6 +112,7 @@ REQUIRED_FILES = [
     "docs/pio_gcn_dynamic_method_comparison_top100.md",
     "docs/pio_gcn_dynamic_method_comparison_non_smoke.md",
     "docs/pio_gcn_dynamic_event_strength_calibration.md",
+    "docs/pio_gcn_dynamic_preliminary_diagnostic_report.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -209,6 +217,8 @@ def main() -> int:
             failures.append("Validation log does not contain the Round 23 record.")
         if "Round 24" not in log_text:
             failures.append("Validation log does not contain the Round 24 record.")
+        if "Round 25" not in log_text:
+            failures.append("Validation log does not contain the Round 25 record.")
 
     plan_path = ROOT / "docs/pio_gcn_simulink_dynamic_validation_plan.md"
     if plan_path.exists():
@@ -439,6 +449,22 @@ def main() -> int:
             if forbidden in text:
                 failures.append(f"Round 24 event-strength doc contains an overstatement: {forbidden}")
 
+    preliminary_report = ROOT / "docs/pio_gcn_dynamic_preliminary_diagnostic_report.md"
+    if preliminary_report.exists():
+        text = _read_text("docs/pio_gcn_dynamic_preliminary_diagnostic_report.md").lower()
+        for required in ["no dynamic recall", "not emt", "not full opf", "no observed learned dynamic advantage"]:
+            if required not in text:
+                failures.append(f"Preliminary diagnostic report is missing required term: {required}")
+        for forbidden in [
+            "final proof",
+            "final dynamic proof",
+            "engineering-grade conclusion",
+            "learned superiority claim",
+            "learned dynamic superiority",
+        ]:
+            if forbidden in text:
+                failures.append(f"Preliminary diagnostic report contains an overstatement: {forbidden}")
+
     sanity_summary = ROOT / "results/gcn_search/simulink_dynamic_equilibrium_sanity/swing_equilibrium_sanity_summary.json"
     if sanity_summary.exists():
         try:
@@ -539,6 +565,31 @@ def main() -> int:
                         failures.append("Degenerate event-strength summary requires calibration_warning in the Round 24 doc.")
         except Exception as exc:
             failures.append(f"Failed to read event-strength dynamic summary: {exc}")
+
+    robustness_summary = ROOT / "results/gcn_search/simulink_dynamic_method_comparison_robustness/event_strength_robustness_summary.csv"
+    if robustness_summary.exists():
+        try:
+            import pandas as pd
+
+            table = pd.read_csv(robustness_summary)
+            if "learned_advantage_robust" not in table.columns:
+                failures.append("Robustness summary must contain learned_advantage_robust.")
+        except Exception as exc:
+            failures.append(f"Failed to read robustness summary: {exc}")
+
+    bootstrap_ci = ROOT / "results/gcn_search/simulink_dynamic_method_comparison_robustness/dynamic_method_bootstrap_ci.csv"
+    if bootstrap_ci.exists():
+        try:
+            import pandas as pd
+
+            table = pd.read_csv(bootstrap_ci)
+            if any("dynamic_recall" in col.lower() for col in table.columns):
+                failures.append("Bootstrap CI summary must not contain dynamic recall columns.")
+            required = {"method", "top_k", "metric", "estimate", "ci_low", "ci_high", "bootstrap_n", "random_seed"}
+            if not required.issubset(table.columns):
+                failures.append("Bootstrap CI summary is missing required columns.")
+        except Exception as exc:
+            failures.append(f"Failed to read bootstrap CI summary: {exc}")
 
     negative_summary = ROOT / "results/gcn_search/simulink_dynamic_negative_control_summary/dynamic_negative_control_comparison.csv"
     if negative_summary.exists():
