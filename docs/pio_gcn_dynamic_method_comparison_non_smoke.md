@@ -85,6 +85,20 @@ dynamic_discrimination_signal = false
 
 Because the non-smoke comparison is still all stable, the next step should tune post-fault event strength before expanding claims or figures.
 
+## Round 24 Update
+
+Round 24 fixes the TopK coverage shortfall. The original shortage was caused by duplicate ordered N-2 paths in the input ranking; after unique-path fill, all learned / PIO-GCN / LODF Top50 and Top100 groups have coverage ratio 1.0.
+
+Round 24 also calibrates event-strength thresholds using `recommended_event_strength_options.json`. The calibrated dynamic layer is no longer all-stable or all-unstable:
+
+| method | Top50 precision | Top100 precision |
+| --- | ---: | ---: |
+| learned_mlp | 0.3000 | 0.2700 |
+| pio_gcn | 0.3400 | 0.3600 |
+| lodf | 0.2800 | 0.3000 |
+
+This removes the all-stable `calibration_warning`, but it does not create a learned advantage. The updated gate recommends `report_no_dynamic_advantage_preliminary`.
+
 ## Limits
 
 No dynamic recall is reported because no full dynamic truth exists.

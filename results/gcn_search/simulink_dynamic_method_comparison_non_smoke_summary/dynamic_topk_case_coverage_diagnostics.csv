@@ -1,0 +1,7 @@
+﻿method,requested_top_k,ranking_rows_available,unique_paths_available,input_paths_rows,unique_input_paths,exported_case_count,matlab_batch_case_count,simulated_case_count,duplicate_path_count,invalid_path_count,same_line_path_count,missing_line_label_count,dropped_case_count,dropped_reason_summary,coverage_ratio
+learned_mlp,50,1500,1044,50,50,50,50,50,0,0,0,0,0,none,1.0
+learned_mlp,100,1500,1044,100,100,100,100,100,0,0,0,0,0,none,1.0
+pio_gcn,50,1500,1044,50,50,50,50,50,0,0,0,0,0,none,1.0
+pio_gcn,100,1500,1044,100,100,100,100,100,0,0,0,0,0,none,1.0
+lodf,50,1500,1044,50,50,50,50,50,0,0,0,0,0,none,1.0
+lodf,100,1500,1044,100,100,100,100,100,0,0,0,0,0,none,1.0

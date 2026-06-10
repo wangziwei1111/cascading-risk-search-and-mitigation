@@ -351,3 +351,21 @@ run_dynamic_method_comparison_batch( ...
 ```
 
 Current Round 23 result: learned, PIO-GCN, and LODF Top100 dynamic precision values are still 0. The non-smoke result remains a preliminary diagnostic comparison with `calibration_warning = true`, not a formal dynamic stability conclusion. No dynamic recall is reported without full dynamic truth.
+
+## Round 24 Event Strength Calibration
+
+Round 24 fixes duplicate-path TopK coverage and reruns non-smoke Top50/Top100 with:
+
+```text
+results/gcn_search/simulink_dynamic_event_strength_calibration/recommended_event_strength_options.json
+```
+
+The calibrated dynamic layer is no longer all-stable or all-unstable. Current Top100 dynamic precision:
+
+```text
+learned_mlp = 0.27
+pio_gcn = 0.36
+lodf = 0.30
+```
+
+This is still preliminary diagnostic evidence only. It does not show learned dynamic superiority, and it is not EMT, not full OPF, and not an engineering-grade dynamic stability conclusion.

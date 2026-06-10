@@ -42,14 +42,17 @@ def export_simulink_dynamic_cases(config: SimulinkDynamicCaseExportConfig) -> di
     paths = _normalize_path_table(paths, config).head(max(config.top_k)).reset_index(drop=True)
     event_table = _make_event_table(paths, config)
     manifest = _make_manifest(paths, config)
+    coverage = _make_coverage_summary(paths, config)
     matlab_input = event_table[["case_id", "event_time", "event_type", "event_line", "simulation_end_time"]].copy()
     paths.to_csv(out / "simulink_topk_paths.csv", index=False, encoding="utf-8-sig")
     event_table.to_csv(out / "simulink_dynamic_event_table.csv", index=False, encoding="utf-8-sig")
     manifest.to_csv(out / "simulink_dynamic_case_manifest.csv", index=False, encoding="utf-8-sig")
+    coverage.to_csv(out / "case_export_coverage_summary.csv", index=False, encoding="utf-8-sig")
     matlab_input.to_csv(out / "matlab_batch_input.csv", index=False, encoding="utf-8-sig")
     return {
         "output_dir": str(out),
         "num_cases": int(len(paths)),
+        "coverage_summary": str(out / "case_export_coverage_summary.csv"),
         "event_table": str(out / "simulink_dynamic_event_table.csv"),
         "matlab_batch_input": str(out / "matlab_batch_input.csv"),
     }
@@ -224,12 +227,35 @@ def _make_event_table(paths: pd.DataFrame, config: SimulinkDynamicCaseExportConf
 
 def _make_manifest(paths: pd.DataFrame, config: SimulinkDynamicCaseExportConfig) -> pd.DataFrame:
     manifest = paths.copy()
+    requested = int(max(config.top_k))
     manifest["event_1_time"] = float(config.event_1_time)
     manifest["event_2_time"] = float(config.event_2_time)
     manifest["simulation_end_time"] = float(config.simulation_end_time)
     manifest["method"] = config.method
     manifest["full_dynamic_truth"] = False
+    manifest["requested_top_k"] = requested
+    manifest["exported_case_count"] = int(len(paths))
+    manifest["dropped_case_count"] = int(max(0, requested - len(paths)))
+    manifest["coverage_ratio"] = float(len(paths) / max(requested, 1))
+    manifest["dropped_reason"] = ""
     return manifest
+
+
+def _make_coverage_summary(paths: pd.DataFrame, config: SimulinkDynamicCaseExportConfig) -> pd.DataFrame:
+    requested = int(max(config.top_k))
+    exported = int(len(paths))
+    return pd.DataFrame(
+        [
+            {
+                "method": config.method,
+                "requested_top_k": requested,
+                "exported_case_count": exported,
+                "dropped_case_count": int(max(0, requested - exported)),
+                "coverage_ratio": float(exported / max(requested, 1)),
+                "dropped_reason_summary": "none" if exported >= requested else "insufficient_unique_valid_paths_after_export",
+            }
+        ]
+    )
 
 
 def parse_args() -> argparse.Namespace:

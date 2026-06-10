@@ -157,6 +157,89 @@ python scripts/gcn_search/check_pio_gcn_artifacts.py
 git diff -- src/rl_mitigation scripts/rl_mitigation
 ```
 
+## Round 24: TopK Coverage Fix And Event Strength Calibration
+
+Round 24 first fixes non-smoke TopK case coverage, then calibrates post-fault event strength so the simplified dynamic layer is no longer all-stable or all-unstable. This remains a preliminary diagnostic result, not a formal dynamic stability conclusion.
+
+Coverage diagnosis after the fix:
+
+| method | Top50 coverage | Top100 coverage |
+| --- | ---: | ---: |
+| learned_mlp | 1.0000 | 1.0000 |
+| pio_gcn | 1.0000 | 1.0000 |
+| lodf | 1.0000 | 1.0000 |
+
+The Round 23 shortfall was caused by duplicate ordered N-2 paths in the input ranking. Round 24 uses `--ensure-unique-paths --fill-to-k` to fill from deeper ranks until enough unique valid paths are available.
+
+Recommended event strength options:
+
+```text
+frequency_unstable_threshold_hz = 49.3
+rotor_angle_unstable_threshold_deg = 180.0
+damping_scale = 2.0
+inertia_scale = 2.0
+coupling_scale = 0.2
+line_loading_scale = 0.002
+relay_beta = 1.5
+load_shed_step_fraction = 0.01
+```
+
+Event-strength calibrated result:
+
+| method | Top50 precision | Top100 precision | Top50 mean stress | Top100 mean stress |
+| --- | ---: | ---: | ---: | ---: |
+| learned_mlp | 0.3000 | 0.2700 | 0.0985 | 0.0871 |
+| pio_gcn | 0.3400 | 0.3600 | 0.0997 | 0.1029 |
+| lodf | 0.2800 | 0.3000 | 0.0887 | 0.0900 |
+
+The event-strength calibrated dynamic layer is nondegenerate:
+
+```text
+all_stable_warning = false
+all_unstable_warning = false
+nondegenerate_dynamic_layer = true
+dynamic_discrimination_signal = false
+allowed_next_step = report_no_dynamic_advantage_preliminary
+```
+
+OPA/dynamic alignment remains mixed. Learned Top100 has `corr(stress, OPA shed) = 0.1211` and `corr(dynamic_unstable, OPA critical) = 0.1461`, but learned Top100 precision is lower than PIO-GCN, so there is no learned dynamic advantage observed.
+
+Commands:
+
+```powershell
+python src/gcn_search/legacy_rts79/prepare_dynamic_method_comparison_topk.py --input-csv results/gcn_search/simulink_dynamic_real_per_path_ranking_non_smoke/learned_mlp_per_path_ranking.csv --output-dir results/gcn_search/simulink_dynamic_method_comparison_inputs_non_smoke_top100 --top-k 100 --ensure-unique-paths --fill-to-k
+
+python src/gcn_search/legacy_rts79/export_dynamic_method_comparison_cases.py --input-root results/gcn_search/simulink_dynamic_method_comparison_inputs_non_smoke_top100 --output-root results/gcn_search/simulink_dynamic_method_comparison_cases_non_smoke --top-k 50 100 --event-1-time 1.0 --event-2-time 5.0 --simulation-end-time 10.0
+
+python src/gcn_search/legacy_rts79/diagnose_dynamic_topk_case_coverage.py --ranking-csv results/gcn_search/simulink_dynamic_real_per_path_ranking_non_smoke/learned_mlp_per_path_ranking.csv --input-root results/gcn_search/simulink_dynamic_method_comparison_inputs_non_smoke_top100 --cases-root results/gcn_search/simulink_dynamic_method_comparison_cases_non_smoke --results-root results/gcn_search/simulink_dynamic_method_comparison_results_non_smoke_event_strength --output-dir results/gcn_search/simulink_dynamic_method_comparison_non_smoke_summary
+
+python src/gcn_search/legacy_rts79/calibrate_post_fault_event_strength.py --cases-root results/gcn_search/simulink_dynamic_method_comparison_cases_non_smoke --basecase-path results/gcn_search/simulink_dynamic_basecase/rts79_simulink_basecase.json --output-dir results/gcn_search/simulink_dynamic_event_strength_calibration --results-root results/gcn_search/simulink_dynamic_method_comparison_results_non_smoke --max-cases-per-group 30 --run-matlab
+```
+
+MATLAB rerun:
+
+```matlab
+run_dynamic_method_comparison_batch( ...
+  "../../results/gcn_search/simulink_dynamic_basecase/rts79_simulink_basecase.json", ...
+  "../../results/gcn_search/simulink_dynamic_method_comparison_cases_non_smoke", ...
+  "../../results/gcn_search/simulink_dynamic_method_comparison_results_non_smoke_event_strength", ...
+  "../../results/gcn_search/simulink_dynamic_event_strength_calibration/recommended_event_strength_options.json", ...
+  100 ...
+)
+```
+
+No dynamic recall is reported because no full dynamic truth exists. Generated `.slx`, `.mat`, full per-case results, full per-path ranking, event logs, and raw trajectories remain local ignored artifacts and are not intended for commit.
+
+Validation to run:
+
+```text
+python -m pytest tests/test_simulink_dynamic_case_export.py tests/test_simulink_dynamic_result_analysis.py tests/test_simulink_dynamic_disagreement.py tests/test_simulink_real_topk_preparation.py tests/test_relay_vs_security_logic.py tests/test_event_driven_dynamic_loop.py tests/test_real_topk_dynamic_pipeline.py tests/test_dynamic_method_comparison_inputs.py tests/test_export_path_reranker_per_path_ranking.py tests/test_real_topk_dynamic_validation_pipeline.py tests/test_real_topk_dynamic_summary.py tests/test_path_reranker_minimal_pipeline.py tests/test_real_topk_dynamic_smoke_summary.py tests/test_dynamic_smoke_degeneracy.py tests/test_default_vs_calibrated_dynamic_smoke.py tests/test_dynamic_instability_reasons.py tests/test_dynamic_stress_score.py tests/test_dynamic_negative_controls.py tests/test_swing_equilibrium_diagnostics.py tests/test_dynamic_threshold_sensitivity.py tests/test_negative_controls_v2_summary.py tests/test_post_fault_sanity_ladder.py tests/test_dynamic_interpretability_gate.py tests/test_negative_control_v3_summary.py tests/test_dynamic_method_comparison_cases.py tests/test_dynamic_method_comparison_analysis.py tests/test_dynamic_rank_depth_curve.py tests/test_non_smoke_path_reranker_dataset.py tests/test_non_smoke_dynamic_method_comparison.py tests/test_non_smoke_label_dynamic_alignment.py tests/test_dynamic_topk_case_coverage.py tests/test_post_fault_event_strength_calibration.py tests/test_event_strength_dynamic_summary.py
+
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+
+git diff -- src/rl_mitigation scripts/rl_mitigation
+```
+
 If no real per-path ranking CSV is found in the local checkout, the correct status is: real per-path ranking CSV not available; real Top-K dynamic validation was not run.
 
 Local validation result:

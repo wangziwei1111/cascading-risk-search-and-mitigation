@@ -69,6 +69,8 @@ Round 22 allows the next step to expand to a non-smoke dataset for diagnosis, bu
 
 Round 23 performs this non-smoke expansion. The medium dataset has 8000 samples and 471 positives, but the learned / PIO-GCN / LODF Top100 dynamic precision values are still all 0. The non-smoke result therefore remains a `calibration_warning`, with `dynamic_discrimination_signal = false`.
 
+Round 24 fixes duplicate-path TopK coverage and calibrates event-strength thresholds. The calibrated non-smoke dynamic layer is nondegenerate: learned Top100 precision is 0.27, PIO-GCN Top100 precision is 0.36, and LODF Top100 precision is 0.30. This is still a preliminary diagnostic result, and it does not show learned dynamic superiority.
+
 No dynamic recall is reported because no full dynamic truth exists.
 
 This remains:

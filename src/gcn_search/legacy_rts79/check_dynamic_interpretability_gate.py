@@ -14,6 +14,8 @@ def check_dynamic_interpretability_gate(
     method_comparison_summary_csv: str | Path | None = None,
     non_smoke_method_comparison_summary_csv: str | Path | None = None,
     non_smoke_label_dynamic_alignment_json: str | Path | None = None,
+    topk_coverage_diagnostics_csv: str | Path | None = None,
+    event_strength_method_comparison_summary_csv: str | Path | None = None,
 ) -> dict:
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -60,7 +62,33 @@ def check_dynamic_interpretability_gate(
                     or float(learned["dynamic_precision_at_k"].iloc[0]) > float(controls2["dynamic_precision_at_k"].max())
                 )
     alignment_available = bool(non_smoke_label_dynamic_alignment_json and Path(non_smoke_label_dynamic_alignment_json).exists())
-    if non_smoke_method_comparison_summary_csv and Path(non_smoke_method_comparison_summary_csv).exists():
+    topk_coverage_passed = _coverage_passed(topk_coverage_diagnostics_csv)
+    event_strength_calibrated = bool(event_strength_method_comparison_summary_csv and Path(event_strength_method_comparison_summary_csv).exists())
+    event_nondegenerate = False
+    event_learned_signal = False
+    if event_strength_calibrated:
+        event_summary = pd.read_csv(event_strength_method_comparison_summary_csv)
+        top100 = event_summary[event_summary["top_k"].astype(int) == 100] if "top_k" in event_summary.columns else event_summary
+        if not top100.empty:
+            precision = top100["dynamic_precision_at_k"].astype(float)
+            event_nondegenerate = bool(not ((precision == 0.0).all() or (precision == 1.0).all()))
+            learned = top100[top100["method"].astype(str) == "learned_mlp"]
+            controls2 = top100[top100["method"].astype(str) != "learned_mlp"]
+            if not learned.empty and not controls2.empty:
+                event_learned_signal = bool(
+                    float(learned["mean_dynamic_stress_score"].iloc[0]) > float(controls2["mean_dynamic_stress_score"].max()) * 1.05
+                    or float(learned["dynamic_precision_at_k"].iloc[0]) > float(controls2["dynamic_precision_at_k"].max())
+                )
+    if topk_coverage_diagnostics_csv and not topk_coverage_passed:
+        allowed_next_step = "fix_topk_coverage"
+    elif event_strength_calibrated:
+        if not event_nondegenerate:
+            allowed_next_step = "tune_post_fault_event_strength"
+        elif event_learned_signal:
+            allowed_next_step = "prepare_preliminary_figures"
+        else:
+            allowed_next_step = "report_no_dynamic_advantage_preliminary"
+    elif non_smoke_method_comparison_summary_csv and Path(non_smoke_method_comparison_summary_csv).exists():
         if non_smoke_all_stable_or_unstable:
             allowed_next_step = "tune_post_fault_event_strength"
         elif non_smoke_learned_signal:
@@ -86,7 +114,11 @@ def check_dynamic_interpretability_gate(
         "non_smoke_method_comparison_has_variation": non_smoke_has_variation,
         "non_smoke_all_stable_or_unstable": non_smoke_all_stable_or_unstable,
         "non_smoke_label_dynamic_alignment_available": alignment_available,
-        "dynamic_discrimination_signal": "preliminary_diagnostic_only" if learned_higher_stress or learned_higher_precision or non_smoke_learned_signal else "false",
+        "topk_coverage_passed": topk_coverage_passed,
+        "nondegenerate_dynamic_layer": event_nondegenerate,
+        "event_strength_calibrated": event_strength_calibrated,
+        "preliminary_dynamic_discrimination_signal": event_learned_signal,
+        "dynamic_discrimination_signal": "preliminary_diagnostic_only" if learned_higher_stress or learned_higher_precision or non_smoke_learned_signal or event_learned_signal else "false",
         "allowed_next_step": allowed_next_step,
     }
     csv_path = out / "dynamic_interpretability_gate_summary.csv"
@@ -110,6 +142,15 @@ def _group_unstable(table: pd.DataFrame, group: str) -> float:
     return float(sub["unstable_fraction"].iloc[0])
 
 
+def _coverage_passed(path: str | Path | None) -> bool:
+    if path is None or not Path(path).exists():
+        return True
+    table = pd.read_csv(path)
+    if table.empty or "coverage_ratio" not in table.columns:
+        return False
+    return bool((table["coverage_ratio"].astype(float) >= 0.95).all())
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Check whether dynamic Top-K precision is interpretable.")
     parser.add_argument("--post-fault-sanity-csv", required=True)
@@ -117,6 +158,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--method-comparison-summary-csv")
     parser.add_argument("--non-smoke-method-comparison-summary-csv")
     parser.add_argument("--non-smoke-label-dynamic-alignment-json")
+    parser.add_argument("--topk-coverage-diagnostics-csv")
+    parser.add_argument("--event-strength-method-comparison-summary-csv")
     parser.add_argument("--output-dir", default="results/gcn_search/simulink_dynamic_interpretability_gate")
     return parser.parse_args()
 
@@ -130,6 +173,8 @@ def main() -> None:
         args.method_comparison_summary_csv,
         args.non_smoke_method_comparison_summary_csv,
         args.non_smoke_label_dynamic_alignment_json,
+        args.topk_coverage_diagnostics_csv,
+        args.event_strength_method_comparison_summary_csv,
     )
 
 

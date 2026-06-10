@@ -77,10 +77,18 @@ def analyze_dynamic_method_comparison(
         )
     summary = pd.DataFrame(rows)
     calibration_warning = _calibration_warning(summary)
+    all_stable_warning = _all_stable_warning(summary)
+    all_unstable_warning = _all_unstable_warning(summary)
+    nondegenerate = bool(not all_stable_warning and not all_unstable_warning and not summary.empty)
     signal = _diagnostic_signal(summary)
     extra = _load_extra_metadata(dataset_stats_json, model_summary_json)
     if not summary.empty:
         summary["calibration_warning"] = calibration_warning
+        summary["all_stable_warning"] = all_stable_warning
+        summary["all_unstable_warning"] = all_unstable_warning
+        summary["nondegenerate_dynamic_layer"] = nondegenerate
+        summary["preliminary_dynamic_discrimination_signal"] = signal
+        summary["event_strength_options_json"] = str(options_json) if options_json else ""
         summary["dynamic_discrimination_signal"] = signal
         for key, value in extra.items():
             summary[key] = value
@@ -93,6 +101,9 @@ def analyze_dynamic_method_comparison(
         "options_json": str(options_json) if options_json else None,
         "num_rows": int(len(summary)),
         "calibration_warning": calibration_warning,
+        "all_stable_warning": all_stable_warning,
+        "all_unstable_warning": all_unstable_warning,
+        "nondegenerate_dynamic_layer": nondegenerate,
         "dynamic_discrimination_signal": signal,
         **extra,
         "note": "preliminary diagnostic comparison only; no dynamic recall is reported",
@@ -125,6 +136,16 @@ def _calibration_warning(summary: pd.DataFrame) -> bool:
         return True
     precision = top100["dynamic_precision_at_k"].astype(float)
     return bool((precision == 0.0).all() or (precision == 1.0).all())
+
+
+def _all_stable_warning(summary: pd.DataFrame) -> bool:
+    top100 = summary[summary["top_k"] == 100] if not summary.empty else summary
+    return bool(top100.empty or (top100["dynamic_precision_at_k"].astype(float) == 0.0).all())
+
+
+def _all_unstable_warning(summary: pd.DataFrame) -> bool:
+    top100 = summary[summary["top_k"] == 100] if not summary.empty else summary
+    return bool(not top100.empty and (top100["dynamic_precision_at_k"].astype(float) == 1.0).all())
 
 
 def _diagnostic_signal(summary: pd.DataFrame) -> bool:

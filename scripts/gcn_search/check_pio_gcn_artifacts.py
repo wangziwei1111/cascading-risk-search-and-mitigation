@@ -29,6 +29,8 @@ REQUIRED_FILES = [
     "src/gcn_search/legacy_rts79/analyze_dynamic_method_comparison.py",
     "src/gcn_search/legacy_rts79/analyze_dynamic_rank_depth_curve.py",
     "src/gcn_search/legacy_rts79/analyze_non_smoke_label_dynamic_alignment.py",
+    "src/gcn_search/legacy_rts79/diagnose_dynamic_topk_case_coverage.py",
+    "src/gcn_search/legacy_rts79/calibrate_post_fault_event_strength.py",
     "matlab/simulink_rts79/build_rts79_swing_simulink_model.m",
     "matlab/simulink_rts79/simulate_rts79_swing_case.m",
     "matlab/simulink_rts79/run_rts79_dynamic_path_case.m",
@@ -90,6 +92,9 @@ REQUIRED_FILES = [
     "tests/test_non_smoke_path_reranker_dataset.py",
     "tests/test_non_smoke_dynamic_method_comparison.py",
     "tests/test_non_smoke_label_dynamic_alignment.py",
+    "tests/test_dynamic_topk_case_coverage.py",
+    "tests/test_post_fault_event_strength_calibration.py",
+    "tests/test_event_strength_dynamic_summary.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
     "docs/pio_gcn_simulink_real_topk_event_driven_validation.md",
@@ -99,6 +104,7 @@ REQUIRED_FILES = [
     "docs/pio_gcn_post_fault_sanity_ladder.md",
     "docs/pio_gcn_dynamic_method_comparison_top100.md",
     "docs/pio_gcn_dynamic_method_comparison_non_smoke.md",
+    "docs/pio_gcn_dynamic_event_strength_calibration.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -201,6 +207,8 @@ def main() -> int:
             failures.append("Validation log does not contain the Round 22 record.")
         if "Round 23" not in log_text:
             failures.append("Validation log does not contain the Round 23 record.")
+        if "Round 24" not in log_text:
+            failures.append("Validation log does not contain the Round 24 record.")
 
     plan_path = ROOT / "docs/pio_gcn_simulink_dynamic_validation_plan.md"
     if plan_path.exists():
@@ -414,6 +422,23 @@ def main() -> int:
             if forbidden in text:
                 failures.append(f"Round 23 non-smoke doc contains an overstatement: {forbidden}")
 
+    event_strength_doc = ROOT / "docs/pio_gcn_dynamic_event_strength_calibration.md"
+    if event_strength_doc.exists():
+        text = _read_text("docs/pio_gcn_dynamic_event_strength_calibration.md").lower()
+        for required in ["all-stable", "all-unstable", "preliminary diagnostic", "no dynamic recall", "not emt", "not full opf"]:
+            if required not in text:
+                failures.append(f"Round 24 event-strength doc is missing required term: {required}")
+        for forbidden in [
+            "final dynamic proof",
+            "emt validation completed",
+            "renewable dynamic validation completed",
+            "engineering-grade dynamic model completed",
+            "full opf redispatch completed",
+            "dynamic recall@k",
+        ]:
+            if forbidden in text:
+                failures.append(f"Round 24 event-strength doc contains an overstatement: {forbidden}")
+
     sanity_summary = ROOT / "results/gcn_search/simulink_dynamic_equilibrium_sanity/swing_equilibrium_sanity_summary.json"
     if sanity_summary.exists():
         try:
@@ -441,6 +466,9 @@ def main() -> int:
                 "tune_post_fault_event_strength",
                 "expand_full_dataset",
                 "prepare_paper_figures_preliminary",
+                "fix_topk_coverage",
+                "prepare_preliminary_figures",
+                "report_no_dynamic_advantage_preliminary",
             }:
                 failures.append("Interpretability gate allowed_next_step has an invalid value.")
         except Exception as exc:
@@ -481,6 +509,36 @@ def main() -> int:
                         failures.append("All-zero/all-one non-smoke comparison requires calibration_warning in the Round 23 doc.")
         except Exception as exc:
             failures.append(f"Failed to read non-smoke dynamic method comparison summary: {exc}")
+
+    coverage_diag = ROOT / "results/gcn_search/simulink_dynamic_method_comparison_non_smoke_summary/dynamic_topk_case_coverage_diagnostics.csv"
+    if coverage_diag.exists():
+        try:
+            import pandas as pd
+
+            table = pd.read_csv(coverage_diag)
+            if not table.empty and (table["coverage_ratio"].astype(float) < 0.95).any():
+                if "coverage warning" not in _read_text("docs/pio_gcn_dynamic_event_strength_calibration.md").lower():
+                    failures.append("TopK coverage below 0.95 requires a coverage warning in the Round 24 doc.")
+        except Exception as exc:
+            failures.append(f"Failed to read TopK coverage diagnostics: {exc}")
+
+    event_summary = ROOT / "results/gcn_search/simulink_dynamic_method_comparison_non_smoke_event_strength_summary/dynamic_method_comparison_event_strength_summary.csv"
+    if event_summary.exists():
+        try:
+            import pandas as pd
+
+            table = pd.read_csv(event_summary)
+            if any("dynamic_recall" in col.lower() for col in table.columns):
+                failures.append("Event-strength dynamic summary must not contain dynamic recall columns.")
+            if not table.empty:
+                top100 = table[table["top_k"].astype(int) == 100]
+                if not top100.empty:
+                    precision = top100["dynamic_precision_at_k"].astype(float)
+                    all_zero_or_one = (precision == 0.0).all() or (precision == 1.0).all()
+                    if all_zero_or_one and "calibration_warning" not in _read_text("docs/pio_gcn_dynamic_event_strength_calibration.md").lower():
+                        failures.append("Degenerate event-strength summary requires calibration_warning in the Round 24 doc.")
+        except Exception as exc:
+            failures.append(f"Failed to read event-strength dynamic summary: {exc}")
 
     negative_summary = ROOT / "results/gcn_search/simulink_dynamic_negative_control_summary/dynamic_negative_control_comparison.csv"
     if negative_summary.exists():

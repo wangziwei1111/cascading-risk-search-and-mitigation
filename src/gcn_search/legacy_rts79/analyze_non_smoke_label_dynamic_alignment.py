@@ -17,6 +17,7 @@ def analyze_non_smoke_label_dynamic_alignment(
     output_dir: str | Path,
     cases_root: str | Path | None = None,
     stress_ranks_csv: str | Path | None = None,
+    output_prefix: str = "non_smoke_label_dynamic_alignment",
 ) -> dict:
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -49,13 +50,14 @@ def analyze_non_smoke_label_dynamic_alignment(
                 "stress_corr_with_reranker_score": _corr(merged, "dynamic_stress_score", "reranker_score"),
                 "stress_corr_with_pio_score": _corr(merged, "dynamic_stress_score", "pio_score"),
                 "stress_corr_with_lodf_score": _corr(merged, "dynamic_stress_score", "lodf_score"),
+                "dynamic_unstable_corr_with_opa_is_critical": _corr(merged.assign(dynamic_unstable_numeric=merged["dynamic_unstable"].astype(int)), "dynamic_unstable_numeric", "opa_is_critical"),
                 "summary_dynamic_precision_at_k": _first(summary_row, "dynamic_precision_at_k", 0.0),
                 "rank_depth_mean_stress_at_k": _rank_depth_value(rank_depth, method, top_k),
             }
         )
     table = pd.DataFrame(rows)
-    csv_path = out / "non_smoke_label_dynamic_alignment.csv"
-    json_path = out / "non_smoke_label_dynamic_alignment.json"
+    csv_path = out / f"{output_prefix}.csv"
+    json_path = out / f"{output_prefix}.json"
     table.to_csv(csv_path, index=False, encoding="utf-8-sig")
     payload = {
         "ranking_csv": str(ranking_csv),
@@ -146,6 +148,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--cases-root")
     parser.add_argument("--stress-ranks-csv")
+    parser.add_argument("--output-prefix", default="non_smoke_label_dynamic_alignment")
     return parser.parse_args()
 
 
@@ -158,6 +161,7 @@ def main() -> None:
         args.output_dir,
         args.cases_root,
         args.stress_ranks_csv,
+        args.output_prefix,
     )
 
 

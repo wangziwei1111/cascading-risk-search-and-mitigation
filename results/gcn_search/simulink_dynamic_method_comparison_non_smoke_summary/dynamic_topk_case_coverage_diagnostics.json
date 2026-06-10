@@ -1,0 +1,9 @@
+{
+  "ranking_csv": "results/gcn_search/simulink_dynamic_real_per_path_ranking_non_smoke/learned_mlp_per_path_ranking.csv",
+  "input_root": "results/gcn_search/simulink_dynamic_method_comparison_inputs_non_smoke_top100",
+  "cases_root": "results/gcn_search/simulink_dynamic_method_comparison_cases_non_smoke",
+  "results_root": "results/gcn_search/simulink_dynamic_method_comparison_results_non_smoke_event_strength",
+  "num_rows": 6,
+  "min_coverage_ratio": 1.0,
+  "coverage_passed": true
+}

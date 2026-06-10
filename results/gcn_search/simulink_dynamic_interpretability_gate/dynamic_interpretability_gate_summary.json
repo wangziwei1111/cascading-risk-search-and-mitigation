@@ -11,6 +11,10 @@
   "non_smoke_method_comparison_has_variation": true,
   "non_smoke_all_stable_or_unstable": true,
   "non_smoke_label_dynamic_alignment_available": true,
+  "topk_coverage_passed": true,
+  "nondegenerate_dynamic_layer": true,
+  "event_strength_calibrated": true,
+  "preliminary_dynamic_discrimination_signal": false,
   "dynamic_discrimination_signal": "false",
-  "allowed_next_step": "tune_post_fault_event_strength"
+  "allowed_next_step": "report_no_dynamic_advantage_preliminary"
 }

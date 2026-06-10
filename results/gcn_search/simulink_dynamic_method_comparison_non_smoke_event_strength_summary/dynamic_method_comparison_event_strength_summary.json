@@ -1,0 +1,17 @@
+{
+  "options_json": "results/gcn_search/simulink_dynamic_event_strength_calibration/recommended_event_strength_options.json",
+  "num_rows": 6,
+  "calibration_warning": false,
+  "all_stable_warning": false,
+  "all_unstable_warning": false,
+  "nondegenerate_dynamic_layer": true,
+  "dynamic_discrimination_signal": false,
+  "dataset_source": "simulator_derived_medium",
+  "dataset_scale": "medium",
+  "num_dataset_samples": 8000,
+  "num_dataset_positives": 471,
+  "positive_ratio": 0.058875,
+  "model_auc": 0.7906976744186046,
+  "model_ap": 0.13398730627246017,
+  "note": "preliminary diagnostic comparison only; no dynamic recall is reported"
+}

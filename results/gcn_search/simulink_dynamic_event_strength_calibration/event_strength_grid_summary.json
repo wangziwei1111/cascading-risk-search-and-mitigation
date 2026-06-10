@@ -1,0 +1,31 @@
+{
+  "base_options_json": "results/gcn_search/simulink_dynamic_calibration/recommended_post_fault_options.json",
+  "results_root": "results/gcn_search/simulink_dynamic_method_comparison_results_non_smoke",
+  "num_grid_rows": 18,
+  "recommended": {
+    "line_loading_scale": 0.002,
+    "relay_beta": 1.5,
+    "load_shed_step_fraction": 0.01,
+    "simulation_end_time": 10.0,
+    "frequency_unstable_threshold_hz": 49.3,
+    "rotor_angle_unstable_threshold_deg": 180.0,
+    "damping_scale": 2.0,
+    "inertia_scale": 2.0,
+    "coupling_scale": 0.2,
+    "num_cases": 90,
+    "dynamic_precision": 0.3,
+    "dynamic_unstable_fraction": 0.3,
+    "passive_trip_fraction": 0.0,
+    "security_action_fraction": 0.0,
+    "mean_frequency_nadir_hz": 49.40663981910809,
+    "mean_rotor_angle_separation_coi_deg": 179.82964802247628,
+    "mean_dynamic_stress_score": 0.0,
+    "all_stable_warning": false,
+    "all_unstable_warning": false,
+    "method_variation_score": 2.0,
+    "rank_depth_variation_score": 0.0,
+    "nondegenerate_dynamic_layer": true,
+    "recommended": true
+  },
+  "note": "preliminary diagnostic calibration; goal is to avoid all-stable/all-unstable degeneracy, not to favor learned ranking"
+}
