@@ -266,3 +266,31 @@ python src/gcn_search/legacy_rts79/run_dynamic_negative_control_pipeline.py `
 ```
 
 Current result: all four groups remain 20/20 dynamically unstable, with no passive relay trips. The learned group is not more stressful than all controls, so the calibrated dynamic validation layer still carries a global degeneracy warning.
+
+## Round 20 Swing Equilibrium Sanity
+
+Round 20 adds a no-trip and low-risk sanity demo:
+
+```matlab
+run_swing_equilibrium_sanity_demo( ...
+  "../../results/gcn_search/simulink_dynamic_basecase/rts79_simulink_basecase.json", ...
+  "../../results/gcn_search/simulink_dynamic_equilibrium_sanity" ...
+)
+```
+
+The swing engine now records COI-relative rotor angle separation, raw rotor angle separation, initial Pm/Pe residuals, mean frequency, final mean frequency, and frequency drift. The default rotor-angle instability check uses COI-relative separation, while raw angle values remain available for diagnostics.
+
+This is still a simplified swing-equation prototype. COI reference reduces angle-reference drift; it does not make the model EMT, full OPF, or engineering-grade.
+
+Current Round 20 sanity result:
+
+```text
+no_trip_dynamic_unstable = false
+no_trip_frequency_nadir_hz = 50.0
+no_trip_max_rotor_angle_separation_coi_deg = 18.6714
+initial_pm_pe_max_abs_residual = 0.0
+single_mild_trip_dynamic_unstable = true
+low_risk_n2_dynamic_unstable = true
+```
+
+This means the equilibrium baseline passes, but faulted low-risk controls are still too sensitive and need further calibration before dynamic precision is interpretable.

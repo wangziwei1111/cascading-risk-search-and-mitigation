@@ -71,3 +71,26 @@ This is still a simplified swing-equation prototype:
 ## Next Step
 
 If all groups remain 20/20 unstable, continue calibrating swing dynamics and instability thresholds. If controls are less unstable or have lower stress score, expand to Top50/Top100 and compare learned, PIO-GCN, and LODF dynamic behavior.
+
+## Round 20 Follow-Up
+
+Round 20 moves the focus from Top20 comparison to dynamic-layer sanity:
+
+- run no-trip sanity before interpreting any dynamic validation;
+- use a COI reference for rotor-angle diagnostics;
+- record initial Pm/Pe residuals;
+- scan threshold sensitivity without turning the best threshold into the default;
+- summarize negative controls v2 with stress and threshold sensitivity.
+
+Only after low-risk/random controls are not all unstable should dynamic precision@20 be discussed as an interpretable metric.
+
+Round 20 result:
+
+```text
+no_trip sanity passed = true
+negative controls v2 global_degeneracy_warning = true
+threshold_sensitivity_discrimination_signal = true
+dynamic_discrimination_signal = false
+```
+
+So the dynamic layer now passes the no-trip equilibrium sanity check, but default Top20 dynamic precision is still not interpretable because all groups remain unstable at the default threshold.

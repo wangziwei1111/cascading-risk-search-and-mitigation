@@ -226,3 +226,11 @@ Negative-control comparison:
 | line_order_top20 | 1.0000 | 0 | 12 | 4.9756 |
 
 The result still has `global_degeneracy_warning = true` and `dynamic_discrimination_signal = false`. The important conclusion is conservative: the event-driven Simulink wrapper now runs real learned and control Top20 batches, but the current calibrated swing-equation instability threshold is still too broad to support a learned-method performance claim.
+
+## Round 20 Equilibrium and Threshold Calibration
+
+Round 20 adds no-trip sanity, COI reference angle diagnostics, Pm/Pe residual diagnostics, threshold sensitivity, and negative controls v2. The purpose is to make the dynamic layer physically interpretable before any Top-K dynamic precision claim.
+
+The main rule remains: no dynamic recall is reported without full dynamic truth, and Top20 smoke is not a formal dynamic validation conclusion.
+
+Round 20 no-trip sanity passed, but single mild trip and low-risk N-2 still became dynamically unstable. Negative controls v2 still reports `global_degeneracy_warning = true`. Threshold sensitivity contains a diagnostic separation signal, but this is not a formal performance claim.

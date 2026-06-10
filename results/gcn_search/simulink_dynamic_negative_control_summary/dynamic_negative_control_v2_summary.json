@@ -1,0 +1,7 @@
+{
+  "global_degeneracy_warning": true,
+  "dynamic_discrimination_signal": false,
+  "threshold_sensitivity_discrimination_signal": true,
+  "num_groups": 4,
+  "interpretation": "negative controls v2 summary; no dynamic recall is reported"
+}

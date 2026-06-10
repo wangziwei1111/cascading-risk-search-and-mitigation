@@ -1,0 +1,18 @@
+{
+  "no_trip_dynamic_unstable": false,
+  "no_trip_frequency_nadir_hz": 50.0,
+  "no_trip_frequency_zenith_hz": 50.0,
+  "no_trip_final_mean_frequency_hz": 50.0,
+  "no_trip_max_rotor_angle_separation_deg": 18.671415861494207,
+  "no_trip_max_rotor_angle_separation_coi_deg": 18.671415861494207,
+  "pre_event_frequency_drift_hz_per_s": 0.0,
+  "pre_event_angle_spread_growth_deg_per_s": 0.0,
+  "initial_pm_pe_residual_norm": 0.0,
+  "initial_pm_pe_max_abs_residual": 0.0,
+  "mean_pm": -6.7286243916676156e-18,
+  "mean_pe": -6.7286243916676156e-18,
+  "total_load_mw": 3125.9077529188858,
+  "total_generation_mw": 3125.9077529188867,
+  "sanity_passed": true,
+  "dynamic_model_equilibrium_failed": false
+}

@@ -437,3 +437,87 @@ PASS: GCN Simulink dynamic validation artifacts are review-ready.
 ```
 
 RL mitigation files were not modified. Generated `.pkl`, `.slx`, `.mat`, dynamic case folders, raw event logs, and full per-path ranking artifacts remain local ignored artifacts and are not intended for commit.
+
+## Round 20: Swing Equilibrium Sanity and Threshold Sensitivity
+
+Round 20 addresses the Round 19 problem that all negative-control groups were 20/20 dynamically unstable. The aim is not to tune thresholds for a nicer precision number; the aim is to check whether the swing-equation dynamic layer has a stable no-trip baseline and whether threshold sensitivity gives any diagnostic separation.
+
+Added:
+
+```text
+matlab/simulink_rts79/initialize_swing_equilibrium.m
+matlab/simulink_rts79/run_swing_equilibrium_sanity_demo.m
+src/gcn_search/legacy_rts79/analyze_swing_equilibrium_diagnostics.py
+src/gcn_search/legacy_rts79/analyze_dynamic_threshold_sensitivity.py
+src/gcn_search/legacy_rts79/summarize_dynamic_negative_controls_v2.py
+tests/test_swing_equilibrium_diagnostics.py
+tests/test_dynamic_threshold_sensitivity.py
+tests/test_negative_controls_v2_summary.py
+docs/pio_gcn_swing_equilibrium_and_threshold_calibration.md
+```
+
+MATLAB sanity command:
+
+```matlab
+run_swing_equilibrium_sanity_demo( ...
+  "../../results/gcn_search/simulink_dynamic_basecase/rts79_simulink_basecase.json", ...
+  "../../results/gcn_search/simulink_dynamic_equilibrium_sanity" ...
+)
+```
+
+No-trip sanity result:
+
+```text
+no_trip_dynamic_unstable = false
+no_trip_frequency_nadir_hz = 50.0
+no_trip_frequency_zenith_hz = 50.0
+no_trip_final_mean_frequency_hz = 50.0
+no_trip_max_rotor_angle_separation_coi_deg = 18.671415861494207
+pre_event_frequency_drift_hz_per_s = 0.0
+initial_pm_pe_residual_norm = 0.0
+initial_pm_pe_max_abs_residual = 0.0
+sanity_passed = true
+dynamic_model_equilibrium_failed = false
+```
+
+This fixes the baseline equilibrium sanity: no active trip stays stable. However:
+
+```text
+single_mild_trip_dynamic_unstable = true
+low_risk_n2_dynamic_unstable = true
+```
+
+Updated negative controls v2:
+
+| group | default unstable fraction | relaxed-threshold unstable fraction | passive trip fraction | mean stress |
+| --- | ---: | ---: | ---: | ---: |
+| learned_top20 | 1.00 | 1.00 | 1.00 | 26.1084 |
+| low_score_top20 | 1.00 | 0.70 | 0.75 | 11.7528 |
+| random_top20 | 1.00 | 0.90 | 0.90 | 16.1437 |
+| line_order_top20 | 1.00 | 0.40 | 0.60 | 9.1307 |
+
+Threshold sensitivity:
+
+```text
+num_threshold_cases = 80
+all_groups_unstable_for_all_thresholds = false
+has_threshold_discrimination_signal = true
+interpretation = threshold sensitivity only; not a formal dynamic conclusion
+```
+
+Interpretation: the COI and equilibrium changes make the no-trip baseline physically sane, but default-threshold Top20 dynamic validation remains globally degenerate. The sensitivity scan suggests there may be separability under relaxed thresholds, but this is a calibration clue only and must not be reported as a formal learned-method result. No dynamic recall is reported because no full dynamic truth exists.
+
+Validation:
+
+```text
+python -m pytest tests/test_simulink_dynamic_case_export.py tests/test_simulink_dynamic_result_analysis.py tests/test_simulink_dynamic_disagreement.py tests/test_simulink_real_topk_preparation.py tests/test_relay_vs_security_logic.py tests/test_event_driven_dynamic_loop.py tests/test_real_topk_dynamic_pipeline.py tests/test_dynamic_method_comparison_inputs.py tests/test_export_path_reranker_per_path_ranking.py tests/test_real_topk_dynamic_validation_pipeline.py tests/test_real_topk_dynamic_summary.py tests/test_path_reranker_minimal_pipeline.py tests/test_real_topk_dynamic_smoke_summary.py tests/test_dynamic_smoke_degeneracy.py tests/test_default_vs_calibrated_dynamic_smoke.py tests/test_dynamic_instability_reasons.py tests/test_dynamic_stress_score.py tests/test_dynamic_negative_controls.py tests/test_swing_equilibrium_diagnostics.py tests/test_dynamic_threshold_sensitivity.py tests/test_negative_controls_v2_summary.py
+40 passed
+
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+PASS: GCN Simulink dynamic validation artifacts are review-ready.
+
+git diff -- src/rl_mitigation scripts/rl_mitigation
+empty
+```
+
+RL mitigation files were not modified. Generated `.slx`, `.mat`, dynamic case folders, raw event logs, full per-case dynamic results, and full per-path ranking artifacts remain local ignored artifacts and are not intended for commit.

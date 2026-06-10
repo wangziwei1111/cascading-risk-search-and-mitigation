@@ -21,6 +21,9 @@ REQUIRED_FILES = [
     "src/gcn_search/legacy_rts79/compute_dynamic_stress_score.py",
     "src/gcn_search/legacy_rts79/prepare_dynamic_negative_control_inputs.py",
     "src/gcn_search/legacy_rts79/run_dynamic_negative_control_pipeline.py",
+    "src/gcn_search/legacy_rts79/analyze_swing_equilibrium_diagnostics.py",
+    "src/gcn_search/legacy_rts79/analyze_dynamic_threshold_sensitivity.py",
+    "src/gcn_search/legacy_rts79/summarize_dynamic_negative_controls_v2.py",
     "matlab/simulink_rts79/build_rts79_swing_simulink_model.m",
     "matlab/simulink_rts79/simulate_rts79_swing_case.m",
     "matlab/simulink_rts79/run_rts79_dynamic_path_case.m",
@@ -32,6 +35,8 @@ REQUIRED_FILES = [
     "matlab/simulink_rts79/run_real_topk_dynamic_validation.m",
     "matlab/simulink_rts79/run_real_topk_event_driven_dynamic_validation.m",
     "matlab/simulink_rts79/update_swing_power_after_load_shed.m",
+    "matlab/simulink_rts79/initialize_swing_equilibrium.m",
+    "matlab/simulink_rts79/run_swing_equilibrium_sanity_demo.m",
     "matlab/simulink_rts79/run_mild_overload_security_demo.m",
     "matlab/simulink_rts79/run_severe_overload_relay_demo.m",
     "matlab/simulink_rts79/README.md",
@@ -65,11 +70,15 @@ REQUIRED_FILES = [
     "tests/test_dynamic_instability_reasons.py",
     "tests/test_dynamic_stress_score.py",
     "tests/test_dynamic_negative_controls.py",
+    "tests/test_swing_equilibrium_diagnostics.py",
+    "tests/test_dynamic_threshold_sensitivity.py",
+    "tests/test_negative_controls_v2_summary.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
     "docs/pio_gcn_simulink_real_topk_event_driven_validation.md",
     "docs/pio_gcn_simulink_real_topk_dynamic_smoke.md",
     "docs/pio_gcn_simulink_dynamic_negative_controls.md",
+    "docs/pio_gcn_swing_equilibrium_and_threshold_calibration.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -161,6 +170,8 @@ def main() -> int:
             failures.append("Validation log does not contain the Round 18 record.")
         if "Round 19" not in log_text:
             failures.append("Validation log does not contain the Round 19 record.")
+        if "Round 20" not in log_text:
+            failures.append("Validation log does not contain the Round 20 record.")
 
     plan_path = ROOT / "docs/pio_gcn_simulink_dynamic_validation_plan.md"
     if plan_path.exists():
@@ -222,6 +233,9 @@ def main() -> int:
             "engineering-grade dynamic model completed",
             "full opf redispatch completed",
             "dynamic recall@k",
+            "dynamic recall@20",
+            "dynamic recall@50",
+            "dynamic recall@100",
         ]
         for term in forbidden_terms:
             if term in event_doc_text:
@@ -322,6 +336,38 @@ def main() -> int:
         ]:
             if required not in negative_text:
                 failures.append(f"Negative-control doc is missing required term: {required}")
+
+    calibration_doc = ROOT / "docs/pio_gcn_swing_equilibrium_and_threshold_calibration.md"
+    if calibration_doc.exists():
+        calibration_text = _read_text("docs/pio_gcn_swing_equilibrium_and_threshold_calibration.md").lower()
+        for required in ["no-trip sanity", "coi reference", "threshold sensitivity", "no dynamic recall", "not emt", "not full opf"]:
+            if required not in calibration_text:
+                failures.append(f"Round 20 calibration doc is missing required term: {required}")
+        for forbidden in [
+            "final dynamic proof",
+            "emt validation completed",
+            "renewable dynamic validation completed",
+            "engineering-grade dynamic model completed",
+            "full opf redispatch completed",
+            "dynamic recall@k",
+        ]:
+            if forbidden in calibration_text:
+                failures.append(f"Round 20 calibration doc contains an overstatement: {forbidden}")
+
+    sanity_summary = ROOT / "results/gcn_search/simulink_dynamic_equilibrium_sanity/swing_equilibrium_sanity_summary.json"
+    if sanity_summary.exists():
+        try:
+            payload = __import__("json").loads(sanity_summary.read_text(encoding="utf-8"))
+            if "sanity_passed" not in payload:
+                failures.append("No-trip sanity summary exists but does not contain sanity_passed.")
+        except Exception as exc:
+            failures.append(f"Failed to read no-trip sanity summary: {exc}")
+
+    threshold_summary = ROOT / "results/gcn_search/simulink_dynamic_threshold_sensitivity/dynamic_threshold_sensitivity_summary.json"
+    if threshold_summary.exists():
+        text = threshold_summary.read_text(encoding="utf-8", errors="ignore").lower()
+        if "formal dynamic conclusion" not in text:
+            failures.append("Threshold sensitivity summary must state it is not a formal dynamic conclusion.")
 
     negative_summary = ROOT / "results/gcn_search/simulink_dynamic_negative_control_summary/dynamic_negative_control_comparison.csv"
     if negative_summary.exists():

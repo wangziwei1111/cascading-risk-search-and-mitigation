@@ -1,0 +1,20 @@
+{
+  "no_trip_dynamic_unstable": false,
+  "no_trip_frequency_nadir_hz": 50,
+  "no_trip_frequency_zenith_hz": 50,
+  "no_trip_final_mean_frequency_hz": 50,
+  "no_trip_max_rotor_angle_separation_deg": 18.671415861494207,
+  "no_trip_max_rotor_angle_separation_coi_deg": 18.671415861494207,
+  "pre_event_frequency_drift_hz_per_s": 0,
+  "initial_pm_pe_residual_norm": 0,
+  "initial_pm_pe_max_abs_residual": 0,
+  "mean_pm": -6.7286243916676156E-18,
+  "mean_pe": -6.7286243916676156E-18,
+  "total_load_mw": 3125.9077529188858,
+  "total_generation_mw": 3125.9077529188867,
+  "single_mild_trip_dynamic_unstable": true,
+  "low_risk_n2_dynamic_unstable": true,
+  "sanity_passed": true,
+  "dynamic_model_equilibrium_failed": false,
+  "note": "No-trip sanity must pass before interpreting Top-K dynamic precision."
+}

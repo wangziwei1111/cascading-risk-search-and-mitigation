@@ -33,8 +33,8 @@ if ~isstring(events.event_line)
     events.event_line = string(events.event_line);
 end
 caseEvents = sortrows(events(events.case_id == string(caseId), :), "event_time");
-if ~(height(caseEvents) == 0 || height(caseEvents) == 2)
-    error("Expected zero or two trip events for case_id=%s, got %d", string(caseId), height(caseEvents));
+if height(caseEvents) > 2
+    error("Expected zero, one, or two trip events for case_id=%s, got %d", string(caseId), height(caseEvents));
 end
 
 systemBaseMva = readSystemBaseMvaLocal(basecasePath);
@@ -43,13 +43,11 @@ genBus = double(generators.bus_id);
 ng = height(generators);
 M = options.inertia_scale * 2.0 * max(double(generators.H_s), 0.1);
 D = options.damping_scale * max(double(generators.D_pu), 10.0);
-delta0 = initialGeneratorAnglesLocal(branches, generators, loads, systemBaseMva);
-omega0 = ones(ng, 1);
+equilibrium = initialize_swing_equilibrium(branches, generators, loads, systemBaseMva, options);
+delta0 = equilibrium.delta0;
+omega0 = equilibrium.omega0;
 y0 = [delta0; omega0];
-[Bbus0, ~] = buildBbusLocal(branches, strings(0, 1));
-Bred0 = kronReduceToGeneratorsLocal(Bbus0, genBus);
-Bred0 = normalizeCouplingLocal(Bred0, options.coupling_scale);
-Pm = electricalPowerLocal(delta0, Bred0);
+Pm = equilibrium.Pm0;
 
 allT = [];
 allY = [];
@@ -71,6 +69,9 @@ securityRedispatchCount = 0;
 maxSecurityViolationLoadingRatio = 0.0;
 maxRelayViolationLoadingRatio = 0.0;
 eventRound = 0;
+lastPmUpdateSummary = struct("load_shed_mw", 0.0, "old_total_load_mw", sum(double(loads.pd_mw)), ...
+    "new_total_load_mw", sum(double(loads.pd_mw)), "old_total_pm", sum(double(Pm)), ...
+    "new_total_pm", sum(double(Pm)), "pm_update_mode", char(options.pm_update_mode));
 
 while currentTime < simulationEndTime && eventRound < options.max_event_rounds
     futureEvents = caseEvents(double(caseEvents.event_time) > currentTime + options.min_event_separation_s, :);
@@ -140,7 +141,7 @@ while currentTime < simulationEndTime && eventRound < options.max_event_rounds
             oldPm = Pm;
             [currentLoads, loadShedMw, affectedBusId, reason] = apply_security_redispatch_approx(currentLoads, branches, maxLineLabel, maxLoadingRatio, options);
             if options.redispatch_updates_pm
-                Pm = update_swing_power_after_load_shed(generators, oldLoads, currentLoads, oldPm);
+                [Pm, lastPmUpdateSummary] = update_swing_power_after_load_shed(generators, oldLoads, currentLoads, oldPm, currentY(1:ng), Bred, options);
             end
             cumulativeLoadShedMw = cumulativeLoadShedMw + loadShedMw;
             securityRedispatchCount = securityRedispatchCount + 1;
@@ -161,8 +162,19 @@ omega = allY(:, ng + 1:end);
 frequencyHz = f0 .* omega;
 frequencyNadirHz = min(frequencyHz, [], "all");
 frequencyZenithHz = max(frequencyHz, [], "all");
+meanFrequencyHz = mean(frequencyHz, "all");
+finalMeanFrequencyHz = mean(frequencyHz(end, :));
+if numel(allT) >= 2
+    frequencyDriftHzPerS = (mean(frequencyHz(end, :)) - mean(frequencyHz(1, :))) / max(allT(end) - allT(1), eps);
+else
+    frequencyDriftHzPerS = 0.0;
+end
 delta = allY(:, 1:ng);
-maxRotorAngleSeparationDeg = max((max(delta, [], 2) - min(delta, [], 2)) * 180 / pi);
+rawRotorAngleSeparationDeg = max((max(delta, [], 2) - min(delta, [], 2)) * 180 / pi);
+coiDelta = centerOfInertiaDeltaLocal(delta, M);
+coiRotorAngleSeparationDeg = max(max(abs(coiDelta), [], 2) * 180 / pi);
+finalRotorAngleSeparationCoiDeg = max(abs(coiDelta(end, :))) * 180 / pi;
+maxRotorAngleSeparationDeg = coiRotorAngleSeparationDeg;
 lineLoadingSummary = cell2table(lineRows, "VariableNames", ["time_s", "line_label", "loading_ratio"]);
 lineLoadingSummary.loading_ratio = double(lineLoadingSummary.loading_ratio) * options.line_loading_scale;
 maxLineLoadingRatio = max(double(lineLoadingSummary.loading_ratio));
@@ -177,17 +189,31 @@ dynamicLoadShedMw = cumulativeLoadShedMw;
 
 resultTable = table( ...
     string(caseId), true, true, frequencyNadirHz, frequencyZenithHz, ...
-    maxRotorAngleSeparationDeg, maxLineLoadingRatio, height(caseEvents), ...
+    maxRotorAngleSeparationDeg, rawRotorAngleSeparationDeg, coiRotorAngleSeparationDeg, ...
+    finalRotorAngleSeparationCoiDeg, meanFrequencyHz, finalMeanFrequencyHz, frequencyDriftHzPerS, ...
+    equilibrium.residual_norm, equilibrium.max_abs_residual, equilibrium.mean_pm, equilibrium.mean_pe, ...
+    equilibrium.total_load_mw, equilibrium.total_generation_mw, ...
+    lastPmUpdateSummary.load_shed_mw, lastPmUpdateSummary.old_total_load_mw, ...
+    lastPmUpdateSummary.new_total_load_mw, lastPmUpdateSummary.old_total_pm, ...
+    lastPmUpdateSummary.new_total_pm, string(lastPmUpdateSummary.pm_update_mode), ...
+    maxLineLoadingRatio, height(caseEvents), ...
     dynamicUnstable, string(unstableReason), passiveRelayTripCount, securityRedispatchCount, ...
     dynamicLoadShedMw, maxSecurityViolationLoadingRatio, maxRelayViolationLoadingRatio, options.relay_beta, ...
     "simulink_swing_prototype", ...
     'VariableNames', ["case_id", "sim_completed", "converged", "frequency_nadir_hz", ...
-    "frequency_zenith_hz", "max_rotor_angle_separation_deg", "max_line_loading_ratio", ...
+    "frequency_zenith_hz", "max_rotor_angle_separation_deg", ...
+    "max_rotor_angle_separation_raw_deg", "max_rotor_angle_separation_coi_deg", ...
+    "final_rotor_angle_separation_coi_deg", "mean_frequency_hz", "final_mean_frequency_hz", ...
+    "frequency_drift_hz_per_s", "initial_pm_pe_residual_norm", "initial_pm_pe_max_abs_residual", ...
+    "mean_pm", "mean_pe", "total_load_mw", "total_generation_mw", ...
+    "pm_update_load_shed_mw", "pm_update_old_total_load_mw", "pm_update_new_total_load_mw", ...
+    "pm_update_old_total_pm", "pm_update_new_total_pm", "pm_update_mode", ...
+    "max_line_loading_ratio", ...
     "dynamic_trip_count", "dynamic_unstable", "unstable_reason", "passive_relay_trip_count", ...
     "security_redispatch_count", "dynamic_load_shed_mw", "max_security_violation_loading_ratio", ...
     "max_relay_violation_loading_ratio", "relay_beta", "result_source"]);
 
-trajectorySummary = trajectorySummaryTableLocal(allT, allY, generators, f0);
+trajectorySummary = trajectorySummaryTableLocal(allT, allY, generators, f0, M);
 writetable(resultTable, fullfile(outputDir, "dynamic_case_result_" + string(caseId) + ".csv"));
 writetable(trajectorySummary, fullfile(outputDir, "dynamic_case_trajectory_summary_" + string(caseId) + ".csv"));
 writetable(eventLog, fullfile(outputDir, "dynamic_case_event_log_" + string(caseId) + ".csv"));
@@ -225,6 +251,8 @@ options.max_event_rounds = 20;
 options.loading_check_interval_s = 0.2;
 options.min_event_separation_s = 1e-3;
 options.redispatch_updates_pm = true;
+options.pm_update_mode = "rebalance_to_current_pe";
+options.equilibrium_residual_warning_threshold = 1e-4;
 end
 
 function options = mergeSwingOptionsLocal(optionsIn)
@@ -371,9 +399,11 @@ else
 end
 end
 
-function trajectorySummary = trajectorySummaryTableLocal(allT, allY, generators, f0)
+function trajectorySummary = trajectorySummaryTableLocal(allT, allY, generators, f0, inertiaWeights)
 ng = height(generators);
-rows = cell(numel(allT) * ng, 5);
+delta = allY(:, 1:ng);
+coiDelta = centerOfInertiaDeltaLocal(delta, inertiaWeights);
+rows = cell(numel(allT) * ng, 7);
 rowIdx = 0;
 for tIdx = 1:numel(allT)
     for genIdx = 1:ng
@@ -383,11 +413,13 @@ for tIdx = 1:numel(allT)
             double(allT(tIdx)), ...
             string(generators.gen_id(genIdx)), ...
             double(allY(tIdx, genIdx)), ...
+            double(coiDelta(tIdx, genIdx)), ...
+            double(abs(coiDelta(tIdx, genIdx)) * 180 / pi), ...
             double(omega), ...
             double(f0 * omega)};
     end
 end
-trajectorySummary = cell2table(rows, "VariableNames", ["time_s", "gen_id", "delta_rad", "omega_pu", "frequency_hz"]);
+trajectorySummary = cell2table(rows, "VariableNames", ["time_s", "gen_id", "raw_delta_rad", "coi_delta_rad", "rotor_angle_separation_coi_deg", "omega_pu", "frequency_hz"]);
 end
 
 function [eventLog, passiveRelayTripCount, securityRedispatchCount, dynamicLoadShedMw, maxSecurityViolationLoadingRatio, maxRelayViolationLoadingRatio] = classifyRelayAndSecurityEventsLocal(caseId, caseEvents, lineLoadingSummary, branches, loads, offlineLines, options)
@@ -472,5 +504,14 @@ else
 end
 end
 
-
+function coiDelta = centerOfInertiaDeltaLocal(delta, inertiaWeights)
+weights = double(inertiaWeights(:));
+if isempty(weights) || sum(weights) <= 1e-9
+    weights = ones(size(delta, 2), 1);
+end
+weights = weights / sum(weights);
+coi = delta * weights;
+relative = delta - coi;
+coiDelta = atan2(sin(relative), cos(relative));
+end
 

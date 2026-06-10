@@ -1,0 +1,6 @@
+{
+  "num_threshold_cases": 80,
+  "all_groups_unstable_for_all_thresholds": false,
+  "has_threshold_discrimination_signal": true,
+  "interpretation": "threshold sensitivity only; not a formal dynamic conclusion"
+}
