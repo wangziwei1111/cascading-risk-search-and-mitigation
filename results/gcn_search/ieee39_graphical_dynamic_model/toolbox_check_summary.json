@@ -1,0 +1,33 @@
+{
+  "required": [
+    {
+      "name": "Simulink",
+      "installed": true,
+      "version": "25.1"
+    },
+    {
+      "name": "Simscape",
+      "installed": true,
+      "version": "25.1"
+    },
+    {
+      "name": "Simscape Electrical",
+      "installed": true,
+      "version": "25.1"
+    }
+  ],
+  "optional": [
+    {
+      "name": "Stateflow",
+      "installed": true,
+      "version": "25.1"
+    },
+    {
+      "name": "Simulink Control Design",
+      "installed": true,
+      "version": "25.1"
+    }
+  ],
+  "all_required_available": true,
+  "note": "Stateflow is optional unless relay/protection logic is later implemented with charts."
+}

@@ -1,0 +1,20 @@
+{
+  "label_scope": "IEEE39 graphical dynamic model preliminary labels",
+  "not_training_output": true,
+  "columns": {
+    "path": "ordered line outage path, e.g. L10->L05",
+    "first_line": "first active line trip",
+    "second_line": "second active line trip, empty for N-1",
+    "dynamic_unstable": "boolean dynamic instability flag from IEEE39 graphical simulation summary",
+    "dynamic_stress_score": "continuous diagnostic score derived from frequency, voltage, rotor angle, relay and breaker counts",
+    "min_frequency_hz": "minimum observed frequency in Hz",
+    "min_voltage_pu": "minimum observed bus voltage in per unit",
+    "max_rotor_angle_separation_deg": "maximum rotor-angle separation in degrees",
+    "relay_trip_count": "number of relay events in event log",
+    "breaker_trip_count": "number of breaker events in event log"
+  },
+  "limitations": [
+    "Schema only; this round does not train a dynamic-aware reranker.",
+    "Labels are only as credible as the selected IEEE39 graphical model and protection wrapper."
+  ]
+}

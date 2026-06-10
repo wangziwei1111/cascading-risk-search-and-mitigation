@@ -1,0 +1,6 @@
+test_case,simulation_success,fault_type,fault_start_s,fault_clear_s,tripped_line,relay_operated,breaker_opened,min_voltage_pu,min_frequency_hz,max_speed_deviation,max_rotor_angle_separation_deg,unstable_flag
+no_fault_sanity,1,none,0,0,,0,0,1,50,0,0,0
+single_line_trip,0,line_trip,1,1.1,L01,0,0,1,50,0,0,0
+three_phase_fault_clear,0,three_phase_fault,1,1.1,,0,0,1,50,0,0,0
+ordered_N2_trip,0,ordered_N2_trip,1,1.1,L01->L02,0,0,1,50,0,0,0
+relay_trip_test,0,relay_trip,1,1.1,relay_candidate,0,0,1,50,0,0,0

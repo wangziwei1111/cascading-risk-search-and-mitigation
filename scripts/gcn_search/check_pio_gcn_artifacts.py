@@ -34,6 +34,9 @@ REQUIRED_FILES = [
     "src/gcn_search/legacy_rts79/analyze_event_strength_robustness.py",
     "src/gcn_search/legacy_rts79/bootstrap_dynamic_method_comparison.py",
     "src/gcn_search/legacy_rts79/make_dynamic_method_comparison_figures.py",
+    "src/gcn_search/legacy_rts79/inventory_ieee39_simulink_models.py",
+    "src/gcn_search/legacy_rts79/export_ieee39_dynamic_labels.py",
+    "src/gcn_search/legacy_rts79/compare_ieee39_graphical_vs_simplified.py",
     "matlab/simulink_rts79/build_rts79_swing_simulink_model.m",
     "matlab/simulink_rts79/simulate_rts79_swing_case.m",
     "matlab/simulink_rts79/run_rts79_dynamic_path_case.m",
@@ -53,6 +56,9 @@ REQUIRED_FILES = [
     "matlab/simulink_rts79/run_mild_overload_security_demo.m",
     "matlab/simulink_rts79/run_severe_overload_relay_demo.m",
     "matlab/simulink_rts79/README.md",
+    "matlab/simulink_ieee39/check_ieee39_model_toolboxes.m",
+    "matlab/simulink_ieee39/setup_ieee39_dynamic_experiment_wrapper.m",
+    "matlab/simulink_ieee39/run_ieee39_fault_test_suite.m",
     "src/gcn_search/legacy_rts79/prepare_real_topk_for_simulink_dynamic.py",
     "src/gcn_search/legacy_rts79/prepare_dynamic_method_comparison_topk.py",
     "src/gcn_search/legacy_rts79/export_path_reranker_per_path_ranking.py",
@@ -102,6 +108,9 @@ REQUIRED_FILES = [
     "tests/test_dynamic_method_bootstrap_ci.py",
     "tests/test_dynamic_method_figures.py",
     "tests/test_preliminary_diagnostic_report.py",
+    "tests/test_ieee39_model_inventory.py",
+    "tests/test_ieee39_dynamic_label_schema.py",
+    "tests/test_ieee39_graphical_status_docs.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
     "docs/pio_gcn_simulink_real_topk_event_driven_validation.md",
@@ -113,6 +122,9 @@ REQUIRED_FILES = [
     "docs/pio_gcn_dynamic_method_comparison_non_smoke.md",
     "docs/pio_gcn_dynamic_event_strength_calibration.md",
     "docs/pio_gcn_dynamic_preliminary_diagnostic_report.md",
+    "docs/ieee39_graphical_dynamic_model_selection.md",
+    "docs/ieee39_graphical_dynamic_model_plan.md",
+    "docs/ieee39_graphical_dynamic_model_status.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -120,6 +132,16 @@ REQUIRED_FILES = [
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/default_top20_dynamic_smoke_summary.csv",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/calibrated_top20_dynamic_smoke_summary.csv",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/default_vs_calibrated_dynamic_smoke_comparison.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/model_inventory.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/model_inventory.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/toolbox_check_summary.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_event_log.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_signal_summary.csv",
+    "results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_label_preview.csv",
+    "results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_label_schema.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/ieee39_vs_simplified_comparison.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/ieee39_vs_simplified_comparison.json",
 ]
 
 
@@ -590,6 +612,58 @@ def main() -> int:
                 failures.append("Bootstrap CI summary is missing required columns.")
         except Exception as exc:
             failures.append(f"Failed to read bootstrap CI summary: {exc}")
+
+    ieee39_docs = [
+        "docs/ieee39_graphical_dynamic_model_selection.md",
+        "docs/ieee39_graphical_dynamic_model_plan.md",
+        "docs/ieee39_graphical_dynamic_model_status.md",
+    ]
+    for rel_doc in ieee39_docs:
+        path = ROOT / rel_doc
+        if path.exists():
+            text = _read_text(rel_doc).lower()
+            for required in ["ieee39", "dynamic", "not"]:
+                if required not in text:
+                    failures.append(f"IEEE39 doc missing required conservative context '{required}': {rel_doc}")
+            for overstated in [
+                "is an emt",
+                "emt-level conclusion",
+                "is an engineering-grade conclusion",
+                "is an engineering-grade protection model",
+                "dynamic-aware reranker training completed",
+            ]:
+                if overstated in text:
+                    failures.append(f"Overstated IEEE39 claim in {rel_doc}: {overstated}")
+
+    ieee39_inventory = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/model_inventory.csv"
+    if ieee39_inventory.exists():
+        try:
+            import pandas as pd
+
+            table = pd.read_csv(ieee39_inventory)
+            required = {
+                "model_path",
+                "can_open_in_matlab",
+                "contains_generators",
+                "contains_exciters",
+                "contains_governors",
+                "contains_lines",
+                "contains_loads",
+                "contains_measurements",
+                "contains_protection",
+                "likely_model_type",
+            }
+            if not required.issubset(table.columns):
+                failures.append("IEEE39 inventory is missing required columns.")
+        except Exception as exc:
+            failures.append(f"Failed to read IEEE39 inventory: {exc}")
+
+    ieee39_schema = ROOT / "results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_label_schema.json"
+    if ieee39_schema.exists():
+        text = ieee39_schema.read_text(encoding="utf-8", errors="ignore").lower()
+        for required in ["dynamic_stress_score", "relay_trip_count", "breaker_trip_count", "this round does not train"]:
+            if required not in text:
+                failures.append(f"IEEE39 dynamic label schema missing: {required}")
 
     negative_summary = ROOT / "results/gcn_search/simulink_dynamic_negative_control_summary/dynamic_negative_control_comparison.csv"
     if negative_summary.exists():

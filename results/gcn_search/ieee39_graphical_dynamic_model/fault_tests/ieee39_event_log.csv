@@ -1,0 +1,6 @@
+test_case,event_time_s,event_type,event_status,event_note
+no_fault_sanity,0,none,schema_placeholder,fault interface not physically executed in Round 26
+single_line_trip,0,line_trip,schema_placeholder,fault interface not physically executed in Round 26
+three_phase_fault_clear,0,three_phase_fault,schema_placeholder,fault interface not physically executed in Round 26
+ordered_N2_trip,0,ordered_N2_trip,schema_placeholder,fault interface not physically executed in Round 26
+relay_trip_test,0,relay_trip,schema_placeholder,fault interface not physically executed in Round 26

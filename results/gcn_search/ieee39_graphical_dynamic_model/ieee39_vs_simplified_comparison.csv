@@ -1,0 +1,3 @@
+﻿model_family,role,network,graphical_blocks,contains_generators,contains_exciters,contains_governors,contains_loads,protection_status,claim_boundary
+IEEE39 graphical model,preferred future dynamic-label backend,IEEE 39-bus / New England 10-machine,True,True,True,True,True,wrapper needed; protection not yet engineering-grade,"preliminary dynamic-label source, not an engineering-grade conclusion"
+RTS-79 simplified swing-equation prototype,baseline diagnostic prototype,IEEE RTS-79,False,assumed aggregate swing states,False,False,simplified loads,prototype relay/security approximations,baseline only; no EMT or full OPF dynamic conclusion

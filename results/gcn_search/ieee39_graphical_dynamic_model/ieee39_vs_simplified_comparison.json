@@ -1,0 +1,26 @@
+[
+  {
+    "model_family": "IEEE39 graphical model",
+    "role": "preferred future dynamic-label backend",
+    "network": "IEEE 39-bus / New England 10-machine",
+    "graphical_blocks": true,
+    "contains_generators": true,
+    "contains_exciters": true,
+    "contains_governors": true,
+    "contains_loads": true,
+    "protection_status": "wrapper needed; protection not yet engineering-grade",
+    "claim_boundary": "preliminary dynamic-label source, not an engineering-grade conclusion"
+  },
+  {
+    "model_family": "RTS-79 simplified swing-equation prototype",
+    "role": "baseline diagnostic prototype",
+    "network": "IEEE RTS-79",
+    "graphical_blocks": false,
+    "contains_generators": "assumed aggregate swing states",
+    "contains_exciters": false,
+    "contains_governors": false,
+    "contains_loads": "simplified loads",
+    "protection_status": "prototype relay/security approximations",
+    "claim_boundary": "baseline only; no EMT or full OPF dynamic conclusion"
+  }
+]

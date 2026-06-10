@@ -1,0 +1,6 @@
+test_case,min_voltage_pu,min_frequency_hz,max_speed_deviation,max_rotor_angle_separation_deg,signal_note
+no_fault_sanity,1,50,0,0,preliminary schema row
+single_line_trip,1,50,0,0,preliminary schema row
+three_phase_fault_clear,1,50,0,0,preliminary schema row
+ordered_N2_trip,1,50,0,0,preliminary schema row
+relay_trip_test,1,50,0,0,preliminary schema row

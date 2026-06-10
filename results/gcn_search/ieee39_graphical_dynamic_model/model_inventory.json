@@ -1,0 +1,36 @@
+[
+  {
+    "model_path": "C:\\Users\\24186\\Desktop\\山东项目\\IEEE39BusSystemExample\\IEEE39BusSystem.slx",
+    "model_name": "IEEE39BusSystem",
+    "is_slx_or_mdl": true,
+    "can_open_in_matlab": true,
+    "requires_toolboxes": "Simulink; Simscape Electrical; Specialized Power Systems likely; Stateflow optional for protection",
+    "contains_generators": true,
+    "contains_exciters": true,
+    "contains_governors": true,
+    "contains_breakers": false,
+    "contains_lines": true,
+    "contains_loads": true,
+    "contains_measurements": true,
+    "contains_protection": false,
+    "likely_model_type": "phasor_RMS",
+    "license_or_source_note": "local user copy of IEEE39BusSystemExample; do not commit copied .slx unless license permits"
+  },
+  {
+    "model_path": "C:\\Users\\24186\\Documents\\MATLAB\\Examples\\R2024b\\simscapeelectrical\\IEEE39BusSystemExample\\IEEE39BusSystem.slx",
+    "model_name": "IEEE39BusSystem",
+    "is_slx_or_mdl": true,
+    "can_open_in_matlab": true,
+    "requires_toolboxes": "Simulink; Simscape Electrical; Specialized Power Systems likely; Stateflow optional for protection",
+    "contains_generators": true,
+    "contains_exciters": true,
+    "contains_governors": true,
+    "contains_breakers": false,
+    "contains_lines": true,
+    "contains_loads": true,
+    "contains_measurements": true,
+    "contains_protection": false,
+    "likely_model_type": "phasor_RMS",
+    "license_or_source_note": "MathWorks local example; do not commit copied .slx"
+  }
+]

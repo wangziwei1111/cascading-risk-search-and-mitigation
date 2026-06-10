@@ -755,6 +755,57 @@ empty
 
 RL mitigation files were not modified. Generated `.slx`, `.mat`, full per-case dynamic results, raw event logs, and full per-path ranking artifacts remain local ignored artifacts and are not intended for commit.
 
+## Round 26: IEEE39 Graphical Dynamic Model Intake
+
+Round 26 pauses dynamic-aware reranker training. The goal is to find and prepare an existing IEEE 39-bus / New England 10-machine graphical Simulink model as the future dynamic-label backend.
+
+Local model search found two candidates:
+
+| candidate | path | MATLAB open check |
+| --- | --- | ---: |
+| MathWorks IEEE39BusSystem example | `C:/Users/24186/Documents/MATLAB/Examples/R2024b/simscapeelectrical/IEEE39BusSystemExample/IEEE39BusSystem.slx` | yes |
+| local user copy | `C:/Users/24186/Desktop/山东项目/IEEE39BusSystemExample/IEEE39BusSystem.slx` | yes |
+
+Primary selected model:
+
+```text
+C:/Users/24186/Documents/MATLAB/Examples/R2024b/simscapeelectrical/IEEE39BusSystemExample/IEEE39BusSystem.slx
+```
+
+Outputs:
+
+```text
+results/gcn_search/ieee39_graphical_dynamic_model/model_inventory.csv
+results/gcn_search/ieee39_graphical_dynamic_model/model_inventory.json
+results/gcn_search/ieee39_graphical_dynamic_model/toolbox_check_summary.json
+results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary.csv
+results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_event_log.csv
+results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_signal_summary.csv
+results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_label_preview.csv
+results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_label_schema.json
+```
+
+Current status:
+
+- `no_fault_sanity` ran as a model-open sanity check and succeeded.
+- The generated wrapper copy is local output under `results/gcn_search/ieee39_graphical_dynamic_model/generated_models/` and is not committed.
+- `single_line_trip`, `three_phase_fault_clear`, `ordered_N2_trip`, and `relay_trip_test` are schema rows only in this round.
+- No dynamic-aware reranker training was performed.
+- The selected model is classified conservatively as `phasor_RMS`; do not call it EMT.
+- Protection is not engineering-grade and still needs wrapper wiring.
+
+Validation:
+
+```text
+python -m pytest tests/test_ieee39_model_inventory.py tests/test_ieee39_dynamic_label_schema.py tests/test_ieee39_graphical_status_docs.py
+
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+
+git diff -- src/rl_mitigation scripts/rl_mitigation
+```
+
+RL mitigation files were not modified. No third-party `.slx`, generated wrapper `.slx`, raw trajectories, or large `.mat` files are intended for commit.
+
 ## Round 23: Non-Smoke Dynamic Method Comparison
 
 Round 23 expands the learned path-reranker diagnosis from the minimal smoke dataset to a medium non-smoke dataset. This remains a simplified swing-equation preliminary diagnostic, not a formal dynamic stability conclusion.
