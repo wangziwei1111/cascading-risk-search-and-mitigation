@@ -1,8 +1,13 @@
 {
   "wrapper_model_path": "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper.slx",
   "line_id": "L01",
+  "line_block_path": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B1 to B2",
+  "inserted_switch_block_path": "",
+  "control_signal_block_path": "",
+  "trip_time_s": 0.5,
   "trip_implementation": "static_topology_disable",
   "physical_fault_or_breaker_action_executed": false,
   "training_ready_candidate": false,
-  "note": "No breaker path found; pilot disables line block before simulation. Not timed breaker control."
+  "implementation_status": "manual_required",
+  "note": "No compatible breaker path found; pilot disables line block before simulation. Not timed breaker control. Compatible line block was found, but automatic Simscape physical-port rewiring is intentionally conservative in this round. Manual breaker insertion is still required before treating the line trip as training-ready."
 }

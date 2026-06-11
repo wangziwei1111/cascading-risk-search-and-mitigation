@@ -38,12 +38,12 @@
     },
     {
       "test_case": "three_phase_fault_clear",
-      "min_voltage_pu": null,
-      "max_voltage_pu": null,
-      "min_frequency_hz": null,
-      "max_frequency_hz": null,
-      "max_speed_deviation": null,
-      "max_rotor_angle_separation_deg": null,
+      "min_voltage_pu": [],
+      "max_voltage_pu": [],
+      "min_frequency_hz": [],
+      "max_frequency_hz": [],
+      "max_speed_deviation": [],
+      "max_rotor_angle_separation_deg": [],
       "measurement_extraction_status": "partial",
       "missing_signal_list": "bus_voltage;frequency;generator_speed;rotor_angle",
       "debug": {
@@ -52,6 +52,287 @@
           "simlog_IEEE39BusSystem"
         ],
         "note": "No fixed placeholder values are reported as measurements."
+      }
+    },
+    {
+      "test_case": "no_fault_sanity",
+      "min_voltage_pu": [],
+      "max_voltage_pu": [],
+      "min_frequency_hz": [],
+      "max_frequency_hz": [],
+      "max_speed_deviation": [],
+      "max_rotor_angle_separation_deg": [],
+      "measurement_extraction_status": "none",
+      "missing_signal_list": "bus_voltage;frequency;generator_speed;rotor_angle",
+      "voltage_source": "",
+      "frequency_source": "",
+      "speed_source": "",
+      "rotor_angle_source": "",
+      "current_source": "",
+      "num_voltage_signals_found": 0,
+      "num_speed_signals_found": 0,
+      "num_rotor_angle_signals_found": 0,
+      "num_current_signals_found": 0,
+      "signal_source_summary": "no_dynamic_measurement_series_found",
+      "debug": {
+        "test_case": "no_fault_sanity",
+        "available_simulation_output_variables": [
+          "simlog_IEEE39BusSystem"
+        ],
+        "note": "No fixed placeholder values are reported as measurements.",
+        "extraction_errors": [
+          [
+            "signal_extract_failed: ",
+            "SWITCH 表达式必须为标量或字符向量。"
+          ]
+        ]
+      }
+    },
+    {
+      "test_case": "single_line_trip",
+      "min_voltage_pu": [],
+      "max_voltage_pu": [],
+      "min_frequency_hz": [],
+      "max_frequency_hz": [],
+      "max_speed_deviation": [],
+      "max_rotor_angle_separation_deg": [],
+      "measurement_extraction_status": "none",
+      "missing_signal_list": "bus_voltage;frequency;generator_speed;rotor_angle",
+      "voltage_source": "",
+      "frequency_source": "",
+      "speed_source": "",
+      "rotor_angle_source": "",
+      "current_source": "",
+      "num_voltage_signals_found": 0,
+      "num_speed_signals_found": 0,
+      "num_rotor_angle_signals_found": 0,
+      "num_current_signals_found": 0,
+      "signal_source_summary": "no_dynamic_measurement_series_found",
+      "debug": {
+        "test_case": "single_line_trip",
+        "available_simulation_output_variables": [
+          "simlog_IEEE39BusSystem"
+        ],
+        "note": "No fixed placeholder values are reported as measurements.",
+        "extraction_errors": [
+          [
+            "signal_extract_failed: ",
+            "SWITCH 表达式必须为标量或字符向量。"
+          ]
+        ]
+      }
+    },
+    {
+      "test_case": "three_phase_fault_clear",
+      "min_voltage_pu": [],
+      "max_voltage_pu": [],
+      "min_frequency_hz": [],
+      "max_frequency_hz": [],
+      "max_speed_deviation": [],
+      "max_rotor_angle_separation_deg": [],
+      "measurement_extraction_status": "none",
+      "missing_signal_list": "bus_voltage;frequency;generator_speed;rotor_angle",
+      "voltage_source": "",
+      "frequency_source": "",
+      "speed_source": "",
+      "rotor_angle_source": "",
+      "current_source": "",
+      "num_voltage_signals_found": 0,
+      "num_speed_signals_found": 0,
+      "num_rotor_angle_signals_found": 0,
+      "num_current_signals_found": 0,
+      "signal_source_summary": "no_dynamic_measurement_series_found",
+      "debug": {
+        "test_case": "three_phase_fault_clear",
+        "available_simulation_output_variables": [
+          "simlog_IEEE39BusSystem"
+        ],
+        "note": "No fixed placeholder values are reported as measurements.",
+        "extraction_errors": [
+          [
+            "signal_extract_failed: ",
+            "SWITCH 表达式必须为标量或字符向量。"
+          ]
+        ]
+      }
+    },
+    {
+      "test_case": "relay_trip_test",
+      "min_voltage_pu": [],
+      "max_voltage_pu": [],
+      "min_frequency_hz": [],
+      "max_frequency_hz": [],
+      "max_speed_deviation": [],
+      "max_rotor_angle_separation_deg": [],
+      "measurement_extraction_status": "none",
+      "missing_signal_list": "bus_voltage;frequency;generator_speed;rotor_angle",
+      "voltage_source": "",
+      "frequency_source": "",
+      "speed_source": "",
+      "rotor_angle_source": "",
+      "current_source": "",
+      "num_voltage_signals_found": 0,
+      "num_speed_signals_found": 0,
+      "num_rotor_angle_signals_found": 0,
+      "num_current_signals_found": 0,
+      "signal_source_summary": "no_dynamic_measurement_series_found",
+      "debug": {
+        "test_case": "relay_trip_test",
+        "available_simulation_output_variables": [
+          "simlog_IEEE39BusSystem"
+        ],
+        "note": "No fixed placeholder values are reported as measurements.",
+        "extraction_errors": [
+          [
+            "signal_extract_failed: ",
+            "SWITCH 表达式必须为标量或字符向量。"
+          ]
+        ]
+      }
+    },
+    {
+      "test_case": "no_fault_sanity",
+      "min_voltage_pu": 0.98120921442063824,
+      "max_voltage_pu": 1.0634999999999997,
+      "min_frequency_hz": 49.992204576833458,
+      "max_frequency_hz": 50,
+      "max_speed_deviation": 0.00015590846333080055,
+      "max_rotor_angle_separation_deg": 59.330996817303046,
+      "measurement_extraction_status": "voltage_speed_angle",
+      "missing_signal_list": "",
+      "voltage_source": "simlog_IEEE39BusSystem.Generators.Gen10Bus30.Terminal_voltage.pu_output;simlog_IEEE39BusSystem.Generators.Gen1Bus39.Terminal_voltage.pu_output;simlog_IEEE39BusSystem.Generators.Gen2Bus31.Terminal_voltage.pu_output;simlog_IEEE39BusSystem.Generators.Gen3Bus32.Terminal_voltage.pu_output;simlog_IEEE39BusSystem.Generators.Gen4Bus33.Terminal_voltage.pu_output",
+      "frequency_source": "generator_speed_proxy",
+      "speed_source": "simlog_IEEE39BusSystem.Generators.Gen10Bus30.Rotor_velocity.pu_output;simlog_IEEE39BusSystem.Generators.Gen1Bus39.Rotor_velocity.pu_output;simlog_IEEE39BusSystem.Generators.Gen2Bus31.Rotor_velocity.pu_output;simlog_IEEE39BusSystem.Generators.Gen3Bus32.Rotor_velocity.pu_output;simlog_IEEE39BusSystem.Generators.Gen4Bus33.Rotor_velocity.pu_output",
+      "rotor_angle_source": "simlog_IEEE39BusSystem.Generators.Gen10Bus30.Rotor_electrical_angle.pu_output;simlog_IEEE39BusSystem.Generators.Gen1Bus39.Rotor_electrical_angle.pu_output;simlog_IEEE39BusSystem.Generators.Gen2Bus31.Rotor_electrical_angle.pu_output;simlog_IEEE39BusSystem.Generators.Gen3Bus32.Rotor_electrical_angle.pu_output;simlog_IEEE39BusSystem.Generators.Gen4Bus33.Rotor_electrical_angle.pu_output",
+      "current_source": "",
+      "num_voltage_signals_found": 10,
+      "num_speed_signals_found": 10,
+      "num_rotor_angle_signals_found": 10,
+      "num_current_signals_found": 0,
+      "signal_source_summary": "voltage=generator_terminal_voltage_pu;speed=generator_rotor_velocity_pu;frequency=generator_speed_proxy;rotor_angle=generator_rotor_electrical_angle",
+      "debug": {
+        "test_case": "no_fault_sanity",
+        "available_simulation_output_variables": [
+          "simlog_IEEE39BusSystem"
+        ],
+        "note": "No fixed placeholder values are reported as measurements.",
+        "extraction_errors": []
+      }
+    },
+    {
+      "test_case": "no_fault_sanity",
+      "min_voltage_pu": 0.98120921442063824,
+      "max_voltage_pu": 1.0634999999999997,
+      "min_frequency_hz": 49.992204576833458,
+      "max_frequency_hz": 50,
+      "max_speed_deviation": 0.00015590846333080055,
+      "max_rotor_angle_separation_deg": 59.330996817303046,
+      "measurement_extraction_status": "voltage_speed_angle",
+      "missing_signal_list": "",
+      "voltage_source": "simlog_IEEE39BusSystem.Generators.Gen10Bus30.Terminal_voltage.pu_output;simlog_IEEE39BusSystem.Generators.Gen1Bus39.Terminal_voltage.pu_output;simlog_IEEE39BusSystem.Generators.Gen2Bus31.Terminal_voltage.pu_output;simlog_IEEE39BusSystem.Generators.Gen3Bus32.Terminal_voltage.pu_output;simlog_IEEE39BusSystem.Generators.Gen4Bus33.Terminal_voltage.pu_output",
+      "frequency_source": "generator_speed_proxy",
+      "speed_source": "simlog_IEEE39BusSystem.Generators.Gen10Bus30.Rotor_velocity.pu_output;simlog_IEEE39BusSystem.Generators.Gen1Bus39.Rotor_velocity.pu_output;simlog_IEEE39BusSystem.Generators.Gen2Bus31.Rotor_velocity.pu_output;simlog_IEEE39BusSystem.Generators.Gen3Bus32.Rotor_velocity.pu_output;simlog_IEEE39BusSystem.Generators.Gen4Bus33.Rotor_velocity.pu_output",
+      "rotor_angle_source": "simlog_IEEE39BusSystem.Generators.Gen10Bus30.Rotor_electrical_angle.pu_output;simlog_IEEE39BusSystem.Generators.Gen1Bus39.Rotor_electrical_angle.pu_output;simlog_IEEE39BusSystem.Generators.Gen2Bus31.Rotor_electrical_angle.pu_output;simlog_IEEE39BusSystem.Generators.Gen3Bus32.Rotor_electrical_angle.pu_output;simlog_IEEE39BusSystem.Generators.Gen4Bus33.Rotor_electrical_angle.pu_output",
+      "current_source": "",
+      "num_voltage_signals_found": 10,
+      "num_speed_signals_found": 10,
+      "num_rotor_angle_signals_found": 10,
+      "num_current_signals_found": 0,
+      "signal_source_summary": "voltage=generator_terminal_voltage_pu;speed=generator_rotor_velocity_pu;frequency=generator_speed_proxy;rotor_angle=generator_rotor_electrical_angle",
+      "debug": {
+        "test_case": "no_fault_sanity",
+        "available_simulation_output_variables": [
+          "simlog_IEEE39BusSystem"
+        ],
+        "note": "No fixed placeholder values are reported as measurements.",
+        "extraction_errors": []
+      }
+    },
+    {
+      "test_case": "single_line_trip",
+      "min_voltage_pu": 0.98088194059639855,
+      "max_voltage_pu": 1.0637654491733248,
+      "min_frequency_hz": 49.987945292733848,
+      "max_frequency_hz": 50.025100419106231,
+      "max_speed_deviation": 0.00050200838212455245,
+      "max_rotor_angle_separation_deg": 57.909980963530607,
+      "measurement_extraction_status": "voltage_speed_angle",
+      "missing_signal_list": "",
+      "voltage_source": "simlog_IEEE39BusSystem.Generators.Gen10Bus30.Terminal_voltage.pu_output;simlog_IEEE39BusSystem.Generators.Gen1Bus39.Terminal_voltage.pu_output;simlog_IEEE39BusSystem.Generators.Gen2Bus31.Terminal_voltage.pu_output;simlog_IEEE39BusSystem.Generators.Gen3Bus32.Terminal_voltage.pu_output;simlog_IEEE39BusSystem.Generators.Gen4Bus33.Terminal_voltage.pu_output",
+      "frequency_source": "generator_speed_proxy",
+      "speed_source": "simlog_IEEE39BusSystem.Generators.Gen10Bus30.Rotor_velocity.pu_output;simlog_IEEE39BusSystem.Generators.Gen1Bus39.Rotor_velocity.pu_output;simlog_IEEE39BusSystem.Generators.Gen2Bus31.Rotor_velocity.pu_output;simlog_IEEE39BusSystem.Generators.Gen3Bus32.Rotor_velocity.pu_output;simlog_IEEE39BusSystem.Generators.Gen4Bus33.Rotor_velocity.pu_output",
+      "rotor_angle_source": "simlog_IEEE39BusSystem.Generators.Gen10Bus30.Rotor_electrical_angle.pu_output;simlog_IEEE39BusSystem.Generators.Gen1Bus39.Rotor_electrical_angle.pu_output;simlog_IEEE39BusSystem.Generators.Gen2Bus31.Rotor_electrical_angle.pu_output;simlog_IEEE39BusSystem.Generators.Gen3Bus32.Rotor_electrical_angle.pu_output;simlog_IEEE39BusSystem.Generators.Gen4Bus33.Rotor_electrical_angle.pu_output",
+      "current_source": "",
+      "num_voltage_signals_found": 10,
+      "num_speed_signals_found": 10,
+      "num_rotor_angle_signals_found": 10,
+      "num_current_signals_found": 0,
+      "signal_source_summary": "voltage=generator_terminal_voltage_pu;speed=generator_rotor_velocity_pu;frequency=generator_speed_proxy;rotor_angle=generator_rotor_electrical_angle",
+      "debug": {
+        "test_case": "single_line_trip",
+        "available_simulation_output_variables": [
+          "simlog_IEEE39BusSystem"
+        ],
+        "note": "No fixed placeholder values are reported as measurements.",
+        "extraction_errors": []
+      }
+    },
+    {
+      "test_case": "three_phase_fault_clear",
+      "min_voltage_pu": 0.53282777631277678,
+      "max_voltage_pu": 1.0634999999999997,
+      "min_frequency_hz": 49.992601023624012,
+      "max_frequency_hz": 50.055039072775855,
+      "max_speed_deviation": 0.0011007814555170636,
+      "max_rotor_angle_separation_deg": 59.419697577824515,
+      "measurement_extraction_status": "voltage_speed_angle",
+      "missing_signal_list": "",
+      "voltage_source": "simlog_IEEE39BusSystem.Generators.Gen10Bus30.Terminal_voltage.pu_output;simlog_IEEE39BusSystem.Generators.Gen1Bus39.Terminal_voltage.pu_output;simlog_IEEE39BusSystem.Generators.Gen2Bus31.Terminal_voltage.pu_output;simlog_IEEE39BusSystem.Generators.Gen3Bus32.Terminal_voltage.pu_output;simlog_IEEE39BusSystem.Generators.Gen4Bus33.Terminal_voltage.pu_output",
+      "frequency_source": "generator_speed_proxy",
+      "speed_source": "simlog_IEEE39BusSystem.Generators.Gen10Bus30.Rotor_velocity.pu_output;simlog_IEEE39BusSystem.Generators.Gen1Bus39.Rotor_velocity.pu_output;simlog_IEEE39BusSystem.Generators.Gen2Bus31.Rotor_velocity.pu_output;simlog_IEEE39BusSystem.Generators.Gen3Bus32.Rotor_velocity.pu_output;simlog_IEEE39BusSystem.Generators.Gen4Bus33.Rotor_velocity.pu_output",
+      "rotor_angle_source": "simlog_IEEE39BusSystem.Generators.Gen10Bus30.Rotor_electrical_angle.pu_output;simlog_IEEE39BusSystem.Generators.Gen1Bus39.Rotor_electrical_angle.pu_output;simlog_IEEE39BusSystem.Generators.Gen2Bus31.Rotor_electrical_angle.pu_output;simlog_IEEE39BusSystem.Generators.Gen3Bus32.Rotor_electrical_angle.pu_output;simlog_IEEE39BusSystem.Generators.Gen4Bus33.Rotor_electrical_angle.pu_output",
+      "current_source": "",
+      "num_voltage_signals_found": 10,
+      "num_speed_signals_found": 10,
+      "num_rotor_angle_signals_found": 10,
+      "num_current_signals_found": 0,
+      "signal_source_summary": "voltage=generator_terminal_voltage_pu;speed=generator_rotor_velocity_pu;frequency=generator_speed_proxy;rotor_angle=generator_rotor_electrical_angle",
+      "debug": {
+        "test_case": "three_phase_fault_clear",
+        "available_simulation_output_variables": [
+          "simlog_IEEE39BusSystem"
+        ],
+        "note": "No fixed placeholder values are reported as measurements.",
+        "extraction_errors": []
+      }
+    },
+    {
+      "test_case": "relay_trip_test",
+      "min_voltage_pu": 0.53485187391595923,
+      "max_voltage_pu": 1.0637654491733248,
+      "min_frequency_hz": 49.989422859017289,
+      "max_frequency_hz": 50.059949160979563,
+      "max_speed_deviation": 0.0011989832195913319,
+      "max_rotor_angle_separation_deg": 57.909980963530607,
+      "measurement_extraction_status": "voltage_speed_angle",
+      "missing_signal_list": "",
+      "voltage_source": "simlog_IEEE39BusSystem.Generators.Gen10Bus30.Terminal_voltage.pu_output;simlog_IEEE39BusSystem.Generators.Gen1Bus39.Terminal_voltage.pu_output;simlog_IEEE39BusSystem.Generators.Gen2Bus31.Terminal_voltage.pu_output;simlog_IEEE39BusSystem.Generators.Gen3Bus32.Terminal_voltage.pu_output;simlog_IEEE39BusSystem.Generators.Gen4Bus33.Terminal_voltage.pu_output",
+      "frequency_source": "generator_speed_proxy",
+      "speed_source": "simlog_IEEE39BusSystem.Generators.Gen10Bus30.Rotor_velocity.pu_output;simlog_IEEE39BusSystem.Generators.Gen1Bus39.Rotor_velocity.pu_output;simlog_IEEE39BusSystem.Generators.Gen2Bus31.Rotor_velocity.pu_output;simlog_IEEE39BusSystem.Generators.Gen3Bus32.Rotor_velocity.pu_output;simlog_IEEE39BusSystem.Generators.Gen4Bus33.Rotor_velocity.pu_output",
+      "rotor_angle_source": "simlog_IEEE39BusSystem.Generators.Gen10Bus30.Rotor_electrical_angle.pu_output;simlog_IEEE39BusSystem.Generators.Gen1Bus39.Rotor_electrical_angle.pu_output;simlog_IEEE39BusSystem.Generators.Gen2Bus31.Rotor_electrical_angle.pu_output;simlog_IEEE39BusSystem.Generators.Gen3Bus32.Rotor_electrical_angle.pu_output;simlog_IEEE39BusSystem.Generators.Gen4Bus33.Rotor_electrical_angle.pu_output",
+      "current_source": "",
+      "num_voltage_signals_found": 10,
+      "num_speed_signals_found": 10,
+      "num_rotor_angle_signals_found": 10,
+      "num_current_signals_found": 0,
+      "signal_source_summary": "voltage=generator_terminal_voltage_pu;speed=generator_rotor_velocity_pu;frequency=generator_speed_proxy;rotor_angle=generator_rotor_electrical_angle",
+      "debug": {
+        "test_case": "relay_trip_test",
+        "available_simulation_output_variables": [
+          "simlog_IEEE39BusSystem"
+        ],
+        "note": "No fixed placeholder values are reported as measurements.",
+        "extraction_errors": []
       }
     }
   ]

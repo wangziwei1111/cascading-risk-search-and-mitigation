@@ -113,3 +113,23 @@ allowed_for_dynamic_aware_training = false
 ```
 
 Measurement extraction remains `partial`; missing signals are reported as `NaN`, not placeholder measurements.
+
+## Round 29 Update
+
+Round 29 adds a Simscape log-tree inventory and compact measurement extraction:
+
+- `ieee39_simlog_tree_inventory.csv`
+- `ieee39_simlog_tree_inventory.json`
+- `ieee39_signal_extraction_debug.json`
+
+The current extractor uses generator terminal voltage, rotor velocity, and rotor electrical angle from `simlog_IEEE39BusSystem`. Frequency is reported as `generator_speed_proxy`, computed from rotor speed, and must not be described as a direct frequency measurement.
+
+The single-line trip check remains conservative. No explicit breaker was found on the mapped line, and automatic insertion of a timed controlled switch was not completed in a way that can be treated as a physical training label. Therefore:
+
+```text
+single_line_trip trip_implementation = static_topology_disable
+single_line_trip training_ready_candidate = false
+allowed_for_dynamic_aware_training = false
+```
+
+The next breaker step is manual or carefully scripted Simscape physical-port rewiring, followed by rerunning the same compact fault-test suite.

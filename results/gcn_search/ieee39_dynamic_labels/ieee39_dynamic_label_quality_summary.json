@@ -3,6 +3,11 @@
   "num_physical_executed_rows": 2,
   "num_training_ready_labels": 2,
   "num_schema_only_rows": 0,
+  "num_labels_with_voltage_measurement": 4,
+  "num_labels_with_frequency_measurement": 4,
+  "num_labels_with_speed_measurement": 4,
+  "num_labels_with_rotor_angle_measurement": 4,
+  "measurement_quality_status": "partial_dynamic_measurements",
   "label_quality_status": "partial_physical_execution",
   "allowed_for_dynamic_aware_training": false
 }

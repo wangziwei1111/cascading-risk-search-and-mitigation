@@ -63,3 +63,29 @@ The available `SimulationOutput` exposes Simscape logging, but the compact extra
 ## Next Step
 
 Map the Simscape log tree to real voltage, frequency, generator speed, and rotor-angle metrics, then add a real timed breaker or controlled-switch implementation for line trips.
+
+## Round 29 Update
+
+Round 29 maps `simlog_IEEE39BusSystem` and extracts compact real measurements from logged generator signals.
+
+Current compact results:
+
+| case | measurement status | min voltage pu | frequency source | training candidate |
+|---|---:|---:|---|---:|
+| no_fault_sanity | voltage_speed_angle | 0.981209 | generator_speed_proxy | no |
+| three_phase_fault_clear | voltage_speed_angle | 0.532828 | generator_speed_proxy | yes |
+| single_line_trip | voltage_speed_angle | 0.980882 | generator_speed_proxy | no |
+| relay_trip_test | voltage_speed_angle | 0.534852 | generator_speed_proxy | yes |
+
+The frequency values are speed-derived proxies, not direct frequency measurements.
+
+The single-line trip is still `static_topology_disable`. Automatic insertion of a timed controlled switch was not completed because the mapped transmission-line physical ports and available breaker block require careful manual or scripted rewiring. It remains non-training-ready.
+
+Current quality gate:
+
+```text
+num_training_ready_labels = 2
+measurement_quality_status = partial_dynamic_measurements
+label_quality_status = partial_physical_execution
+allowed_for_dynamic_aware_training = false
+```

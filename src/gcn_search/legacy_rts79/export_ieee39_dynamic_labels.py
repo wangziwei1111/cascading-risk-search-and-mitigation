@@ -73,14 +73,56 @@ def _quality_summary(summary: pd.DataFrame, training_ready: pd.DataFrame) -> dic
         status = "training_ready_minimal"
     else:
         status = "training_ready_batch"
+    voltage_count = _measurement_count(summary, "min_voltage_pu")
+    frequency_count = _measurement_count(summary, "min_frequency_hz")
+    speed_count = _measurement_count(summary, "max_speed_deviation")
+    angle_count = _measurement_count(summary, "max_rotor_angle_separation_deg")
+    measurement_quality_status = _measurement_quality_status(
+        voltage_count=voltage_count,
+        frequency_count=frequency_count,
+        speed_count=speed_count,
+        angle_count=angle_count,
+        ready_count=ready_count,
+    )
     return {
         "num_fault_rows": int(len(summary)),
         "num_physical_executed_rows": physical_count,
         "num_training_ready_labels": ready_count,
         "num_schema_only_rows": schema_only,
+        "num_labels_with_voltage_measurement": voltage_count,
+        "num_labels_with_frequency_measurement": frequency_count,
+        "num_labels_with_speed_measurement": speed_count,
+        "num_labels_with_rotor_angle_measurement": angle_count,
+        "measurement_quality_status": measurement_quality_status,
         "label_quality_status": status,
         "allowed_for_dynamic_aware_training": bool(ready_count >= 10),
     }
+
+
+def _measurement_count(summary: pd.DataFrame, column: str) -> int:
+    if column not in summary.columns:
+        return 0
+    return int(pd.to_numeric(summary[column], errors="coerce").notna().sum())
+
+
+def _measurement_quality_status(
+    *,
+    voltage_count: int,
+    frequency_count: int,
+    speed_count: int,
+    angle_count: int,
+    ready_count: int,
+) -> str:
+    dynamic_count = max(frequency_count, speed_count, angle_count)
+    if voltage_count == 0 and dynamic_count == 0:
+        return "no_measurements"
+    if voltage_count > 0 and dynamic_count == 0:
+        return "voltage_only"
+    if ready_count >= 50 and voltage_count >= 50 and dynamic_count >= 50:
+        return "sufficient_for_training_batch"
+    if ready_count >= 10 and voltage_count >= 10 and dynamic_count >= 10:
+        return "sufficient_for_training_preview"
+    return "partial_dynamic_measurements"
 
 
 def _build_label_preview(summary: pd.DataFrame, events: pd.DataFrame, path_table: pd.DataFrame) -> pd.DataFrame:
@@ -100,9 +142,9 @@ def _build_label_preview(summary: pd.DataFrame, events: pd.DataFrame, path_table
                 "second_line": second_line,
                 "dynamic_unstable": bool(item.get("unstable_flag", False)),
                 "dynamic_stress_score": stress,
-                "min_frequency_hz": float(item.get("min_frequency_hz", 50.0)),
-                "min_voltage_pu": float(item.get("min_voltage_pu", 1.0)),
-                "max_rotor_angle_separation_deg": float(item.get("max_rotor_angle_separation_deg", 0.0)),
+                "min_frequency_hz": _finite_or_nan(item.get("min_frequency_hz")),
+                "min_voltage_pu": _finite_or_nan(item.get("min_voltage_pu")),
+                "max_rotor_angle_separation_deg": _finite_or_nan(item.get("max_rotor_angle_separation_deg")),
                 "relay_trip_count": int(relay_count),
                 "breaker_trip_count": int(breaker_count),
             }
@@ -154,6 +196,11 @@ def _dynamic_stress_score(row: pd.Series, relay_count: int, breaker_count: int) 
 def _finite_or_default(value, default: float) -> float:
     parsed = pd.to_numeric(pd.Series([value]), errors="coerce").iloc[0]
     return default if pd.isna(parsed) else float(parsed)
+
+
+def _finite_or_nan(value) -> float:
+    parsed = pd.to_numeric(pd.Series([value]), errors="coerce").iloc[0]
+    return float("nan") if pd.isna(parsed) else float(parsed)
 
 
 def _schema_payload() -> dict:

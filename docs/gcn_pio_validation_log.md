@@ -892,6 +892,61 @@ Validation:
 ```text
 python -m pytest tests/test_ieee39_real_fault_summary_schema.py tests/test_ieee39_signal_extraction_summary.py tests/test_ieee39_training_ready_label_gate.py tests/test_ieee39_real_fault_docs.py
 python -m pytest tests/test_ieee39_model_inventory.py tests/test_ieee39_dynamic_label_schema.py tests/test_ieee39_graphical_status_docs.py tests/test_ieee39_line_breaker_mapping.py tests/test_ieee39_fault_test_summary.py tests/test_ieee39_dynamic_label_quality_gate.py tests/test_ieee39_relay_proxy_docs.py
+
+## Round 29 - IEEE39 simlog measurement extraction and line-trip gate
+
+Round 29 focused on extracting real compact measurements from `simlog_IEEE39BusSystem` and checking whether the pilot `single_line_trip` could be upgraded from static topology disable to a timed controlled switch.
+
+Changed files:
+
+- `matlab/simulink_ieee39/inventory_ieee39_simlog_tree.m`
+- `matlab/simulink_ieee39/extract_ieee39_signal_summary.m`
+- `matlab/simulink_ieee39/configure_ieee39_pilot_line_trip_case.m`
+- `matlab/simulink_ieee39/run_ieee39_fault_test_suite.m`
+- `src/gcn_search/legacy_rts79/export_ieee39_dynamic_labels.py`
+- `docs/ieee39_measurement_extraction_and_timed_trip.md`
+
+Compact MATLAB run:
+
+```matlab
+run_ieee39_fault_test_suite( ...
+  "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper.slx", ...
+  "../../results/gcn_search/ieee39_graphical_dynamic_model/fault_tests", ...
+  true, ...
+  ["no_fault_sanity", "three_phase_fault_clear", "single_line_trip", "relay_trip_test"], ...
+  0.5 ...
+)
+```
+
+Key result:
+
+- `no_fault_sanity`: `measurement_extraction_status = voltage_speed_angle`, `min_voltage_pu = 0.981209`, `frequency_source = generator_speed_proxy`.
+- `three_phase_fault_clear`: `measurement_extraction_status = voltage_speed_angle`, `min_voltage_pu = 0.532828`, `frequency_source = generator_speed_proxy`.
+- `single_line_trip`: still `trip_implementation = static_topology_disable`; not timed breaker, not training-ready.
+- `num_training_ready_labels = 2`
+- `num_labels_with_voltage_measurement = 4`
+- `num_labels_with_frequency_measurement = 4`
+- `num_labels_with_speed_measurement = 4`
+- `num_labels_with_rotor_angle_measurement = 4`
+- `measurement_quality_status = partial_dynamic_measurements`
+- `label_quality_status = partial_physical_execution`
+- `allowed_for_dynamic_aware_training = false`
+
+Important boundary:
+
+- Frequency is a generator-speed proxy, not a direct frequency measurement.
+- The model is `phasor_RMS`, not EMT.
+- The basic relay proxy is not engineering-grade protection.
+- Dynamic-aware reranker training remains blocked because there are fewer than ten training-ready labels.
+
+Validation commands:
+
+```bash
+python -m pytest tests/test_ieee39_simlog_inventory.py tests/test_ieee39_measurement_quality_gate.py tests/test_ieee39_timed_trip_summary.py tests/test_ieee39_measurement_docs.py
+python -m pytest tests/test_ieee39_model_inventory.py tests/test_ieee39_dynamic_label_schema.py tests/test_ieee39_graphical_status_docs.py tests/test_ieee39_line_breaker_mapping.py tests/test_ieee39_fault_test_summary.py tests/test_ieee39_dynamic_label_quality_gate.py tests/test_ieee39_relay_proxy_docs.py tests/test_ieee39_real_fault_summary_schema.py tests/test_ieee39_signal_extraction_summary.py tests/test_ieee39_training_ready_label_gate.py tests/test_ieee39_real_fault_docs.py
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+git diff -- src/rl_mitigation scripts/rl_mitigation
+```
 python scripts/gcn_search/check_pio_gcn_artifacts.py
 git diff -- src/rl_mitigation scripts/rl_mitigation
 ```

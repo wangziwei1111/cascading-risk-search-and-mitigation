@@ -146,3 +146,26 @@ Current compact results:
 The two training-ready candidates are preliminary small-sample physical rows, not enough for training. The current minimum requirement remains at least ten physical executed and simulation-successful labels.
 
 Measurement extraction status is `partial`; unavailable values are recorded as `NaN` rather than fixed placeholders.
+
+## Round 29 Update
+
+Round 29 improves measurement extraction but keeps the training gate conservative.
+
+New outputs:
+
+- `results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_simlog_tree_inventory.csv`
+- `results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_simlog_tree_inventory.json`
+- `results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_signal_extraction_debug.json`
+- `docs/ieee39_measurement_extraction_and_timed_trip.md`
+
+Current compact interpretation:
+
+- `no_fault_sanity` and `three_phase_fault_clear` now have real voltage, speed, and rotor-angle measurements from Simscape logging.
+- Frequency is a `generator_speed_proxy`, not a direct frequency measurement.
+- `single_line_trip` remains `static_topology_disable`; it is not a timed breaker and is not training-ready.
+- `num_training_ready_labels = 2`
+- `measurement_quality_status = partial_dynamic_measurements`
+- `label_quality_status = partial_physical_execution`
+- `allowed_for_dynamic_aware_training = false`
+
+Dynamic-aware reranker training is still blocked because the number of training-ready labels is below ten.

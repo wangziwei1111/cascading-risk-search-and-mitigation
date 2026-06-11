@@ -1,9 +1,10 @@
 function summaryTable = run_ieee39_fault_test_suite(wrapperModelPath, outputDir, executeSimulation, selectedCases, simulationStopTime)
 %RUN_IEEE39_FAULT_TEST_SUITE Run IEEE39 graphical-model pilot fault tests.
 %
-% The current wrapper uses real Simulink/Simscape simulations. Line trips are
-% pilot physical outages implemented by disabling mapped transmission-line
-% blocks before simulation; they are not yet timed breaker-control blocks.
+% The current wrapper uses real Simulink/Simscape simulations. Line trips use
+% the best available pilot implementation recorded by
+% configure_ieee39_pilot_line_trip_case. If timed physical-port rewiring is
+% not available, the case remains a non-training static topology disable.
 % The relay test uses a research-grade threshold proxy, not engineering-grade
 % relay coordination.
 
@@ -43,10 +44,12 @@ faultBlock = "";
 if ~isempty(faultPoints) && strlength(faultPoints.fault_block_path(1)) > 0
     faultBlock = faultPoints.fault_block_path(1);
 end
+tripSummary = configure_ieee39_pilot_line_trip_case(wrapperModelPath, line1.line_id, wrapperDir);
+singleLineTripImplementation = string(tripSummary.trip_implementation);
 
 cases = {
     "no_fault_sanity", "none", 0.0, 0.0, "", false, false, simulationStopTime, "none";
-    "single_line_trip", "pilot_static_topology_disable", 0.0, 0.0, line1.line_id, false, true, simulationStopTime, "static_topology_disable";
+    "single_line_trip", "pilot_line_trip", 0.5, 0.0, line1.line_id, false, true, simulationStopTime, singleLineTripImplementation;
     "three_phase_fault_clear", "three_phase_fault_clear", 0.5, 0.6, "", true, false, simulationStopTime, "existing_three_phase_fault_block";
     "ordered_N2_trip", "pilot_ordered_N2_static_topology_disable", 0.0, 0.0, line1.line_id + "->" + line2.line_id, false, true, simulationStopTime, "static_topology_disable";
     "relay_trip_test", "basic_relay_proxy", 0.5, 0.6, line1.line_id, true, true, simulationStopTime, "basic_relay_proxy";
@@ -55,7 +58,7 @@ caseNames = string(cases(:, 1));
 keep = ismember(caseNames, string(selectedCases));
 cases = cases(keep, :);
 
-rows = cell(size(cases, 1), 25);
+rows = cell(size(cases, 1), 26);
 eventRows = {};
 signalRows = {};
 relayRows = {};
@@ -78,6 +81,7 @@ for idx = 1:size(cases, 1)
     maxSpeedDeviation = signalSummary.max_speed_deviation;
     maxRotorAngle = signalSummary.max_rotor_angle_separation_deg;
     measurementStatus = string(signalSummary.measurement_extraction_status);
+    signalSourceSummary = string(signalSummary.signal_source_summary);
     relayOperated = testCase == "relay_trip_test" && physicalExecuted;
     breakerOpened = useLineTrip && tripImplementation ~= "static_topology_disable" && physicalExecuted;
     unstable = minFrequency < 49.0 || minVoltage < 0.8 || maxRotorAngle > 180.0;
@@ -94,10 +98,14 @@ for idx = 1:size(cases, 1)
         char(faultConfigurationStatus), char(measurementStatus), trainingReadyCandidate, char(timeoutOrError), ...
         char(faultType), faultStart, faultClear, char(trippedLine), ...
         relayOperated, breakerOpened, minVoltage, maxVoltage, minFrequency, maxFrequency, ...
-        maxSpeedDeviation, maxRotorAngle, unstable, tripTime, char(note) ...
+        maxSpeedDeviation, maxRotorAngle, char(signalSourceSummary), unstable, tripTime, char(note) ...
     };
     eventRows(end+1, :) = {char(testCase), faultStart, char(faultType), physicalExecuted, char(note)}; %#ok<AGROW>
-    signalRows(end+1, :) = {char(testCase), minVoltage, maxVoltage, minFrequency, maxFrequency, maxSpeedDeviation, maxRotorAngle, char(measurementStatus), char(signalSummary.missing_signal_list), "NaN means unavailable; no fixed placeholder is reported as measured"}; %#ok<AGROW>
+    signalRows(end+1, :) = {char(testCase), minVoltage, maxVoltage, minFrequency, maxFrequency, maxSpeedDeviation, maxRotorAngle, ...
+        char(measurementStatus), char(signalSummary.missing_signal_list), char(signalSummary.voltage_source), ...
+        char(signalSummary.frequency_source), char(signalSummary.speed_source), char(signalSummary.rotor_angle_source), ...
+        signalSummary.num_voltage_signals_found, signalSummary.num_speed_signals_found, signalSummary.num_rotor_angle_signals_found, ...
+        char(signalSourceSummary), "NaN means unavailable; no fixed placeholder is reported as measured"}; %#ok<AGROW>
     relayRows(end+1, :) = {char(testCase), relayOperated, tripTime, "basic relay proxy", "not engineering-grade relay coordination"}; %#ok<AGROW>
 end
 
@@ -108,10 +116,13 @@ summaryTable = cell2table(rows, "VariableNames", { ...
     'fault_type', 'fault_start_s', 'fault_clear_s', 'tripped_line', 'relay_operated', ...
     'breaker_opened', 'min_voltage_pu', 'max_voltage_pu', 'min_frequency_hz', ...
     'max_frequency_hz', 'max_speed_deviation', 'max_rotor_angle_separation_deg', ...
-    'unstable_flag', 'trip_time_s', 'note' ...
+    'signal_source_summary', 'unstable_flag', 'trip_time_s', 'note' ...
 });
 eventTable = cell2table(eventRows, "VariableNames", {'test_case', 'event_time_s', 'event_type', 'physical_executed', 'event_note'});
-signalTable = cell2table(signalRows, "VariableNames", {'test_case', 'min_voltage_pu', 'max_voltage_pu', 'min_frequency_hz', 'max_frequency_hz', 'max_speed_deviation', 'max_rotor_angle_separation_deg', 'measurement_extraction_status', 'missing_signal_list', 'signal_note'});
+signalTable = cell2table(signalRows, "VariableNames", {'test_case', 'min_voltage_pu', 'max_voltage_pu', 'min_frequency_hz', 'max_frequency_hz', ...
+    'max_speed_deviation', 'max_rotor_angle_separation_deg', 'measurement_extraction_status', 'missing_signal_list', ...
+    'voltage_source', 'frequency_source', 'speed_source', 'rotor_angle_source', 'num_voltage_signals_found', ...
+    'num_speed_signals_found', 'num_rotor_angle_signals_found', 'signal_source_summary', 'signal_note'});
 relayTable = cell2table(relayRows, "VariableNames", {'test_case', 'relay_operated', 'trip_time_s', 'relay_type', 'note'});
 
 writetable(summaryTable, fullfile(outputDir, "ieee39_fault_test_summary.csv"));

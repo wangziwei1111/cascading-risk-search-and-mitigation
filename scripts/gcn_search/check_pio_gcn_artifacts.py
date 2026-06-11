@@ -62,6 +62,7 @@ REQUIRED_FILES = [
     "matlab/simulink_ieee39/add_ieee39_basic_relay_proxy.m",
     "matlab/simulink_ieee39/configure_ieee39_three_phase_fault_case.m",
     "matlab/simulink_ieee39/configure_ieee39_pilot_line_trip_case.m",
+    "matlab/simulink_ieee39/inventory_ieee39_simlog_tree.m",
     "matlab/simulink_ieee39/extract_ieee39_signal_summary.m",
     "matlab/simulink_ieee39/run_ieee39_fault_test_suite.m",
     "src/gcn_search/legacy_rts79/prepare_real_topk_for_simulink_dynamic.py",
@@ -124,6 +125,10 @@ REQUIRED_FILES = [
     "tests/test_ieee39_signal_extraction_summary.py",
     "tests/test_ieee39_training_ready_label_gate.py",
     "tests/test_ieee39_real_fault_docs.py",
+    "tests/test_ieee39_simlog_inventory.py",
+    "tests/test_ieee39_measurement_quality_gate.py",
+    "tests/test_ieee39_timed_trip_summary.py",
+    "tests/test_ieee39_measurement_docs.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
     "docs/pio_gcn_simulink_real_topk_event_driven_validation.md",
@@ -140,6 +145,7 @@ REQUIRED_FILES = [
     "docs/ieee39_graphical_dynamic_model_status.md",
     "docs/ieee39_fault_breaker_relay_wrapper.md",
     "docs/ieee39_real_fault_execution_status.md",
+    "docs/ieee39_measurement_extraction_and_timed_trip.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -166,6 +172,8 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_signal_extraction_debug.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_simlog_tree_inventory.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_simlog_tree_inventory.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/protection/ieee39_basic_relay_settings.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/protection/ieee39_basic_relay_status.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/ieee39_vs_simplified_comparison.csv",
@@ -698,6 +706,8 @@ def main() -> int:
         failures.append("Validation log must contain Round 27.")
     if validation_log.exists() and "round 28" not in _read_text("docs/gcn_pio_validation_log.md").lower():
         failures.append("Validation log must contain Round 28.")
+    if validation_log.exists() and "round 29" not in _read_text("docs/gcn_pio_validation_log.md").lower():
+        failures.append("Validation log must contain Round 29.")
 
     relay_doc = ROOT / "docs/ieee39_fault_breaker_relay_wrapper.md"
     if relay_doc.exists():
@@ -728,6 +738,15 @@ def main() -> int:
                     for bad in ["train the dynamic-aware reranker now", "proceed to train dynamic-aware reranker"]:
                         if bad in text:
                             failures.append(f"{rel_doc} must not recommend reranker training before training_ready_batch.")
+        for required_key in [
+            "num_labels_with_voltage_measurement",
+            "num_labels_with_frequency_measurement",
+            "num_labels_with_speed_measurement",
+            "num_labels_with_rotor_angle_measurement",
+            "measurement_quality_status",
+        ]:
+            if required_key not in quality:
+                failures.append(f"IEEE39 quality summary missing Round 29 key: {required_key}")
 
     line_map = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map.csv"
     if line_map.exists():
@@ -753,6 +772,38 @@ def main() -> int:
         ]:
             if overstated in text:
                 failures.append(f"Overstated Round 28 claim: {overstated}")
+
+    round29_doc = ROOT / "docs/ieee39_measurement_extraction_and_timed_trip.md"
+    if round29_doc.exists():
+        text = _read_text("docs/ieee39_measurement_extraction_and_timed_trip.md").lower()
+        for required in [
+            "generator_speed_proxy",
+            "not a direct frequency measurement",
+            "static topology disable is not a timed breaker",
+            "allowed_for_dynamic_aware_training = false",
+        ]:
+            if required not in text:
+                failures.append(f"Round 29 measurement doc missing required conservative term: {required}")
+        for bad in [
+            "emt validation completed",
+            "engineering-grade protection completed",
+            "train the dynamic-aware reranker now",
+            "proceed to train dynamic-aware reranker",
+        ]:
+            if bad in text:
+                failures.append(f"Round 29 measurement doc contains an overstatement: {bad}")
+
+    simlog_inventory = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_simlog_tree_inventory.csv"
+    if simlog_inventory.exists():
+        try:
+            import pandas as pd
+
+            table = pd.read_csv(simlog_inventory)
+            required = {"node_path", "has_series", "candidate_signal_type", "num_points"}
+            if not required.issubset(table.columns):
+                failures.append("IEEE39 simlog inventory is missing required Round 29 columns.")
+        except Exception as exc:
+            failures.append(f"Failed to read IEEE39 simlog inventory: {exc}")
 
     negative_summary = ROOT / "results/gcn_search/simulink_dynamic_negative_control_summary/dynamic_negative_control_comparison.csv"
     if negative_summary.exists():

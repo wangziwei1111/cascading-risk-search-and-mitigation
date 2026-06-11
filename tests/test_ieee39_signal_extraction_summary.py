@@ -14,10 +14,17 @@ def test_ieee39_signal_summary_does_not_treat_placeholders_as_measured() -> None
         "min_voltage_pu",
         "min_frequency_hz",
         "max_speed_deviation",
+        "frequency_source",
+        "num_voltage_signals_found",
+        "num_speed_signals_found",
+        "num_rotor_angle_signals_found",
     }
     assert required.issubset(summary.columns)
-    assert summary["measurement_extraction_status"].isin(["partial", "unavailable"]).all()
-    assert summary["missing_signal_list"].astype(str).str.contains("frequency").any()
-    assert summary["min_voltage_pu"].isna().all()
+    assert summary["measurement_extraction_status"].isin(["none", "partial", "voltage_only", "voltage_and_speed", "voltage_speed_angle", "full"]).all()
+    measured = summary[summary["measurement_extraction_status"].isin(["voltage_only", "voltage_and_speed", "voltage_speed_angle", "full"])]
+    assert not measured.empty
+    assert measured["min_voltage_pu"].notna().any()
+    assert not ((summary["min_voltage_pu"] == 1.0) & (summary["measurement_extraction_status"] == "none")).any()
+    assert not ((summary["min_frequency_hz"] == 50.0) & (summary["frequency_source"].fillna("") == "")).any()
     debug = root / "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_signal_extraction_debug.json"
     assert debug.exists()
