@@ -1,0 +1,20 @@
+{
+  "line_id": "L01",
+  "line_block_path": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B1 to B2",
+  "block_type": "SimscapeBlock",
+  "mask_type": "Transmission\\nLine\\n(Three-Phase)",
+  "reference_block": "ee_lib/Passive/Lines/Transmission\\nLine\\n(Three-Phase)",
+  "dialog_parameters": "length;length_unit;length_conf;freq;freq_unit;freq_conf;R;R_unit;R_conf;L;L_unit;L_conf;M;M_unit;M_conf;Cl;Cl_unit;Cl_conf;Cg;Cg_unit;Cg_conf;Rm;Rm_unit;Rm_conf;ModelTwoSections;ModelTwoSections_unit;ModelTwoSections_conf;N;N_unit;N_conf;InterfacePosition;InterfacePosition_unit;InterfacePosition_conf;N1sec;N1sec_unit;N1sec_conf;N2sec;N2sec_unit;N2sec_conf;Access_ground;Access_ground_unit;Access_ground_conf;R_parasitic;R_parasitic_unit;R_parasitic_conf;G_parasitic;G_parasitic_unit;G_parasitic_conf",
+  "port_handles": "Inport=[0 0]:0;Outport=[0 0]:0;Enable=[0 0]:0;Trigger=[0 0]:0;State=[0 0]:0;LConn=[1 2]:2;RConn=[1 2]:2;Ifaction=[0 0]:0;Reset=[0 0]:0;Event=[0 0]:0",
+  "port_connectivity": "LConn1|src=[]|dst=137148.000488281;LConn2|src=[]|dst=137358.00012207;RConn1|src=[]|dst=137196.000488281;RConn2|src=[]|dst=137360.00012207",
+  "physical_port_count": 4,
+  "lconn_count": 2,
+  "rconn_count": 2,
+  "inport_count": 0,
+  "outport_count": 0,
+  "connected_source_blocks": "",
+  "connected_destination_blocks": "137148.000488281;137196.000488281;137358.00012207;137360.00012207",
+  "port_domain_guess": "simscape_physical",
+  "switch_insertion_feasible": true,
+  "note": "L01 exposes four Simscape physical ports. Timed breaker insertion may be possible but requires compatible physical-port rewiring."
+}

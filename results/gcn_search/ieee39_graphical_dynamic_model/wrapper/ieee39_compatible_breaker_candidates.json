@@ -1,0 +1,126 @@
+{
+  "num_candidates": 438,
+  "num_likely_compatible": 30,
+  "top_candidates": [
+    {
+      "library_path": "ee_lib/Electromechanical/Reluctance & Stepper/Switched Reluctance\\nMachine\\n(Multi-Phase)",
+      "block_name": "Switched Reluctance\\nMachine\\n(Multi-Phase)",
+      "mask_type": "Switched Reluctance\\nMachine\\n(Multi-Phase)",
+      "port_structure": "Inport:0;Outport:0;Enable:0;Trigger:0;State:0;LConn:8;RConn:2;Ifaction:0;Reset:0;Event:0",
+      "physical_port_count": 10,
+      "inport_count": 0,
+      "outport_count": 0,
+      "likely_compatible_with_l01": true,
+      "requires_control_input": false,
+      "note": "Candidate has physical ports and breaker/switch naming; standalone probe still required before wrapper insertion."
+    },
+    {
+      "library_path": "sps_lib/Electrical Machines/Switched Reluctance\\nMotor/SwitcheReluctanceMotor",
+      "block_name": "SwitcheReluctanceMotor",
+      "mask_type": "InnerPowersysBlock",
+      "port_structure": "Inport:0;Outport:0;Enable:0;Trigger:0;State:0;LConn:6;RConn:4;Ifaction:0;Reset:0;Event:0",
+      "physical_port_count": 10,
+      "inport_count": 0,
+      "outport_count": 0,
+      "likely_compatible_with_l01": true,
+      "requires_control_input": false,
+      "note": "Candidate has physical ports and breaker/switch naming; standalone probe still required before wrapper insertion."
+    },
+    {
+      "library_path": "ee_lib/Switches & Breakers/DPDT Switch",
+      "block_name": "DPDT Switch",
+      "mask_type": "DPDT Switch",
+      "port_structure": "Inport:0;Outport:0;Enable:0;Trigger:0;State:0;LConn:3;RConn:4;Ifaction:0;Reset:0;Event:0",
+      "physical_port_count": 7,
+      "inport_count": 0,
+      "outport_count": 0,
+      "likely_compatible_with_l01": true,
+      "requires_control_input": false,
+      "note": "Candidate has physical ports and breaker/switch naming; standalone probe still required before wrapper insertion."
+    },
+    {
+      "library_path": "ee_lib/Switches & Breakers/SPMT Switch",
+      "block_name": "SPMT Switch",
+      "mask_type": "SPMT Switch",
+      "port_structure": "Inport:0;Outport:0;Enable:0;Trigger:0;State:0;LConn:2;RConn:4;Ifaction:0;Reset:0;Event:0",
+      "physical_port_count": 6,
+      "inport_count": 0,
+      "outport_count": 0,
+      "likely_compatible_with_l01": true,
+      "requires_control_input": false,
+      "note": "Candidate has physical ports and breaker/switch naming; standalone probe still required before wrapper insertion."
+    },
+    {
+      "library_path": "sps_lib/Electrical Machines/Switched Reluctance\\nMotor",
+      "block_name": "Switched Reluctance\\nMotor",
+      "mask_type": "Switched Reluctance Motor",
+      "port_structure": "Inport:1;Outport:1;Enable:0;Trigger:0;State:0;LConn:6;RConn:0;Ifaction:0;Reset:0;Event:0",
+      "physical_port_count": 6,
+      "inport_count": 1,
+      "outport_count": 1,
+      "likely_compatible_with_l01": true,
+      "requires_control_input": true,
+      "note": "Candidate has physical ports and breaker/switch naming; standalone probe still required before wrapper insertion."
+    },
+    {
+      "library_path": "sps_lib/Electrical Machines/Wind Turbine\\nInduction Generator\\n(Phasor Type)/Trip Breaker1",
+      "block_name": "Trip Breaker1",
+      "mask_type": "Three-Phase Breaker",
+      "port_structure": "Inport:1;Outport:0;Enable:0;Trigger:0;State:0;LConn:3;RConn:3;Ifaction:0;Reset:0;Event:0",
+      "physical_port_count": 6,
+      "inport_count": 1,
+      "outport_count": 0,
+      "likely_compatible_with_l01": true,
+      "requires_control_input": true,
+      "note": "Candidate has physical ports and breaker/switch naming; standalone probe still required before wrapper insertion."
+    },
+    {
+      "library_path": "sps_lib/Electrical Machines/Wind Turbine\\nInduction Generator\\n(Phasor Type)/Trip Breaker1/ThreePhaseBreaker",
+      "block_name": "ThreePhaseBreaker",
+      "mask_type": "InnerPowersysBlock",
+      "port_structure": "Inport:0;Outport:0;Enable:0;Trigger:0;State:0;LConn:3;RConn:3;Ifaction:0;Reset:0;Event:0",
+      "physical_port_count": 6,
+      "inport_count": 0,
+      "outport_count": 0,
+      "likely_compatible_with_l01": true,
+      "requires_control_input": false,
+      "note": "Candidate has physical ports and breaker/switch naming; standalone probe still required before wrapper insertion."
+    },
+    {
+      "library_path": "sps_lib/Electrical Machines/Wind Turbine\\nInduction Generator\\n(Phasor Type)/Trip Breaker2",
+      "block_name": "Trip Breaker2",
+      "mask_type": "Three-Phase Breaker",
+      "port_structure": "Inport:1;Outport:0;Enable:0;Trigger:0;State:0;LConn:3;RConn:3;Ifaction:0;Reset:0;Event:0",
+      "physical_port_count": 6,
+      "inport_count": 1,
+      "outport_count": 0,
+      "likely_compatible_with_l01": true,
+      "requires_control_input": true,
+      "note": "Candidate has physical ports and breaker/switch naming; standalone probe still required before wrapper insertion."
+    },
+    {
+      "library_path": "sps_lib/Electrical Machines/Wind Turbine\\nInduction Generator\\n(Phasor Type)/Trip Breaker2/ThreePhaseBreaker",
+      "block_name": "ThreePhaseBreaker",
+      "mask_type": "InnerPowersysBlock",
+      "port_structure": "Inport:0;Outport:0;Enable:0;Trigger:0;State:0;LConn:3;RConn:3;Ifaction:0;Reset:0;Event:0",
+      "physical_port_count": 6,
+      "inport_count": 0,
+      "outport_count": 0,
+      "likely_compatible_with_l01": true,
+      "requires_control_input": false,
+      "note": "Candidate has physical ports and breaker/switch naming; standalone probe still required before wrapper insertion."
+    },
+    {
+      "library_path": "sps_lib/Power Grid Elements/Three-Phase Breaker",
+      "block_name": "Three-Phase Breaker",
+      "mask_type": "Three-Phase Breaker",
+      "port_structure": "Inport:0;Outport:0;Enable:0;Trigger:0;State:0;LConn:3;RConn:3;Ifaction:0;Reset:0;Event:0",
+      "physical_port_count": 6,
+      "inport_count": 0,
+      "outport_count": 0,
+      "likely_compatible_with_l01": true,
+      "requires_control_input": false,
+      "note": "Candidate has physical ports and breaker/switch naming; standalone probe still required before wrapper insertion."
+    }
+  ]
+}

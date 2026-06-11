@@ -7,6 +7,11 @@
   "num_labels_with_frequency_measurement": 4,
   "num_labels_with_speed_measurement": 4,
   "num_labels_with_rotor_angle_measurement": 4,
+  "num_training_ready_three_phase_fault_labels": 1,
+  "num_training_ready_relay_proxy_labels": 1,
+  "num_training_ready_timed_line_trip_labels": 0,
+  "num_static_topology_disable_rows": 1,
+  "num_manual_required_trip_rows": 1,
   "measurement_quality_status": "partial_dynamic_measurements",
   "label_quality_status": "partial_physical_execution",
   "allowed_for_dynamic_aware_training": false

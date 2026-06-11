@@ -157,6 +157,63 @@ python scripts/gcn_search/check_pio_gcn_artifacts.py
 git diff -- src/rl_mitigation scripts/rl_mitigation
 ```
 
+## Round 30 - IEEE39 timed line-trip insertion probe
+
+Round 30 specifically targeted the remaining `single_line_trip` gap. The goal was to determine whether L01 could be upgraded from `static_topology_disable` to a true in-simulation timed controlled switch / pilot breaker-like trip.
+
+New MATLAB scripts:
+
+- `matlab/simulink_ieee39/inspect_ieee39_line_ports.m`
+- `matlab/simulink_ieee39/find_compatible_ieee39_breaker_blocks.m`
+- `matlab/simulink_ieee39/probe_ieee39_breaker_insertion_standalone.m`
+- `matlab/simulink_ieee39/insert_ieee39_timed_line_switch.m`
+
+New docs:
+
+- `docs/ieee39_timed_line_trip_probe_status.md`
+- `docs/ieee39_timed_breaker_manual_wiring_guide.md`
+
+MATLAB command sequence:
+
+```matlab
+inspect_ieee39_line_ports(... L01 ...)
+find_compatible_ieee39_breaker_blocks(...)
+probe_ieee39_breaker_insertion_standalone(...)
+insert_ieee39_timed_line_switch(...)
+run_ieee39_fault_test_suite(... ["no_fault_sanity", "three_phase_fault_clear", "single_line_trip", "relay_trip_test"], 0.5)
+```
+
+Key result:
+
+- L01 exposes four Simscape physical ports.
+- Breaker/switch candidates were found in installed libraries.
+- Standalone probe did not find an unambiguous four-physical-port controlled breaker/switch suitable for safe automatic wrapper rewiring.
+- `insertion_success = false`
+- `trip_implementation = static_topology_disable`
+- `single_line_trip training_ready_candidate = false`
+- `num_training_ready_timed_line_trip_labels = 0`
+- `num_training_ready_labels = 2`
+- `measurement_quality_status = partial_dynamic_measurements`
+- `label_quality_status = partial_physical_execution`
+- `allowed_for_dynamic_aware_training = false`
+
+Boundary:
+
+- `static_topology_disable` is not a timed breaker.
+- A future `timed_controlled_switch` is only a pilot breaker-like trip, not engineering-grade protection.
+- Frequency remains `generator_speed_proxy`, not a direct frequency measurement.
+- The model remains `phasor_RMS`, not EMT.
+- Dynamic-aware reranker training remains blocked while `num_training_ready_labels < 10`.
+
+Validation commands:
+
+```bash
+python -m pytest tests/test_ieee39_line_port_inventory.py tests/test_ieee39_breaker_candidate_inventory.py tests/test_ieee39_breaker_probe_summary.py tests/test_ieee39_timed_switch_insertion_summary.py tests/test_ieee39_timed_trip_docs.py
+python -m pytest tests/test_ieee39_model_inventory.py tests/test_ieee39_dynamic_label_schema.py tests/test_ieee39_graphical_status_docs.py tests/test_ieee39_line_breaker_mapping.py tests/test_ieee39_fault_test_summary.py tests/test_ieee39_dynamic_label_quality_gate.py tests/test_ieee39_relay_proxy_docs.py tests/test_ieee39_real_fault_summary_schema.py tests/test_ieee39_signal_extraction_summary.py tests/test_ieee39_training_ready_label_gate.py tests/test_ieee39_real_fault_docs.py tests/test_ieee39_simlog_inventory.py tests/test_ieee39_measurement_quality_gate.py tests/test_ieee39_timed_trip_summary.py tests/test_ieee39_measurement_docs.py
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+git diff -- src/rl_mitigation scripts/rl_mitigation
+```
+
 ## Round 25: Robustness, Bootstrap CI, And Report-Ready Diagnostic Result
 
 Round 25 turns the Round 24 nondegenerate dynamic comparison into a report-ready preliminary diagnostic result. No new MATLAB simulation is required; this round uses the Round 24 event-strength calibrated results.

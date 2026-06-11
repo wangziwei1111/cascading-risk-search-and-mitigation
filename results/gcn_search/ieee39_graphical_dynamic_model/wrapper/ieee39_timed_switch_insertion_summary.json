@@ -1,0 +1,16 @@
+{
+  "line_id": "L01",
+  "line_block_path": "",
+  "inserted_switch_block_path": "",
+  "control_signal_block_path": "",
+  "trip_time_s": 0.5,
+  "insertion_attempted": false,
+  "insertion_success": false,
+  "connection_verified": false,
+  "wrapper_saved": false,
+  "trip_implementation": "static_topology_disable",
+  "physical_fault_or_breaker_action_executed": false,
+  "training_ready_candidate": false,
+  "error_message": "",
+  "note": "manual_required: standalone probe did not approve automatic physical-port rewiring; wrapper left unchanged."
+}

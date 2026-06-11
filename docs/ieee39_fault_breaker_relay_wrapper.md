@@ -133,3 +133,25 @@ allowed_for_dynamic_aware_training = false
 ```
 
 The next breaker step is manual or carefully scripted Simscape physical-port rewiring, followed by rerunning the same compact fault-test suite.
+
+## Round 30 Update
+
+Round 30 adds a dedicated timed line-trip probe workflow:
+
+- `inspect_ieee39_line_ports.m`
+- `find_compatible_ieee39_breaker_blocks.m`
+- `probe_ieee39_breaker_insertion_standalone.m`
+- `insert_ieee39_timed_line_switch.m`
+
+The L01 transmission line exposes four Simscape physical ports. The installed-library search found many switch/breaker-named candidates, but the standalone probe did not find an unambiguous controlled breaker/switch suitable for automatic wrapper rewiring.
+
+Current line-trip status:
+
+```text
+insertion_success = false
+implementation_status = manual_required
+trip_implementation = static_topology_disable
+training_ready_candidate = false
+```
+
+This result must not be described as a timed breaker. A timed controlled switch, if later added manually, remains a pilot breaker-like trip and not engineering-grade protection.

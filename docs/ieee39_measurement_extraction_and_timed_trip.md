@@ -74,3 +74,20 @@ The label count is still below the minimum preview threshold of ten training-rea
 - The basic relay proxy is not engineering-grade protection.
 - This is not full OPF dynamic simulation.
 - These are compact preliminary quality-gate results, not final dynamic validation conclusions.
+
+## Round 30 Timed Trip Probe
+
+Round 30 specifically checked whether L01 could be upgraded to a timed controlled switch.
+
+The new line-port inventory confirms that L01 has four Simscape physical ports, and the library search found breaker/switch candidates. However, the standalone probe did not identify an unambiguous controlled switch with a safe port structure for automatic wrapper rewiring.
+
+Current result:
+
+```text
+insertion_success = false
+trip_implementation = static_topology_disable
+training_ready_candidate = false
+manual_required
+```
+
+The wrapper was left unchanged. `static_topology_disable` is still not a timed breaker.

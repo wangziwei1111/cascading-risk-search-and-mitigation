@@ -169,3 +169,25 @@ Current compact interpretation:
 - `allowed_for_dynamic_aware_training = false`
 
 Dynamic-aware reranker training is still blocked because the number of training-ready labels is below ten.
+
+## Round 30 Update
+
+Round 30 focused on the L01 timed line-trip insertion gate.
+
+New compact outputs:
+
+- `results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_port_inventory.csv`
+- `results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_compatible_breaker_candidates.csv`
+- `results/gcn_search/ieee39_graphical_dynamic_model/breaker_probe/breaker_probe_summary.csv`
+- `results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_timed_switch_insertion_summary.csv`
+
+Current interpretation:
+
+- L01 has four Simscape physical ports.
+- Candidate breaker/switch blocks were found.
+- Standalone probe did not approve safe automatic insertion.
+- `single_line_trip` remains `static_topology_disable`.
+- `num_training_ready_timed_line_trip_labels = 0`.
+- `allowed_for_dynamic_aware_training = false`.
+
+Manual physical-port rewiring is the next required step.

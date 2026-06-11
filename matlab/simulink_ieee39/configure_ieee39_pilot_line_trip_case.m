@@ -29,6 +29,17 @@ if ~isempty(match)
     breakerPath = string(match.breaker_block_path(1));
 end
 hasTimedBreaker = ~isempty(match) && strlength(breakerPath) > 0 && breakerPath ~= "missing" && breakerPath ~= "NaN";
+insertionSummaryPath = fullfile(outputDir, "ieee39_timed_switch_insertion_summary.csv");
+hasInsertedTimedSwitch = false;
+insertedSummary = table();
+if isfile(insertionSummaryPath)
+    try
+        insertedSummary = readtable(insertionSummaryPath, "TextType", "string", "VariableNamingRule", "preserve");
+        hasInsertedTimedSwitch = ~isempty(insertedSummary) && any(insertedSummary.insertion_success == true);
+    catch
+        hasInsertedTimedSwitch = false;
+    end
+end
 
 if hasTimedBreaker
     implementation = "existing_breaker_control";
@@ -38,6 +49,15 @@ if hasTimedBreaker
     insertedSwitchPath = "";
     controlSignalPath = breakerPath;
     note = "Existing breaker path found; timed control still requires parameter verification.";
+elseif hasInsertedTimedSwitch
+    row = insertedSummary(1, :);
+    implementation = "timed_controlled_switch";
+    physical = true;
+    trainingReady = true;
+    implementationStatus = "timed_switch_inserted";
+    insertedSwitchPath = string(row.inserted_switch_block_path(1));
+    controlSignalPath = string(row.control_signal_block_path(1));
+    note = "Timed controlled switch insertion summary reports success; treating pilot line trip as breaker-like training candidate.";
 else
     [inserted, insertedSwitchPath, controlSignalPath, insertNote] = tryRecordTimedSwitchCandidate(wrapperModelPath, match);
     if inserted

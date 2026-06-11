@@ -89,3 +89,21 @@ measurement_quality_status = partial_dynamic_measurements
 label_quality_status = partial_physical_execution
 allowed_for_dynamic_aware_training = false
 ```
+
+## Round 30 Update
+
+Round 30 attempted to move `single_line_trip` from `static_topology_disable` toward a real timed controlled switch.
+
+The line-port inventory shows L01 has four Simscape physical ports. Candidate breaker/switch blocks were found in installed libraries, but the standalone probe did not approve a safe automatic insertion path. The wrapper was not modified.
+
+Current result:
+
+```text
+single_line_trip trip_implementation = static_topology_disable
+single_line_trip physical_fault_or_breaker_action_executed = false
+single_line_trip training_ready_candidate = false
+num_training_ready_timed_line_trip_labels = 0
+allowed_for_dynamic_aware_training = false
+```
+
+Manual physical-port rewiring is still required before `single_line_trip` can become a training-ready timed line-trip label.

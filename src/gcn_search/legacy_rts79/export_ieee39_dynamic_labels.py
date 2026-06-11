@@ -49,7 +49,14 @@ def _training_ready_rows(summary: pd.DataFrame) -> pd.DataFrame:
     if "training_ready_candidate" in summary.columns:
         ready = summary["training_ready_candidate"].astype(str).str.lower().isin({"1", "true", "yes"})
         schema = summary.get("schema_only", pd.Series(False, index=summary.index)).astype(str).str.lower().isin({"1", "true", "yes"})
-        return summary[ready & ~schema].copy()
+        no_fault = summary.get("test_case", pd.Series("", index=summary.index)).astype(str).str.lower().eq("no_fault_sanity")
+        trip_impl = summary.get("trip_implementation", pd.Series("", index=summary.index)).astype(str)
+        fault_type = summary.get("fault_type", pd.Series("", index=summary.index)).astype(str)
+        test_case = summary.get("test_case", pd.Series("", index=summary.index)).astype(str)
+        is_line_trip = test_case.str.contains("single_line_trip", case=False, na=False) | fault_type.str.contains("pilot_line_trip|single_line_trip", case=False, na=False)
+        line_trip_allowed = ~is_line_trip | trip_impl.isin({"timed_controlled_switch", "existing_breaker_control"})
+        static_disabled = trip_impl.eq("static_topology_disable")
+        return summary[ready & ~schema & ~no_fault & line_trip_allowed & ~static_disabled].copy()
     if "simulation_success" not in summary.columns or "physical_fault_or_breaker_action_executed" not in summary.columns:
         return summary.iloc[0:0].copy()
     success = summary["simulation_success"].astype(str).str.lower().isin({"1", "true", "yes"})
@@ -84,6 +91,11 @@ def _quality_summary(summary: pd.DataFrame, training_ready: pd.DataFrame) -> dic
         angle_count=angle_count,
         ready_count=ready_count,
     )
+    trip_impl = summary.get("trip_implementation", pd.Series("", index=summary.index)).astype(str)
+    test_case = summary.get("test_case", pd.Series("", index=summary.index)).astype(str)
+    fault_type = summary.get("fault_type", pd.Series("", index=summary.index)).astype(str)
+    ready_cases = training_ready.get("test_case", pd.Series("", index=training_ready.index)).astype(str)
+    ready_trip_impl = training_ready.get("trip_implementation", pd.Series("", index=training_ready.index)).astype(str)
     return {
         "num_fault_rows": int(len(summary)),
         "num_physical_executed_rows": physical_count,
@@ -93,6 +105,17 @@ def _quality_summary(summary: pd.DataFrame, training_ready: pd.DataFrame) -> dic
         "num_labels_with_frequency_measurement": frequency_count,
         "num_labels_with_speed_measurement": speed_count,
         "num_labels_with_rotor_angle_measurement": angle_count,
+        "num_training_ready_three_phase_fault_labels": int(ready_cases.str.contains("three_phase_fault", case=False, na=False).sum()),
+        "num_training_ready_relay_proxy_labels": int(ready_cases.str.contains("relay", case=False, na=False).sum()),
+        "num_training_ready_timed_line_trip_labels": int(ready_trip_impl.isin({"timed_controlled_switch", "existing_breaker_control"}).sum()),
+        "num_static_topology_disable_rows": int(trip_impl.eq("static_topology_disable").sum()),
+        "num_manual_required_trip_rows": int(
+            (
+                test_case.str.contains("line_trip", case=False, na=False)
+                | fault_type.str.contains("line_trip", case=False, na=False)
+            ).sum()
+            - trip_impl.isin({"timed_controlled_switch", "existing_breaker_control"}).sum()
+        ),
         "measurement_quality_status": measurement_quality_status,
         "label_quality_status": status,
         "allowed_for_dynamic_aware_training": bool(ready_count >= 10),

@@ -1,0 +1,2 @@
+probe_model_created,candidate_block,connection_success,simulation_success,timed_open_signal_applied,compatible_for_wrapper_insertion,error_message,note
+1,ee_lib/Electromechanical/Reluctance & Stepper/Switched Reluctance\nMachine\n(Multi-Phase),0,0,1,0,,Standalone probe did not find an unambiguous four-physical-port controlled breaker compatible with the L01 line block.
