@@ -1,6 +1,6 @@
 {
   "line_id": "L01",
-  "line_block_path": "",
+  "line_block_path": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B1 to B2",
   "inserted_switch_block_path": "",
   "control_signal_block_path": "",
   "trip_time_s": 0.5,

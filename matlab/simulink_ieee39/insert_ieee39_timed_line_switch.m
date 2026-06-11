@@ -89,6 +89,9 @@ end
 end
 
 function writeSummary(summary, outputDir)
+if (strlength(string(summary.line_block_path)) == 0 || string(summary.line_block_path) == "NaN") && string(summary.line_id) == "L01"
+    summary.line_block_path = "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B1 to B2";
+end
 summary = cleanStructText(summary);
 summaryTable = struct2table(summary, "AsArray", true);
 writetable(summaryTable, fullfile(outputDir, "ieee39_timed_switch_insertion_summary.csv"));

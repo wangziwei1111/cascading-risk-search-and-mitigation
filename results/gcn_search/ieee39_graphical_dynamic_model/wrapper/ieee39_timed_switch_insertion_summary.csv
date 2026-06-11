@@ -1,2 +1,2 @@
 line_id,line_block_path,inserted_switch_block_path,control_signal_block_path,trip_time_s,insertion_attempted,insertion_success,connection_verified,wrapper_saved,trip_implementation,physical_fault_or_breaker_action_executed,training_ready_candidate,error_message,note
-L01,,,,0.5,0,0,0,0,static_topology_disable,0,0,,manual_required: standalone probe did not approve automatic physical-port rewiring; wrapper left unchanged.
+L01,IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B1 to B2,,,0.5,0,0,0,0,static_topology_disable,0,0,,manual_required: standalone probe did not approve automatic physical-port rewiring; wrapper left unchanged.
