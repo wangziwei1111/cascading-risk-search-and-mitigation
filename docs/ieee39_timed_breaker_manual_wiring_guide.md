@@ -82,6 +82,28 @@ trip_time_s = 0.5
 
 If these fields are not satisfied, `single_line_trip` must remain non-training-ready.
 
+## Round 31 Validation Interface
+
+Round 31 stops automatic physical-port insertion. After the user manually saves the handwired copy, run:
+
+```matlab
+validate_ieee39_handwired_breaker_model( ...
+  "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker.slx", ...
+  "../../results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation", ...
+  "L01", ...
+  "L01_HandwiredTimedBreaker", ...
+  "L01_TripCommand" ...
+)
+```
+
+The helper checklist can be printed with:
+
+```bash
+python scripts/gcn_search/print_ieee39_handwired_breaker_checklist.py
+```
+
+The handwired `.slx` must remain local and must not be committed.
+
 ## Boundaries
 
 - This is still `phasor_RMS`, not EMT.

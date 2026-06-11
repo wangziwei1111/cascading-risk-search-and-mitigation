@@ -66,6 +66,7 @@ REQUIRED_FILES = [
     "matlab/simulink_ieee39/find_compatible_ieee39_breaker_blocks.m",
     "matlab/simulink_ieee39/probe_ieee39_breaker_insertion_standalone.m",
     "matlab/simulink_ieee39/insert_ieee39_timed_line_switch.m",
+    "matlab/simulink_ieee39/validate_ieee39_handwired_breaker_model.m",
     "matlab/simulink_ieee39/inventory_ieee39_simlog_tree.m",
     "matlab/simulink_ieee39/extract_ieee39_signal_summary.m",
     "matlab/simulink_ieee39/run_ieee39_fault_test_suite.m",
@@ -81,6 +82,7 @@ REQUIRED_FILES = [
     "src/gcn_search/legacy_rts79/analyze_opa_dynamic_disagreement.py",
     "src/gcn_search/legacy_rts79/analyze_relay_vs_security_events.py",
     "src/gcn_search/legacy_rts79/check_relay_security_demo_artifacts.py",
+    "scripts/gcn_search/print_ieee39_handwired_breaker_checklist.py",
     "tests/test_simulink_dynamic_case_export.py",
     "tests/test_simulink_dynamic_result_analysis.py",
     "tests/test_simulink_dynamic_disagreement.py",
@@ -138,6 +140,10 @@ REQUIRED_FILES = [
     "tests/test_ieee39_breaker_probe_summary.py",
     "tests/test_ieee39_timed_switch_insertion_summary.py",
     "tests/test_ieee39_timed_trip_docs.py",
+    "tests/test_ieee39_handwired_breaker_validation_schema.py",
+    "tests/test_ieee39_handwired_label_gate.py",
+    "tests/test_ieee39_handwired_docs.py",
+    "tests/test_ieee39_handwired_checklist.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
     "docs/pio_gcn_simulink_real_topk_event_driven_validation.md",
@@ -157,6 +163,7 @@ REQUIRED_FILES = [
     "docs/ieee39_measurement_extraction_and_timed_trip.md",
     "docs/ieee39_timed_line_trip_probe_status.md",
     "docs/ieee39_timed_breaker_manual_wiring_guide.md",
+    "docs/ieee39_handwired_breaker_validation.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -191,6 +198,10 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_graphical_dynamic_model/breaker_probe/breaker_probe_error_log.txt",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_timed_switch_insertion_summary.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_timed_switch_insertion_summary.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/handwired_breaker_checklist.txt",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_handwired_breaker_validation_summary.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_handwired_breaker_validation_summary.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_handwired_breaker_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_signal_extraction_debug.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_simlog_tree_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_simlog_tree_inventory.json",
@@ -730,6 +741,8 @@ def main() -> int:
         failures.append("Validation log must contain Round 29.")
     if validation_log.exists() and "round 30" not in _read_text("docs/gcn_pio_validation_log.md").lower():
         failures.append("Validation log must contain Round 30.")
+    if validation_log.exists() and "round 31" not in _read_text("docs/gcn_pio_validation_log.md").lower():
+        failures.append("Validation log must contain Round 31.")
 
     relay_doc = ROOT / "docs/ieee39_fault_breaker_relay_wrapper.md"
     if relay_doc.exists():
@@ -769,6 +782,10 @@ def main() -> int:
             "num_training_ready_timed_line_trip_labels",
             "num_static_topology_disable_rows",
             "num_manual_required_trip_rows",
+            "num_training_ready_handwired_line_trip_labels",
+            "num_handwired_validation_passed",
+            "handwired_model_used",
+            "handwired_model_committed",
         ]:
             if required_key not in quality:
                 failures.append(f"IEEE39 quality summary missing key: {required_key}")
@@ -864,6 +881,30 @@ def main() -> int:
                     failures.append("Failed timed switch insertion must include manual_required in the summary note.")
         except Exception as exc:
             failures.append(f"Failed to read IEEE39 timed switch insertion summary: {exc}")
+
+    handwired_doc = ROOT / "docs/ieee39_handwired_breaker_validation.md"
+    if handwired_doc.exists():
+        text = _read_text("docs/ieee39_handwired_breaker_validation.md").lower()
+        for required in ["handwired .slx", "must not be committed", "pilot breaker-like", "not engineering-grade", "phasor_rms", "not emt", "generator_speed_proxy", "not direct frequency"]:
+            if required not in text:
+                failures.append(f"Handwired validation doc missing conservative term: {required}")
+        for bad in ["engineering-grade protection completed", "emt validation completed", "train the dynamic-aware reranker now", "proceed to train dynamic-aware reranker"]:
+            if bad in text:
+                failures.append(f"Handwired validation doc contains overstatement: {bad}")
+
+    handwired_summary = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_handwired_breaker_validation_summary.json"
+    if handwired_summary.exists():
+        try:
+            import json
+
+            payload = json.loads(handwired_summary.read_text(encoding="utf-8"))
+            for required in ["handwired_model_found", "handwired_model_loadable", "breaker_block_found", "trip_command_found", "validation_passed", "validation_failure_reason", "handwired_model_committed"]:
+                if required not in payload:
+                    failures.append(f"Handwired validation summary missing key: {required}")
+            if payload.get("handwired_model_committed", True):
+                failures.append("Handwired validation summary must record handwired_model_committed=false.")
+        except Exception as exc:
+            failures.append(f"Failed to read handwired validation summary: {exc}")
 
     negative_summary = ROOT / "results/gcn_search/simulink_dynamic_negative_control_summary/dynamic_negative_control_comparison.csv"
     if negative_summary.exists():

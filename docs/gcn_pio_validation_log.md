@@ -157,6 +157,47 @@ python scripts/gcn_search/check_pio_gcn_artifacts.py
 git diff -- src/rl_mitigation scripts/rl_mitigation
 ```
 
+## Round 31 - Handwired IEEE39 timed breaker validation flow
+
+Round 31 stops automatic Simscape physical-port breaker insertion. The workflow now assumes the user will manually wire L01 in Simulink GUI and save a local handwired wrapper copy. Codex scripts then validate the handwired copy and update the label gate.
+
+New files:
+
+- `matlab/simulink_ieee39/validate_ieee39_handwired_breaker_model.m`
+- `scripts/gcn_search/print_ieee39_handwired_breaker_checklist.py`
+- `docs/ieee39_handwired_breaker_validation.md`
+
+Generated compact outputs:
+
+- `results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/handwired_breaker_checklist.txt`
+- `results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_handwired_breaker_validation_summary.json`
+- `results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_handwired_breaker_block_inventory.csv`
+
+Current result:
+
+- `handwired_model_found = false`
+- `validation_passed = false`
+- `validation_failure_reason = handwired model file not found`
+- `num_training_ready_handwired_line_trip_labels = 0`
+- `num_training_ready_labels = 2`
+- `allowed_for_dynamic_aware_training = false`
+
+Boundary:
+
+- The handwired `.slx` is a local artifact and must not be committed.
+- A handwired breaker is a pilot breaker-like validation path, not engineering-grade protection.
+- The model remains `phasor_RMS`, not EMT.
+- `generator_speed_proxy` is not direct frequency.
+- `static_topology_disable` cannot become a training-ready label.
+
+Validation commands:
+
+```bash
+python -m pytest tests/test_ieee39_handwired_breaker_validation_schema.py tests/test_ieee39_handwired_label_gate.py tests/test_ieee39_handwired_docs.py tests/test_ieee39_handwired_checklist.py
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+git diff -- src/rl_mitigation scripts/rl_mitigation
+```
+
 ## Round 30 - IEEE39 timed line-trip insertion probe
 
 Round 30 specifically targeted the remaining `single_line_trip` gap. The goal was to determine whether L01 could be upgraded from `static_topology_disable` to a true in-simulation timed controlled switch / pilot breaker-like trip.

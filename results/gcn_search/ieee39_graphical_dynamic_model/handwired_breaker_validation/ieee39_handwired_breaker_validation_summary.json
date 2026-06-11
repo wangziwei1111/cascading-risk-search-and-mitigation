@@ -1,0 +1,21 @@
+{
+  "handwired_model_path": "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker.slx",
+  "line_id": "L01",
+  "breaker_block_name_hint": "L01_HandwiredTimedBreaker",
+  "trip_command_name_hint": "L01_TripCommand",
+  "handwired_model_found": false,
+  "handwired_model_loadable": false,
+  "breaker_block_found": false,
+  "trip_command_found": false,
+  "breaker_near_l01": false,
+  "no_fault_simulation_success": false,
+  "single_line_trip_simulation_success": false,
+  "trip_time_s": null,
+  "measurement_extraction_status": "not_run",
+  "validation_passed": false,
+  "validation_failure_reason": "handwired model file not found",
+  "breaker_block_path": "",
+  "trip_command_path": "",
+  "handwired_model_committed": false,
+  "note": "Handwired .slx files are local artifacts and must not be committed."
+}

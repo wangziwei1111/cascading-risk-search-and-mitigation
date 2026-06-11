@@ -20,6 +20,13 @@ LABEL_COLUMNS = [
     "breaker_trip_count",
 ]
 
+TIMED_LINE_TRIP_IMPLEMENTATIONS = {
+    "timed_controlled_switch",
+    "existing_breaker_control",
+    "handwired_timed_breaker",
+    "handwired_timed_controlled_switch",
+}
+
 
 def export_ieee39_dynamic_labels(
     fault_test_summary_csv: str | Path,
@@ -54,7 +61,7 @@ def _training_ready_rows(summary: pd.DataFrame) -> pd.DataFrame:
         fault_type = summary.get("fault_type", pd.Series("", index=summary.index)).astype(str)
         test_case = summary.get("test_case", pd.Series("", index=summary.index)).astype(str)
         is_line_trip = test_case.str.contains("single_line_trip", case=False, na=False) | fault_type.str.contains("pilot_line_trip|single_line_trip", case=False, na=False)
-        line_trip_allowed = ~is_line_trip | trip_impl.isin({"timed_controlled_switch", "existing_breaker_control"})
+        line_trip_allowed = ~is_line_trip | trip_impl.isin(TIMED_LINE_TRIP_IMPLEMENTATIONS)
         static_disabled = trip_impl.eq("static_topology_disable")
         return summary[ready & ~schema & ~no_fault & line_trip_allowed & ~static_disabled].copy()
     if "simulation_success" not in summary.columns or "physical_fault_or_breaker_action_executed" not in summary.columns:
@@ -96,6 +103,7 @@ def _quality_summary(summary: pd.DataFrame, training_ready: pd.DataFrame) -> dic
     fault_type = summary.get("fault_type", pd.Series("", index=summary.index)).astype(str)
     ready_cases = training_ready.get("test_case", pd.Series("", index=training_ready.index)).astype(str)
     ready_trip_impl = training_ready.get("trip_implementation", pd.Series("", index=training_ready.index)).astype(str)
+    handwired_validation = _handwired_validation_summary()
     return {
         "num_fault_rows": int(len(summary)),
         "num_physical_executed_rows": physical_count,
@@ -107,7 +115,11 @@ def _quality_summary(summary: pd.DataFrame, training_ready: pd.DataFrame) -> dic
         "num_labels_with_rotor_angle_measurement": angle_count,
         "num_training_ready_three_phase_fault_labels": int(ready_cases.str.contains("three_phase_fault", case=False, na=False).sum()),
         "num_training_ready_relay_proxy_labels": int(ready_cases.str.contains("relay", case=False, na=False).sum()),
-        "num_training_ready_timed_line_trip_labels": int(ready_trip_impl.isin({"timed_controlled_switch", "existing_breaker_control"}).sum()),
+        "num_training_ready_timed_line_trip_labels": int(ready_trip_impl.isin(TIMED_LINE_TRIP_IMPLEMENTATIONS).sum()),
+        "num_training_ready_handwired_line_trip_labels": int(ready_trip_impl.isin({"handwired_timed_breaker", "handwired_timed_controlled_switch"}).sum()),
+        "num_handwired_validation_passed": int(bool(handwired_validation.get("validation_passed", False))),
+        "handwired_model_used": bool(handwired_validation.get("handwired_model_found", False)),
+        "handwired_model_committed": False,
         "num_static_topology_disable_rows": int(trip_impl.eq("static_topology_disable").sum()),
         "num_manual_required_trip_rows": int(
             (
@@ -120,6 +132,16 @@ def _quality_summary(summary: pd.DataFrame, training_ready: pd.DataFrame) -> dic
         "label_quality_status": status,
         "allowed_for_dynamic_aware_training": bool(ready_count >= 10),
     }
+
+
+def _handwired_validation_summary() -> dict:
+    path = Path("results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_handwired_breaker_validation_summary.json")
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
 
 
 def _measurement_count(summary: pd.DataFrame, column: str) -> int:

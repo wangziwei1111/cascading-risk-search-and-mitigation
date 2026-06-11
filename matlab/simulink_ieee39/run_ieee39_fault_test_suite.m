@@ -1,4 +1,4 @@
-function summaryTable = run_ieee39_fault_test_suite(wrapperModelPath, outputDir, executeSimulation, selectedCases, simulationStopTime)
+function summaryTable = run_ieee39_fault_test_suite(wrapperModelPath, outputDir, executeSimulation, selectedCases, simulationStopTime, handwiredMode)
 %RUN_IEEE39_FAULT_TEST_SUITE Run IEEE39 graphical-model pilot fault tests.
 %
 % The current wrapper uses real Simulink/Simscape simulations. Line trips use
@@ -23,6 +23,9 @@ end
 if nargin < 5 || isempty(simulationStopTime)
     simulationStopTime = 2.0;
 end
+if nargin < 6 || isempty(handwiredMode)
+    handwiredMode = false;
+end
 if ~exist(outputDir, "dir")
     mkdir(outputDir);
 end
@@ -46,6 +49,15 @@ if ~isempty(faultPoints) && strlength(faultPoints.fault_block_path(1)) > 0
 end
 tripSummary = configure_ieee39_pilot_line_trip_case(wrapperModelPath, line1.line_id, wrapperDir);
 singleLineTripImplementation = string(tripSummary.trip_implementation);
+handwiredValidated = false;
+if handwiredMode
+    handwiredValidated = readHandwiredValidationPassed();
+    if handwiredValidated
+        singleLineTripImplementation = "handwired_timed_breaker";
+    else
+        singleLineTripImplementation = "manual_required";
+    end
+end
 
 cases = {
     "no_fault_sanity", "none", 0.0, 0.0, "", false, false, simulationStopTime, "none";
@@ -83,12 +95,12 @@ for idx = 1:size(cases, 1)
     measurementStatus = string(signalSummary.measurement_extraction_status);
     signalSourceSummary = string(signalSummary.signal_source_summary);
     relayOperated = testCase == "relay_trip_test" && physicalExecuted;
-    breakerOpened = useLineTrip && tripImplementation ~= "static_topology_disable" && physicalExecuted;
+    breakerOpened = useLineTrip && isTimedTripImplementation(tripImplementation) && physicalExecuted;
     unstable = minFrequency < 49.0 || minVoltage < 0.8 || maxRotorAngle > 180.0;
     tripTime = ternary(relayOperated || breakerOpened, faultStart, NaN);
     schemaOnly = ~executeSimulation;
     faultConfigurationStatus = ternary(useFault && strlength(faultBlock) > 0, "configured", ternary(useFault, "manual_required", "not_applicable"));
-    trainingReadyCandidate = success && physicalExecuted && ~schemaOnly && tripImplementation ~= "static_topology_disable";
+    trainingReadyCandidate = success && physicalExecuted && ~schemaOnly && (isTimedTripImplementation(tripImplementation) || tripImplementation == "existing_three_phase_fault_block" || tripImplementation == "basic_relay_proxy");
     timeoutOrError = "";
     if ~success
         timeoutOrError = note;
@@ -142,8 +154,12 @@ try
     [~, modelName, ~] = fileparts(modelPath);
     resetPilotChanges(lineMap, faultBlock);
     if useLineTrip
-        disableMappedLines(trippedLine, lineMap);
-        physicalExecuted = tripImplementation ~= "static_topology_disable";
+        if tripImplementation == "static_topology_disable" || tripImplementation == "manual_required"
+            disableMappedLines(trippedLine, lineMap);
+            physicalExecuted = false;
+        elseif isTimedTripImplementation(tripImplementation)
+            physicalExecuted = true;
+        end
     end
     if useFault && strlength(faultBlock) > 0
         set_param(faultBlock, "enable_temporal_fault", "1");
@@ -162,6 +178,10 @@ try
             note = "real no-fault graphical simulation completed";
         elseif useLineTrip && tripImplementation == "static_topology_disable"
             note = "static topology line disable executed before simulation; not timed breaker control and not training-ready";
+        elseif useLineTrip && tripImplementation == "manual_required"
+            note = "manual_required: handwired timed breaker validation did not pass; static topology fallback is not training-ready";
+        elseif useLineTrip && startsWith(tripImplementation, "handwired")
+            note = "handwired timed breaker validated by validation script";
         elseif useLineTrip
             note = "pilot controlled switch or breaker-like trip executed";
         elseif useFault
@@ -217,5 +237,23 @@ if condition
     value = trueValue;
 else
     value = falseValue;
+end
+end
+
+function tf = isTimedTripImplementation(tripImplementation)
+tripImplementation = string(tripImplementation);
+tf = ismember(tripImplementation, ["existing_breaker_control", "timed_controlled_switch", "handwired_timed_breaker", "handwired_timed_controlled_switch"]);
+end
+
+function passed = readHandwiredValidationPassed()
+passed = false;
+summaryPath = "../../results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_handwired_breaker_validation_summary.json";
+if isfile(summaryPath)
+    try
+        payload = jsondecode(fileread(summaryPath));
+        passed = logical(payload.validation_passed);
+    catch
+        passed = false;
+    end
 end
 end

@@ -67,3 +67,17 @@ allowed_for_dynamic_aware_training = false
 - Frequency remains `generator_speed_proxy`, not a direct frequency measurement.
 - The current model is `phasor_RMS`, not EMT.
 - With fewer than ten training-ready labels, dynamic-aware reranker training remains blocked.
+
+## Round 31 Follow-Up
+
+Round 31 stops automatic physical-port insertion. The next route is user handwiring in Simulink GUI followed by script validation.
+
+Current handwired validation state:
+
+```text
+handwired_model_found = false
+validation_passed = false
+num_training_ready_handwired_line_trip_labels = 0
+```
+
+The handwired `.slx` is a local artifact and must not be committed.

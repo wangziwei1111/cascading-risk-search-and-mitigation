@@ -91,3 +91,18 @@ manual_required
 ```
 
 The wrapper was left unchanged. `static_topology_disable` is still not a timed breaker.
+
+## Round 31 Handwired Validation
+
+Round 31 stops automatic Simscape physical-port insertion. The project now supports a handwired validation flow: the user manually wires and saves a local handwired wrapper, then `validate_ieee39_handwired_breaker_model.m` checks whether the expected breaker and trip command are present.
+
+Current result:
+
+```text
+handwired_model_found = false
+validation_passed = false
+num_training_ready_handwired_line_trip_labels = 0
+allowed_for_dynamic_aware_training = false
+```
+
+The handwired `.slx` is not committed.
