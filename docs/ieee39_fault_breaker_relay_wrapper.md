@@ -95,3 +95,21 @@ Dynamic labels must pass this quality gate before training a dynamic-aware reran
 ## Next Work
 
 The next step is manual or scripted wiring of breaker controls and measurement extraction inside the generated IEEE39 wrapper, followed by a successful full fault-test run with at least ten physical executed and simulation-successful rows.
+
+## Round 28 Update
+
+Round 28 produced a small real-execution set:
+
+- `no_fault_sanity`: real simulation, sanity only.
+- `three_phase_fault_clear`: real simulation with the existing `Fault (Three-Phase)` block.
+- `relay_trip_test`: real simulation with basic relay proxy.
+- `single_line_trip`: real simulation with static topology disable; this is not a timed breaker and is not training-ready.
+
+Current quality gate:
+
+```text
+label_quality_status = partial_physical_execution
+allowed_for_dynamic_aware_training = false
+```
+
+Measurement extraction remains `partial`; missing signals are reported as `NaN`, not placeholder measurements.

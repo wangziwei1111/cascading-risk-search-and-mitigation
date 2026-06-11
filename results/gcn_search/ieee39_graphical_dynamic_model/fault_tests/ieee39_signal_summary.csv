@@ -1,6 +1,5 @@
-test_case,min_voltage_pu,max_voltage_pu,min_frequency_hz,max_frequency_hz,max_speed_deviation,max_rotor_angle_separation_deg,signal_note
-no_fault_sanity,1,1,50,50,0,0,summary metrics use available/proxy extraction
-single_line_trip,1,1,49.8,50,0.02,5,summary metrics use available/proxy extraction
-three_phase_fault_clear,1,1,49.8,50,0.02,5,summary metrics use available/proxy extraction
-ordered_N2_trip,1,1,49.8,50,0.02,5,summary metrics use available/proxy extraction
-relay_trip_test,1,1,49.8,50,0.02,5,summary metrics use available/proxy extraction
+﻿"test_case","min_voltage_pu","max_voltage_pu","min_frequency_hz","max_frequency_hz","max_speed_deviation","max_rotor_angle_separation_deg","measurement_extraction_status","missing_signal_list","signal_note"
+"no_fault_sanity","NaN","NaN","NaN","NaN","NaN","NaN","partial","bus_voltage;frequency;generator_speed;rotor_angle","NaN means unavailable; no fixed placeholder is reported as measured"
+"single_line_trip","NaN","NaN","NaN","NaN","NaN","NaN","partial","bus_voltage;frequency;generator_speed;rotor_angle","NaN means unavailable; no fixed placeholder is reported as measured"
+"three_phase_fault_clear","NaN","NaN","NaN","NaN","NaN","NaN","partial","bus_voltage;frequency;generator_speed;rotor_angle","NaN means unavailable; no fixed placeholder is reported as measured"
+"relay_trip_test","NaN","NaN","NaN","NaN","NaN","NaN","partial","bus_voltage;frequency;generator_speed;rotor_angle","NaN means unavailable; no fixed placeholder is reported as measured"

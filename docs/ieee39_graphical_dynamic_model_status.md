@@ -130,3 +130,19 @@ Current Round 27 interpretation:
 - `allowed_for_dynamic_aware_training = false`.
 
 The model is still treated as `phasor_RMS`, not EMT.
+
+## Round 28 Update
+
+Round 28 moves from schema-only rows to partial physical execution.
+
+Current compact results:
+
+- `num_fault_rows = 4`
+- `num_physical_executed_rows = 2`
+- `num_training_ready_labels = 2`
+- `label_quality_status = partial_physical_execution`
+- `allowed_for_dynamic_aware_training = false`
+
+The two training-ready candidates are preliminary small-sample physical rows, not enough for training. The current minimum requirement remains at least ten physical executed and simulation-successful labels.
+
+Measurement extraction status is `partial`; unavailable values are recorded as `NaN` rather than fixed placeholders.

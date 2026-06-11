@@ -1,0 +1,58 @@
+{
+  "records": [
+    {
+      "test_case": "no_fault_sanity",
+      "min_voltage_pu": [],
+      "max_voltage_pu": [],
+      "min_frequency_hz": [],
+      "max_frequency_hz": [],
+      "max_speed_deviation": [],
+      "max_rotor_angle_separation_deg": [],
+      "measurement_extraction_status": "partial",
+      "missing_signal_list": "bus_voltage;frequency;generator_speed;rotor_angle",
+      "debug": {
+        "test_case": "no_fault_sanity",
+        "available_simulation_output_variables": [
+          "simlog_IEEE39BusSystem"
+        ],
+        "note": "No fixed placeholder values are reported as measurements."
+      }
+    },
+    {
+      "test_case": "single_line_trip",
+      "min_voltage_pu": [],
+      "max_voltage_pu": [],
+      "min_frequency_hz": [],
+      "max_frequency_hz": [],
+      "max_speed_deviation": [],
+      "max_rotor_angle_separation_deg": [],
+      "measurement_extraction_status": "partial",
+      "missing_signal_list": "bus_voltage;frequency;generator_speed;rotor_angle",
+      "debug": {
+        "test_case": "single_line_trip",
+        "available_simulation_output_variables": [
+          "simlog_IEEE39BusSystem"
+        ],
+        "note": "No fixed placeholder values are reported as measurements."
+      }
+    },
+    {
+      "test_case": "three_phase_fault_clear",
+      "min_voltage_pu": null,
+      "max_voltage_pu": null,
+      "min_frequency_hz": null,
+      "max_frequency_hz": null,
+      "max_speed_deviation": null,
+      "max_rotor_angle_separation_deg": null,
+      "measurement_extraction_status": "partial",
+      "missing_signal_list": "bus_voltage;frequency;generator_speed;rotor_angle",
+      "debug": {
+        "test_case": "three_phase_fault_clear",
+        "available_simulation_output_variables": [
+          "simlog_IEEE39BusSystem"
+        ],
+        "note": "No fixed placeholder values are reported as measurements."
+      }
+    }
+  ]
+}

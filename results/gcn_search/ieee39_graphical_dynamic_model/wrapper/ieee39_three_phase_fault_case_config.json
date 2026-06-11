@@ -1,0 +1,8 @@
+{
+  "wrapper_model_path": "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper.slx",
+  "fault_start_s": 0.05,
+  "fault_clear_s": 0.1,
+  "fault_duration_s": 0.05,
+  "fault_configuration_status": "configured",
+  "fault_block_path": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/Fault (Three-Phase)"
+}

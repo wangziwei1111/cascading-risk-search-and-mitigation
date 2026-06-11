@@ -1,6 +1,5 @@
-test_case,event_time_s,event_type,physical_executed,event_note
-no_fault_sanity,0,none,0,simulation skipped; interface dry run
-single_line_trip,1,pilot_line_block_disable,1,simulation skipped; interface dry run
-three_phase_fault_clear,1,three_phase_fault,1,simulation skipped; interface dry run
-ordered_N2_trip,1,pilot_ordered_N2_line_block_disable,1,simulation skipped; interface dry run
-relay_trip_test,1,basic_relay_proxy,1,simulation skipped; interface dry run
+﻿"test_case","event_time_s","event_type","physical_executed","event_note"
+"no_fault_sanity","0","none","0","real no-fault graphical simulation completed"
+"single_line_trip","0","pilot_static_topology_disable","0","static topology line disable executed before simulation; not timed breaker control and not training-ready"
+"three_phase_fault_clear","0.5","three_phase_fault_clear","1","existing three-phase fault block executed with temporal fault parameters"
+"relay_trip_test","0.5","basic_relay_proxy","1","pilot controlled switch or breaker-like trip executed"

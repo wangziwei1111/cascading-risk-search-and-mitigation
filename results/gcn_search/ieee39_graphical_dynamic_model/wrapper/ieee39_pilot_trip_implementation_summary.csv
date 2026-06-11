@@ -1,0 +1,2 @@
+line_id,trip_implementation,physical_fault_or_breaker_action_executed,training_ready_candidate,note
+L01,static_topology_disable,0,0,No breaker path found; pilot disables line block before simulation. Not timed breaker control.

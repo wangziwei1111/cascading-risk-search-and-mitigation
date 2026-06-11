@@ -1,0 +1,8 @@
+{
+  "wrapper_model_path": "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper.slx",
+  "line_id": "L01",
+  "trip_implementation": "static_topology_disable",
+  "physical_fault_or_breaker_action_executed": false,
+  "training_ready_candidate": false,
+  "note": "No breaker path found; pilot disables line block before simulation. Not timed breaker control."
+}

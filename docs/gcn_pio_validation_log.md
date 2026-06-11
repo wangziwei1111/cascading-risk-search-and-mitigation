@@ -857,6 +857,47 @@ git diff -- src/rl_mitigation scripts/rl_mitigation
 
 The model remains classified as `phasor_RMS`, not EMT. Generated wrapper `.slx`, raw trajectories, and large `.mat` files are not committed.
 
+## Round 28: IEEE39 Small Real Fault Execution
+
+Round 28 changes the IEEE39 wrapper from dry-run/schema-only output to a small partial physical execution set. It does not train a dynamic-aware reranker.
+
+Added MATLAB helpers:
+
+```text
+matlab/simulink_ieee39/configure_ieee39_three_phase_fault_case.m
+matlab/simulink_ieee39/configure_ieee39_pilot_line_trip_case.m
+matlab/simulink_ieee39/extract_ieee39_signal_summary.m
+```
+
+Current compact result:
+
+```text
+num_fault_rows = 4
+num_physical_executed_rows = 2
+num_training_ready_labels = 2
+label_quality_status = partial_physical_execution
+allowed_for_dynamic_aware_training = false
+```
+
+Interpretation:
+
+- `no_fault_sanity` is a real simulation but not a training label.
+- `three_phase_fault_clear` is a real simulation using the existing `Fault (Three-Phase)` block.
+- `relay_trip_test` is a real simulation using the basic relay proxy, not engineering-grade protection.
+- `single_line_trip` is a static topology disable, not a timed breaker, so it is not training-ready.
+- Measurement extraction is `partial`; unavailable signals are written as `NaN`, not fixed placeholders.
+
+Validation:
+
+```text
+python -m pytest tests/test_ieee39_real_fault_summary_schema.py tests/test_ieee39_signal_extraction_summary.py tests/test_ieee39_training_ready_label_gate.py tests/test_ieee39_real_fault_docs.py
+python -m pytest tests/test_ieee39_model_inventory.py tests/test_ieee39_dynamic_label_schema.py tests/test_ieee39_graphical_status_docs.py tests/test_ieee39_line_breaker_mapping.py tests/test_ieee39_fault_test_summary.py tests/test_ieee39_dynamic_label_quality_gate.py tests/test_ieee39_relay_proxy_docs.py
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+git diff -- src/rl_mitigation scripts/rl_mitigation
+```
+
+The model remains `phasor_RMS`, not EMT. Generated `.slx`, `.slxc`, `slprj`, large `.mat`, and raw trajectories are not committed.
+
 ## Round 23: Non-Smoke Dynamic Method Comparison
 
 Round 23 expands the learned path-reranker diagnosis from the minimal smoke dataset to a medium non-smoke dataset. This remains a simplified swing-equation preliminary diagnostic, not a formal dynamic stability conclusion.

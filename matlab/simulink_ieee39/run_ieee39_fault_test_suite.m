@@ -1,4 +1,4 @@
-function summaryTable = run_ieee39_fault_test_suite(wrapperModelPath, outputDir, executeSimulation)
+function summaryTable = run_ieee39_fault_test_suite(wrapperModelPath, outputDir, executeSimulation, selectedCases, simulationStopTime)
 %RUN_IEEE39_FAULT_TEST_SUITE Run IEEE39 graphical-model pilot fault tests.
 %
 % The current wrapper uses real Simulink/Simscape simulations. Line trips are
@@ -15,6 +15,12 @@ if nargin < 2 || isempty(outputDir)
 end
 if nargin < 3 || isempty(executeSimulation)
     executeSimulation = true;
+end
+if nargin < 4 || isempty(selectedCases)
+    selectedCases = ["no_fault_sanity", "three_phase_fault_clear", "single_line_trip"];
+end
+if nargin < 5 || isempty(simulationStopTime)
+    simulationStopTime = 2.0;
 end
 if ~exist(outputDir, "dir")
     mkdir(outputDir);
@@ -39,14 +45,17 @@ if ~isempty(faultPoints) && strlength(faultPoints.fault_block_path(1)) > 0
 end
 
 cases = {
-    "no_fault_sanity", "none", 0.0, 0.0, "", false, false, 5.0;
-    "single_line_trip", "pilot_line_block_disable", 1.0, 0.0, line1.line_id, false, true, 10.0;
-    "three_phase_fault_clear", "three_phase_fault", 1.0, 1.1, "", true, false, 10.0;
-    "ordered_N2_trip", "pilot_ordered_N2_line_block_disable", 1.0, 5.0, line1.line_id + "->" + line2.line_id, false, true, 10.0;
-    "relay_trip_test", "basic_relay_proxy", 1.0, 1.1, line1.line_id, true, true, 10.0;
+    "no_fault_sanity", "none", 0.0, 0.0, "", false, false, simulationStopTime, "none";
+    "single_line_trip", "pilot_static_topology_disable", 0.0, 0.0, line1.line_id, false, true, simulationStopTime, "static_topology_disable";
+    "three_phase_fault_clear", "three_phase_fault_clear", 0.5, 0.6, "", true, false, simulationStopTime, "existing_three_phase_fault_block";
+    "ordered_N2_trip", "pilot_ordered_N2_static_topology_disable", 0.0, 0.0, line1.line_id + "->" + line2.line_id, false, true, simulationStopTime, "static_topology_disable";
+    "relay_trip_test", "basic_relay_proxy", 0.5, 0.6, line1.line_id, true, true, simulationStopTime, "basic_relay_proxy";
 };
+caseNames = string(cases(:, 1));
+keep = ismember(caseNames, string(selectedCases));
+cases = cases(keep, :);
 
-rows = cell(size(cases, 1), 18);
+rows = cell(size(cases, 1), 25);
 eventRows = {};
 signalRows = {};
 relayRows = {};
@@ -59,36 +68,50 @@ for idx = 1:size(cases, 1)
     useFault = logical(cases{idx, 6});
     useLineTrip = logical(cases{idx, 7});
     stopTime = double(cases{idx, 8});
-    [success, physicalExecuted, note] = runOneCase(wrapperModelPath, testCase, useLineTrip, trippedLine, useFault, faultBlock, faultStart, max(0.0, faultClear - faultStart), stopTime, executeSimulation, lineMap);
-    minVoltage = 1.0;
-    maxVoltage = 1.0;
-    minFrequency = ternary(testCase == "no_fault_sanity", 50.0, 49.8);
-    maxFrequency = 50.0;
-    maxSpeedDeviation = ternary(testCase == "no_fault_sanity", 0.0, 0.02);
-    maxRotorAngle = ternary(testCase == "no_fault_sanity", 0.0, 5.0);
+    tripImplementation = string(cases{idx, 9});
+    [success, physicalExecuted, note, simOut] = runOneCase(wrapperModelPath, testCase, useLineTrip, trippedLine, useFault, faultBlock, faultStart, max(0.0, faultClear - faultStart), stopTime, executeSimulation, lineMap, tripImplementation);
+    signalSummary = extract_ieee39_signal_summary(simOut, testCase, outputDir);
+    minVoltage = signalSummary.min_voltage_pu;
+    maxVoltage = signalSummary.max_voltage_pu;
+    minFrequency = signalSummary.min_frequency_hz;
+    maxFrequency = signalSummary.max_frequency_hz;
+    maxSpeedDeviation = signalSummary.max_speed_deviation;
+    maxRotorAngle = signalSummary.max_rotor_angle_separation_deg;
+    measurementStatus = string(signalSummary.measurement_extraction_status);
     relayOperated = testCase == "relay_trip_test" && physicalExecuted;
-    breakerOpened = useLineTrip && physicalExecuted;
+    breakerOpened = useLineTrip && tripImplementation ~= "static_topology_disable" && physicalExecuted;
     unstable = minFrequency < 49.0 || minVoltage < 0.8 || maxRotorAngle > 180.0;
     tripTime = ternary(relayOperated || breakerOpened, faultStart, NaN);
+    schemaOnly = ~executeSimulation;
+    faultConfigurationStatus = ternary(useFault && strlength(faultBlock) > 0, "configured", ternary(useFault, "manual_required", "not_applicable"));
+    trainingReadyCandidate = success && physicalExecuted && ~schemaOnly && tripImplementation ~= "static_topology_disable";
+    timeoutOrError = "";
+    if ~success
+        timeoutOrError = note;
+    end
     rows(idx, :) = {
-        char(testCase), success, physicalExecuted, char(faultType), faultStart, faultClear, char(trippedLine), ...
+        char(testCase), success, physicalExecuted, schemaOnly, "graphical_simulink_phasor_RMS", char(tripImplementation), ...
+        char(faultConfigurationStatus), char(measurementStatus), trainingReadyCandidate, char(timeoutOrError), ...
+        char(faultType), faultStart, faultClear, char(trippedLine), ...
         relayOperated, breakerOpened, minVoltage, maxVoltage, minFrequency, maxFrequency, ...
         maxSpeedDeviation, maxRotorAngle, unstable, tripTime, char(note) ...
     };
     eventRows(end+1, :) = {char(testCase), faultStart, char(faultType), physicalExecuted, char(note)}; %#ok<AGROW>
-    signalRows(end+1, :) = {char(testCase), minVoltage, maxVoltage, minFrequency, maxFrequency, maxSpeedDeviation, maxRotorAngle, "summary metrics use available/proxy extraction"}; %#ok<AGROW>
+    signalRows(end+1, :) = {char(testCase), minVoltage, maxVoltage, minFrequency, maxFrequency, maxSpeedDeviation, maxRotorAngle, char(measurementStatus), char(signalSummary.missing_signal_list), "NaN means unavailable; no fixed placeholder is reported as measured"}; %#ok<AGROW>
     relayRows(end+1, :) = {char(testCase), relayOperated, tripTime, "basic relay proxy", "not engineering-grade relay coordination"}; %#ok<AGROW>
 end
 
 summaryTable = cell2table(rows, "VariableNames", { ...
     'test_case', 'simulation_success', 'physical_fault_or_breaker_action_executed', ...
+    'schema_only', 'simulation_mode', 'trip_implementation', 'fault_configuration_status', ...
+    'measurement_extraction_status', 'training_ready_candidate', 'timeout_or_error_message', ...
     'fault_type', 'fault_start_s', 'fault_clear_s', 'tripped_line', 'relay_operated', ...
     'breaker_opened', 'min_voltage_pu', 'max_voltage_pu', 'min_frequency_hz', ...
     'max_frequency_hz', 'max_speed_deviation', 'max_rotor_angle_separation_deg', ...
     'unstable_flag', 'trip_time_s', 'note' ...
 });
 eventTable = cell2table(eventRows, "VariableNames", {'test_case', 'event_time_s', 'event_type', 'physical_executed', 'event_note'});
-signalTable = cell2table(signalRows, "VariableNames", {'test_case', 'min_voltage_pu', 'max_voltage_pu', 'min_frequency_hz', 'max_frequency_hz', 'max_speed_deviation', 'max_rotor_angle_separation_deg', 'signal_note'});
+signalTable = cell2table(signalRows, "VariableNames", {'test_case', 'min_voltage_pu', 'max_voltage_pu', 'min_frequency_hz', 'max_frequency_hz', 'max_speed_deviation', 'max_rotor_angle_separation_deg', 'measurement_extraction_status', 'missing_signal_list', 'signal_note'});
 relayTable = cell2table(relayRows, "VariableNames", {'test_case', 'relay_operated', 'trip_time_s', 'relay_type', 'note'});
 
 writetable(summaryTable, fullfile(outputDir, "ieee39_fault_test_summary.csv"));
@@ -98,17 +121,18 @@ writetable(relayTable, fullfile(outputDir, "ieee39_relay_trip_log.csv"));
 fprintf("Wrote IEEE39 fault-test outputs under: %s\n", outputDir);
 end
 
-function [success, physicalExecuted, note] = runOneCase(modelPath, testCase, useLineTrip, trippedLine, useFault, faultBlock, faultStart, faultDuration, stopTime, executeSimulation, lineMap)
+function [success, physicalExecuted, note, simOut] = runOneCase(modelPath, testCase, useLineTrip, trippedLine, useFault, faultBlock, faultStart, faultDuration, stopTime, executeSimulation, lineMap, tripImplementation)
 success = false;
 physicalExecuted = false;
 note = "not executed";
+simOut = [];
 try
     load_system(modelPath);
     [~, modelName, ~] = fileparts(modelPath);
     resetPilotChanges(lineMap, faultBlock);
     if useLineTrip
         disableMappedLines(trippedLine, lineMap);
-        physicalExecuted = true;
+        physicalExecuted = tripImplementation ~= "static_topology_disable";
     end
     if useFault && strlength(faultBlock) > 0
         set_param(faultBlock, "enable_temporal_fault", "1");
@@ -117,16 +141,18 @@ try
         physicalExecuted = true;
     end
     if ~executeSimulation
-        success = testCase == "no_fault_sanity";
+        success = false;
         note = "simulation skipped; interface dry run";
     else
-        sim(modelName, "StopTime", num2str(stopTime));
+        simOut = sim(modelName, "StopTime", num2str(stopTime));
         success = true;
         if testCase == "no_fault_sanity"
             physicalExecuted = false;
             note = "real no-fault graphical simulation completed";
+        elseif useLineTrip && tripImplementation == "static_topology_disable"
+            note = "static topology line disable executed before simulation; not timed breaker control and not training-ready";
         elseif useLineTrip
-            note = "pilot physical line outage executed by disabling mapped line block before simulation; not timed breaker control";
+            note = "pilot controlled switch or breaker-like trip executed";
         elseif useFault
             note = "existing three-phase fault block executed with temporal fault parameters";
         else

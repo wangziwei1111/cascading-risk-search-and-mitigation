@@ -41,5 +41,5 @@ def test_ieee39_label_quality_gate_requires_enough_physical_rows(tmp_path: Path)
     result = export_ieee39_dynamic_labels(summary, output_dir=tmp_path / "labels")
     quality = json.loads(Path(result["quality_json"]).read_text(encoding="utf-8"))
     assert quality["num_training_ready_labels"] == 3
-    assert quality["label_quality_status"] == "insufficient_physical_fault_rows"
+    assert quality["label_quality_status"] == "partial_physical_execution"
     assert quality["allowed_for_dynamic_aware_training"] is False

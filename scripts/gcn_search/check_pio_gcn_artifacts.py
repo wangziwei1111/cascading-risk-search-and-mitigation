@@ -60,6 +60,9 @@ REQUIRED_FILES = [
     "matlab/simulink_ieee39/setup_ieee39_dynamic_experiment_wrapper.m",
     "matlab/simulink_ieee39/map_ieee39_lines_and_breakers.m",
     "matlab/simulink_ieee39/add_ieee39_basic_relay_proxy.m",
+    "matlab/simulink_ieee39/configure_ieee39_three_phase_fault_case.m",
+    "matlab/simulink_ieee39/configure_ieee39_pilot_line_trip_case.m",
+    "matlab/simulink_ieee39/extract_ieee39_signal_summary.m",
     "matlab/simulink_ieee39/run_ieee39_fault_test_suite.m",
     "src/gcn_search/legacy_rts79/prepare_real_topk_for_simulink_dynamic.py",
     "src/gcn_search/legacy_rts79/prepare_dynamic_method_comparison_topk.py",
@@ -117,6 +120,10 @@ REQUIRED_FILES = [
     "tests/test_ieee39_fault_test_summary.py",
     "tests/test_ieee39_dynamic_label_quality_gate.py",
     "tests/test_ieee39_relay_proxy_docs.py",
+    "tests/test_ieee39_real_fault_summary_schema.py",
+    "tests/test_ieee39_signal_extraction_summary.py",
+    "tests/test_ieee39_training_ready_label_gate.py",
+    "tests/test_ieee39_real_fault_docs.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
     "docs/pio_gcn_simulink_real_topk_event_driven_validation.md",
@@ -132,6 +139,7 @@ REQUIRED_FILES = [
     "docs/ieee39_graphical_dynamic_model_plan.md",
     "docs/ieee39_graphical_dynamic_model_status.md",
     "docs/ieee39_fault_breaker_relay_wrapper.md",
+    "docs/ieee39_real_fault_execution_status.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -154,6 +162,10 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_block_parameter_inventory.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_signal_extraction_debug.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/protection/ieee39_basic_relay_settings.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/protection/ieee39_basic_relay_status.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/ieee39_vs_simplified_comparison.csv",
@@ -684,6 +696,8 @@ def main() -> int:
     validation_log = ROOT / "docs/gcn_pio_validation_log.md"
     if validation_log.exists() and "round 27" not in _read_text("docs/gcn_pio_validation_log.md").lower():
         failures.append("Validation log must contain Round 27.")
+    if validation_log.exists() and "round 28" not in _read_text("docs/gcn_pio_validation_log.md").lower():
+        failures.append("Validation log must contain Round 28.")
 
     relay_doc = ROOT / "docs/ieee39_fault_breaker_relay_wrapper.md"
     if relay_doc.exists():
@@ -704,6 +718,16 @@ def main() -> int:
             status_text = _read_text("docs/ieee39_graphical_dynamic_model_status.md").lower()
             if "allowed_for_dynamic_aware_training = false" not in status_text:
                 failures.append("IEEE39 status doc must block training when label quality gate is false.")
+            real_fault_doc = _read_text("docs/ieee39_real_fault_execution_status.md").lower() if (ROOT / "docs/ieee39_real_fault_execution_status.md").exists() else ""
+            if "allowed_for_dynamic_aware_training = false" not in real_fault_doc:
+                failures.append("Round 28 real fault doc must block training when label quality gate is false.")
+        if quality.get("label_quality_status") != "training_ready_batch":
+            for rel_doc in ["docs/ieee39_real_fault_execution_status.md", "docs/ieee39_fault_breaker_relay_wrapper.md"]:
+                if (ROOT / rel_doc).exists():
+                    text = _read_text(rel_doc).lower()
+                    for bad in ["train the dynamic-aware reranker now", "proceed to train dynamic-aware reranker"]:
+                        if bad in text:
+                            failures.append(f"{rel_doc} must not recommend reranker training before training_ready_batch.")
 
     line_map = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map.csv"
     if line_map.exists():
@@ -717,6 +741,18 @@ def main() -> int:
                 failures.append("IEEE39 line/breaker map missing mapping_status.")
         except Exception as exc:
             failures.append(f"Failed to read IEEE39 line/breaker map: {exc}")
+
+    real_fault_doc = ROOT / "docs/ieee39_real_fault_execution_status.md"
+    if real_fault_doc.exists():
+        text = _read_text("docs/ieee39_real_fault_execution_status.md").lower()
+        for overstated in [
+            "emt validation completed",
+            "engineering-grade protection completed",
+            "static topology disable is a timed breaker",
+            "full opf dynamic simulation completed",
+        ]:
+            if overstated in text:
+                failures.append(f"Overstated Round 28 claim: {overstated}")
 
     negative_summary = ROOT / "results/gcn_search/simulink_dynamic_negative_control_summary/dynamic_negative_control_comparison.csv"
     if negative_summary.exists():

@@ -46,9 +46,11 @@ def export_ieee39_dynamic_labels(
 
 
 def _training_ready_rows(summary: pd.DataFrame) -> pd.DataFrame:
-    if "simulation_success" not in summary.columns:
-        return summary.iloc[0:0].copy()
-    if "physical_fault_or_breaker_action_executed" not in summary.columns:
+    if "training_ready_candidate" in summary.columns:
+        ready = summary["training_ready_candidate"].astype(str).str.lower().isin({"1", "true", "yes"})
+        schema = summary.get("schema_only", pd.Series(False, index=summary.index)).astype(str).str.lower().isin({"1", "true", "yes"})
+        return summary[ready & ~schema].copy()
+    if "simulation_success" not in summary.columns or "physical_fault_or_breaker_action_executed" not in summary.columns:
         return summary.iloc[0:0].copy()
     success = summary["simulation_success"].astype(str).str.lower().isin({"1", "true", "yes"})
     physical = summary["physical_fault_or_breaker_action_executed"].astype(str).str.lower().isin({"1", "true", "yes"})
@@ -59,13 +61,18 @@ def _quality_summary(summary: pd.DataFrame, training_ready: pd.DataFrame) -> dic
     has_physical = "physical_fault_or_breaker_action_executed" in summary.columns
     physical_count = int(summary["physical_fault_or_breaker_action_executed"].astype(str).str.lower().isin({"1", "true", "yes"}).sum()) if has_physical else 0
     ready_count = int(len(training_ready))
-    schema_only = int(len(summary) - ready_count)
-    if ready_count == 0:
+    if "schema_only" in summary.columns:
+        schema_only = int(summary["schema_only"].astype(str).str.lower().isin({"1", "true", "yes"}).sum())
+    else:
+        schema_only = int(len(summary) - ready_count)
+    if ready_count == 0 and physical_count == 0:
         status = "schema_only"
     elif ready_count < 10:
-        status = "insufficient_physical_fault_rows"
+        status = "partial_physical_execution"
+    elif ready_count < 50:
+        status = "training_ready_minimal"
     else:
-        status = "training_ready"
+        status = "training_ready_batch"
     return {
         "num_fault_rows": int(len(summary)),
         "num_physical_executed_rows": physical_count,
@@ -130,10 +137,10 @@ def _event_count(events: pd.DataFrame, test_case: str, token: str) -> int:
 
 
 def _dynamic_stress_score(row: pd.Series, relay_count: int, breaker_count: int) -> float:
-    min_frequency = float(row.get("min_frequency_hz", 50.0))
-    min_voltage = float(row.get("min_voltage_pu", 1.0))
-    angle = float(row.get("max_rotor_angle_separation_deg", 0.0))
-    speed = abs(float(row.get("max_speed_deviation", 0.0)))
+    min_frequency = _finite_or_default(row.get("min_frequency_hz"), 50.0)
+    min_voltage = _finite_or_default(row.get("min_voltage_pu"), 1.0)
+    angle = _finite_or_default(row.get("max_rotor_angle_separation_deg"), 0.0)
+    speed = abs(_finite_or_default(row.get("max_speed_deviation"), 0.0))
     return (
         max(0.0, 49.5 - min_frequency)
         + max(0.0, 0.9 - min_voltage)
@@ -142,6 +149,11 @@ def _dynamic_stress_score(row: pd.Series, relay_count: int, breaker_count: int) 
         + relay_count
         + breaker_count
     )
+
+
+def _finite_or_default(value, default: float) -> float:
+    parsed = pd.to_numeric(pd.Series([value]), errors="coerce").iloc[0]
+    return default if pd.isna(parsed) else float(parsed)
 
 
 def _schema_payload() -> dict:
