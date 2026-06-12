@@ -101,15 +101,18 @@ measurement source remains `generator_speed_proxy`, not a direct frequency
 measurement. The model remains `phasor_RMS`, not EMT, and the multi-line
 workflow does not train the dynamic-aware reranker while fewer than ten
 training-ready labels are available. In the current multi-line run, L01-L04
-pass structure validation, but L02 compact simulation timed out and L03-L04 are
-not counted as training-ready after that timeout.
+pass structure validation. After the user manually revised L02 in Simulink GUI,
+the L02 structure validation still passes, but the isolated compact simulation
+still timed out after 240 seconds. L03-L04 are not counted as training-ready in
+the conservative label gate.
 
 Current result:
 
 ```text
-handwired_model_found = false
-validation_passed = false
-num_training_ready_handwired_line_trip_labels = 0
+handwired_model_found = true
+multi_handwired_validation_passed_lines = L01, L02, L03, L04
+num_training_ready_handwired_line_trip_labels = 1
+num_training_ready_labels = 3
 allowed_for_dynamic_aware_training = false
 ```
 

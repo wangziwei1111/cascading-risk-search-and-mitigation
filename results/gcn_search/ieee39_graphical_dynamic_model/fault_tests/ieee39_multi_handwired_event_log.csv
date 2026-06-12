@@ -1,5 +1,6 @@
 ﻿test_case,event_time_s,event_type,physical_executed,event_note
 handwired_line_trip_L01,0.5,pilot_line_trip,True,handwired timed breaker validated and compact simulation completed
-handwired_line_trip_L02,0.5,pilot_line_trip,False,"simulation timeout during compact handwired line-trip run; check L02 breaker wiring/control direction and try L02_TripCommand Initial value = 1, Final value = 0 if the breaker control is reversed"
+handwired_line_trip_L02,0.5,pilot_line_trip,False,"isolated MATLAB run timed out after 240 seconds; check L02_TripCommand control direction, L02_HandwiredTimedBreaker placement on Grid/B10 to B11, and whether the opened branch creates an abnormal Simscape island"
 handwired_line_trip_L03,0.5,pilot_line_trip,False,"validation passed, but compact simulation was not attempted after L02 timeout; run again after fixing or isolating the L02 timeout"
 handwired_line_trip_L04,0.5,pilot_line_trip,False,"validation passed, but compact simulation was not attempted after L02 timeout; run again after fixing or isolating the L02 timeout"
+

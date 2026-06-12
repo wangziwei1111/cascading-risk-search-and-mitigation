@@ -18,6 +18,57 @@ Audited learned path-reranker leakage, strict held-out seed behavior, external-s
 
 The public repository scope is the GCN cascading-failure path-search reproduction and its RTS-79 PIO-GCN PathRank extensions.
 
+## IEEE39 L02 Handwired Breaker Recheck
+
+The user manually revised `L02_TripCommand` and
+`L02_HandwiredTimedBreaker` in the local Simulink GUI model:
+
+```text
+results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker.slx
+```
+
+Validation result:
+
+```text
+L01-L04 structure validation = passed
+L02 breaker_block_found = true
+L02 trip_command_found = true
+L02 breaker_near_line = true
+L02 validation_passed = true
+handwired_model_committed = false
+```
+
+Compact simulation result:
+
+```text
+L01 simulation_success = true
+L02 simulation_success = false
+L02 timeout_or_error_message = isolated MATLAB run timed out after 240 seconds
+L03/L04 training_ready_candidate = false
+```
+
+The timeout-blocking issue is addressed at the validation-script level by
+`scripts/gcn_search/run_ieee39_multi_handwired_line_trip_isolated.py`: each line
+is launched in a separate MATLAB process, partial summaries are written after
+each line, and the process tree is killed on timeout. MATLAB's internal
+`TimeOut` option was also added to the compact suite, but the isolated wrapper
+is the more robust guard for this model.
+
+Label gate after merge:
+
+```text
+num_training_ready_handwired_line_trip_labels = 1
+num_unique_handwired_line_ids = 1
+num_training_ready_labels = 3
+allowed_for_dynamic_aware_training = false
+```
+
+The model remains `phasor_RMS`, not EMT. `generator_speed_proxy` is not direct
+frequency. The handwired breaker remains pilot breaker-like validation, not
+engineering-grade protection. The handwired `.slx`, generated `.slx`, `.slxc`,
+`slprj`, `.mat`, raw trajectories, and full timeseries are not intended for
+commit.
+
 ## Round 10: Simulink Dynamic Validation Prototype
 
 Added a reproducible prototype for checking whether learned path reranker / PIO-GCN Top-K ordered N-2 paths also look risky in a simplified time-domain Simulink validation flow.

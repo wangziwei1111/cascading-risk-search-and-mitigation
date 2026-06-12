@@ -60,9 +60,9 @@ Outputs:
 Current validation result:
 
 ```text
-handwired_model_found = false
-validation_passed = false
-validation_failure_reason = handwired model file not found
+handwired_model_found = true
+multi_handwired_validation_passed_lines = L01, L02, L03, L04
+handwired_model_committed = false
 ```
 
 ## Label Gate
@@ -75,10 +75,10 @@ The label exporter now recognizes:
 Current compact gate:
 
 ```text
-num_training_ready_labels = 2
-num_training_ready_handwired_line_trip_labels = 0
-num_handwired_validation_passed = 0
-handwired_model_used = false
+num_training_ready_labels = 3
+num_training_ready_handwired_line_trip_labels = 1
+num_handwired_validation_passed = 4
+handwired_model_used = true
 handwired_model_committed = false
 allowed_for_dynamic_aware_training = false
 ```
@@ -90,9 +90,10 @@ If a future handwired model passes validation and the compact suite confirms `si
 Round 32 adds a multi-line validation path for future user handwired breakers.
 The first expansion batch is `L02`, `L03`, and `L04`, using
 `Lxx_HandwiredTimedBreaker` and `Lxx_TripCommand`. L01 remains the reference
-passed line. L02-L04 now pass structure validation, but L02 compact simulation
-timed out in the current run, so only L01 is training-ready. Training remains
-blocked while the total training-ready label count is below ten.
+passed line. After the user manually revised L02 in the Simulink GUI, L02 still
+passes structure validation. Its isolated compact simulation still timed out
+after 240 seconds, so only L01 is training-ready. Training remains blocked while
+the total training-ready label count is below ten.
 
 ## Boundaries
 

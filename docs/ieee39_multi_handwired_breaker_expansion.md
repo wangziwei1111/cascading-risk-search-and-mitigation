@@ -13,8 +13,10 @@ breakers automatically and does not modify Simscape physical-port wiring.
 - L01 contributes one training-ready handwired line-trip label.
 - L02-L04 are now present in the local handwired model and pass structure
   validation.
-- L02 compact simulation timed out in the current run. L03-L04 were not counted
-  as training-ready after the L02 timeout.
+- The user manually revised L02 in the Simulink GUI, and the L02 structure
+  validation still passes.
+- L02 compact simulation still timed out in the isolated 240-second run.
+  L03-L04 were not counted as training-ready in this conservative label update.
 
 ## Naming Convention
 
@@ -75,6 +77,14 @@ run_ieee39_multi_handwired_line_trip_suite( ...
 )
 ```
 
+For robust validation after a timeout, use the isolated Python wrapper. It runs
+each line in a separate MATLAB process, writes partial summaries after each
+line, and kills the MATLAB process tree on timeout:
+
+```powershell
+python scripts/gcn_search/run_ieee39_multi_handwired_line_trip_isolated.py --line-ids L01 L02 L03 L04 --timeout-seconds 240 --simulation-stop-time 0.5
+```
+
 Merge and export the label gate:
 
 ```powershell
@@ -90,18 +100,21 @@ validation_passed lines = 4
 passed line IDs = L01, L02, L03, L04
 multi line-trip simulation_success count = 1
 num_training_ready_handwired_line_trip_labels = 1
+num_unique_handwired_line_ids = 1
 num_training_ready_labels = 3
 allowed_for_dynamic_aware_training = false
 ```
 
-The L02 compact simulation timed out. The conservative summary keeps L02-L04 out
-of the training-ready set. Training remains blocked because
-`num_training_ready_labels < 10`. If the count eventually reaches ten, the next
-step is only preliminary preview training, not an official dynamic performance
-conclusion.
+The L02 compact simulation timed out again after the user-side GUI edit. The
+conservative summary keeps L02-L04 out of the training-ready set. Training
+remains blocked because `num_training_ready_labels < 10`. If the count
+eventually reaches ten, the next step is only preliminary preview training, not
+an official dynamic performance conclusion.
 
 Recommended fix: isolate L02 in Simulink and confirm that
-`L02_TripCommand` opens only the intended breaker. If the control direction is
+`L02_TripCommand` opens only `L02_HandwiredTimedBreaker`, the breaker is really
+inserted on `Grid/B10 to B11`, and opening it does not create an abnormal
+Simscape island or disconnected physical network. If the control direction is
 reversed, set `Initial value = 1` and `Final value = 0`, then rerun the multi
 validation and compact suite.
 

@@ -1,4 +1,4 @@
-function summaryTable = run_ieee39_multi_handwired_line_trip_suite(handwiredModelPath, outputDir, lineIds, simulationStopTime, validationSummaryCsv)
+function summaryTable = run_ieee39_multi_handwired_line_trip_suite(handwiredModelPath, outputDir, lineIds, simulationStopTime, validationSummaryCsv, perLineTimeoutSeconds)
 %RUN_IEEE39_MULTI_HANDWIRED_LINE_TRIP_SUITE Run compact validated line trips.
 %
 % The suite does not insert or save breakers. It only simulates line trip
@@ -19,6 +19,9 @@ end
 if nargin < 5 || isempty(validationSummaryCsv)
     validationSummaryCsv = "../../results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_multi_handwired_breaker_validation_summary.csv";
 end
+if nargin < 6 || isempty(perLineTimeoutSeconds)
+    perLineTimeoutSeconds = 180;
+end
 if ~exist(outputDir, "dir")
     mkdir(outputDir);
 end
@@ -36,7 +39,7 @@ for idx = 1:numel(lineIds)
     passed = ~isempty(match) && logical(match.validation_passed(1));
     if passed
         commandPath = string(match.trip_command_path(1));
-        [success, note, simOut] = simulateOneLine(handwiredModelPath, validation, lineId, commandPath, simulationStopTime);
+        [success, note, simOut] = simulateOneLine(handwiredModelPath, validation, lineId, commandPath, simulationStopTime, perLineTimeoutSeconds);
         physicalExecuted = success;
         tripImplementation = "handwired_timed_breaker";
         trainingReady = success;
@@ -89,7 +92,7 @@ writetable(signalTable, fullfile(outputDir, "ieee39_multi_handwired_signal_summa
 fprintf("Wrote IEEE39 multi-handwired line trip suite under: %s\n", outputDir);
 end
 
-function [success, note, simOut] = simulateOneLine(modelPath, validation, lineId, commandPath, stopTime)
+function [success, note, simOut] = simulateOneLine(modelPath, validation, lineId, commandPath, stopTime, perLineTimeoutSeconds)
 success = false;
 note = "not executed";
 simOut = [];
@@ -113,13 +116,17 @@ try
         set_param(commandPath, "Time", "0.5");
     catch
     end
-    simOut = sim(modelName, "StopTime", num2str(stopTime));
+    simOut = sim(modelName, "StopTime", num2str(stopTime), "TimeOut", perLineTimeoutSeconds);
     success = true;
     note = "handwired timed breaker validated and compact simulation completed";
     close_system(modelName, 0);
 catch ME
     success = false;
-    note = "simulation failed: " + string(ME.message);
+    if contains(lower(string(ME.message)), "timeout") || contains(lower(string(ME.message)), "time out")
+        note = "simulation timeout after " + string(perLineTimeoutSeconds) + " seconds: " + string(ME.message);
+    else
+        note = "simulation failed: " + string(ME.message);
+    end
     try
         [~, modelName, ~] = fileparts(modelPath);
         close_system(modelName, 0);
