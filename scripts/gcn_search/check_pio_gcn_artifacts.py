@@ -72,7 +72,9 @@ REQUIRED_FILES = [
     "matlab/simulink_ieee39/run_ieee39_multi_handwired_line_trip_suite.m",
     "matlab/simulink_ieee39/prepare_ieee39_clean_handwired_breaker_lab.m",
     "matlab/simulink_ieee39/prepare_ieee39_clean_handwired_breaker_lab_for_line.m",
+    "matlab/simulink_ieee39/prepare_ieee39_clean_handwired_breaker_labs_for_lines.m",
     "matlab/simulink_ieee39/validate_ieee39_clean_breaker_lab_line.m",
+    "matlab/simulink_ieee39/validate_ieee39_clean_breaker_lab_lines_batch.m",
     "matlab/simulink_ieee39/inventory_ieee39_simlog_tree.m",
     "matlab/simulink_ieee39/extract_ieee39_signal_summary.m",
     "matlab/simulink_ieee39/run_ieee39_fault_test_suite.m",
@@ -93,7 +95,9 @@ REQUIRED_FILES = [
     "scripts/gcn_search/print_ieee39_multi_handwired_breaker_checklist.py",
     "scripts/gcn_search/print_ieee39_clean_breaker_lab_checklist.py",
     "scripts/gcn_search/print_ieee39_clean_breaker_lab_per_line_checklist.py",
+    "scripts/gcn_search/print_ieee39_clean_breaker_lab_batch_checklist.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trip_isolated.py",
+    "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py",
     "tests/test_simulink_dynamic_case_export.py",
     "tests/test_simulink_dynamic_result_analysis.py",
     "tests/test_simulink_dynamic_disagreement.py",
@@ -189,6 +193,7 @@ REQUIRED_FILES = [
     "docs/ieee39_multi_handwired_breaker_expansion.md",
     "docs/ieee39_clean_breaker_lab_workflow.md",
     "docs/ieee39_per_line_clean_breaker_lab_workflow.md",
+    "docs/ieee39_batch_per_line_clean_breaker_lab_workflow.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -232,8 +237,14 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_multi_handwired_breaker_validation_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_prepare_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_per_line_prepare_summary.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_batch_prepare_summary.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_batch_prepare_summary.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_batch_validation_summary.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_batch_validation_summary.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_batch_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/clean_breaker_lab_checklist.txt",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/clean_breaker_lab_per_line_checklist.txt",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/clean_breaker_lab_batch_checklist.txt",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_validation_summary.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_validation_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_block_inventory.csv",
@@ -242,6 +253,9 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_event_log.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_merge_summary.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_L03_line_trip_summary.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_l03_merge_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_multi_handwired_line_trip_summary.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_multi_handwired.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_multi_handwired_merge_summary.json",
@@ -837,14 +851,14 @@ def main() -> int:
         ]:
             if required_key not in quality:
                 failures.append(f"IEEE39 quality summary missing key: {required_key}")
-        if quality.get("num_training_ready_labels") != 4:
-            failures.append("IEEE39 quality summary must report four training-ready labels after clean lab L02.")
-        if quality.get("num_training_ready_handwired_line_trip_labels") != 2:
-            failures.append("IEEE39 quality summary must report two training-ready handwired line-trip labels.")
-        if quality.get("num_training_ready_handwired_line_trip_labels_by_line") != {"L01": 1, "L02": 1}:
-            failures.append("IEEE39 quality summary must report L01 and L02 as handwired training-ready lines.")
-        if quality.get("num_unique_handwired_line_ids") != 2:
-            failures.append("IEEE39 quality summary must report two unique handwired line IDs.")
+        if quality.get("num_training_ready_labels") != 5:
+            failures.append("IEEE39 quality summary must report five training-ready labels after clean lab L03.")
+        if quality.get("num_training_ready_handwired_line_trip_labels") != 3:
+            failures.append("IEEE39 quality summary must report three training-ready handwired line-trip labels.")
+        if quality.get("num_training_ready_handwired_line_trip_labels_by_line") != {"L01": 1, "L02": 1, "L03": 1}:
+            failures.append("IEEE39 quality summary must report L01, L02, and L03 as handwired training-ready lines.")
+        if quality.get("num_unique_handwired_line_ids") != 3:
+            failures.append("IEEE39 quality summary must report three unique handwired line IDs.")
         if quality.get("allowed_for_dynamic_aware_training", True):
             failures.append("IEEE39 quality summary must keep dynamic-aware training blocked while labels < 10.")
 
@@ -1190,6 +1204,67 @@ def main() -> int:
                 failures.append("Clean lab merge must not let static_topology_disable overwrite handwired rows.")
         except Exception as exc:
             failures.append(f"Failed to read clean breaker lab merge summary: {exc}")
+
+    clean_l03_line_trip = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_L03_line_trip_summary.csv"
+    if clean_l03_line_trip.exists():
+        try:
+            import pandas as pd
+
+            table = pd.read_csv(clean_l03_line_trip)
+            row = table[table.get("test_case", pd.Series("", index=table.index)).astype(str).eq("clean_lab_handwired_line_trip_L03")]
+            if row.empty:
+                failures.append("Clean L03 line-trip summary must include clean_lab_handwired_line_trip_L03.")
+            else:
+                row = row.iloc[0]
+                for column in ["simulation_success", "physical_fault_or_breaker_action_executed", "training_ready_candidate", "breaker_opened"]:
+                    if str(row.get(column, "")).lower() not in {"1", "true"}:
+                        failures.append(f"Clean L03 compact summary must have {column}=true.")
+                if row.get("measurement_extraction_status") != "voltage_speed_angle":
+                    failures.append("Clean L03 must extract voltage_speed_angle measurements.")
+                if row.get("source_model") != "clean_breaker_lab_L03":
+                    failures.append("Clean L03 source_model must be clean_breaker_lab_L03.")
+                if "frequency=generator_speed_proxy" not in str(row.get("signal_source_summary", "")):
+                    failures.append("Clean L03 signal summary must keep frequency=generator_speed_proxy.")
+        except Exception as exc:
+            failures.append(f"Failed to read clean L03 line-trip summary: {exc}")
+
+    clean_l03_merge = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_l03_merge_summary.json"
+    if clean_l03_merge.exists():
+        try:
+            import json
+
+            payload = json.loads(clean_l03_merge.read_text(encoding="utf-8"))
+            if payload.get("num_training_ready_handwired_rows") != 3:
+                failures.append("Clean L03 merge summary must report three training-ready handwired rows.")
+            if payload.get("num_training_ready_handwired_rows_by_line") != {"L01": 1, "L02": 1, "L03": 1}:
+                failures.append("Clean L03 merge summary must report L01, L02, and L03 ready rows.")
+            if payload.get("static_topology_disable_overwrote_handwired") is not False:
+                failures.append("Clean L03 merge must not let static_topology_disable overwrite handwired rows.")
+        except Exception as exc:
+            failures.append(f"Failed to read clean L03 merge summary: {exc}")
+
+    batch_prepare = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_batch_prepare_summary.csv"
+    if batch_prepare.exists():
+        try:
+            import pandas as pd
+
+            table = pd.read_csv(batch_prepare)
+            if set(table.get("line_id", pd.Series(dtype=str)).astype(str)) != {"L04", "L05"}:
+                failures.append("Batch clean lab prepare summary must currently contain L04 and L05.")
+            for line_id in ["L04", "L05"]:
+                row = table[table["line_id"].astype(str).eq(line_id)]
+                if row.empty:
+                    failures.append(f"Batch clean lab prepare summary missing {line_id}.")
+                    continue
+                row = row.iloc[0]
+                if str(row.get("status", "")) != "prepared":
+                    failures.append(f"Batch clean lab prepare {line_id} must be prepared.")
+                if str(row.get("clean_lab_committed", "")).lower() not in {"0", "false"}:
+                    failures.append(f"Batch clean lab prepare {line_id} must record clean_lab_committed=false.")
+                if str(row.get("existing_handwired_breaker_found", "")).lower() not in {"0", "false"}:
+                    failures.append(f"Batch clean lab prepare {line_id} must start from a wrapper without handwired breakers.")
+        except Exception as exc:
+            failures.append(f"Failed to read batch clean lab prepare summary: {exc}")
 
     handwired_summary = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_handwired_breaker_validation_summary.json"
     if handwired_summary.exists():

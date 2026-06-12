@@ -105,6 +105,14 @@ def source_model_name(model_path: str, line_id: str) -> str:
     return "clean_breaker_lab"
 
 
+def matlab_relative_model_path(model_path: str) -> str:
+    path = Path(model_path)
+    normalized = model_path.replace("\\", "/")
+    if path.is_absolute() or normalized.startswith("../") or normalized.startswith("./"):
+        return normalized
+    return f"../../{normalized}"
+
+
 def timeout_summary(line_id: str, note: str, source_model: str = "clean_breaker_lab") -> pd.Series:
     return pd.Series(
         {
@@ -215,7 +223,7 @@ def run_line(
         "cd('C:/Users/24186/Documents/New project 7/simulink-dynamic-validation-worktree/matlab/simulink_ieee39'); "
         "configure_ieee39_short_filegen_paths(); "
         "run_ieee39_multi_handwired_line_trip_suite("
-        f"'{model_path}',"
+        f"'{matlab_relative_model_path(model_path)}',"
         f"'../../{tmp_rel}',"
         f"string({{'{line_id}'}}),"
         f"{simulation_stop_time},"

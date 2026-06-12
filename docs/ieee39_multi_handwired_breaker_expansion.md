@@ -104,9 +104,9 @@ python src/gcn_search/legacy_rts79/export_ieee39_dynamic_labels.py --fault-summa
 validation_passed lines = 4
 passed line IDs = L01, L02, L03, L04
 multi line-trip simulation_success count = 1
-num_training_ready_handwired_line_trip_labels = 2
-num_unique_handwired_line_ids = 2
-num_training_ready_labels = 4
+num_training_ready_handwired_line_trip_labels = 3
+num_unique_handwired_line_ids = 3
+num_training_ready_labels = 5
 allowed_for_dynamic_aware_training = false
 ```
 
@@ -131,6 +131,19 @@ Do not add L03 to the same clean lab that already contains L02. If multiple
 TripCommand blocks act at 0.5 s, the run becomes a simultaneous multi-line trip,
 not a single-line label. Sequential or simultaneous trip experiments can be
 studied later, but they must not be mixed into the single-line label set.
+
+Per-line clean L03 now passes and is merged as a training-ready handwired
+line-trip label. Current formal label gate:
+
+```text
+num_training_ready_handwired_line_trip_labels = 3
+num_unique_handwired_line_ids = 3
+num_training_ready_labels = 5
+allowed_for_dynamic_aware_training = false
+```
+
+The next manual batch should use independent per-line clean labs for L04 and
+L05.
 
 ## Boundaries
 

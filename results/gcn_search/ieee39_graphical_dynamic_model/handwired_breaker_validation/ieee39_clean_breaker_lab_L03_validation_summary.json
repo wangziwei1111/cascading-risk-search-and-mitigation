@@ -1,0 +1,17 @@
+{
+  "line_id": "L03",
+  "line_block_path": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B10 to B13",
+  "clean_lab_model_found": true,
+  "clean_lab_model_loadable": true,
+  "breaker_block_name": "L03_HandwiredTimedBreaker",
+  "breaker_block_found": true,
+  "breaker_block_path": "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L03/Grid/L03_HandwiredTimedBreaker",
+  "trip_command_name": "L03_TripCommand",
+  "trip_command_found": true,
+  "trip_command_path": "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L03/Grid/L03_TripCommand",
+  "breaker_near_line": true,
+  "trip_time_s": 0.5,
+  "validation_passed": true,
+  "validation_failure_reason": "",
+  "clean_lab_model_committed": false
+}

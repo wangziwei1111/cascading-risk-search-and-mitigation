@@ -44,3 +44,22 @@ def test_clean_lab_l02_merge_adds_training_ready_row_without_promoting_old_timeo
     )
     assert summary["num_training_ready_handwired_rows"] == 2
     assert summary["num_training_ready_handwired_rows_by_line"] == {"L01": 1, "L02": 1}
+
+
+def test_clean_lab_l03_merge_adds_training_ready_row_without_overwriting_l02() -> None:
+    root = Path(__file__).resolve().parents[1]
+    merged = pd.read_csv(root / "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03.csv")
+    clean_l03 = merged[merged["test_case"].astype(str) == "clean_lab_handwired_line_trip_L03"].iloc[0]
+    assert clean_l03["tripped_line"] == "L03"
+    assert clean_l03["source_model"] == "clean_breaker_lab_L03"
+    assert clean_l03["trip_implementation"] == "handwired_timed_breaker"
+    assert str(clean_l03["training_ready_candidate"]).lower() in {"1", "true"}
+
+    assert "clean_lab_handwired_line_trip_L02" in set(merged["test_case"].astype(str))
+    summary = json.loads(
+        (root / "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_l03_merge_summary.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert summary["num_training_ready_handwired_rows"] == 3
+    assert summary["num_training_ready_handwired_rows_by_line"] == {"L01": 1, "L02": 1, "L03": 1}

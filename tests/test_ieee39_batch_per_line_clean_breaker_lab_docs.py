@@ -3,24 +3,26 @@ from __future__ import annotations
 from pathlib import Path
 
 
-def test_clean_breaker_lab_docs_are_conservative() -> None:
+def test_batch_per_line_clean_breaker_lab_docs_are_conservative() -> None:
     root = Path(__file__).resolve().parents[1]
     docs = [
+        root / "docs/ieee39_batch_per_line_clean_breaker_lab_workflow.md",
+        root / "docs/ieee39_per_line_clean_breaker_lab_workflow.md",
         root / "docs/ieee39_clean_breaker_lab_workflow.md",
-        root / "docs/ieee39_handwired_breaker_validation.md",
-        root / "docs/ieee39_multi_handwired_breaker_expansion.md",
     ]
     for doc in docs:
         assert doc.exists()
         text = doc.read_text(encoding="utf-8").lower()
         for required in [
-            "clean",
-            "l02",
+            "num_training_ready_labels = 5",
+            "one",
+            ".slx",
             "phasor_rms",
             "not emt",
             "generator_speed_proxy",
             "not direct frequency",
             "not engineering-grade",
+            "allowed_for_dynamic_aware_training = false",
         ]:
             assert required in text
         for forbidden in [
@@ -28,17 +30,11 @@ def test_clean_breaker_lab_docs_are_conservative() -> None:
             "engineering-grade protection completed",
             "train the dynamic-aware reranker now",
             "proceed to train dynamic-aware reranker",
-            "formal dynamic superiority",
         ]:
             assert forbidden not in text
 
-    clean_doc = (root / "docs/ieee39_clean_breaker_lab_workflow.md").read_text(encoding="utf-8").lower()
-    for required in [
-        "validation_passed = true",
-        "simulation_success = true",
-        "training_ready_candidate = true",
-        "num_training_ready_labels = 5",
-        "allowed_for_dynamic_aware_training = false",
-        "next manual wiring target should be l03",
-    ]:
-        assert required in clean_doc
+    batch_doc = docs[0].read_text(encoding="utf-8").lower()
+    for required in ["l04", "l05", "grid/b11 to b6", "grid/b13 to b14"]:
+        assert required in batch_doc
+    assert "sequential or simultaneous multi-line trip experiments" in batch_doc
+    assert "must not be mixed into single-line labels" in batch_doc

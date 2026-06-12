@@ -75,8 +75,8 @@ The label exporter now recognizes:
 Current compact gate:
 
 ```text
-num_training_ready_labels = 4
-num_training_ready_handwired_line_trip_labels = 2
+num_training_ready_labels = 5
+num_training_ready_handwired_line_trip_labels = 3
 num_handwired_validation_passed = 4
 handwired_model_used = true
 handwired_model_committed = false

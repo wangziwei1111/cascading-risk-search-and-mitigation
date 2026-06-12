@@ -99,12 +99,12 @@ training-ready L03 label.
 
 ## Current Label Gate
 
-Clean L02 remains the latest successful per-line result:
+Clean L02 and per-line clean L03 are the latest successful per-line results:
 
 ```text
-num_training_ready_labels = 4
-num_training_ready_handwired_line_trip_labels = 2
-num_unique_handwired_line_ids = 2
+num_training_ready_labels = 5
+num_training_ready_handwired_line_trip_labels = 3
+num_unique_handwired_line_ids = 3
 allowed_for_dynamic_aware_training = false
 ```
 

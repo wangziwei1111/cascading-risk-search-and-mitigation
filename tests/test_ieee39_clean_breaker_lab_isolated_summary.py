@@ -63,6 +63,8 @@ def test_clean_lab_per_line_model_uses_line_specific_source_model_and_prefix() -
     assert row["test_case"] == "clean_lab_handwired_line_trip_L03"
     assert row["source_model"] == "clean_breaker_lab_L03"
     assert row["training_ready_candidate"] is False
+    assert module.matlab_relative_model_path(model_path).startswith("../../results/")
+    assert module.matlab_relative_model_path("../../results/example.slx") == "../../results/example.slx"
 
 
 def test_clean_lab_l02_compact_simulation_summary_is_training_ready() -> None:

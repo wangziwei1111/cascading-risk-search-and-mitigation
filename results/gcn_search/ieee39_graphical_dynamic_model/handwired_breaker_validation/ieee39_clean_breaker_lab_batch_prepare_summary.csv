@@ -1,0 +1,3 @@
+line_id,line_block_path,target_clean_lab_path,source_found,target_created,target_loadable,existing_handwired_breaker_found,clean_lab_committed,status,note
+L04,IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B11 to B6,../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04.slx,1,1,1,0,0,prepared,per-line clean breaker lab copied from source wrapper; no breaker was inserted
+L05,IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B13 to B14,../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L05.slx,1,1,1,0,0,prepared,per-line clean breaker lab copied from source wrapper; no breaker was inserted

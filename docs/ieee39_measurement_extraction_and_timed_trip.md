@@ -115,14 +115,24 @@ both TripCommand blocks act at 0.5 s, turning the case into a simultaneous
 multi-line trip. That kind of sequential or simultaneous trip experiment should
 be handled separately and must not be mixed into the single-line label set.
 
+Per-line clean L03 now passes structure validation and compact isolated
+simulation, so the formal label gate is updated to five training-ready labels:
+
+```text
+num_training_ready_handwired_line_trip_labels = 3
+num_unique_handwired_line_ids = 3
+num_training_ready_labels = 5
+allowed_for_dynamic_aware_training = false
+```
+
 Current result:
 
 ```text
 handwired_model_found = true
 multi_handwired_validation_passed_lines = L01, L02, L03, L04
-num_training_ready_handwired_line_trip_labels = 2
-num_unique_handwired_line_ids = 2
-num_training_ready_labels = 4
+num_training_ready_handwired_line_trip_labels = 3
+num_unique_handwired_line_ids = 3
+num_training_ready_labels = 5
 allowed_for_dynamic_aware_training = false
 ```
 

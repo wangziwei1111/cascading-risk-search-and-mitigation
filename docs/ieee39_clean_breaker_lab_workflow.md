@@ -104,9 +104,9 @@ training-ready.
 Current label gate:
 
 ```text
-num_training_ready_handwired_line_trip_labels = 2
-num_unique_handwired_line_ids = 2
-num_training_ready_labels = 4
+num_training_ready_handwired_line_trip_labels = 3
+num_unique_handwired_line_ids = 3
+num_training_ready_labels = 5
 allowed_for_dynamic_aware_training = false
 ```
 
@@ -124,6 +124,19 @@ line block path: Grid/B10 to B13
 breaker name: L03_HandwiredTimedBreaker
 trip command name: L03_TripCommand
 ```
+
+Per-line clean L03 has now passed validation and compact simulation. The
+current formal label gate is:
+
+```text
+num_training_ready_labels = 5
+num_training_ready_handwired_line_trip_labels = 3
+num_unique_handwired_line_ids = 3
+allowed_for_dynamic_aware_training = false
+```
+
+The next batch should prepare L04 and L05 as separate per-line clean lab
+models.
 
 ## Boundaries
 

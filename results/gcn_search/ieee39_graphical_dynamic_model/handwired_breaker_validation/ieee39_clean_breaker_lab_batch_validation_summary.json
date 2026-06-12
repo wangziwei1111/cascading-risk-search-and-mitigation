@@ -1,0 +1,38 @@
+[
+  {
+    "line_id": "L04",
+    "line_block_path": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B11 to B6",
+    "clean_lab_model_path": "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04.slx",
+    "clean_lab_model_found": true,
+    "clean_lab_model_loadable": true,
+    "breaker_block_name": "L04_HandwiredTimedBreaker",
+    "breaker_block_found": false,
+    "breaker_block_path": "",
+    "trip_command_name": "L04_TripCommand",
+    "trip_command_found": false,
+    "trip_command_path": "",
+    "breaker_near_line": false,
+    "trip_time_s": 0.5,
+    "validation_passed": false,
+    "validation_failure_reason": "missing breaker block named L04_HandwiredTimedBreaker",
+    "clean_lab_model_committed": false
+  },
+  {
+    "line_id": "L05",
+    "line_block_path": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B13 to B14",
+    "clean_lab_model_path": "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L05.slx",
+    "clean_lab_model_found": true,
+    "clean_lab_model_loadable": true,
+    "breaker_block_name": "L05_HandwiredTimedBreaker",
+    "breaker_block_found": false,
+    "breaker_block_path": "",
+    "trip_command_name": "L05_TripCommand",
+    "trip_command_found": false,
+    "trip_command_path": "",
+    "breaker_near_line": false,
+    "trip_time_s": 0.5,
+    "validation_passed": false,
+    "validation_failure_reason": "missing breaker block named L05_HandwiredTimedBreaker",
+    "clean_lab_model_committed": false
+  }
+]
