@@ -71,6 +71,7 @@ REQUIRED_FILES = [
     "matlab/simulink_ieee39/validate_ieee39_multi_handwired_breakers.m",
     "matlab/simulink_ieee39/run_ieee39_multi_handwired_line_trip_suite.m",
     "matlab/simulink_ieee39/prepare_ieee39_clean_handwired_breaker_lab.m",
+    "matlab/simulink_ieee39/prepare_ieee39_clean_handwired_breaker_lab_for_line.m",
     "matlab/simulink_ieee39/validate_ieee39_clean_breaker_lab_line.m",
     "matlab/simulink_ieee39/inventory_ieee39_simlog_tree.m",
     "matlab/simulink_ieee39/extract_ieee39_signal_summary.m",
@@ -91,6 +92,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/print_ieee39_handwired_breaker_checklist.py",
     "scripts/gcn_search/print_ieee39_multi_handwired_breaker_checklist.py",
     "scripts/gcn_search/print_ieee39_clean_breaker_lab_checklist.py",
+    "scripts/gcn_search/print_ieee39_clean_breaker_lab_per_line_checklist.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trip_isolated.py",
     "tests/test_simulink_dynamic_case_export.py",
     "tests/test_simulink_dynamic_result_analysis.py",
@@ -186,6 +188,7 @@ REQUIRED_FILES = [
     "docs/ieee39_handwired_breaker_validation.md",
     "docs/ieee39_multi_handwired_breaker_expansion.md",
     "docs/ieee39_clean_breaker_lab_workflow.md",
+    "docs/ieee39_per_line_clean_breaker_lab_workflow.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -228,7 +231,9 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_multi_handwired_breaker_validation_summary.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_multi_handwired_breaker_validation_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_prepare_summary.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_per_line_prepare_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/clean_breaker_lab_checklist.txt",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/clean_breaker_lab_per_line_checklist.txt",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_validation_summary.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_validation_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_block_inventory.csv",
@@ -1026,6 +1031,34 @@ def main() -> int:
             if bad in text:
                 failures.append(f"Clean breaker lab doc contains overstatement: {bad}")
 
+    per_line_doc = ROOT / "docs/ieee39_per_line_clean_breaker_lab_workflow.md"
+    if per_line_doc.exists():
+        text = _read_text("docs/ieee39_per_line_clean_breaker_lab_workflow.md").lower()
+        for required in [
+            "single-line dynamic labels",
+            "one independent clean lab .slx per line",
+            "clean_breaker_lab_l03.slx",
+            "grid/b10 to b13",
+            "l03_handwiredtimedbreaker",
+            "l03_tripcommand",
+            "phasor_rms",
+            "not emt",
+            "generator_speed_proxy",
+            "not direct frequency",
+            "not engineering-grade",
+            "dynamic-aware reranker training remains blocked",
+        ]:
+            if required not in text:
+                failures.append(f"Per-line clean breaker lab doc missing: {required}")
+        for bad in [
+            "engineering-grade protection completed",
+            "emt validation completed",
+            "train the dynamic-aware reranker now",
+            "proceed to train dynamic-aware reranker",
+        ]:
+            if bad in text:
+                failures.append(f"Per-line clean breaker lab doc contains overstatement: {bad}")
+
     clean_prepare = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_prepare_summary.json"
     if clean_prepare.exists():
         try:
@@ -1052,6 +1085,38 @@ def main() -> int:
                 failures.append("Clean breaker lab prepare summary must record clean_lab_committed=false.")
         except Exception as exc:
             failures.append(f"Failed to read clean breaker lab prepare summary: {exc}")
+
+    per_line_prepare = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_per_line_prepare_summary.json"
+    if per_line_prepare.exists():
+        try:
+            import json
+
+            payload = json.loads(per_line_prepare.read_text(encoding="utf-8"))
+            required = {
+                "line_id",
+                "source_wrapper_path",
+                "target_clean_lab_path",
+                "source_found",
+                "target_created",
+                "target_loadable",
+                "contains_existing_L01_HandwiredTimedBreaker",
+                "contains_existing_L02_HandwiredTimedBreaker",
+                "contains_existing_L03_HandwiredTimedBreaker",
+                "contains_existing_L04_HandwiredTimedBreaker",
+                "clean_lab_committed",
+                "note",
+            }
+            missing = required - set(payload)
+            if missing:
+                failures.append(f"Per-line clean breaker lab prepare summary missing keys: {sorted(missing)}")
+            if payload.get("line_id") != "L03":
+                failures.append("Per-line clean breaker lab prepare summary must currently target L03.")
+            if "clean_breaker_lab_L03.slx" not in str(payload.get("target_clean_lab_path", "")):
+                failures.append("Per-line clean breaker lab prepare summary must point to the L03 clean lab target.")
+            if payload.get("clean_lab_committed", True):
+                failures.append("Per-line clean breaker lab prepare summary must record clean_lab_committed=false.")
+        except Exception as exc:
+            failures.append(f"Failed to read per-line clean breaker lab prepare summary: {exc}")
 
     clean_validation = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_validation_summary.csv"
     if clean_validation.exists():

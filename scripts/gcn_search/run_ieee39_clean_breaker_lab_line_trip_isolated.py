@@ -97,7 +97,15 @@ def _run_with_process_tree_timeout(command: str, timeout_seconds: int) -> subpro
         raise
 
 
-def timeout_summary(line_id: str, note: str) -> pd.Series:
+def source_model_name(model_path: str, line_id: str) -> str:
+    stem = Path(model_path).stem.lower()
+    suffix = f"clean_breaker_lab_{line_id.lower()}"
+    if suffix in stem:
+        return f"clean_breaker_lab_{line_id.upper()}"
+    return "clean_breaker_lab"
+
+
+def timeout_summary(line_id: str, note: str, source_model: str = "clean_breaker_lab") -> pd.Series:
     return pd.Series(
         {
             "test_case": f"clean_lab_handwired_line_trip_{line_id}",
@@ -126,12 +134,12 @@ def timeout_summary(line_id: str, note: str) -> pd.Series:
             "unstable_flag": False,
             "trip_time_s": 0.5,
             "note": note,
-            "source_model": "clean_breaker_lab",
+            "source_model": source_model,
         }
     )
 
 
-def timeout_signal(line_id: str, note: str) -> pd.Series:
+def timeout_signal(line_id: str, note: str, source_model: str = "clean_breaker_lab") -> pd.Series:
     return pd.Series(
         {
             "test_case": f"clean_lab_handwired_line_trip_{line_id}",
@@ -152,12 +160,12 @@ def timeout_signal(line_id: str, note: str) -> pd.Series:
             "num_rotor_angle_signals_found": 0,
             "signal_source_summary": "not_available; generator_speed_proxy not extracted because compact simulation did not complete",
             "signal_note": note,
-            "source_model": "clean_breaker_lab",
+            "source_model": source_model,
         }
     )
 
 
-def timeout_event(line_id: str, note: str) -> pd.Series:
+def timeout_event(line_id: str, note: str, source_model: str = "clean_breaker_lab") -> pd.Series:
     return pd.Series(
         {
             "test_case": f"clean_lab_handwired_line_trip_{line_id}",
@@ -165,15 +173,15 @@ def timeout_event(line_id: str, note: str) -> pd.Series:
             "event_type": "pilot_line_trip",
             "physical_executed": False,
             "event_note": note,
-            "source_model": "clean_breaker_lab",
+            "source_model": source_model,
         }
     )
 
 
-def adapt_row(row: pd.Series, line_id: str) -> pd.Series:
+def adapt_row(row: pd.Series, line_id: str, source_model: str = "clean_breaker_lab") -> pd.Series:
     adapted = row.copy()
     adapted["test_case"] = f"clean_lab_handwired_line_trip_{line_id}"
-    adapted["source_model"] = "clean_breaker_lab"
+    adapted["source_model"] = source_model
     if boolish(adapted.get("simulation_success")) and adapted.get("measurement_extraction_status") == "voltage_speed_angle":
         adapted["training_ready_candidate"] = True
     else:
@@ -185,7 +193,21 @@ def boolish(value: object) -> bool:
     return str(value).strip().lower() in {"1", "true", "yes"}
 
 
-def run_line(line_id: str, output_dir: Path, timeout_seconds: int, simulation_stop_time: float) -> tuple[pd.Series, pd.Series, pd.Series]:
+def run_line(
+    line_id: str,
+    output_dir: Path,
+    timeout_seconds: int,
+    simulation_stop_time: float,
+    model_path: str = DEFAULT_MODEL,
+    validation_summary_csv: str | None = None,
+) -> tuple[pd.Series, pd.Series, pd.Series]:
+    source_model = source_model_name(model_path, line_id)
+    if validation_summary_csv is None:
+        validation_summary_csv = (
+            f"../../results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_{line_id}_validation_summary.csv"
+            if source_model != "clean_breaker_lab"
+            else DEFAULT_VALIDATION
+        )
     tmp_dir = output_dir / f"_clean_lab_isolated_{line_id}"
     tmp_dir.mkdir(parents=True, exist_ok=True)
     tmp_rel = tmp_dir.relative_to(ROOT).as_posix()
@@ -193,11 +215,11 @@ def run_line(line_id: str, output_dir: Path, timeout_seconds: int, simulation_st
         "cd('C:/Users/24186/Documents/New project 7/simulink-dynamic-validation-worktree/matlab/simulink_ieee39'); "
         "configure_ieee39_short_filegen_paths(); "
         "run_ieee39_multi_handwired_line_trip_suite("
-        f"'{DEFAULT_MODEL}',"
+        f"'{model_path}',"
         f"'../../{tmp_rel}',"
         f"string({{'{line_id}'}}),"
         f"{simulation_stop_time},"
-        f"'{DEFAULT_VALIDATION}',"
+        f"'{validation_summary_csv}',"
         f"{max(5, timeout_seconds - 30)}"
         ");"
     )
@@ -208,33 +230,43 @@ def run_line(line_id: str, output_dir: Path, timeout_seconds: int, simulation_st
         event_path = tmp_dir / "ieee39_multi_handwired_event_log.csv"
         if not summary_path.exists():
             note = "isolated MATLAB run completed without summary"
-            return timeout_summary(line_id, note), timeout_signal(line_id, note), timeout_event(line_id, note)
-        summary = adapt_row(pd.read_csv(summary_path).iloc[0], line_id)
-        signal = pd.read_csv(signal_path).iloc[0] if signal_path.exists() else timeout_signal(line_id, "missing isolated signal summary")
+            return timeout_summary(line_id, note, source_model), timeout_signal(line_id, note, source_model), timeout_event(line_id, note, source_model)
+        summary = adapt_row(pd.read_csv(summary_path).iloc[0], line_id, source_model)
+        signal = pd.read_csv(signal_path).iloc[0] if signal_path.exists() else timeout_signal(line_id, "missing isolated signal summary", source_model)
         signal["test_case"] = f"clean_lab_handwired_line_trip_{line_id}"
-        signal["source_model"] = "clean_breaker_lab"
-        event = pd.read_csv(event_path).iloc[0] if event_path.exists() else timeout_event(line_id, "missing isolated event log")
+        signal["source_model"] = source_model
+        event = pd.read_csv(event_path).iloc[0] if event_path.exists() else timeout_event(line_id, "missing isolated event log", source_model)
         event["test_case"] = f"clean_lab_handwired_line_trip_{line_id}"
-        event["source_model"] = "clean_breaker_lab"
+        event["source_model"] = source_model
         return summary, signal, event
     except subprocess.TimeoutExpired:
-        note = f"isolated MATLAB run timed out after {timeout_seconds} seconds; check L02 series wiring, bypass paths, short circuits, TripCommand target, Step direction, and abnormal Simscape islands"
-        return timeout_summary(line_id, note), timeout_signal(line_id, note), timeout_event(line_id, note)
+        note = f"isolated MATLAB run timed out after {timeout_seconds} seconds; check {line_id} series wiring, bypass paths, short circuits, TripCommand target, Step direction, and abnormal Simscape islands"
+        return timeout_summary(line_id, note, source_model), timeout_signal(line_id, note, source_model), timeout_event(line_id, note, source_model)
     except subprocess.CalledProcessError as exc:
         lines = (exc.stderr or exc.stdout or "").strip().splitlines()
         note = "isolated MATLAB run failed: " + (lines[-1] if lines else str(exc))
-        return timeout_summary(line_id, note), timeout_signal(line_id, note), timeout_event(line_id, note)
+        return timeout_summary(line_id, note, source_model), timeout_signal(line_id, note, source_model), timeout_event(line_id, note, source_model)
+
+
+def output_prefix(line_id: str, source_model: str) -> str:
+    if source_model == "clean_breaker_lab":
+        return "ieee39_clean_breaker_lab"
+    return f"ieee39_clean_breaker_lab_{line_id}"
 
 
 def write_outputs(output_dir: Path, summary: pd.Series, signal: pd.Series, event: pd.Series) -> None:
-    pd.DataFrame([summary], columns=SUMMARY_COLUMNS).to_csv(output_dir / "ieee39_clean_breaker_lab_line_trip_summary.csv", index=False, encoding="utf-8-sig")
-    pd.DataFrame([signal], columns=SIGNAL_COLUMNS).to_csv(output_dir / "ieee39_clean_breaker_lab_signal_summary.csv", index=False, encoding="utf-8-sig")
-    pd.DataFrame([event]).to_csv(output_dir / "ieee39_clean_breaker_lab_event_log.csv", index=False, encoding="utf-8-sig")
+    line_id = str(summary.get("tripped_line", "L02"))
+    prefix = output_prefix(line_id, str(summary.get("source_model", "clean_breaker_lab")))
+    pd.DataFrame([summary], columns=SUMMARY_COLUMNS).to_csv(output_dir / f"{prefix}_line_trip_summary.csv", index=False, encoding="utf-8-sig")
+    pd.DataFrame([signal], columns=SIGNAL_COLUMNS).to_csv(output_dir / f"{prefix}_signal_summary.csv", index=False, encoding="utf-8-sig")
+    pd.DataFrame([event]).to_csv(output_dir / f"{prefix}_event_log.csv", index=False, encoding="utf-8-sig")
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run one IEEE39 clean lab handwired line trip in an isolated MATLAB process.")
     parser.add_argument("--line-id", default="L02")
+    parser.add_argument("--model-path", default=DEFAULT_MODEL)
+    parser.add_argument("--validation-summary-csv", default=None)
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT))
     parser.add_argument("--timeout-seconds", type=int, default=240)
     parser.add_argument("--simulation-stop-time", type=float, default=0.5)
@@ -245,7 +277,14 @@ def main() -> None:
     args = parse_args()
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    summary, signal, event = run_line(args.line_id, output_dir, args.timeout_seconds, args.simulation_stop_time)
+    summary, signal, event = run_line(
+        args.line_id,
+        output_dir,
+        args.timeout_seconds,
+        args.simulation_stop_time,
+        args.model_path,
+        args.validation_summary_csv,
+    )
     write_outputs(output_dir, summary, signal, event)
     print(
         pd.DataFrame(

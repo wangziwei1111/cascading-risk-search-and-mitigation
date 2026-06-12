@@ -98,6 +98,11 @@ and isolated compact simulation, so L01 and clean lab L02 are training-ready.
 Training remains blocked while the total training-ready label count is below
 ten.
 
+Future L03/L04 labels should use one independent per-line clean lab `.slx` per
+line. Do not add L03 to the clean lab that already contains L02, because two
+TripCommand blocks acting at 0.5 s would create a simultaneous multi-line trip
+instead of a single-line label.
+
 ## Clean Breaker Lab Reset
 
 Further L02-L04 debugging should not continue in the old handwired `.slx`.
@@ -110,8 +115,9 @@ results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSyst
 The clean lab starts without `L01_HandwiredTimedBreaker`,
 `L02_HandwiredTimedBreaker`, `L03_HandwiredTimedBreaker`, or
 `L04_HandwiredTimedBreaker`. The user wired L02 first, and clean L02 now passes
-compact validation. The next manual target should be L03 in the clean breaker
-lab, not the old handwired model.
+compact validation. The next manual target should be L03 in
+`IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L03.slx`, not the
+old handwired model and not the L02 clean lab.
 
 ## Boundaries
 

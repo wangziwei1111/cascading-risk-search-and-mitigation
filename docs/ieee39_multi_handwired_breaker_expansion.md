@@ -118,10 +118,19 @@ training, not an official dynamic performance conclusion.
 This remains preliminary preview training guidance only, not a final dynamic
 performance conclusion.
 
-Recommended next step: wire L03 in the clean breaker lab and confirm that
+Recommended next step: wire L03 in its own per-line clean breaker lab and confirm that
 `L03_TripCommand` opens only `L03_HandwiredTimedBreaker`, the breaker is really
 inserted on the intended line, and opening it does not create an abnormal
 Simscape island or disconnected physical network.
+
+```text
+results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L03.slx
+```
+
+Do not add L03 to the same clean lab that already contains L02. If multiple
+TripCommand blocks act at 0.5 s, the run becomes a simultaneous multi-line trip,
+not a single-line label. Sequential or simultaneous trip experiments can be
+studied later, but they must not be mixed into the single-line label set.
 
 ## Boundaries
 

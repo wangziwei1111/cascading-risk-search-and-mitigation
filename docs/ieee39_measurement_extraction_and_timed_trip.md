@@ -109,6 +109,12 @@ clean breaker lab. Clean lab L02 passes structure validation and isolated
 compact simulation, so it is counted as an additional training-ready handwired
 line-trip label. L03-L04 are not counted as training-ready yet.
 
+Future L03/L04 single-line labels should use independent per-line clean lab
+models. Adding L03 into the same clean lab that already contains L02 can make
+both TripCommand blocks act at 0.5 s, turning the case into a simultaneous
+multi-line trip. That kind of sequential or simultaneous trip experiment should
+be handled separately and must not be mixed into the single-line label set.
+
 Current result:
 
 ```text

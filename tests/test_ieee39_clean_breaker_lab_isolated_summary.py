@@ -54,6 +54,17 @@ def test_clean_lab_adapt_row_only_marks_voltage_speed_angle_success_ready() -> N
     assert adapted_failed["training_ready_candidate"] is False
 
 
+def test_clean_lab_per_line_model_uses_line_specific_source_model_and_prefix() -> None:
+    module = _load_module()
+    model_path = "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L03.slx"
+    assert module.source_model_name(model_path, "L03") == "clean_breaker_lab_L03"
+    assert module.output_prefix("L03", "clean_breaker_lab_L03") == "ieee39_clean_breaker_lab_L03"
+    row = module.timeout_summary("L03", "not wired yet", "clean_breaker_lab_L03")
+    assert row["test_case"] == "clean_lab_handwired_line_trip_L03"
+    assert row["source_model"] == "clean_breaker_lab_L03"
+    assert row["training_ready_candidate"] is False
+
+
 def test_clean_lab_l02_compact_simulation_summary_is_training_ready() -> None:
     root = Path(__file__).resolve().parents[1]
     path = root / "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_line_trip_summary.csv"

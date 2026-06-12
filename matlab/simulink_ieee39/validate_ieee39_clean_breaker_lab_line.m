@@ -103,6 +103,12 @@ end
 writetable(summaryTable, fullfile(outputDir, "ieee39_clean_breaker_lab_validation_summary.csv"));
 writetable(inventoryTable, fullfile(outputDir, "ieee39_clean_breaker_lab_block_inventory.csv"));
 writeJsonTable(summaryTable, fullfile(outputDir, "ieee39_clean_breaker_lab_validation_summary.json"));
+if numel(lineIds) == 1
+    suffix = lineIds(1);
+    writetable(summaryTable, fullfile(outputDir, "ieee39_clean_breaker_lab_" + suffix + "_validation_summary.csv"));
+    writetable(inventoryTable, fullfile(outputDir, "ieee39_clean_breaker_lab_" + suffix + "_block_inventory.csv"));
+    writeJsonTable(summaryTable, fullfile(outputDir, "ieee39_clean_breaker_lab_" + suffix + "_validation_summary.json"));
+end
 fprintf("Wrote IEEE39 clean breaker lab validation under: %s\n", outputDir);
 end
 

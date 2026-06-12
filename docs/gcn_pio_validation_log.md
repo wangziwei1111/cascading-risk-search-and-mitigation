@@ -192,6 +192,77 @@ git diff -- src/rl_mitigation scripts/rl_mitigation
 empty
 ```
 
+## IEEE39 Per-Line Clean Breaker Lab Workflow
+
+The clean breaker lab workflow is tightened after the L02 success. The target
+dataset is a single-line dynamic label set, not a multi-line cascading trip
+sequence. Therefore, each compact simulation must let only the target line's
+breaker act.
+
+If L03 is added to the same clean lab `.slx` that already contains L02, then
+`L02_TripCommand` and `L03_TripCommand` can both act at 0.5 s. That changes the
+case into an L02 + L03 simultaneous trip and it must not be treated as a
+single-line L03 label.
+
+New per-line workflow:
+
+```text
+one target line -> one independent clean lab .slx
+next target = L03
+per-line clean lab = results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L03.slx
+L03 line block path = Grid/B10 to B13
+L03 breaker name = L03_HandwiredTimedBreaker
+L03 trip command name = L03_TripCommand
+```
+
+Added workflow files:
+
+```text
+matlab/simulink_ieee39/prepare_ieee39_clean_handwired_breaker_lab_for_line.m
+scripts/gcn_search/print_ieee39_clean_breaker_lab_per_line_checklist.py
+docs/ieee39_per_line_clean_breaker_lab_workflow.md
+```
+
+The per-line prepare script only copies the original generated wrapper. It does
+not insert a breaker, does not modify Simscape physical-port wiring, and does
+not commit the generated `.slx`.
+
+The current successful L02 result is preserved:
+
+```text
+num_training_ready_handwired_line_trip_labels = 2
+num_unique_handwired_line_ids = 2
+num_training_ready_labels = 4
+allowed_for_dynamic_aware_training = false
+```
+
+No L03 compact simulation is run in this round because the user has not yet
+manually wired L03 in the per-line L03 clean lab. Dynamic-aware reranker
+training remains blocked while labels remain below ten.
+
+Validation:
+
+```text
+matlab:
+prepare_ieee39_clean_handwired_breaker_lab_for_line("L03")
+generated local .slx only; no breaker inserted
+
+python scripts/gcn_search/print_ieee39_clean_breaker_lab_per_line_checklist.py
+checklist generated
+
+python -m pytest tests/test_ieee39_clean_breaker_lab_per_line_prepare.py tests/test_ieee39_clean_breaker_lab_per_line_checklist.py tests/test_ieee39_per_line_clean_breaker_lab_docs.py tests/test_ieee39_clean_breaker_lab_isolated_summary.py
+7 passed
+
+python -m pytest tests/test_ieee39_clean_breaker_lab_prepare.py tests/test_ieee39_clean_breaker_lab_checklist.py tests/test_ieee39_clean_breaker_lab_validation_schema.py tests/test_ieee39_clean_breaker_lab_docs.py
+4 passed
+
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+PASS: GCN Simulink dynamic validation artifacts are review-ready.
+
+git diff -- src/rl_mitigation scripts/rl_mitigation
+empty
+```
+
 ## Round 10: Simulink Dynamic Validation Prototype
 
 Added a reproducible prototype for checking whether learned path reranker / PIO-GCN Top-K ordered N-2 paths also look risky in a simplified time-domain Simulink validation flow.

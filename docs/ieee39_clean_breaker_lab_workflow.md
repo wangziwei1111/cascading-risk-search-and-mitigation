@@ -110,8 +110,20 @@ num_training_ready_labels = 4
 allowed_for_dynamic_aware_training = false
 ```
 
-The next manual wiring target should be L03 in the clean breaker lab, not the
-old handwired model.
+The next manual wiring target should be L03, but it must use its own per-line
+clean lab model. Do not keep adding L03 into the clean lab that already
+contains L02. If L02 and L03 TripCommand blocks both act at 0.5 s, the
+simulation becomes a simultaneous two-line trip and cannot be used as a
+single-line L03 label.
+
+Per-line L03 target:
+
+```text
+results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L03.slx
+line block path: Grid/B10 to B13
+breaker name: L03_HandwiredTimedBreaker
+trip command name: L03_TripCommand
+```
 
 ## Boundaries
 

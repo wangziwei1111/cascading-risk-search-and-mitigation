@@ -1,0 +1,14 @@
+{
+  "line_id": "L03",
+  "source_wrapper_path": "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper.slx",
+  "target_clean_lab_path": "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L03.slx",
+  "source_found": true,
+  "target_created": true,
+  "target_loadable": true,
+  "contains_existing_L01_HandwiredTimedBreaker": false,
+  "contains_existing_L02_HandwiredTimedBreaker": false,
+  "contains_existing_L03_HandwiredTimedBreaker": false,
+  "contains_existing_L04_HandwiredTimedBreaker": false,
+  "clean_lab_committed": false,
+  "note": "per-line clean breaker lab copied from source wrapper for L03; no breaker was inserted"
+}
