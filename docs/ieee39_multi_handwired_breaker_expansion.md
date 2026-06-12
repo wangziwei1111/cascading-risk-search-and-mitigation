@@ -11,8 +11,10 @@ breakers automatically and does not modify Simscape physical-port wiring.
 - L01 has passed handwired validation.
 - L01 compact `single_line_trip` is `handwired_timed_breaker`.
 - L01 contributes one training-ready handwired line-trip label.
-- L02-L04 are checked by the new scripts but are not yet handwired in the local
-  model, so their validation currently fails with missing breaker names.
+- L02-L04 are now present in the local handwired model and pass structure
+  validation.
+- L02 compact simulation timed out in the current run. L03-L04 were not counted
+  as training-ready after the L02 timeout.
 
 ## Naming Convention
 
@@ -84,17 +86,24 @@ python src/gcn_search/legacy_rts79/export_ieee39_dynamic_labels.py --fault-summa
 ## Current Compact Result
 
 ```text
-validation_passed lines = 1
-passed line IDs = L01
+validation_passed lines = 4
+passed line IDs = L01, L02, L03, L04
 multi line-trip simulation_success count = 1
 num_training_ready_handwired_line_trip_labels = 1
 num_training_ready_labels = 3
 allowed_for_dynamic_aware_training = false
 ```
 
-Training remains blocked because `num_training_ready_labels < 10`. If the count
-eventually reaches ten, the next step is only preliminary preview training, not
-an official dynamic performance conclusion.
+The L02 compact simulation timed out. The conservative summary keeps L02-L04 out
+of the training-ready set. Training remains blocked because
+`num_training_ready_labels < 10`. If the count eventually reaches ten, the next
+step is only preliminary preview training, not an official dynamic performance
+conclusion.
+
+Recommended fix: isolate L02 in Simulink and confirm that
+`L02_TripCommand` opens only the intended breaker. If the control direction is
+reversed, set `Initial value = 1` and `Final value = 0`, then rerun the multi
+validation and compact suite.
 
 ## Boundaries
 

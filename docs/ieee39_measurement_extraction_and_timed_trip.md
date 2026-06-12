@@ -100,7 +100,9 @@ Round 32 extends this to a multi-line handwired validation flow. The current
 measurement source remains `generator_speed_proxy`, not a direct frequency
 measurement. The model remains `phasor_RMS`, not EMT, and the multi-line
 workflow does not train the dynamic-aware reranker while fewer than ten
-training-ready labels are available.
+training-ready labels are available. In the current multi-line run, L01-L04
+pass structure validation, but L02 compact simulation timed out and L03-L04 are
+not counted as training-ready after that timeout.
 
 Current result:
 

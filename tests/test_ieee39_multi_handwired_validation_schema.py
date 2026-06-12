@@ -22,8 +22,8 @@ def test_multi_handwired_validation_schema_and_mixed_status() -> None:
     }
     assert required.issubset(table.columns)
     assert "L01" in set(table["line_id"].astype(str))
-    l01 = table[table["line_id"].astype(str) == "L01"].iloc[0]
-    assert str(l01["validation_passed"]).lower() in {"1", "true"}
-    missing = table[table["line_id"].astype(str).isin(["L02", "L03", "L04"])]
-    assert not missing.empty
-    assert not missing["validation_passed"].astype(str).str.lower().isin({"1", "true"}).any()
+    selected = table[table["line_id"].astype(str).isin(["L01", "L02", "L03", "L04"])]
+    assert len(selected) == 4
+    assert selected["breaker_block_found"].astype(str).str.lower().isin({"1", "true"}).all()
+    assert selected["trip_command_found"].astype(str).str.lower().isin({"1", "true"}).all()
+    assert selected["validation_passed"].astype(str).str.lower().isin({"1", "true"}).all()

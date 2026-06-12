@@ -963,10 +963,38 @@ num_training_ready_labels = 3
 allowed_for_dynamic_aware_training = false
 ```
 
-L02-L04 currently fail validation because blocks named
-`L02_HandwiredTimedBreaker`, `L03_HandwiredTimedBreaker`, and
-`L04_HandwiredTimedBreaker` are not yet present in the local handwired model.
-This is expected until the user manually wires those lines.
+Follow-up validation after the user handwired L02-L04:
+
+```text
+L01 validation_passed = true
+L02 validation_passed = true
+L03 validation_passed = true
+L04 validation_passed = true
+```
+
+Compact simulation result:
+
+```text
+L01 simulation_success = true
+L02 simulation_success = false, reason = simulation timeout
+L03 simulation_success = false, reason = not run after L02 timeout
+L04 simulation_success = false, reason = not run after L02 timeout
+```
+
+Label gate remains conservative:
+
+```text
+num_handwired_validation_passed = 4
+num_training_ready_handwired_line_trip_labels = 1
+num_unique_handwired_line_ids = 1
+num_training_ready_labels = 3
+allowed_for_dynamic_aware_training = false
+```
+
+The next manual step is to isolate L02 and check whether `L02_TripCommand`
+opens the intended breaker. If the control direction is reversed, try
+`Initial value = 1` and `Final value = 0`, then rerun validation and compact
+simulation.
 
 Validation:
 

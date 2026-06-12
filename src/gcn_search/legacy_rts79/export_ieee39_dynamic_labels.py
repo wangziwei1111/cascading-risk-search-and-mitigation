@@ -113,6 +113,7 @@ def _quality_summary(summary: pd.DataFrame, training_ready: pd.DataFrame) -> dic
     handwired_ready_lines = handwired_ready.get("tripped_line", pd.Series("", index=handwired_ready.index)).astype(str)
     handwired_lines = sorted(line for line in handwired_ready_lines.unique().tolist() if line and line.lower() != "nan")
     handwired_validation = _handwired_validation_summary()
+    multi_handwired_validation = _multi_handwired_validation_summary()
     return {
         "num_fault_rows": int(len(summary)),
         "num_physical_executed_rows": physical_count,
@@ -131,8 +132,8 @@ def _quality_summary(summary: pd.DataFrame, training_ready: pd.DataFrame) -> dic
         },
         "num_unique_handwired_line_ids": int(len(handwired_lines)),
         "num_unique_training_ready_fault_types": int(training_ready.get("fault_type", pd.Series("", index=training_ready.index)).astype(str).nunique()),
-        "num_handwired_validation_passed": int(bool(handwired_validation.get("validation_passed", False))),
-        "handwired_model_used": bool(handwired_validation.get("handwired_model_found", False)),
+        "num_handwired_validation_passed": int(multi_handwired_validation.get("num_validation_passed", int(bool(handwired_validation.get("validation_passed", False))))),
+        "handwired_model_used": bool(multi_handwired_validation.get("handwired_model_used", bool(handwired_validation.get("handwired_model_found", False)))),
         "handwired_model_committed": False,
         "num_static_topology_disable_rows": int(trip_impl.eq("static_topology_disable").sum()),
         "num_manual_required_trip_rows": int(
@@ -156,6 +157,22 @@ def _handwired_validation_summary() -> dict:
         return json.loads(path.read_text(encoding="utf-8"))
     except Exception:
         return {}
+
+
+def _multi_handwired_validation_summary() -> dict:
+    path = Path("results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_multi_handwired_breaker_validation_summary.csv")
+    if not path.exists():
+        return {}
+    try:
+        table = pd.read_csv(path)
+    except Exception:
+        return {}
+    passed = table.get("validation_passed", pd.Series(False, index=table.index)).astype(str).str.lower().isin({"1", "true", "yes"})
+    found = table.get("handwired_model_found", pd.Series(False, index=table.index)).astype(str).str.lower().isin({"1", "true", "yes"})
+    return {
+        "num_validation_passed": int(passed.sum()),
+        "handwired_model_used": bool(found.any()),
+    }
 
 
 def _measurement_count(summary: pd.DataFrame, column: str) -> int:

@@ -88,10 +88,10 @@ If a future handwired model passes validation and the compact suite confirms `si
 ## Round 32 Multi-Line Expansion
 
 Round 32 adds a multi-line validation path for future user handwired breakers.
-The first recommended expansion batch is `L02`, `L03`, and `L04`, using
+The first expansion batch is `L02`, `L03`, and `L04`, using
 `Lxx_HandwiredTimedBreaker` and `Lxx_TripCommand`. L01 remains the reference
-passed line. The new scripts validate missing lines without changing the model,
-run compact simulations only for validation-passed lines, and keep training
+passed line. L02-L04 now pass structure validation, but L02 compact simulation
+timed out in the current run, so only L01 is training-ready. Training remains
 blocked while the total training-ready label count is below ten.
 
 ## Boundaries
