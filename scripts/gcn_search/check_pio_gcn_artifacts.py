@@ -230,6 +230,13 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_prepare_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/clean_breaker_lab_checklist.txt",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_validation_summary.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_validation_summary.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_block_inventory.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_line_trip_summary.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_signal_summary.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_event_log.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_merge_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_multi_handwired_line_trip_summary.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_multi_handwired.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_multi_handwired_merge_summary.json",
@@ -825,6 +832,16 @@ def main() -> int:
         ]:
             if required_key not in quality:
                 failures.append(f"IEEE39 quality summary missing key: {required_key}")
+        if quality.get("num_training_ready_labels") != 4:
+            failures.append("IEEE39 quality summary must report four training-ready labels after clean lab L02.")
+        if quality.get("num_training_ready_handwired_line_trip_labels") != 2:
+            failures.append("IEEE39 quality summary must report two training-ready handwired line-trip labels.")
+        if quality.get("num_training_ready_handwired_line_trip_labels_by_line") != {"L01": 1, "L02": 1}:
+            failures.append("IEEE39 quality summary must report L01 and L02 as handwired training-ready lines.")
+        if quality.get("num_unique_handwired_line_ids") != 2:
+            failures.append("IEEE39 quality summary must report two unique handwired line IDs.")
+        if quality.get("allowed_for_dynamic_aware_training", True):
+            failures.append("IEEE39 quality summary must keep dynamic-aware training blocked while labels < 10.")
 
     line_map = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map.csv"
     if line_map.exists():
@@ -1058,8 +1075,56 @@ def main() -> int:
                 failures.append("Clean breaker lab validation summary must include L02.")
             if table.get("clean_lab_model_committed", pd.Series([True])).astype(str).str.lower().isin({"1", "true"}).any():
                 failures.append("Clean breaker lab validation summary must record clean_lab_model_committed=false.")
+            l02 = table[table.get("line_id", pd.Series("", index=table.index)).astype(str).eq("L02")]
+            if l02.empty:
+                failures.append("Clean breaker lab validation summary must contain an L02 row.")
+            else:
+                row = l02.iloc[0]
+                for column in ["clean_lab_model_found", "clean_lab_model_loadable", "breaker_block_found", "trip_command_found", "breaker_near_line", "validation_passed"]:
+                    if str(row.get(column, "")).lower() not in {"1", "true"}:
+                        failures.append(f"Clean breaker lab L02 must have {column}=true after manual wiring.")
         except Exception as exc:
             failures.append(f"Failed to read clean breaker lab validation summary: {exc}")
+
+    clean_line_trip = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_line_trip_summary.csv"
+    if clean_line_trip.exists():
+        try:
+            import pandas as pd
+
+            table = pd.read_csv(clean_line_trip)
+            row = table[table.get("test_case", pd.Series("", index=table.index)).astype(str).eq("clean_lab_handwired_line_trip_L02")]
+            if row.empty:
+                failures.append("Clean breaker lab line-trip summary must include clean_lab_handwired_line_trip_L02.")
+            else:
+                row = row.iloc[0]
+                for column in ["simulation_success", "physical_fault_or_breaker_action_executed", "training_ready_candidate", "breaker_opened"]:
+                    if str(row.get(column, "")).lower() not in {"1", "true"}:
+                        failures.append(f"Clean lab L02 compact summary must have {column}=true.")
+                if row.get("trip_implementation") not in {"handwired_timed_breaker", "handwired_timed_controlled_switch"}:
+                    failures.append("Clean lab L02 must use a handwired timed breaker implementation.")
+                if row.get("measurement_extraction_status") != "voltage_speed_angle":
+                    failures.append("Clean lab L02 must extract voltage_speed_angle measurements.")
+                if "frequency=generator_speed_proxy" not in str(row.get("signal_source_summary", "")):
+                    failures.append("Clean lab L02 signal summary must keep frequency=generator_speed_proxy.")
+                if str(row.get("source_model", "")) != "clean_breaker_lab":
+                    failures.append("Clean lab L02 source_model must be clean_breaker_lab.")
+        except Exception as exc:
+            failures.append(f"Failed to read clean breaker lab line-trip summary: {exc}")
+
+    clean_merge = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_merge_summary.json"
+    if clean_merge.exists():
+        try:
+            import json
+
+            payload = json.loads(clean_merge.read_text(encoding="utf-8"))
+            if payload.get("num_training_ready_handwired_rows") != 2:
+                failures.append("Clean lab merge summary must report two training-ready handwired rows.")
+            if payload.get("num_training_ready_handwired_rows_by_line") != {"L01": 1, "L02": 1}:
+                failures.append("Clean lab merge summary must report L01 and L02 handwired ready rows.")
+            if payload.get("static_topology_disable_overwrote_handwired") is not False:
+                failures.append("Clean lab merge must not let static_topology_disable overwrite handwired rows.")
+        except Exception as exc:
+            failures.append(f"Failed to read clean breaker lab merge summary: {exc}")
 
     handwired_summary = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_handwired_breaker_validation_summary.json"
     if handwired_summary.exists():

@@ -1,1 +1,3 @@
 line_id,block_path,candidate_role
+L02,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab/Grid/L02_HandwiredTimedBreaker,breaker
+L02,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab/Grid/L02_TripCommand,trip_command

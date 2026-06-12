@@ -31,3 +31,14 @@ def test_clean_breaker_lab_docs_are_conservative() -> None:
             "formal dynamic superiority",
         ]:
             assert forbidden not in text
+
+    clean_doc = (root / "docs/ieee39_clean_breaker_lab_workflow.md").read_text(encoding="utf-8").lower()
+    for required in [
+        "validation_passed = true",
+        "simulation_success = true",
+        "training_ready_candidate = true",
+        "num_training_ready_labels = 4",
+        "allowed_for_dynamic_aware_training = false",
+        "next manual wiring target should be l03",
+    ]:
+        assert required in clean_doc

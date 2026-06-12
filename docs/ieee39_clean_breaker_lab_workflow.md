@@ -68,6 +68,51 @@ python scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trip_isolated.py --l
 Clean L02 is considered usable only when `simulation_success = true` and
 `measurement_extraction_status = voltage_speed_angle`.
 
+## Current Clean L02 Result
+
+The user has manually wired L02 in the clean breaker lab model. The current
+validation result is:
+
+```text
+clean lab L02 validation_passed = true
+breaker_block_found = true
+trip_command_found = true
+breaker_near_line = true
+clean_lab_model_committed = false
+```
+
+The isolated compact simulation also passes:
+
+```text
+simulation_success = true
+trip_implementation = handwired_timed_breaker
+measurement_extraction_status = voltage_speed_angle
+training_ready_candidate = true
+breaker_opened = true
+min_voltage_pu = 0.971757
+max_voltage_pu = 1.063647
+min_frequency_hz = 49.942069
+max_frequency_hz = 50.043873
+max_speed_deviation = 0.001159
+max_rotor_angle_separation_deg = 60.015942
+```
+
+Clean lab L02 is therefore merged as one training-ready handwired line-trip
+label. The old handwired model's L02 timeout row is still not treated as
+training-ready.
+
+Current label gate:
+
+```text
+num_training_ready_handwired_line_trip_labels = 2
+num_unique_handwired_line_ids = 2
+num_training_ready_labels = 4
+allowed_for_dynamic_aware_training = false
+```
+
+The next manual wiring target should be L03 in the clean breaker lab, not the
+old handwired model.
+
 ## Boundaries
 
 - This model remains `phasor_RMS`, not EMT.

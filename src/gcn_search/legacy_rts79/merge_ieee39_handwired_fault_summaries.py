@@ -32,6 +32,9 @@ def merge_summaries(
     out_csv = Path(output_csv)
     out_csv.parent.mkdir(parents=True, exist_ok=True)
     combined.to_csv(out_csv, index=False, encoding="utf-8-sig")
+    combined_ready = combined.get("training_ready_candidate", pd.Series("", index=combined.index)).astype(str).str.lower().isin({"1", "true", "yes"})
+    combined_impl = combined.get("trip_implementation", pd.Series("", index=combined.index)).astype(str)
+    handwired_impl = combined_impl.isin({"handwired_timed_breaker", "handwired_timed_controlled_switch"})
 
     summary = {
         "base_rows": int(len(base)),
@@ -39,11 +42,13 @@ def merge_summaries(
         "merged_rows": int(len(combined)),
         "num_handwired_rows_added": int(combined["test_case"].astype(str).str.contains("handwired_line_trip_", na=False).sum()),
         "num_training_ready_handwired_rows": int(
-            (
-                combined["test_case"].astype(str).str.contains("handwired_line_trip_", na=False)
-                & combined["training_ready_candidate"].astype(str).str.lower().isin({"1", "true", "yes"})
-            ).sum()
+            (handwired_impl & combined_ready).sum()
         ),
+        "num_training_ready_handwired_rows_by_line": {
+            line: int(((combined.get("tripped_line", pd.Series("", index=combined.index)).astype(str) == line) & handwired_impl & combined_ready).sum())
+            for line in sorted(combined.loc[handwired_impl & combined_ready, "tripped_line"].astype(str).dropna().unique().tolist())
+            if line and line.lower() != "nan"
+        },
         "static_topology_disable_overwrote_handwired": False,
     }
     Path(output_summary_json).write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")

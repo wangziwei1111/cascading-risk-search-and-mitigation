@@ -52,3 +52,20 @@ def test_clean_lab_adapt_row_only_marks_voltage_speed_angle_success_ready() -> N
     )
     adapted_failed = module.adapt_row(failed, "L02")
     assert adapted_failed["training_ready_candidate"] is False
+
+
+def test_clean_lab_l02_compact_simulation_summary_is_training_ready() -> None:
+    root = Path(__file__).resolve().parents[1]
+    path = root / "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_line_trip_summary.csv"
+    assert path.exists()
+    table = pd.read_csv(path)
+    row = table[table["test_case"].astype(str) == "clean_lab_handwired_line_trip_L02"].iloc[0]
+    assert str(row["simulation_success"]).lower() in {"1", "true"}
+    assert str(row["physical_fault_or_breaker_action_executed"]).lower() in {"1", "true"}
+    assert row["trip_implementation"] in {"handwired_timed_breaker", "handwired_timed_controlled_switch"}
+    assert row["measurement_extraction_status"] == "voltage_speed_angle"
+    assert str(row["training_ready_candidate"]).lower() in {"1", "true"}
+    assert str(row["breaker_opened"]).lower() in {"1", "true"}
+    assert "frequency=generator_speed_proxy" in str(row["signal_source_summary"])
+    assert str(row.get("timeout_or_error_message", "")).lower() in {"", "nan"}
+    assert row["source_model"] == "clean_breaker_lab"

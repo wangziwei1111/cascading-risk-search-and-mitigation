@@ -75,8 +75,8 @@ The label exporter now recognizes:
 Current compact gate:
 
 ```text
-num_training_ready_labels = 3
-num_training_ready_handwired_line_trip_labels = 1
+num_training_ready_labels = 4
+num_training_ready_handwired_line_trip_labels = 2
 num_handwired_validation_passed = 4
 handwired_model_used = true
 handwired_model_committed = false
@@ -92,8 +92,11 @@ The first expansion batch is `L02`, `L03`, and `L04`, using
 `Lxx_HandwiredTimedBreaker` and `Lxx_TripCommand`. L01 remains the reference
 passed line. After the user manually revised L02 in the Simulink GUI, L02 still
 passes structure validation. Its isolated compact simulation still timed out
-after 240 seconds, so only L01 is training-ready. Training remains blocked while
-the total training-ready label count is below ten.
+after 240 seconds, so that old L02 row is not training-ready. The user then
+rewired L02 in the clean breaker lab. Clean lab L02 passes structure validation
+and isolated compact simulation, so L01 and clean lab L02 are training-ready.
+Training remains blocked while the total training-ready label count is below
+ten.
 
 ## Clean Breaker Lab Reset
 
@@ -106,8 +109,9 @@ results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSyst
 
 The clean lab starts without `L01_HandwiredTimedBreaker`,
 `L02_HandwiredTimedBreaker`, `L03_HandwiredTimedBreaker`, or
-`L04_HandwiredTimedBreaker`. The user should wire only L02 first. If clean L02
-passes compact validation, then L03/L04 can be considered later.
+`L04_HandwiredTimedBreaker`. The user wired L02 first, and clean L02 now passes
+compact validation. The next manual target should be L03 in the clean breaker
+lab, not the old handwired model.
 
 ## Boundaries
 

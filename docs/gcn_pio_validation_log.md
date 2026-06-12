@@ -109,6 +109,89 @@ inserted automatically, no Simscape physical-port wiring was modified by Codex,
 and no dynamic-aware reranker training is allowed while the label count remains
 below 10.
 
+## IEEE39 Clean Breaker Lab L02 Success
+
+The user manually wired L02 in the clean breaker lab model:
+
+```text
+results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab.slx
+```
+
+Structure validation:
+
+```text
+clean_lab_model_found = true
+clean_lab_model_loadable = true
+breaker_block_found = true
+trip_command_found = true
+breaker_near_line = true
+validation_passed = true
+clean_lab_model_committed = false
+```
+
+Isolated compact simulation:
+
+```text
+simulation_success = true
+physical_fault_or_breaker_action_executed = true
+trip_implementation = handwired_timed_breaker
+measurement_extraction_status = voltage_speed_angle
+training_ready_candidate = true
+breaker_opened = true
+min_voltage_pu = 0.971757
+max_voltage_pu = 1.063647
+min_frequency_hz = 49.942069
+max_frequency_hz = 50.043873
+max_speed_deviation = 0.001159
+max_rotor_angle_separation_deg = 60.015942
+signal_source_summary includes frequency=generator_speed_proxy
+```
+
+Clean lab L02 was merged into the formal fault summary:
+
+```text
+output = results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02.csv
+num_training_ready_handwired_rows = 2
+num_training_ready_handwired_rows_by_line = {"L01": 1, "L02": 1}
+static_topology_disable_overwrote_handwired = false
+```
+
+Updated dynamic label gate:
+
+```text
+num_training_ready_handwired_line_trip_labels = 2
+num_unique_handwired_line_ids = 2
+num_training_ready_labels = 4
+allowed_for_dynamic_aware_training = false
+```
+
+The old handwired model's L02 timeout row remains a failed historical result
+and is not promoted to training-ready. The model remains `phasor_RMS`, not EMT.
+`generator_speed_proxy` is not direct frequency. The handwired breaker remains
+pilot breaker-like validation, not engineering-grade protection. No `.slx`,
+`.slxc`, `slprj`, `.mat`, raw trajectories, or full timeseries are committed.
+The next manual target is L03 in the clean breaker lab, not the old handwired
+model.
+
+Validation:
+
+```text
+python -m pytest tests/test_ieee39_clean_breaker_lab_prepare.py tests/test_ieee39_clean_breaker_lab_checklist.py tests/test_ieee39_clean_breaker_lab_validation_schema.py tests/test_ieee39_clean_breaker_lab_isolated_summary.py tests/test_ieee39_clean_breaker_lab_docs.py
+7 passed
+
+python -m pytest tests/test_ieee39_multi_handwired_checklist.py tests/test_ieee39_multi_handwired_validation_schema.py tests/test_ieee39_multi_handwired_line_trip_summary.py tests/test_ieee39_handwired_fault_summary_merge.py tests/test_ieee39_multi_handwired_label_gate.py tests/test_ieee39_multi_handwired_docs.py
+7 passed
+
+python -m pytest tests/test_ieee39_dynamic_label_quality_gate.py tests/test_ieee39_training_ready_label_gate.py tests/test_ieee39_measurement_quality_gate.py tests/test_ieee39_measurement_docs.py tests/test_ieee39_signal_extraction_summary.py tests/test_ieee39_timed_trip_summary.py tests/test_ieee39_timed_trip_docs.py
+8 passed
+
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+PASS: GCN Simulink dynamic validation artifacts are review-ready.
+
+git diff -- src/rl_mitigation scripts/rl_mitigation
+empty
+```
+
 ## Round 10: Simulink Dynamic Validation Prototype
 
 Added a reproducible prototype for checking whether learned path reranker / PIO-GCN Top-K ordered N-2 paths also look risky in a simplified time-domain Simulink validation flow.

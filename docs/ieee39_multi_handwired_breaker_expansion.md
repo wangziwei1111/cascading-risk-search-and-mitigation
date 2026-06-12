@@ -15,10 +15,13 @@ breakers automatically and does not modify Simscape physical-port wiring.
   validation.
 - The user manually revised L02 in the Simulink GUI, and the L02 structure
   validation still passes.
-- L02 compact simulation still timed out in the isolated 240-second run.
-  L03-L04 were not counted as training-ready in this conservative label update.
+- The old handwired model's L02 compact simulation timed out in the isolated
+  240-second run. That old L02 timeout row is not counted as training-ready.
 - The old handwired `.slx` has now been retired for further L02-L04 debugging.
   New manual wiring should use the clean breaker lab workflow instead.
+- In the clean breaker lab, the user manually wired L02 and the isolated
+  compact simulation succeeded. Clean lab L02 is now counted as one additional
+  training-ready handwired line-trip label.
 
 ## Naming Convention
 
@@ -35,14 +38,16 @@ Each trip command should use `Step time = 0.5 s`, with default `Initial value =
 
 ## Recommended Next Batch
 
-Do not continue wiring L02-L04 in the old handwired model. Start from the clean
-breaker lab model and wire only L02 first:
+Do not continue wiring L02-L04 in the old handwired model. Continue from the
+clean breaker lab model. L02 is now passed; the next manual target should be
+L03:
 
 ```text
 results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab.slx
 ```
 
-If clean L02 passes, then consider L03/L04 in later rounds.
+After clean L03 passes structure validation and isolated compact simulation,
+then consider L04 in a later round.
 
 ## Commands
 
@@ -99,24 +104,24 @@ python src/gcn_search/legacy_rts79/export_ieee39_dynamic_labels.py --fault-summa
 validation_passed lines = 4
 passed line IDs = L01, L02, L03, L04
 multi line-trip simulation_success count = 1
-num_training_ready_handwired_line_trip_labels = 1
-num_unique_handwired_line_ids = 1
-num_training_ready_labels = 3
+num_training_ready_handwired_line_trip_labels = 2
+num_unique_handwired_line_ids = 2
+num_training_ready_labels = 4
 allowed_for_dynamic_aware_training = false
 ```
 
-The L02 compact simulation timed out again after the user-side GUI edit. The
-conservative summary keeps L02-L04 out of the training-ready set. Training
-remains blocked because `num_training_ready_labels < 10`. If the count
-eventually reaches ten, the next step is only preliminary preview training, not
-an official dynamic performance conclusion.
+The old handwired L02 timeout remains in the historical summary as a failed
+row, but it is not promoted to training-ready. Clean lab L02 is the successful
+L02 result. Training remains blocked because `num_training_ready_labels < 10`.
+If the count eventually reaches ten, the next step is only preliminary preview
+training, not an official dynamic performance conclusion.
+This remains preliminary preview training guidance only, not a final dynamic
+performance conclusion.
 
-Recommended fix: isolate L02 in Simulink and confirm that
-`L02_TripCommand` opens only `L02_HandwiredTimedBreaker`, the breaker is really
-inserted on `Grid/B10 to B11`, and opening it does not create an abnormal
-Simscape island or disconnected physical network. If the control direction is
-reversed, set `Initial value = 1` and `Final value = 0`, then rerun the multi
-validation and compact suite.
+Recommended next step: wire L03 in the clean breaker lab and confirm that
+`L03_TripCommand` opens only `L03_HandwiredTimedBreaker`, the breaker is really
+inserted on the intended line, and opening it does not create an abnormal
+Simscape island or disconnected physical network.
 
 ## Boundaries
 
