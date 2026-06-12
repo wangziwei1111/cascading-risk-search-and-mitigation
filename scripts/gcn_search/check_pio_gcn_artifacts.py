@@ -68,6 +68,8 @@ REQUIRED_FILES = [
     "matlab/simulink_ieee39/insert_ieee39_timed_line_switch.m",
     "matlab/simulink_ieee39/configure_ieee39_short_filegen_paths.m",
     "matlab/simulink_ieee39/validate_ieee39_handwired_breaker_model.m",
+    "matlab/simulink_ieee39/validate_ieee39_multi_handwired_breakers.m",
+    "matlab/simulink_ieee39/run_ieee39_multi_handwired_line_trip_suite.m",
     "matlab/simulink_ieee39/inventory_ieee39_simlog_tree.m",
     "matlab/simulink_ieee39/extract_ieee39_signal_summary.m",
     "matlab/simulink_ieee39/run_ieee39_fault_test_suite.m",
@@ -83,7 +85,9 @@ REQUIRED_FILES = [
     "src/gcn_search/legacy_rts79/analyze_opa_dynamic_disagreement.py",
     "src/gcn_search/legacy_rts79/analyze_relay_vs_security_events.py",
     "src/gcn_search/legacy_rts79/check_relay_security_demo_artifacts.py",
+    "src/gcn_search/legacy_rts79/merge_ieee39_handwired_fault_summaries.py",
     "scripts/gcn_search/print_ieee39_handwired_breaker_checklist.py",
+    "scripts/gcn_search/print_ieee39_multi_handwired_breaker_checklist.py",
     "tests/test_simulink_dynamic_case_export.py",
     "tests/test_simulink_dynamic_result_analysis.py",
     "tests/test_simulink_dynamic_disagreement.py",
@@ -145,6 +149,12 @@ REQUIRED_FILES = [
     "tests/test_ieee39_handwired_label_gate.py",
     "tests/test_ieee39_handwired_docs.py",
     "tests/test_ieee39_handwired_checklist.py",
+    "tests/test_ieee39_multi_handwired_checklist.py",
+    "tests/test_ieee39_multi_handwired_validation_schema.py",
+    "tests/test_ieee39_multi_handwired_line_trip_summary.py",
+    "tests/test_ieee39_handwired_fault_summary_merge.py",
+    "tests/test_ieee39_multi_handwired_label_gate.py",
+    "tests/test_ieee39_multi_handwired_docs.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
     "docs/pio_gcn_simulink_real_topk_event_driven_validation.md",
@@ -165,6 +175,7 @@ REQUIRED_FILES = [
     "docs/ieee39_timed_line_trip_probe_status.md",
     "docs/ieee39_timed_breaker_manual_wiring_guide.md",
     "docs/ieee39_handwired_breaker_validation.md",
+    "docs/ieee39_multi_handwired_breaker_expansion.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -203,6 +214,12 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_handwired_breaker_validation_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_handwired_breaker_validation_summary.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_handwired_breaker_block_inventory.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/multi_handwired_breaker_checklist.txt",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_multi_handwired_breaker_validation_summary.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_multi_handwired_breaker_validation_summary.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_multi_handwired_line_trip_summary.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_multi_handwired.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_multi_handwired_merge_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_signal_extraction_debug.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_simlog_tree_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_simlog_tree_inventory.json",
@@ -744,6 +761,8 @@ def main() -> int:
         failures.append("Validation log must contain Round 30.")
     if validation_log.exists() and "round 31" not in _read_text("docs/gcn_pio_validation_log.md").lower():
         failures.append("Validation log must contain Round 31.")
+    if validation_log.exists() and "round 32" not in _read_text("docs/gcn_pio_validation_log.md").lower():
+        failures.append("Validation log must contain Round 32.")
 
     relay_doc = ROOT / "docs/ieee39_fault_breaker_relay_wrapper.md"
     if relay_doc.exists():
@@ -784,6 +803,9 @@ def main() -> int:
             "num_static_topology_disable_rows",
             "num_manual_required_trip_rows",
             "num_training_ready_handwired_line_trip_labels",
+            "num_training_ready_handwired_line_trip_labels_by_line",
+            "num_unique_handwired_line_ids",
+            "num_unique_training_ready_fault_types",
             "num_handwired_validation_passed",
             "handwired_model_used",
             "handwired_model_committed",
@@ -892,6 +914,60 @@ def main() -> int:
         for bad in ["engineering-grade protection completed", "emt validation completed", "train the dynamic-aware reranker now", "proceed to train dynamic-aware reranker"]:
             if bad in text:
                 failures.append(f"Handwired validation doc contains overstatement: {bad}")
+
+    multi_doc = ROOT / "docs/ieee39_multi_handwired_breaker_expansion.md"
+    if multi_doc.exists():
+        text = _read_text("docs/ieee39_multi_handwired_breaker_expansion.md").lower()
+        for required in [
+            "handwired .slx",
+            "must not be committed",
+            "pilot breaker-like",
+            "not engineering-grade",
+            "phasor_rms",
+            "not emt",
+            "generator_speed_proxy",
+            "not direct frequency",
+            "preliminary preview training",
+        ]:
+            if required not in text:
+                failures.append(f"Multi-handwired expansion doc missing conservative term: {required}")
+        for bad in [
+            "engineering-grade protection completed",
+            "emt validation completed",
+            "formal dynamic superiority",
+            "train the dynamic-aware reranker now",
+            "proceed to train dynamic-aware reranker",
+        ]:
+            if bad in text:
+                failures.append(f"Multi-handwired expansion doc contains overstatement: {bad}")
+
+    multi_validation = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_multi_handwired_breaker_validation_summary.csv"
+    if multi_validation.exists():
+        try:
+            import pandas as pd
+
+            table = pd.read_csv(multi_validation)
+            required = {"line_id", "breaker_block_name", "trip_command_name", "validation_passed", "handwired_model_committed"}
+            if not required.issubset(table.columns):
+                failures.append("Multi-handwired validation summary is missing required columns.")
+            if "L01" not in set(table.get("line_id", [])):
+                failures.append("Multi-handwired validation summary must include L01 as the reference line.")
+            if table.get("handwired_model_committed", pd.Series([True])).astype(str).str.lower().isin({"1", "true"}).any():
+                failures.append("Multi-handwired validation summary must record handwired_model_committed=false.")
+        except Exception as exc:
+            failures.append(f"Failed to read multi-handwired validation summary: {exc}")
+
+    multi_summary = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_multi_handwired_line_trip_summary.csv"
+    if multi_summary.exists():
+        try:
+            import pandas as pd
+
+            table = pd.read_csv(multi_summary)
+            required = {"test_case", "trip_implementation", "training_ready_candidate", "measurement_extraction_status", "tripped_line"}
+            if not required.issubset(table.columns):
+                failures.append("Multi-handwired line-trip summary is missing required columns.")
+        except Exception as exc:
+            failures.append(f"Failed to read multi-handwired line-trip summary: {exc}")
 
     handwired_summary = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_handwired_breaker_validation_summary.json"
     if handwired_summary.exists():

@@ -1,0 +1,5 @@
+test_case,event_time_s,event_type,physical_executed,event_note
+handwired_line_trip_L01,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed
+handwired_line_trip_L02,0.5,pilot_line_trip,0,validation failed: missing breaker block named L02_HandwiredTimedBreaker
+handwired_line_trip_L03,0.5,pilot_line_trip,0,validation failed: missing breaker block named L03_HandwiredTimedBreaker
+handwired_line_trip_L04,0.5,pilot_line_trip,0,validation failed: missing breaker block named L04_HandwiredTimedBreaker

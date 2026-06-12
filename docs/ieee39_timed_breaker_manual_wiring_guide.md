@@ -135,3 +135,14 @@ be committed.
 - `static_topology_disable` must not be described as a timed breaker.
 - `generator_speed_proxy` is not a direct frequency measurement.
 - If `num_training_ready_labels < 10`, do not train the dynamic-aware reranker.
+
+## Multi-Line Expansion
+
+For Round 32 and later, continue wiring only small batches manually. Use L01 as
+the reference and then add `L02`, `L03`, and `L04` with names
+`Lxx_HandwiredTimedBreaker` and `Lxx_TripCommand`. Generate the current
+multi-line checklist with:
+
+```powershell
+python scripts/gcn_search/print_ieee39_multi_handwired_breaker_checklist.py
+```

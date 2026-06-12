@@ -60,10 +60,15 @@ def _training_ready_rows(summary: pd.DataFrame) -> pd.DataFrame:
         trip_impl = summary.get("trip_implementation", pd.Series("", index=summary.index)).astype(str)
         fault_type = summary.get("fault_type", pd.Series("", index=summary.index)).astype(str)
         test_case = summary.get("test_case", pd.Series("", index=summary.index)).astype(str)
-        is_line_trip = test_case.str.contains("single_line_trip", case=False, na=False) | fault_type.str.contains("pilot_line_trip|single_line_trip", case=False, na=False)
+        is_line_trip = test_case.str.contains("single_line_trip|handwired_line_trip_", case=False, na=False) | fault_type.str.contains("pilot_line_trip|single_line_trip", case=False, na=False)
         line_trip_allowed = ~is_line_trip | trip_impl.isin(TIMED_LINE_TRIP_IMPLEMENTATIONS)
+        if "measurement_extraction_status" in summary.columns:
+            measurement_status = summary["measurement_extraction_status"].astype(str)
+            measurement_ok = ~is_line_trip | measurement_status.str.contains("voltage_speed_angle", case=False, na=False)
+        else:
+            measurement_ok = pd.Series(True, index=summary.index)
         static_disabled = trip_impl.eq("static_topology_disable")
-        return summary[ready & ~schema & ~no_fault & line_trip_allowed & ~static_disabled].copy()
+        return summary[ready & ~schema & ~no_fault & line_trip_allowed & measurement_ok & ~static_disabled].copy()
     if "simulation_success" not in summary.columns or "physical_fault_or_breaker_action_executed" not in summary.columns:
         return summary.iloc[0:0].copy()
     success = summary["simulation_success"].astype(str).str.lower().isin({"1", "true", "yes"})
@@ -103,6 +108,10 @@ def _quality_summary(summary: pd.DataFrame, training_ready: pd.DataFrame) -> dic
     fault_type = summary.get("fault_type", pd.Series("", index=summary.index)).astype(str)
     ready_cases = training_ready.get("test_case", pd.Series("", index=training_ready.index)).astype(str)
     ready_trip_impl = training_ready.get("trip_implementation", pd.Series("", index=training_ready.index)).astype(str)
+    ready_lines = training_ready.get("tripped_line", pd.Series("", index=training_ready.index)).astype(str)
+    handwired_ready = training_ready[ready_trip_impl.isin({"handwired_timed_breaker", "handwired_timed_controlled_switch"})]
+    handwired_ready_lines = handwired_ready.get("tripped_line", pd.Series("", index=handwired_ready.index)).astype(str)
+    handwired_lines = sorted(line for line in handwired_ready_lines.unique().tolist() if line and line.lower() != "nan")
     handwired_validation = _handwired_validation_summary()
     return {
         "num_fault_rows": int(len(summary)),
@@ -117,6 +126,11 @@ def _quality_summary(summary: pd.DataFrame, training_ready: pd.DataFrame) -> dic
         "num_training_ready_relay_proxy_labels": int(ready_cases.str.contains("relay", case=False, na=False).sum()),
         "num_training_ready_timed_line_trip_labels": int(ready_trip_impl.isin(TIMED_LINE_TRIP_IMPLEMENTATIONS).sum()),
         "num_training_ready_handwired_line_trip_labels": int(ready_trip_impl.isin({"handwired_timed_breaker", "handwired_timed_controlled_switch"}).sum()),
+        "num_training_ready_handwired_line_trip_labels_by_line": {
+            line: int((handwired_ready_lines == line).sum()) for line in handwired_lines
+        },
+        "num_unique_handwired_line_ids": int(len(handwired_lines)),
+        "num_unique_training_ready_fault_types": int(training_ready.get("fault_type", pd.Series("", index=training_ready.index)).astype(str).nunique()),
         "num_handwired_validation_passed": int(bool(handwired_validation.get("validation_passed", False))),
         "handwired_model_used": bool(handwired_validation.get("handwired_model_found", False)),
         "handwired_model_committed": False,

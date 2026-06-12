@@ -1,0 +1,8 @@
+{
+  "base_rows": 4,
+  "multi_handwired_rows": 3,
+  "merged_rows": 7,
+  "num_handwired_rows_added": 3,
+  "num_training_ready_handwired_rows": 0,
+  "static_topology_disable_overwrote_handwired": false
+}

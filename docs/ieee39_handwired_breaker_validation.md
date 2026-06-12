@@ -85,6 +85,15 @@ allowed_for_dynamic_aware_training = false
 
 If a future handwired model passes validation and the compact suite confirms `single_line_trip`, then that case can become a training-ready pilot line-trip label. If total training-ready labels remain below ten, dynamic-aware reranker training remains blocked.
 
+## Round 32 Multi-Line Expansion
+
+Round 32 adds a multi-line validation path for future user handwired breakers.
+The first recommended expansion batch is `L02`, `L03`, and `L04`, using
+`Lxx_HandwiredTimedBreaker` and `Lxx_TripCommand`. L01 remains the reference
+passed line. The new scripts validate missing lines without changing the model,
+run compact simulations only for validation-passed lines, and keep training
+blocked while the total training-ready label count is below ten.
+
 ## Boundaries
 
 - Handwired breaker validation is pilot breaker-like validation, not engineering-grade protection.

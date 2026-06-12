@@ -96,6 +96,12 @@ The wrapper was left unchanged. `static_topology_disable` is still not a timed b
 
 Round 31 stops automatic Simscape physical-port insertion. The project now supports a handwired validation flow: the user manually wires and saves a local handwired wrapper, then `validate_ieee39_handwired_breaker_model.m` checks whether the expected breaker and trip command are present.
 
+Round 32 extends this to a multi-line handwired validation flow. The current
+measurement source remains `generator_speed_proxy`, not a direct frequency
+measurement. The model remains `phasor_RMS`, not EMT, and the multi-line
+workflow does not train the dynamic-aware reranker while fewer than ten
+training-ready labels are available.
+
 Current result:
 
 ```text

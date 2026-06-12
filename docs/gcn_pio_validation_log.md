@@ -934,6 +934,56 @@ empty
 The local handwired `.slx`, generated `.slxc`, `slprj`, generated code cache,
 large `.mat`, raw trajectories, and full timeseries remain uncommitted.
 
+## Round 32: Multi-Line Handwired Breaker Expansion
+
+Round 32 converts the validated L01 handwired timed breaker path into a
+multi-line validation and label-expansion workflow. The workflow remains
+manual-wiring first: Codex does not insert Simscape physical-port breakers and
+does not save or commit the handwired `.slx`.
+
+Added:
+
+```text
+scripts/gcn_search/print_ieee39_multi_handwired_breaker_checklist.py
+matlab/simulink_ieee39/validate_ieee39_multi_handwired_breakers.m
+matlab/simulink_ieee39/run_ieee39_multi_handwired_line_trip_suite.m
+src/gcn_search/legacy_rts79/merge_ieee39_handwired_fault_summaries.py
+docs/ieee39_multi_handwired_breaker_expansion.md
+```
+
+Current result with the existing local handwired model:
+
+```text
+recommended next batch = L02, L03, L04
+validation_passed line IDs = L01
+validation_passed count = 1
+multi line-trip simulation_success count = 1
+num_training_ready_handwired_line_trip_labels = 1
+num_training_ready_labels = 3
+allowed_for_dynamic_aware_training = false
+```
+
+L02-L04 currently fail validation because blocks named
+`L02_HandwiredTimedBreaker`, `L03_HandwiredTimedBreaker`, and
+`L04_HandwiredTimedBreaker` are not yet present in the local handwired model.
+This is expected until the user manually wires those lines.
+
+Validation:
+
+```text
+python -m pytest tests/test_ieee39_multi_handwired_checklist.py tests/test_ieee39_multi_handwired_validation_schema.py tests/test_ieee39_multi_handwired_line_trip_summary.py tests/test_ieee39_handwired_fault_summary_merge.py tests/test_ieee39_multi_handwired_label_gate.py tests/test_ieee39_multi_handwired_docs.py
+
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+
+git diff -- src/rl_mitigation scripts/rl_mitigation
+empty
+```
+
+The model remains `phasor_RMS`, not EMT. The handwired breakers remain pilot
+breaker-like validation, not engineering-grade protection. `generator_speed_proxy`
+is not direct frequency. Dynamic-aware reranker training remains blocked while
+`num_training_ready_labels < 10`.
+
 ## Round 26: IEEE39 Graphical Dynamic Model Intake
 
 Round 26 pauses dynamic-aware reranker training. The goal is to find and prepare an existing IEEE 39-bus / New England 10-machine graphical Simulink model as the future dynamic-label backend.
