@@ -1,0 +1,92 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+import pandas as pd
+
+
+ROOT = Path(__file__).resolve().parents[2]
+MAP_PATH = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map.csv"
+OUT_DIR = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation"
+OUT_PATH = OUT_DIR / "clean_breaker_lab_checklist.txt"
+CLEAN_LAB_PATH = "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab.slx"
+OLD_HANDWIRED_PATH = "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker.slx"
+
+
+def _line_path(line_id: str) -> str:
+    if not MAP_PATH.exists():
+        return "Grid/B10 to B11" if line_id == "L02" else "not available"
+    table = pd.read_csv(MAP_PATH)
+    match = table[table.get("line_id", pd.Series(dtype=str)).astype(str) == line_id]
+    if match.empty:
+        return "Grid/B10 to B11" if line_id == "L02" else "not in current line map"
+    return str(match.iloc[0].get("line_block_path", "not available"))
+
+
+def build_checklist() -> str:
+    l02_path = _line_path("L02")
+    return f"""IEEE39 clean breaker lab manual wiring checklist
+
+Purpose:
+- Stop editing the old repeatedly modified handwired model.
+- Prepare a clean breaker lab model copied from the generated IEEE39 wrapper.
+- Manually wire only one line first: L02.
+
+Step 1: prepare the clean lab model
+MATLAB:
+cd("C:/Users/24186/Documents/New project 7/simulink-dynamic-validation-worktree/matlab/simulink_ieee39")
+configure_ieee39_short_filegen_paths()
+prepare_ieee39_clean_handwired_breaker_lab()
+
+Step 2: open this clean lab model
+{CLEAN_LAB_PATH}
+
+Do not open or edit this old model for the clean workflow:
+{OLD_HANDWIRED_PATH}
+
+Recommended first line:
+- line_id: L02
+- line block path: {l02_path}
+- breaker name: L02_HandwiredTimedBreaker
+- trip command name: L02_TripCommand
+- trip time: 0.5 s
+
+Manual wiring rules:
+1. Do not copy L02/L03/L04 wiring from the old handwired model.
+2. You may inspect L01's breaker type, but preferably drag a fresh same-type breaker from Library Browser.
+3. The breaker must be in series on one side of the line.
+4. The original Bus10 to B10 to B11 line connection must be opened.
+5. Do not leave a bypass path around the breaker.
+6. Do not allow Bus10 to B10 to B11 to remain directly connected around the breaker.
+7. L02_TripCommand must control only L02_HandwiredTimedBreaker.
+8. First use Step Initial value = 0 and Final value = 1.
+9. If the breaker does not operate, then try Initial value = 1 and Final value = 0.
+10. Save the clean lab .slx after manual wiring.
+11. Do not commit any .slx, .slxc, slprj, .mat, raw trajectories, or full timeseries.
+
+After manual wiring, ask Codex to run:
+matlab/simulink_ieee39/validate_ieee39_clean_breaker_lab_line.m
+python scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trip_isolated.py --line-id L02 --timeout-seconds 240 --simulation-stop-time 0.5
+
+Important reminders:
+- The current goal is not to inflate labels.
+- The goal is to eliminate old handwired model contamination.
+- First make clean L02 pass alone.
+- Consider L03/L04 only after clean L02 passes.
+- The model remains phasor_RMS, not EMT.
+- generator_speed_proxy is not direct frequency.
+- The handwired breaker is pilot breaker-like validation, not engineering-grade protection.
+- If training-ready labels remain below 10, dynamic-aware reranker training remains blocked.
+"""
+
+
+def main() -> None:
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    text = build_checklist()
+    OUT_PATH.write_text(text, encoding="utf-8")
+    print(text)
+    print(f"Saved checklist to: {OUT_PATH}")
+
+
+if __name__ == "__main__":
+    main()

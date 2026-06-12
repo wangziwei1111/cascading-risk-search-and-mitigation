@@ -95,6 +95,20 @@ passes structure validation. Its isolated compact simulation still timed out
 after 240 seconds, so only L01 is training-ready. Training remains blocked while
 the total training-ready label count is below ten.
 
+## Clean Breaker Lab Reset
+
+Further L02-L04 debugging should not continue in the old handwired `.slx`.
+Instead, prepare a clean lab copy from the generated wrapper:
+
+```text
+results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab.slx
+```
+
+The clean lab starts without `L01_HandwiredTimedBreaker`,
+`L02_HandwiredTimedBreaker`, `L03_HandwiredTimedBreaker`, or
+`L04_HandwiredTimedBreaker`. The user should wire only L02 first. If clean L02
+passes compact validation, then L03/L04 can be considered later.
+
 ## Boundaries
 
 - Handwired breaker validation is pilot breaker-like validation, not engineering-grade protection.

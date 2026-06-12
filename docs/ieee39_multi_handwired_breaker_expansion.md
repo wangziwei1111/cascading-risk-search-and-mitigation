@@ -17,6 +17,8 @@ breakers automatically and does not modify Simscape physical-port wiring.
   validation still passes.
 - L02 compact simulation still timed out in the isolated 240-second run.
   L03-L04 were not counted as training-ready in this conservative label update.
+- The old handwired `.slx` has now been retired for further L02-L04 debugging.
+  New manual wiring should use the clean breaker lab workflow instead.
 
 ## Naming Convention
 
@@ -33,16 +35,14 @@ Each trip command should use `Step time = 0.5 s`, with default `Initial value =
 
 ## Recommended Next Batch
 
-Wire only two or three lines per round. The next recommended lines are:
+Do not continue wiring L02-L04 in the old handwired model. Start from the clean
+breaker lab model and wire only L02 first:
 
 ```text
-L02
-L03
-L04
+results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab.slx
 ```
 
-L05 can be added after that. L06-L10 are listed by the checklist as later
-targets, but they require the line map to include those lines first.
+If clean L02 passes, then consider L03/L04 in later rounds.
 
 ## Commands
 

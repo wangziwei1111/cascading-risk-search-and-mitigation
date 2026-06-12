@@ -69,6 +69,46 @@ engineering-grade protection. The handwired `.slx`, generated `.slx`, `.slxc`,
 `slprj`, `.mat`, raw trajectories, and full timeseries are not intended for
 commit.
 
+## IEEE39 Clean Breaker Lab Reset
+
+The current old handwired `.slx` is no longer the target for L02-L04 debugging.
+It has gone through multiple manual edits and L02-L04 still did not become
+training-ready. A clean lab workflow was added so the user can manually wire a
+fresh L02 breaker on a clean copy of the generated wrapper.
+
+Created workflow artifacts:
+
+```text
+matlab/simulink_ieee39/prepare_ieee39_clean_handwired_breaker_lab.m
+matlab/simulink_ieee39/validate_ieee39_clean_breaker_lab_line.m
+scripts/gcn_search/print_ieee39_clean_breaker_lab_checklist.py
+scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trip_isolated.py
+docs/ieee39_clean_breaker_lab_workflow.md
+```
+
+Clean lab target:
+
+```text
+results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab.slx
+```
+
+Prepare result:
+
+```text
+source_found = true
+target_created = true
+target_loadable = true
+contains_existing_L01_HandwiredTimedBreaker = false
+contains_existing_L02_HandwiredTimedBreaker = false
+contains_existing_L03_HandwiredTimedBreaker = false
+contains_existing_L04_HandwiredTimedBreaker = false
+```
+
+The clean lab `.slx` is local only and must not be committed. No breaker was
+inserted automatically, no Simscape physical-port wiring was modified by Codex,
+and no dynamic-aware reranker training is allowed while the label count remains
+below 10.
+
 ## Round 10: Simulink Dynamic Validation Prototype
 
 Added a reproducible prototype for checking whether learned path reranker / PIO-GCN Top-K ordered N-2 paths also look risky in a simplified time-domain Simulink validation flow.
