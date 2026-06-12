@@ -26,6 +26,8 @@ physical_port_count = 4
 1. Open the generated wrapper locally:
 
 ```matlab
+cd("C:/Users/24186/Documents/New project 7/simulink-dynamic-validation-worktree/matlab/simulink_ieee39")
+configure_ieee39_short_filegen_paths()
 open_system("../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper.slx")
 ```
 
@@ -46,17 +48,24 @@ closed before 0.5 s
 open after 0.5 s
 ```
 
-6. Save only the generated wrapper copy locally. Do not commit the generated `.slx`.
+6. Save only the handwired wrapper copy locally:
 
-7. Rerun:
+```text
+results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker.slx
+```
+
+Do not commit the generated or handwired `.slx`.
+
+7. Rerun the compact suite on the handwired copy:
 
 ```matlab
 run_ieee39_fault_test_suite( ...
-  "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper.slx", ...
+  "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker.slx", ...
   "../../results/gcn_search/ieee39_graphical_dynamic_model/fault_tests", ...
   true, ...
   ["no_fault_sanity", "three_phase_fault_clear", "single_line_trip", "relay_trip_test"], ...
-  0.5 ...
+  0.5, ...
+  true ...
 )
 ```
 
@@ -87,6 +96,7 @@ If these fields are not satisfied, `single_line_trip` must remain non-training-r
 Round 31 stops automatic physical-port insertion. After the user manually saves the handwired copy, run:
 
 ```matlab
+configure_ieee39_short_filegen_paths()
 validate_ieee39_handwired_breaker_model( ...
   "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker.slx", ...
   "../../results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation", ...
@@ -103,6 +113,20 @@ python scripts/gcn_search/print_ieee39_handwired_breaker_checklist.py
 ```
 
 The handwired `.slx` must remain local and must not be committed.
+
+## Windows Path-Length Fix
+
+If Simulink reports that the generated C file path is longer than the Windows
+260-character limit, run this before opening or simulating the model:
+
+```matlab
+cd("C:/Users/24186/Documents/New project 7/simulink-dynamic-validation-worktree/matlab/simulink_ieee39")
+configure_ieee39_short_filegen_paths()
+```
+
+This redirects Simulink cache/code-generation files to a short local folder
+such as `C:\ieee39_codegen`. The folder is outside the repository and must not
+be committed.
 
 ## Boundaries
 

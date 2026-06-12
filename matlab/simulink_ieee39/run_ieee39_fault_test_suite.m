@@ -29,6 +29,7 @@ end
 if ~exist(outputDir, "dir")
     mkdir(outputDir);
 end
+configure_ieee39_short_filegen_paths();
 
 wrapperDir = "../../results/gcn_search/ieee39_graphical_dynamic_model/wrapper";
 mapPath = fullfile(wrapperDir, "ieee39_line_breaker_map.csv");
@@ -41,6 +42,9 @@ if ~isfile(faultPointPath)
 end
 lineMap = readtable(mapPath, "TextType", "string", "VariableNamingRule", "preserve", "Delimiter", ",");
 faultPoints = readtable(faultPointPath, "TextType", "string", "VariableNamingRule", "preserve", "Delimiter", ",");
+[~, activeModelName, ~] = fileparts(wrapperModelPath);
+lineMap = remapTableBlockPathsToModel(lineMap, activeModelName);
+faultPoints = remapTableBlockPathsToModel(faultPoints, activeModelName);
 line1 = lineMap(1, :);
 line2 = lineMap(min(2, height(lineMap)), :);
 faultBlock = "";
@@ -256,4 +260,29 @@ if isfile(summaryPath)
         passed = false;
     end
 end
+end
+
+function tableOut = remapTableBlockPathsToModel(tableIn, activeModelName)
+tableOut = tableIn;
+for colIdx = 1:width(tableOut)
+    colName = tableOut.Properties.VariableNames{colIdx};
+    if ~endsWith(colName, "_path")
+        continue;
+    end
+    values = string(tableOut.(colName));
+    for rowIdx = 1:numel(values)
+        values(rowIdx) = remapBlockPathToModel(values(rowIdx), activeModelName);
+    end
+    tableOut.(colName) = values;
+end
+end
+
+function pathOut = remapBlockPathToModel(pathIn, activeModelName)
+pathOut = string(pathIn);
+if strlength(pathOut) == 0 || ~contains(pathOut, "/")
+    return;
+end
+parts = split(pathOut, "/");
+parts(1) = string(activeModelName);
+pathOut = join(parts, "/");
 end

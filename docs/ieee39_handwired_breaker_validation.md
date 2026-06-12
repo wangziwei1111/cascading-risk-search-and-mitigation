@@ -40,6 +40,17 @@ MATLAB script:
 matlab/simulink_ieee39/validate_ieee39_handwired_breaker_model.m
 ```
 
+Before opening or simulating the handwired model on Windows, run:
+
+```matlab
+cd("C:/Users/24186/Documents/New project 7/simulink-dynamic-validation-worktree/matlab/simulink_ieee39")
+configure_ieee39_short_filegen_paths()
+```
+
+This avoids the Windows 260-character generated-code path failure by moving
+Simulink cache/code-generation artifacts to a short local folder such as
+`C:\ieee39_codegen`.
+
 Outputs:
 
 - `results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_handwired_breaker_validation_summary.json`

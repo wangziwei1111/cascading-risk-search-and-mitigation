@@ -126,7 +126,7 @@ def _quality_summary(summary: pd.DataFrame, training_ready: pd.DataFrame) -> dic
                 test_case.str.contains("line_trip", case=False, na=False)
                 | fault_type.str.contains("line_trip", case=False, na=False)
             ).sum()
-            - trip_impl.isin({"timed_controlled_switch", "existing_breaker_control"}).sum()
+            - trip_impl.isin(TIMED_LINE_TRIP_IMPLEMENTATIONS).sum()
         ),
         "measurement_quality_status": measurement_quality_status,
         "label_quality_status": status,

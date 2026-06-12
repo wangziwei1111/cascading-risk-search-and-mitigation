@@ -1,5 +1,5 @@
 test_case,relay_operated,trip_time_s,relay_type,note
 no_fault_sanity,0,NaN,basic relay proxy,not engineering-grade relay coordination
-single_line_trip,0,NaN,basic relay proxy,not engineering-grade relay coordination
+single_line_trip,0,0.5,basic relay proxy,not engineering-grade relay coordination
 three_phase_fault_clear,0,NaN,basic relay proxy,not engineering-grade relay coordination
 relay_trip_test,1,0.5,basic relay proxy,not engineering-grade relay coordination

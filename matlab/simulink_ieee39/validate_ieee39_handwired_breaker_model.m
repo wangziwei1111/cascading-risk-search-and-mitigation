@@ -23,6 +23,7 @@ end
 if ~exist(outputDir, "dir")
     mkdir(outputDir);
 end
+configure_ieee39_short_filegen_paths();
 
 summary = initSummary(handwiredModelPath, lineId, breakerBlockNameHint, tripCommandNameHint);
 blockRows = {};
@@ -38,11 +39,23 @@ try
     [~, modelName, ~] = fileparts(handwiredModelPath);
     summary.handwired_model_loadable = true;
     allBlocks = find_system(modelName, "LookUnderMasks", "all", "FollowLinks", "on");
-    lowerBlocks = lower(string(allBlocks));
-    breakerMask = contains(lowerBlocks, lower(string(breakerBlockNameHint))) | contains(lowerBlocks, "breaker") | contains(lowerBlocks, "switch");
-    commandMask = contains(lowerBlocks, lower(string(tripCommandNameHint))) | contains(lowerBlocks, "tripcommand") | contains(lowerBlocks, "trip command") | contains(lowerBlocks, "trip_command");
-    breakerBlocks = string(allBlocks(breakerMask));
-    commandBlocks = string(allBlocks(commandMask));
+    allBlocks = string(allBlocks);
+    blockNames = strings(size(allBlocks));
+    for blockIdx = 1:numel(allBlocks)
+        try
+            blockNames(blockIdx) = string(get_param(allBlocks(blockIdx), "Name"));
+        catch
+            blockNames(blockIdx) = "";
+        end
+    end
+    lowerNames = lower(blockNames);
+    isRootModel = allBlocks == string(modelName);
+    exactBreakerMask = ~isRootModel & contains(lowerNames, lower(string(breakerBlockNameHint)));
+    genericBreakerMask = ~isRootModel & (contains(lowerNames, "breaker") | contains(lowerNames, "switch"));
+    exactCommandMask = ~isRootModel & contains(lowerNames, lower(string(tripCommandNameHint)));
+    genericCommandMask = ~isRootModel & (contains(lowerNames, "tripcommand") | contains(lowerNames, "trip command") | contains(lowerNames, "trip_command"));
+    breakerBlocks = [string(allBlocks(exactBreakerMask)); string(allBlocks(genericBreakerMask & ~exactBreakerMask))];
+    commandBlocks = [string(allBlocks(exactCommandMask)); string(allBlocks(genericCommandMask & ~exactCommandMask))];
     summary.breaker_block_found = ~isempty(breakerBlocks);
     summary.trip_command_found = ~isempty(commandBlocks);
     if summary.breaker_block_found
@@ -51,7 +64,7 @@ try
     if summary.trip_command_found
         summary.trip_command_path = char(commandBlocks(1));
     end
-    blockRows = buildBlockInventory(breakerBlocks, commandBlocks);
+    blockRows = buildBlockInventory(limitCandidates(breakerBlocks, 25), limitCandidates(commandBlocks, 10));
 
     summary.breaker_near_l01 = any(contains(lower(breakerBlocks), "l01")) || any(contains(lower(breakerBlocks), "b1")) || any(contains(lower(breakerBlocks), "b2"));
     summary.trip_time_s = 0.5;
@@ -109,6 +122,14 @@ for idx = 1:numel(breakerBlocks)
 end
 for idx = 1:numel(commandBlocks)
     rows(end+1, :) = {char(commandBlocks(idx)), "trip_command_candidate"}; %#ok<AGROW>
+end
+end
+
+function candidatesOut = limitCandidates(candidatesIn, maxCount)
+if numel(candidatesIn) <= maxCount
+    candidatesOut = candidatesIn;
+else
+    candidatesOut = candidatesIn(1:maxCount);
 end
 end
 

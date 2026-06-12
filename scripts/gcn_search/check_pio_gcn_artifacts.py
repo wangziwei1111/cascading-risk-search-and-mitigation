@@ -66,6 +66,7 @@ REQUIRED_FILES = [
     "matlab/simulink_ieee39/find_compatible_ieee39_breaker_blocks.m",
     "matlab/simulink_ieee39/probe_ieee39_breaker_insertion_standalone.m",
     "matlab/simulink_ieee39/insert_ieee39_timed_line_switch.m",
+    "matlab/simulink_ieee39/configure_ieee39_short_filegen_paths.m",
     "matlab/simulink_ieee39/validate_ieee39_handwired_breaker_model.m",
     "matlab/simulink_ieee39/inventory_ieee39_simlog_tree.m",
     "matlab/simulink_ieee39/extract_ieee39_signal_summary.m",

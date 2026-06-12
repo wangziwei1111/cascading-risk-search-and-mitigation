@@ -23,5 +23,9 @@ def test_ieee39_real_fault_summary_schema_and_flags() -> None:
     assert (table["simulation_success"].astype(str).str.lower().isin(["1", "true"])).any()
     assert (table["physical_fault_or_breaker_action_executed"].astype(str).str.lower().isin(["1", "true"])).sum() >= 2
     static = table[table["trip_implementation"].astype(str) == "static_topology_disable"]
-    assert not static.empty
-    assert not static["training_ready_candidate"].astype(str).str.lower().isin(["1", "true"]).any()
+    handwired = table[table["trip_implementation"].astype(str) == "handwired_timed_breaker"]
+    if not static.empty:
+        assert not static["training_ready_candidate"].astype(str).str.lower().isin(["1", "true"]).any()
+    else:
+        assert not handwired.empty
+        assert handwired["training_ready_candidate"].astype(str).str.lower().isin(["1", "true"]).any()

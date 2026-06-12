@@ -1,5 +1,5 @@
 test_case,event_time_s,event_type,physical_executed,event_note
 no_fault_sanity,0,none,0,real no-fault graphical simulation completed
-single_line_trip,0.5,pilot_line_trip,0,static topology line disable executed before simulation; not timed breaker control and not training-ready
+single_line_trip,0.5,pilot_line_trip,1,handwired timed breaker validated by validation script
 three_phase_fault_clear,0.5,three_phase_fault_clear,1,existing three-phase fault block executed with temporal fault parameters
 relay_trip_test,0.5,basic_relay_proxy,1,pilot controlled switch or breaker-like trip executed

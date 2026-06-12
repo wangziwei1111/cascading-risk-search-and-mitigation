@@ -1,1 +1,54 @@
 block_path,candidate_role
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Grid/L01_HandwiredTimedBreaker,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Switch,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Switch1,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/Switch,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Saturation
+Dynamic/Switch,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Saturation
+Dynamic/Switch2,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Switch,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Summation Point
+Logic/Switch2,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Summation Point
+Logic/Switch3,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Summation Point
+Logic/Switch4,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Take-over
+Logic/Switch2,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Take-over
+Logic/Switch3,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Take-over
+Logic/Switch4,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen10@Bus30/AVR and Exciter/SM AC1C/Take-over
+Logic/Switch5,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Switch,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag/Gains/Switch1,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag1/Gains/Switch,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Lead-Lag1/Gains/Switch1,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen10@Bus30/AVR and Exciter/SM PSS1A/Washout/Switch,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen1@Bus39/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Switch,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen1@Bus39/AVR and Exciter/SM AC1C/(1+sT_C)//(1+sT_B)/Gains/Switch1,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen1@Bus39/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Logic/Switch,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen1@Bus39/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Saturation
+Dynamic/Switch,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen1@Bus39/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Saturation
+Dynamic/Switch2,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen1@Bus39/AVR and Exciter/SM AC1C/AC Rotating
+Exciter/Integrator with
+variable limits/Switch,breaker_or_switch_candidate
+IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Grid/L01_TripCommand,trip_command_candidate

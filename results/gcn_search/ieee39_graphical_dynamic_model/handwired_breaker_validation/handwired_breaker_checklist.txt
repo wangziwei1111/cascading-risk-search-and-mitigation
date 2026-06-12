@@ -3,6 +3,10 @@ IEEE39 handwired timed breaker checklist
 1. Open the generated wrapper:
    results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper.slx
 
+   In MATLAB, first redirect Simulink generated-code files to a short path:
+   cd("C:/Users/24186/Documents/New project 7/simulink-dynamic-validation-worktree/matlab/simulink_ieee39")
+   configure_ieee39_short_filegen_paths()
+
 2. Save a local handwired copy as:
    results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker.slx
 

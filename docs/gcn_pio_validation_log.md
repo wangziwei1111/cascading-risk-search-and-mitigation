@@ -853,6 +853,87 @@ empty
 
 RL mitigation files were not modified. Generated `.slx`, `.mat`, full per-case dynamic results, raw event logs, and full per-path ranking artifacts remain local ignored artifacts and are not intended for commit.
 
+## Round 31 Follow-up: Windows Path-Length Fix And Handwired Suite Validation
+
+The handwired IEEE39 wrapper initially failed in Simulink build because generated
+C files were written below the deep repository `results/.../generated_models`
+tree, exceeding the Windows 260-character path limit. A short Simulink
+file-generation helper was added:
+
+```text
+matlab/simulink_ieee39/configure_ieee39_short_filegen_paths.m
+```
+
+The helper redirects Simulink cache/code-generation folders to:
+
+```text
+C:\ieee39_codegen\cache
+C:\ieee39_codegen\codegen
+```
+
+The helper is now called by:
+
+```text
+validate_ieee39_handwired_breaker_model.m
+run_ieee39_fault_test_suite.m
+```
+
+The handwired validation logic was also tightened so the L01 breaker candidate
+uses the actual block name `Grid/L01_HandwiredTimedBreaker` instead of matching
+generic internal `Switch` blocks from generator control subsystems.
+
+Validation result after the user handwired model was detected:
+
+```text
+handwired_model_found = true
+handwired_model_loadable = true
+breaker_block_path = IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Grid/L01_HandwiredTimedBreaker
+trip_command_path = IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Grid/L01_TripCommand
+validation_passed = true
+```
+
+The compact handwired fault suite completed for:
+
+```text
+no_fault_sanity
+single_line_trip
+three_phase_fault_clear
+relay_trip_test
+```
+
+Key label-gate result:
+
+```text
+num_fault_rows = 4
+num_physical_executed_rows = 3
+num_training_ready_labels = 3
+num_training_ready_handwired_line_trip_labels = 1
+num_handwired_validation_passed = 1
+handwired_model_used = true
+handwired_model_committed = false
+allowed_for_dynamic_aware_training = false
+```
+
+The training gate remains closed because `num_training_ready_labels < 10`.
+The model remains `phasor_RMS`, not EMT, and the handwired breaker remains a
+pilot breaker-like validation path, not engineering-grade protection.
+
+Validation:
+
+```text
+python -m pytest tests/test_ieee39_handwired_breaker_validation_schema.py tests/test_ieee39_handwired_label_gate.py tests/test_ieee39_handwired_docs.py tests/test_ieee39_handwired_checklist.py tests/test_ieee39_model_inventory.py tests/test_ieee39_dynamic_label_schema.py tests/test_ieee39_graphical_status_docs.py tests/test_ieee39_line_breaker_mapping.py tests/test_ieee39_fault_test_summary.py tests/test_ieee39_dynamic_label_quality_gate.py tests/test_ieee39_relay_proxy_docs.py tests/test_ieee39_real_fault_summary_schema.py tests/test_ieee39_signal_extraction_summary.py tests/test_ieee39_training_ready_label_gate.py tests/test_ieee39_real_fault_docs.py tests/test_ieee39_simlog_inventory.py tests/test_ieee39_measurement_quality_gate.py tests/test_ieee39_timed_trip_summary.py tests/test_ieee39_measurement_docs.py tests/test_ieee39_line_port_inventory.py tests/test_ieee39_breaker_candidate_inventory.py tests/test_ieee39_breaker_probe_summary.py tests/test_ieee39_timed_switch_insertion_summary.py tests/test_ieee39_timed_trip_docs.py
+26 passed
+
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+PASS: GCN Simulink dynamic validation artifacts are review-ready.
+
+git diff -- src/rl_mitigation scripts/rl_mitigation
+empty
+```
+
+The local handwired `.slx`, generated `.slxc`, `slprj`, generated code cache,
+large `.mat`, raw trajectories, and full timeseries remain uncommitted.
+
 ## Round 26: IEEE39 Graphical Dynamic Model Intake
 
 Round 26 pauses dynamic-aware reranker training. The goal is to find and prepare an existing IEEE 39-bus / New England 10-machine graphical Simulink model as the future dynamic-label backend.
