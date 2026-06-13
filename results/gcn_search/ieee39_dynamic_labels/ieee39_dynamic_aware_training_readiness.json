@@ -1,11 +1,11 @@
 {
-  "num_training_ready_labels": 12,
-  "num_training_ready_handwired_line_trip_labels": 10,
-  "num_unique_handwired_line_ids": 10,
+  "num_training_ready_labels": 35,
+  "num_training_ready_handwired_line_trip_labels": 33,
+  "num_unique_handwired_line_ids": 33,
   "allowed_for_dynamic_aware_training": true,
   "ready_for_preview_training": true,
-  "reason": "Reached at least 10 training-ready IEEE39 compact dynamic labels; current gate includes L01-L10 handwired line-trip labels.",
-  "next_step": "Do not retrain in this round; after more labels are wired and validated, rerun preview training or a stricter comparison in a separate commit.",
+  "reason": "Reached expanded IEEE39 compact dynamic label gate with L01-L11 and L13-L34 handwired line-trip labels; L12 structure validation passed but compact simulation timed out and is not training-ready.",
+  "next_step": "Do not retrain in this validation round; rerun preview training or stricter comparison in a separate commit after reviewing the expanded labels.",
   "caveats": [
     "phasor_RMS, not EMT",
     "generator_speed_proxy, not direct frequency",

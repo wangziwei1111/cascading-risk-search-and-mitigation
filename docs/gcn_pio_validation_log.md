@@ -1,4 +1,4 @@
-﻿# GCN PIO Validation Log
+# GCN PIO Validation Log
 
 This compact log preserves the review milestones for the RTS-79 PIO-GCN PathRank work after repository cleanup.
 
@@ -2110,9 +2110,9 @@ L09/L10 validation and simulation:
 
 Updated dynamic label gate:
 
-- `num_training_ready_labels = 12`
-- `num_training_ready_handwired_line_trip_labels = 10`
-- `num_unique_handwired_line_ids = 10`
+- `num_training_ready_labels = 35`
+- `num_training_ready_handwired_line_trip_labels = 33`
+- `num_unique_handwired_line_ids = 33`
 - `allowed_for_dynamic_aware_training = true`
 - `ready_for_preview_training = true`
 
@@ -2137,3 +2137,50 @@ Boundaries:
 - `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories, and full timeseries are
   not intended for commit.
 - RL mitigation files were not modified.
+## Round 38: Batch validation of remaining clean labs L11-L34
+
+This round validated the user-wired remaining per-line clean breaker labs
+`L11-L34`. Structure validation passed for all 24 lines. Compact isolated
+simulation succeeded for `L11` and `L13-L34`; `L12` timed out after 240 seconds
+and is not training-ready.
+
+Merged into formal summary:
+
+- `L11`
+- `L13-L34`
+
+Not merged:
+
+- `L12`: simulation timeout
+
+Latest formal fault summary:
+
+- `results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05_l06_l07_l08_l09_l10_l11_to_l34.csv`
+
+Latest merge summary:
+
+- `results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_l11_to_l34_merge_summary.json`
+
+Latest label gate:
+
+- `num_training_ready_labels = 35`
+- `num_training_ready_handwired_line_trip_labels = 33`
+- `num_unique_handwired_line_ids = 33`
+- `allowed_for_dynamic_aware_training = true`
+- `ready_for_preview_training = true`
+
+No dynamic-aware reranker training was run. The previous preview training remains
+a workflow sanity check only, not a final dynamic performance conclusion.
+
+Boundaries:
+
+- No automatic breaker insertion.
+- No Simscape physical wiring modification.
+- No `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories, or full timeseries are
+  intended for commit.
+- phasor_RMS, not EMT.
+- `generator_speed_proxy` is not direct frequency.
+- handwired breaker is pilot breaker-like validation, not engineering-grade
+  protection.
+- These are single-line dynamic labels, not simultaneous or sequential
+  multi-line trip experiments.

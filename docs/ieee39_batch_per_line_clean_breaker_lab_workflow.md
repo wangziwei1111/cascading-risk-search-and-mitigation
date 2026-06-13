@@ -1,4 +1,4 @@
-﻿# IEEE39 Batch Per-Line Clean Breaker Lab Workflow
+# IEEE39 Batch Per-Line Clean Breaker Lab Workflow
 
 ## Purpose
 
@@ -161,9 +161,9 @@ validation, and both isolated compact simulations report:
 
 The current dynamic label gate is:
 
-- `num_training_ready_labels = 12`
-- `num_training_ready_handwired_line_trip_labels = 10`
-- `num_unique_handwired_line_ids = 10`
+- `num_training_ready_labels = 35`
+- `num_training_ready_handwired_line_trip_labels = 33`
+- `num_unique_handwired_line_ids = 33`
 - `allowed_for_dynamic_aware_training = true`
 
 The previous preview dynamic-aware reranker training artifact still contains 10
@@ -175,3 +175,42 @@ Grid blocks to `L11-L34`. The prepare step created local per-line clean lab
 `.slx` files for `L11-L34`, but it does not wire breakers, does not auto-insert
 breakers, and does not modify Simscape physical wiring. These `.slx` files remain
 local-only and must not be committed.
+## Round update: L11-L34 batch validation
+
+The user manually wired all remaining per-line clean lab `.slx` models for
+`L11-L34`. Each line still uses its own independent per-line clean lab `.slx`;
+this is still a single-line dynamic label workflow, not simultaneous or
+sequential multi-line tripping.
+
+Structure validation passed for all `L11-L34` lines. Compact isolated simulation
+passed for `L11` and `L13-L34`. `L12` passed structure validation but reached a
+240-second isolated MATLAB simulation timeout, so it is not counted as
+training-ready.
+
+Merged training-ready lines from this round:
+
+- `L11`
+- `L13-L34`
+
+Not merged:
+
+- `L12`: simulation timeout
+
+The current label gate is:
+
+- `num_training_ready_labels = 35`
+- `num_training_ready_handwired_line_trip_labels = 33`
+- `num_unique_handwired_line_ids = 33`
+- `allowed_for_dynamic_aware_training = true`
+- `ready_for_preview_training = true`
+
+No dynamic-aware reranker training was run in this round. The previous preview
+training remains only a workflow sanity check, not a final dynamic performance
+conclusion. The next manual priority is `L12`; check
+`L12_HandwiredTimedBreaker`, `L12_TripCommand`, series wiring, bypass paths,
+short circuits, Step direction, and abnormal Simscape islands.
+
+Boundaries remain unchanged: phasor_RMS, not EMT; `generator_speed_proxy` is not
+direct frequency; the handwired breaker is pilot breaker-like validation, not
+engineering-grade protection; `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories,
+and full timeseries must not be committed.

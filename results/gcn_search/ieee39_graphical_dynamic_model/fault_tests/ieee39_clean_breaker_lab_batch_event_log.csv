@@ -1,3 +1,25 @@
 ﻿test_case,event_time_s,event_type,physical_executed,event_note,source_model
-clean_lab_handwired_line_trip_L09,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L09
-clean_lab_handwired_line_trip_L10,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L10
+clean_lab_handwired_line_trip_L11,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L11
+clean_lab_handwired_line_trip_L12,0.5,pilot_line_trip,False,"isolated MATLAB run timed out after 240 seconds; check L12 series wiring, bypass paths, short circuits, TripCommand target, Step direction, and abnormal Simscape islands",clean_breaker_lab_L12
+clean_lab_handwired_line_trip_L13,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L13
+clean_lab_handwired_line_trip_L14,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L14
+clean_lab_handwired_line_trip_L15,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L15
+clean_lab_handwired_line_trip_L16,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L16
+clean_lab_handwired_line_trip_L17,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L17
+clean_lab_handwired_line_trip_L18,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L18
+clean_lab_handwired_line_trip_L19,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L19
+clean_lab_handwired_line_trip_L20,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L20
+clean_lab_handwired_line_trip_L21,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L21
+clean_lab_handwired_line_trip_L22,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L22
+clean_lab_handwired_line_trip_L23,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L23
+clean_lab_handwired_line_trip_L24,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L24
+clean_lab_handwired_line_trip_L25,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L25
+clean_lab_handwired_line_trip_L26,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L26
+clean_lab_handwired_line_trip_L27,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L27
+clean_lab_handwired_line_trip_L28,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L28
+clean_lab_handwired_line_trip_L29,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L29
+clean_lab_handwired_line_trip_L30,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L30
+clean_lab_handwired_line_trip_L31,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L31
+clean_lab_handwired_line_trip_L32,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L32
+clean_lab_handwired_line_trip_L33,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L33
+clean_lab_handwired_line_trip_L34,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L34

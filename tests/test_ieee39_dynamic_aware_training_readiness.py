@@ -9,14 +9,14 @@ def test_ieee39_dynamic_aware_training_readiness_summary() -> None:
     path = root / "results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_aware_training_readiness.json"
     assert path.exists()
     payload = json.loads(path.read_text(encoding="utf-8"))
-    assert payload["num_training_ready_labels"] == 12
-    assert payload["num_training_ready_handwired_line_trip_labels"] == 10
-    assert payload["num_unique_handwired_line_ids"] == 10
+    assert payload["num_training_ready_labels"] == 35
+    assert payload["num_training_ready_handwired_line_trip_labels"] == 33
+    assert payload["num_unique_handwired_line_ids"] == 33
     assert payload["allowed_for_dynamic_aware_training"] is True
     assert payload["ready_for_preview_training"] is True
     assert payload["next_step"] == (
-        "Do not retrain in this round; after more labels are wired and validated, "
-        "rerun preview training or a stricter comparison in a separate commit."
+        "Do not retrain in this validation round; rerun preview training or stricter comparison "
+        "in a separate commit after reviewing the expanded labels."
     )
     caveats = " ".join(payload["caveats"]).lower()
     for required in [

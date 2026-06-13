@@ -115,9 +115,9 @@ also appear in the feature set.
 
 The current label gate has advanced beyond the historical preview artifact:
 
-- `num_training_ready_labels = 12`
-- `num_training_ready_handwired_line_trip_labels = 10`
-- `num_unique_handwired_line_ids = 10`
+- `num_training_ready_labels = 35`
+- `num_training_ready_handwired_line_trip_labels = 33`
+- `num_unique_handwired_line_ids = 33`
 - `allowed_for_dynamic_aware_training = true`
 - `ready_for_preview_training = true`
 
@@ -130,3 +130,19 @@ conclusion.
 and passed compact isolated simulation. `L11-L34` clean lab `.slx` files are
 prepared locally for future manual wiring, but no breaker was auto-inserted and
 no Simscape physical wiring was modified.
+## Expanded labels after L11-L34 validation
+
+The current label gate has expanded after validating user-wired per-line clean
+lab models for `L11-L34`:
+
+- `num_training_ready_labels = 35`
+- `num_training_ready_handwired_line_trip_labels = 33`
+- `num_unique_handwired_line_ids = 33`
+- `allowed_for_dynamic_aware_training = true`
+- `ready_for_preview_training = true`
+
+`L12` timed out in compact isolated simulation and is not counted as
+training-ready. The historical preview training artifact still contains 10
+samples because this validation round did not retrain the dynamic-aware
+reranker. A rerun of preview training or a stricter comparison should be done in
+a separate commit after reviewing the expanded labels.

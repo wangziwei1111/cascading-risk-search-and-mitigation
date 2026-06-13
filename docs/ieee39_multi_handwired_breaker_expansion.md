@@ -170,3 +170,20 @@ present in the inventory-backed extended map.
 - This round does not train a dynamic-aware reranker.
 
 
+## Current clean per-line label expansion
+
+The clean per-line workflow has superseded the older multi-handwired expansion
+for training-ready single-line labels. User-wired clean lab models for
+`L11-L34` were validated; `L11` and `L13-L34` succeeded in compact simulation,
+while `L12` timed out and is not training-ready.
+
+The latest label gate is:
+
+- `num_training_ready_labels = 35`
+- `num_training_ready_handwired_line_trip_labels = 33`
+- `num_unique_handwired_line_ids = 33`
+- `allowed_for_dynamic_aware_training = true`
+
+This is still phasor_RMS, not EMT. `generator_speed_proxy` is not direct
+frequency. The handwired breaker is pilot breaker-like validation, not
+engineering-grade protection.

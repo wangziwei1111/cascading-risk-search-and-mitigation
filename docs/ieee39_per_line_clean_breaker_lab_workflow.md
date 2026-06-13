@@ -1,4 +1,4 @@
-﻿# IEEE39 Per-Line Clean Breaker Lab Workflow
+# IEEE39 Per-Line Clean Breaker Lab Workflow
 
 ## Purpose
 
@@ -137,8 +137,8 @@ handwired line-trip labels. The newest validated lines are:
 
 The current gate is:
 
-- `num_training_ready_labels = 12`
-- `num_training_ready_handwired_line_trip_labels = 10`
+- `num_training_ready_labels = 35`
+- `num_training_ready_handwired_line_trip_labels = 33`
 - `allowed_for_dynamic_aware_training = true`
 
 The remaining `L11-L34` per-line clean lab `.slx` files have been prepared
@@ -146,3 +146,19 @@ locally, but they are intentionally unwired. They should be opened one at a time
 for manual breaker wiring. Do not copy from labs that already contain `L02-L10`,
 do not auto-insert breakers, do not modify Simscape physical wiring, and do not
 commit `.slx` files.
+## Expanded per-line clean lab status
+
+The per-line clean lab workflow now has training-ready handwired line-trip
+labels for `L01-L11` and `L13-L34`. `L12` passed structure validation but timed
+out during compact isolated simulation, so it remains the next manual repair
+target.
+
+Current gate:
+
+- `num_training_ready_labels = 35`
+- `num_training_ready_handwired_line_trip_labels = 33`
+- `num_unique_handwired_line_ids = 33`
+- `allowed_for_dynamic_aware_training = true`
+
+Do not mix simultaneous or sequential multi-line trips into this single-line
+label set. No dynamic-aware reranker training was run in this round.

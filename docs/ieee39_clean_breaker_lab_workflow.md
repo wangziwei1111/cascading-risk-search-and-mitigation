@@ -1,4 +1,4 @@
-﻿# IEEE39 Clean Breaker Lab Workflow
+# IEEE39 Clean Breaker Lab Workflow
 
 ## Purpose
 
@@ -158,11 +158,26 @@ isolated simulation.
 - `validation_passed = true` for `L09` and `L10`
 - `simulation_success = true` for `L09` and `L10`
 - `training_ready_candidate = true` for `L09` and `L10`
-- `num_training_ready_labels = 12`
-- `num_training_ready_handwired_line_trip_labels = 10`
+- `num_training_ready_labels = 35`
+- `num_training_ready_handwired_line_trip_labels = 33`
 - `allowed_for_dynamic_aware_training = true`
 
 The full map also prepares `L11-L34` local `.slx` clean labs for future manual
 wiring. The prepare step does not auto-insert breakers, does not modify Simscape
 physical wiring, and no dynamic-aware reranker training was run. Preview
 training remains a sanity check, not a final dynamic performance conclusion.
+## L11-L34 clean lab batch result
+
+The user-wired per-line clean lab models for `L11-L34` were batch validated.
+Structure validation passed for every line. Compact simulation succeeded for
+`L11` and `L13-L34`; `L12` timed out and is not training-ready.
+
+- `validation_passed = true` for `L11-L34`
+- `simulation_success = true` for `L11` and `L13-L34`
+- `training_ready_candidate = true` for `L11` and `L13-L34`
+- `num_training_ready_labels = 35`
+- `num_training_ready_handwired_line_trip_labels = 33`
+- `num_unique_handwired_line_ids = 33`
+- `allowed_for_dynamic_aware_training = true`
+
+No dynamic-aware reranker training was run in this round.

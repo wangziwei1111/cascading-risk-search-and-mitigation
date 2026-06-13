@@ -1,4 +1,4 @@
-﻿# IEEE39 Measurement Extraction and Timed Trip Status
+# IEEE39 Measurement Extraction and Timed Trip Status
 
 ## Round 29 Purpose
 
@@ -166,8 +166,25 @@ keep `generator_speed_proxy` as a proxy signal, not direct frequency.
 
 The current gate is:
 
-- `num_training_ready_labels = 12`
-- `num_training_ready_handwired_line_trip_labels = 10`
+- `num_training_ready_labels = 35`
+- `num_training_ready_handwired_line_trip_labels = 33`
 - `allowed_for_dynamic_aware_training = true`
 
 This is still pilot breaker-like validation, not engineering-grade protection.
+## L11-L34 measurement extraction update
+
+For the user-wired `L11-L34` per-line clean labs, compact simulation produced
+`voltage_speed_angle` measurements for `L11` and `L13-L34`. `L12` timed out and
+therefore has no training-ready measurement row.
+
+Current gate:
+
+- `num_training_ready_labels = 35`
+- `num_training_ready_handwired_line_trip_labels = 33`
+- `num_unique_handwired_line_ids = 33`
+- `allowed_for_dynamic_aware_training = true`
+
+These measurements remain phasor_RMS compact dynamic validation results.
+`generator_speed_proxy` is still a proxy, not direct frequency, and the
+handwired breaker remains pilot breaker-like validation, not engineering-grade
+protection.

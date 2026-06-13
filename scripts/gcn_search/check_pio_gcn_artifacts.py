@@ -187,6 +187,10 @@ REQUIRED_FILES = [
     "tests/test_ieee39_remaining_line_map_full.py",
     "tests/test_ieee39_remaining_clean_breaker_lab_prepare.py",
     "tests/test_ieee39_remaining_clean_breaker_lab_checklist.py",
+    "tests/test_ieee39_all_remaining_clean_breaker_lab_validation.py",
+    "tests/test_ieee39_all_remaining_clean_breaker_lab_merge.py",
+    "tests/test_ieee39_all_remaining_label_gate.py",
+    "tests/test_ieee39_all_remaining_docs.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
     "docs/pio_gcn_simulink_real_topk_event_driven_validation.md",
@@ -293,6 +297,8 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_l06_l07_l08_merge_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05_l06_l07_l08_l09_l10.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_l09_l10_merge_summary.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05_l06_l07_l08_l09_l10_l11_to_l34.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_l11_to_l34_merge_summary.json",
     "results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_training_dataset.csv",
     "results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_training_config.json",
     "results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_training_metrics.json",
@@ -895,28 +901,17 @@ def main() -> int:
         ]:
             if required_key not in quality:
                 failures.append(f"IEEE39 quality summary missing key: {required_key}")
-        expected_handwired_lines = {
-            "L01": 1,
-            "L02": 1,
-            "L03": 1,
-            "L04": 1,
-            "L05": 1,
-            "L06": 1,
-            "L07": 1,
-            "L08": 1,
-            "L09": 1,
-            "L10": 1,
-        }
-        if quality.get("num_training_ready_labels") != 12:
-            failures.append("IEEE39 quality summary must report twelve training-ready labels after clean lab L09/L10.")
-        if quality.get("num_training_ready_handwired_line_trip_labels") != 10:
-            failures.append("IEEE39 quality summary must report ten training-ready handwired line-trip labels.")
+        expected_handwired_lines = {f"L{i:02d}": 1 for i in range(1, 35) if i != 12}
+        if quality.get("num_training_ready_labels") != 35:
+            failures.append("IEEE39 quality summary must report 35 training-ready labels after clean lab L11-L34.")
+        if quality.get("num_training_ready_handwired_line_trip_labels") != 33:
+            failures.append("IEEE39 quality summary must report 33 training-ready handwired line-trip labels.")
         if quality.get("num_training_ready_handwired_line_trip_labels_by_line") != expected_handwired_lines:
-            failures.append("IEEE39 quality summary must report L01 through L10 as handwired training-ready lines.")
-        if quality.get("num_unique_handwired_line_ids") != 10:
-            failures.append("IEEE39 quality summary must report ten unique handwired line IDs.")
-        if quality.get("num_handwired_validation_passed") != 10:
-            failures.append("IEEE39 quality summary must report ten handwired validation-passed lines.")
+            failures.append("IEEE39 quality summary must report L01-L11 and L13-L34 as handwired training-ready lines.")
+        if quality.get("num_unique_handwired_line_ids") != 33:
+            failures.append("IEEE39 quality summary must report 33 unique handwired line IDs.")
+        if quality.get("num_handwired_validation_passed") != 34:
+            failures.append("IEEE39 quality summary must report 34 handwired validation-passed lines including L12.")
         if quality.get("allowed_for_dynamic_aware_training") is not True:
             failures.append("IEEE39 quality summary must allow preview dynamic-aware training once ten labels are ready.")
 
@@ -1378,11 +1373,13 @@ def main() -> int:
 
             table = pd.read_csv(batch_validation)
             expected_paths = {
-                "L09": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B16 to B24",
-                "L10": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B17 to B27",
+                "L11": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B18 to B17",
+                "L12": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B19 to B16",
+                "L34": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B9 to B8",
             }
-            if set(table.get("line_id", pd.Series(dtype=str)).astype(str)) != set(expected_paths):
-                failures.append("Batch clean lab validation summary must currently contain L09 and L10.")
+            expected_line_ids = {f"L{i:02d}" for i in range(11, 35)}
+            if set(table.get("line_id", pd.Series(dtype=str)).astype(str)) != expected_line_ids:
+                failures.append("Batch clean lab validation summary must currently contain L11 through L34.")
             for line_id, expected_path in expected_paths.items():
                 row = table[table["line_id"].astype(str).eq(line_id)]
                 if row.empty:
@@ -1412,7 +1409,10 @@ def main() -> int:
             import pandas as pd
 
             table = pd.read_csv(batch_line_trip)
-            for line_id in ["L09", "L10"]:
+            expected_line_ids = {f"L{i:02d}" for i in range(11, 35)}
+            if set(table.get("tripped_line", pd.Series(dtype=str)).astype(str)) != expected_line_ids:
+                failures.append("Batch clean lab compact summary must contain L11 through L34.")
+            for line_id in sorted(expected_line_ids - {"L12"}):
                 row = table[table.get("tripped_line", pd.Series("", index=table.index)).astype(str).eq(line_id)]
                 if row.empty:
                     failures.append(f"Batch clean lab compact summary must include {line_id}.")
@@ -1432,6 +1432,15 @@ def main() -> int:
                     failures.append(f"Batch clean lab {line_id} source_model must be clean_breaker_lab_{line_id}.")
                 if "frequency=generator_speed_proxy" not in str(row.get("signal_source_summary", "")):
                     failures.append(f"Batch clean lab {line_id} signal summary must keep frequency=generator_speed_proxy.")
+            l12 = table[table.get("tripped_line", pd.Series("", index=table.index)).astype(str).eq("L12")]
+            if l12.empty:
+                failures.append("Batch clean lab compact summary must include L12 timeout row.")
+            else:
+                l12 = l12.iloc[0]
+                if l12.get("measurement_extraction_status") != "simulation_timeout":
+                    failures.append("Batch clean lab L12 must be recorded as simulation_timeout.")
+                if str(l12.get("training_ready_candidate", "")).lower() in {"1", "true"}:
+                    failures.append("Batch clean lab L12 timeout must not be training-ready.")
         except Exception as exc:
             failures.append(f"Failed to read batch clean lab compact summary: {exc}")
 
@@ -1503,18 +1512,41 @@ def main() -> int:
         except Exception as exc:
             failures.append(f"Failed to read clean L09/L10 merge summary: {exc}")
 
+    clean_l11_to_l34_merge = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_l11_to_l34_merge_summary.json"
+    if clean_l11_to_l34_merge.exists():
+        try:
+            import json
+
+            payload = json.loads(clean_l11_to_l34_merge.read_text(encoding="utf-8"))
+            expected_merged = [f"L{i:02d}" for i in range(11, 35) if i != 12]
+            expected_lines = {f"L{i:02d}": 1 for i in range(1, 35) if i != 12}
+            if payload.get("merged_line_ids") != expected_merged:
+                failures.append("Clean L11-L34 merge summary must merge L11 and L13-L34 only.")
+            if payload.get("timeout_line_ids") != ["L12"]:
+                failures.append("Clean L11-L34 merge summary must record L12 as timeout.")
+            if payload.get("failed_line_ids") != []:
+                failures.append("Clean L11-L34 merge summary must have no non-timeout failed lines.")
+            if payload.get("num_training_ready_handwired_rows") != 33:
+                failures.append("Clean L11-L34 merge summary must report 33 training-ready handwired rows.")
+            if payload.get("num_training_ready_handwired_rows_by_line") != expected_lines:
+                failures.append("Clean L11-L34 merge summary must report L01-L11 and L13-L34 ready rows.")
+            if payload.get("static_topology_disable_overwrote_handwired") is not False:
+                failures.append("Clean L11-L34 merge must not let static_topology_disable overwrite handwired rows.")
+        except Exception as exc:
+            failures.append(f"Failed to read clean L11-L34 merge summary: {exc}")
+
     readiness = ROOT / "results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_aware_training_readiness.json"
     if readiness.exists():
         try:
             import json
 
             payload = json.loads(readiness.read_text(encoding="utf-8"))
-            if payload.get("num_training_ready_labels") != 12:
-                failures.append("IEEE39 dynamic-aware readiness must report twelve training-ready labels.")
-            if payload.get("num_training_ready_handwired_line_trip_labels") != 10:
-                failures.append("IEEE39 dynamic-aware readiness must report ten handwired line-trip labels.")
-            if payload.get("num_unique_handwired_line_ids") != 10:
-                failures.append("IEEE39 dynamic-aware readiness must report ten unique handwired line IDs.")
+            if payload.get("num_training_ready_labels") != 35:
+                failures.append("IEEE39 dynamic-aware readiness must report 35 training-ready labels.")
+            if payload.get("num_training_ready_handwired_line_trip_labels") != 33:
+                failures.append("IEEE39 dynamic-aware readiness must report 33 handwired line-trip labels.")
+            if payload.get("num_unique_handwired_line_ids") != 33:
+                failures.append("IEEE39 dynamic-aware readiness must report 33 unique handwired line IDs.")
             if payload.get("allowed_for_dynamic_aware_training") is not True:
                 failures.append("IEEE39 dynamic-aware readiness must allow preview training.")
             if payload.get("ready_for_preview_training") is not True:

@@ -1,4 +1,4 @@
-﻿# IEEE39 Line Map Extension Workflow
+# IEEE39 Line Map Extension Workflow
 
 ## Purpose
 
@@ -147,9 +147,9 @@ The latest full map file is:
 It preserves the verified `L01-L10` mapping and appends unused line-like Grid
 blocks as `L11-L34`. The current gate is:
 
-- `num_training_ready_labels = 12`
-- `num_training_ready_handwired_line_trip_labels = 10`
-- `num_unique_handwired_line_ids = 10`
+- `num_training_ready_labels = 35`
+- `num_training_ready_handwired_line_trip_labels = 33`
+- `num_unique_handwired_line_ids = 33`
 - `allowed_for_dynamic_aware_training = true`
 
 `L09` and `L10` have passed validation and compact isolated simulation:
@@ -161,3 +161,21 @@ Remaining prepared-but-unwired clean lab models are `L11-L34`. They are local
 `.slx` files prepared from the wrapper only; the prepare step does not invent a
 block path, does not auto-insert breakers, does not modify Simscape physical
 wiring, and no dynamic-aware reranker training was run.
+## L11-L34 validation status
+
+The full line map was used for `L11-L34` batch validation. The user manually
+wired each per-line clean lab `.slx`.
+
+- Structure validation: `L11-L34` all passed.
+- Compact simulation: `L11` and `L13-L34` passed.
+- Timeout: `L12`.
+
+The latest formal label gate is:
+
+- `num_training_ready_labels = 35`
+- `num_training_ready_handwired_line_trip_labels = 33`
+- `num_unique_handwired_line_ids = 33`
+- `allowed_for_dynamic_aware_training = true`
+
+The `L12` timeout is not training-ready and is not merged into the formal fault
+summary. No dynamic-aware reranker training was run in this round.

@@ -124,9 +124,12 @@ blocks = allBlocks(mask);
 end
 
 function lineMap = readLineMap()
+fullMapPath = "../../results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_full.csv";
 extendedMapPath = "../../results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_extended.csv";
 legacyMapPath = "../../results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map.csv";
-if isfile(extendedMapPath)
+if isfile(fullMapPath)
+    mapPath = fullMapPath;
+elseif isfile(extendedMapPath)
     mapPath = extendedMapPath;
 else
     mapPath = legacyMapPath;

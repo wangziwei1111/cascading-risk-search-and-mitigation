@@ -15,7 +15,14 @@ def merge_summaries(
 ) -> dict:
     base = pd.read_csv(base_summary_csv)
     multi = pd.read_csv(multi_handwired_summary_csv) if Path(multi_handwired_summary_csv).exists() else pd.DataFrame(columns=base.columns)
+    original_multi = multi.copy()
     multi = _drop_lines_already_handwired_in_base(base, multi)
+    existing_skipped_line_ids = _line_ids(original_multi[~original_multi.index.isin(multi.index)] if not original_multi.empty else original_multi)
+    multi_ready = _is_training_ready_handwired(multi)
+    timeout_mask = _is_timeout_row(multi)
+    failed_line_ids = _line_ids(multi[~multi_ready & ~timeout_mask])
+    timeout_line_ids = _line_ids(multi[~multi_ready & timeout_mask])
+    multi = multi[multi_ready].copy()
     for column in base.columns:
         if column not in multi.columns:
             multi[column] = pd.NA
@@ -39,7 +46,12 @@ def merge_summaries(
     summary = {
         "base_rows": int(len(base)),
         "multi_handwired_rows": int(len(multi)),
+        "input_multi_handwired_rows": int(len(original_multi)),
         "merged_rows": int(len(combined)),
+        "merged_line_ids": _line_ids(multi),
+        "failed_line_ids": failed_line_ids,
+        "timeout_line_ids": timeout_line_ids,
+        "skipped_line_ids": existing_skipped_line_ids,
         "num_handwired_rows_added": int(combined["test_case"].astype(str).str.contains("handwired_line_trip_", na=False).sum()),
         "num_training_ready_handwired_rows": int(
             (handwired_impl & combined_ready).sum()
@@ -81,6 +93,31 @@ def _drop_lines_already_handwired_in_base(base: pd.DataFrame, multi: pd.DataFram
     if not existing_lines:
         return multi
     return multi[~multi["tripped_line"].astype(str).isin(existing_lines)].copy()
+
+
+def _is_training_ready_handwired(table: pd.DataFrame) -> pd.Series:
+    if table.empty:
+        return pd.Series([], dtype=bool)
+    ready = table.get("training_ready_candidate", pd.Series("", index=table.index)).astype(str).str.lower().isin({"1", "true", "yes"})
+    impl = table.get("trip_implementation", pd.Series("", index=table.index)).astype(str)
+    status = table.get("measurement_extraction_status", pd.Series("", index=table.index)).astype(str)
+    return ready & impl.isin({"handwired_timed_breaker", "handwired_timed_controlled_switch"}) & status.eq("voltage_speed_angle")
+
+
+def _is_timeout_row(table: pd.DataFrame) -> pd.Series:
+    if table.empty:
+        return pd.Series([], dtype=bool)
+    status = table.get("measurement_extraction_status", pd.Series("", index=table.index)).astype(str).str.lower()
+    note = table.get("note", pd.Series("", index=table.index)).astype(str).str.lower()
+    message = table.get("timeout_or_error_message", pd.Series("", index=table.index)).astype(str).str.lower()
+    return status.str.contains("timeout", na=False) | note.str.contains("timeout", na=False) | message.str.contains("timeout", na=False)
+
+
+def _line_ids(table: pd.DataFrame) -> list[str]:
+    if table.empty or "tripped_line" not in table.columns:
+        return []
+    values = table["tripped_line"].astype(str)
+    return sorted(line for line in values.dropna().unique().tolist() if line and line.lower() != "nan")
 
 
 def parse_args() -> argparse.Namespace:

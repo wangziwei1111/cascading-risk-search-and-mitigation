@@ -14,7 +14,7 @@ def test_batch_per_line_clean_breaker_lab_docs_are_conservative() -> None:
         assert doc.exists()
         text = doc.read_text(encoding="utf-8").lower()
         for required in [
-            "num_training_ready_labels = 12",
+            "num_training_ready_labels = 35",
             "one",
             ".slx",
             "phasor_rms",
@@ -35,7 +35,8 @@ def test_batch_per_line_clean_breaker_lab_docs_are_conservative() -> None:
 
     batch_doc = docs[0].read_text(encoding="utf-8").lower()
     for required in [
-        "num_training_ready_handwired_line_trip_labels = 10",
+        "num_training_ready_handwired_line_trip_labels = 33",
+        "num_unique_handwired_line_ids = 33",
         "l06",
         "l07",
         "l08",
@@ -47,6 +48,8 @@ def test_batch_per_line_clean_breaker_lab_docs_are_conservative() -> None:
         "grid/b16 to b24",
         "grid/b17 to b27",
         "l11-l34",
+        "l12",
+        "simulation timeout",
         "does not wire breakers",
         "no dynamic-aware reranker training was run",
     ]:
