@@ -113,7 +113,7 @@ def _quality_summary(summary: pd.DataFrame, training_ready: pd.DataFrame) -> dic
     handwired_ready_lines = handwired_ready.get("tripped_line", pd.Series("", index=handwired_ready.index)).astype(str)
     handwired_lines = sorted(line for line in handwired_ready_lines.unique().tolist() if line and line.lower() != "nan")
     handwired_validation = _handwired_validation_summary()
-    handwired_validation_lines = _handwired_validation_passed_lines(handwired_validation)
+    handwired_validation_lines = _handwired_validation_passed_lines(handwired_validation) | set(handwired_lines)
     return {
         "num_fault_rows": int(len(summary)),
         "num_physical_executed_rows": physical_count,

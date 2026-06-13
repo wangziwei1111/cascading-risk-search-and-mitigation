@@ -63,9 +63,9 @@ Current label quality summary:
 - `num_labels_with_rotor_angle_measurement = 4`
 - `measurement_quality_status = partial_dynamic_measurements`
 - `label_quality_status = partial_physical_execution`
-- `allowed_for_dynamic_aware_training = false`
+- `allowed_for_dynamic_aware_training = true`
 
-The label count is still below the minimum preview threshold of ten training-ready labels, so dynamic-aware reranker training remains blocked.
+The label count has reached the minimum preview threshold of ten training-ready labels, so preview dynamic-aware reranker training can run in a separate commit.
 
 ## Claim Boundaries
 
@@ -99,46 +99,46 @@ Round 31 stops automatic Simscape physical-port insertion. The project now suppo
 Round 32 extends this to a multi-line handwired validation flow. The current
 measurement source remains `generator_speed_proxy`, not a direct frequency
 measurement. The model remains `phasor_RMS`, not EMT, and the multi-line
-workflow does not train the dynamic-aware reranker while fewer than ten
-training-ready labels are available. In the current multi-line run, L01-L04
-pass structure validation. After the user manually revised L02 in the old
+workflow still treats preview training as a separate commit after the compact
+label gate reaches ten training-ready labels. In the current multi-line run,
+L01-L04 pass structure validation. After the user manually revised L02 in the old
 handwired Simulink GUI model, the L02 structure validation still passed, but
 the isolated compact simulation timed out after 240 seconds. That old L02
 timeout row is not counted as training-ready. The user then wired L02 in the
 clean breaker lab. Clean lab L02 passes structure validation and isolated
 compact simulation, so it is counted as an additional training-ready handwired
-line-trip label. L03-L04 are not counted as training-ready yet.
+line-trip label. Per-line clean L03-L08 now also pass the compact gate.
 
-Per-line clean L03, L04, and L05 single-line labels now use independent
-per-line clean lab models. Future L06/L07/L08 labels should follow the same
-one-line-per-model rule, with verified wrapper Grid paths `Grid/B14 to B15`,
-`Grid/B15 to B16`, and `Grid/B16 to B17`. Adding a new target into a clean lab that already
+Per-line clean L03, L04, L05, L06, L07, and L08 single-line labels now use
+independent per-line clean lab models. L06/L07/L08 use verified wrapper Grid
+paths `Grid/B14 to B15`, `Grid/B15 to B16`, and `Grid/B16 to B17`. Adding a new target into a clean lab that already
 contains another active TripCommand can make both TripCommand blocks act at
 0.5 s, turning the case into a simultaneous multi-line trip. That kind of
 sequential or simultaneous trip experiment should be handled separately and
 must not be mixed into the single-line label set.
 
-Per-line clean L03, L04, and L05 now pass structure validation and compact
-isolated simulation, so the formal label gate is updated to seven
+Per-line clean L03, L04, L05, L06, L07, and L08 now pass structure validation
+and compact isolated simulation, so the formal label gate is updated to ten
 training-ready labels:
 
 ```text
-num_training_ready_handwired_line_trip_labels = 5
-num_unique_handwired_line_ids = 5
-num_training_ready_labels = 7
-allowed_for_dynamic_aware_training = false
+num_training_ready_handwired_line_trip_labels = 8
+num_unique_handwired_line_ids = 8
+num_training_ready_labels = 10
+allowed_for_dynamic_aware_training = true
 ```
 
 Current result:
 
 ```text
 handwired_model_found = true
-handwired_validation_passed_lines = L01, L02, L03, L04, L05
-num_training_ready_handwired_line_trip_labels = 5
-num_unique_handwired_line_ids = 5
-num_training_ready_labels = 7
-allowed_for_dynamic_aware_training = false
+handwired_validation_passed_lines = L01, L02, L03, L04, L05, L06, L07, L08
+num_training_ready_handwired_line_trip_labels = 8
+num_unique_handwired_line_ids = 8
+num_training_ready_labels = 10
+allowed_for_dynamic_aware_training = true
 ```
 
 The handwired `.slx` is not committed.
+
 

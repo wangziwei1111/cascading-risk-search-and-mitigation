@@ -1,0 +1,15 @@
+{
+  "num_training_ready_labels": 10,
+  "num_training_ready_handwired_line_trip_labels": 8,
+  "num_unique_handwired_line_ids": 8,
+  "allowed_for_dynamic_aware_training": true,
+  "ready_for_preview_training": true,
+  "reason": "Reached at least 10 training-ready IEEE39 compact dynamic labels.",
+  "next_step": "Run preview dynamic-aware reranker training in a separate commit.",
+  "caveats": [
+    "phasor_RMS, not EMT",
+    "generator_speed_proxy, not direct frequency",
+    "pilot breaker-like validation, not engineering-grade protection",
+    "preview only, not final dynamic performance conclusion"
+  ]
+}

@@ -1,4 +1,4 @@
-# IEEE39 Line Map Extension Workflow
+﻿# IEEE39 Line Map Extension Workflow
 
 ## Purpose
 
@@ -15,13 +15,14 @@ clean lab L02
 per-line clean lab L03
 per-line clean lab L04
 per-line clean lab L05
-num_training_ready_labels = 7
-num_training_ready_handwired_line_trip_labels = 5
-num_unique_handwired_line_ids = 5
-allowed_for_dynamic_aware_training = false
+num_training_ready_labels = 10
+num_training_ready_handwired_line_trip_labels = 8
+num_unique_handwired_line_ids = 8
+allowed_for_dynamic_aware_training = true
 ```
 
-Because `7 < 10`, do not train the dynamic-aware reranker.
+The label count has now reached the preview threshold after L06/L07/L08
+validation. Do not train the dynamic-aware reranker in this round; run preview training in a separate commit.
 
 ## Inventory Step
 
@@ -63,7 +64,7 @@ unused real line-like Grid blocks from the inventory in ascending
 `inventory_index` order. If a later line cannot be verified from inventory, it
 must remain `not_in_current_line_map`.
 
-Current mapped next targets:
+Mapped and validated L06/L07/L08 targets:
 
 ```text
 L06 -> Grid/B14 to B15
@@ -103,7 +104,7 @@ be mixed into the single-line label set.
 
 ## After Manual Wiring
 
-After the user manually wires and saves L06/L07/L08, run validation first:
+After the user manually wired and saved L06/L07/L08, validation was run first:
 
 ```matlab
 validate_ieee39_clean_breaker_lab_lines_batch(["L06","L07","L08"])
@@ -115,8 +116,7 @@ Only after validation passes, run compact simulation:
 python scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py --line-ids L06 L07 L08 --model-path-pattern "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_{line_id}.slx" --timeout-seconds 240 --simulation-stop-time 0.5
 ```
 
-This round does not run L06/L07/L08 compact simulation because the user has not
-yet manually wired those breakers.
+This round also ran L06/L07/L08 compact simulation after validation passed.
 
 ## Boundaries
 
@@ -128,3 +128,4 @@ yet manually wired those breakers.
 - The handwired breaker is pilot breaker-like validation, not engineering-grade protection.
 - .slx files are local-only and must not be committed.
 - Do not commit `.slxc`, `slprj`, `.mat`, raw trajectories, or full timeseries.
+

@@ -14,7 +14,7 @@ def test_batch_per_line_clean_breaker_lab_docs_are_conservative() -> None:
         assert doc.exists()
         text = doc.read_text(encoding="utf-8").lower()
         for required in [
-            "num_training_ready_labels = 7",
+            "num_training_ready_labels = 10",
             "one",
             ".slx",
             "phasor_rms",
@@ -22,7 +22,7 @@ def test_batch_per_line_clean_breaker_lab_docs_are_conservative() -> None:
             "generator_speed_proxy",
             "not direct frequency",
             "not engineering-grade",
-            "allowed_for_dynamic_aware_training = false",
+            "allowed_for_dynamic_aware_training = true",
         ]:
             assert required in text
         for forbidden in [

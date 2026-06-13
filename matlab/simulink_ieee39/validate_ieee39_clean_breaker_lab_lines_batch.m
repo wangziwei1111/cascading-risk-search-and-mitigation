@@ -5,7 +5,7 @@ function summaryTable = validate_ieee39_clean_breaker_lab_lines_batch(lineIds, m
 % does not insert breakers, reconnect physical ports, or save models.
 
 if nargin < 1 || isempty(lineIds)
-    lineIds = ["L04", "L05"];
+    lineIds = ["L06", "L07", "L08"];
 end
 if nargin < 2 || isempty(modelPathPattern)
     modelPathPattern = "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_%s.slx";
@@ -124,7 +124,13 @@ blocks = allBlocks(mask);
 end
 
 function lineMap = readLineMap()
-mapPath = "../../results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map.csv";
+extendedMapPath = "../../results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_extended.csv";
+legacyMapPath = "../../results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map.csv";
+if isfile(extendedMapPath)
+    mapPath = extendedMapPath;
+else
+    mapPath = legacyMapPath;
+end
 if isfile(mapPath)
     lineMap = readtable(mapPath, "TextType", "string", "VariableNamingRule", "preserve", "Delimiter", ",");
 else

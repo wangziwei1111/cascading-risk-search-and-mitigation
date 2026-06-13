@@ -11,8 +11,8 @@ def test_batch_clean_breaker_lab_checklist_is_single_line_per_model() -> None:
     for required in [
         "clean lab l02",
         "per-line clean lab l03",
-        "num_training_ready_labels = 7",
-        "num_unique_handwired_line_ids = 5",
+        "num_training_ready_labels = 10",
+        "num_unique_handwired_line_ids = 8",
         "line_id: l06",
         "line block path: grid/b14 to b15",
         "l06_handwiredtimedbreaker",

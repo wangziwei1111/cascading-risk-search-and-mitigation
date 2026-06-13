@@ -2,10 +2,10 @@
 
 ## Purpose
 
-Clean lab L02 and per-line clean lab L03, L04, and L05 have passed as
-single-line handwired line-trip labels. This workflow records how batch
-per-line clean labs are prepared, validated, and simulated. The current next
-targets are L06/L07/L08, whose paths were verified from the wrapper Grid
+Clean lab L02 and per-line clean lab L03, L04, L05, L06, L07, and L08 have
+passed as single-line handwired line-trip labels. This workflow records how
+batch per-line clean labs are prepared, validated, and simulated. The latest
+batch targets were L06/L07/L08, whose paths were verified from the wrapper Grid
 inventory.
 
 This is still single-line label collection, not simultaneous or sequential
@@ -20,19 +20,22 @@ clean lab L02
 per-line clean lab L03
 per-line clean lab L04
 per-line clean lab L05
+per-line clean lab L06
+per-line clean lab L07
+per-line clean lab L08
 ```
 
 Current label gate:
 
 ```text
-num_training_ready_labels = 7
-num_training_ready_handwired_line_trip_labels = 5
-num_unique_handwired_line_ids = 5
-allowed_for_dynamic_aware_training = false
+num_training_ready_labels = 10
+num_training_ready_handwired_line_trip_labels = 8
+num_unique_handwired_line_ids = 8
+allowed_for_dynamic_aware_training = true
 ```
 
-Because labels are still below 10, dynamic-aware reranker training remains
-blocked.
+The label count has reached the preview threshold. Dynamic-aware reranker
+preview training should run in a separate commit, not in this validation round.
 
 ## L06/L07/L08 Batch Prepare
 
@@ -99,7 +102,8 @@ target breaker may act.
 
 ## Batch Validation After Manual Wiring
 
-After the user manually wires and saves L06/L07/L08, run:
+After the user manually wired and saved L06/L07/L08, the following validation
+was run:
 
 ```matlab
 cd("C:/Users/24186/Documents/New project 7/simulink-dynamic-validation-worktree/matlab/simulink_ieee39")
@@ -117,6 +121,14 @@ python scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated
 Each line runs in its own MATLAB process. A timeout on one line must not block
 the next line.
 
+The current L06/L07/L08 compact simulations passed:
+
+```text
+L06: simulation_success = true, measurement_extraction_status = voltage_speed_angle, breaker_opened = true
+L07: simulation_success = true, measurement_extraction_status = voltage_speed_angle, breaker_opened = true
+L08: simulation_success = true, measurement_extraction_status = voltage_speed_angle, breaker_opened = true
+```
+
 The current L04/L05 compact simulations both passed and remain preserved:
 
 ```text
@@ -132,4 +144,5 @@ L05: simulation_success = true, measurement_extraction_status = voltage_speed_an
 - Sequential or simultaneous multi-line trip experiments can be studied later,
   but they must not be mixed into single-line labels.
 - Do not commit `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories, or full timeseries.
+
 

@@ -4,10 +4,10 @@
 
 The old handwired `.slx` has been edited many times. L01 can still provide one
 training-ready handwired line-trip label, and clean/per-line clean lab models
-now provide training-ready L02, L03, L04, and L05 labels. To eliminate possible
-hidden bypasses, short circuits, wrong control wiring, or abnormal physical
-network states, future manual breaker wiring should continue from independent
-per-line clean lab models.
+now provide training-ready L02, L03, L04, L05, L06, L07, and L08 labels. To
+eliminate possible hidden bypasses, short circuits, wrong control wiring, or
+abnormal physical network states, future manual breaker wiring should continue
+from independent per-line clean lab models.
 
 ## Clean Lab Model
 
@@ -104,16 +104,15 @@ training-ready.
 Current label gate:
 
 ```text
-num_training_ready_handwired_line_trip_labels = 5
-num_unique_handwired_line_ids = 5
-num_training_ready_labels = 7
-allowed_for_dynamic_aware_training = false
+num_training_ready_handwired_line_trip_labels = 8
+num_unique_handwired_line_ids = 8
+num_training_ready_labels = 10
+allowed_for_dynamic_aware_training = true
 ```
 
-Per-line clean L03, L04, and L05 have now passed validation and compact
-simulation. The next manual targets should be L06, L07, and L08; their block
-paths were verified from the wrapper Grid inventory as `Grid/B14 to B15`,
-`Grid/B15 to B16`, and `Grid/B16 to B17`. Do not keep
+Per-line clean L03, L04, L05, L06, L07, and L08 have now passed validation and
+compact simulation. L06/L07/L08 paths were verified from the wrapper Grid
+inventory as `Grid/B14 to B15`, `Grid/B15 to B16`, and `Grid/B16 to B17`. Do not keep
 adding new TripCommand blocks into a clean lab that already contains another
 active line trip. If two TripCommand blocks both act at 0.5 s, the simulation
 becomes a simultaneous two-line trip and cannot be used as a single-line label.
@@ -127,25 +126,26 @@ breaker name: L03_HandwiredTimedBreaker
 trip command name: L03_TripCommand
 ```
 
-Per-line clean L03, L04, and L05 have now passed validation and compact
-simulation. The current formal label gate is:
+Per-line clean L03, L04, L05, L06, L07, and L08 have now passed validation and
+compact simulation. The current formal label gate is:
 
 ```text
-num_training_ready_labels = 7
-num_training_ready_handwired_line_trip_labels = 5
-num_unique_handwired_line_ids = 5
-allowed_for_dynamic_aware_training = false
+num_training_ready_labels = 10
+num_training_ready_handwired_line_trip_labels = 8
+num_unique_handwired_line_ids = 8
+allowed_for_dynamic_aware_training = true
 ```
 
-The next batch prepares L06, L07, and L08 as separate per-line clean lab
-models. Do not invent a block path for any later line that is not present in the
-inventory-backed extended map.
+The next step may be preview training for the dynamic-aware reranker in a
+separate commit. Optional later labels such as L09/L10 must still use verified paths from
+the inventory-backed extended map.
 
 ## Boundaries
 
 - This model remains `phasor_RMS`, not EMT.
 - `generator_speed_proxy` is not direct frequency.
 - The handwired breaker is pilot breaker-like validation, not engineering-grade protection.
-- If total training-ready labels remain below 10, dynamic-aware reranker training remains blocked.
+- Preview dynamic-aware reranker training is allowed by the gate but must run in a separate commit.
 - Do not commit `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories, or full timeseries.
+
 

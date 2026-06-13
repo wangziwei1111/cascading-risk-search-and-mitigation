@@ -37,9 +37,9 @@ def test_clean_breaker_lab_docs_are_conservative() -> None:
         "validation_passed = true",
         "simulation_success = true",
         "training_ready_candidate = true",
-        "num_training_ready_labels = 7",
-        "allowed_for_dynamic_aware_training = false",
-        "next manual targets should be l06 and l07",
+        "num_training_ready_labels = 10",
+        "allowed_for_dynamic_aware_training = true",
+        "preview training",
     ]:
         assert required in clean_doc
 

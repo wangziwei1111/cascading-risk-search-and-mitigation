@@ -1,4 +1,4 @@
-# IEEE39 Handwired Breaker Validation
+﻿# IEEE39 Handwired Breaker Validation
 
 ## Round 31 Purpose
 
@@ -62,6 +62,7 @@ Current validation result:
 ```text
 handwired_model_found = true
 multi_handwired_validation_passed_lines = L01, L02, L03, L04
+clean_breaker_lab_validation_passed_lines = L02, L03, L04, L05, L06, L07, L08
 handwired_model_committed = false
 ```
 
@@ -75,16 +76,16 @@ The label exporter now recognizes:
 Current compact gate:
 
 ```text
-num_training_ready_labels = 7
-num_training_ready_handwired_line_trip_labels = 5
-num_handwired_validation_passed = 5
-num_unique_handwired_line_ids = 5
+num_training_ready_labels = 10
+num_training_ready_handwired_line_trip_labels = 8
+num_handwired_validation_passed = 8
+num_unique_handwired_line_ids = 8
 handwired_model_used = true
 handwired_model_committed = false
-allowed_for_dynamic_aware_training = false
+allowed_for_dynamic_aware_training = true
 ```
 
-If a future handwired model passes validation and the compact suite confirms `single_line_trip`, then that case can become a training-ready pilot line-trip label. If total training-ready labels remain below ten, dynamic-aware reranker training remains blocked.
+If a future handwired model passes validation and the compact suite confirms `single_line_trip`, then that case can become a training-ready pilot line-trip label. The current count has reached ten, so preview dynamic-aware reranker training can run in a separate commit.
 
 ## Round 32 Multi-Line Expansion
 
@@ -96,8 +97,8 @@ passes structure validation. Its isolated compact simulation still timed out
 after 240 seconds, so that old L02 row is not training-ready. The user then
 rewired L02 in the clean breaker lab. Clean lab L02 passes structure validation
 and isolated compact simulation, so L01 and clean lab L02 are training-ready.
-Training remains blocked while the total training-ready label count is below
-ten.
+Training is not run in this validation round; preview training should be a
+separate commit.
 
 L03, L04, and L05 now use independent per-line clean lab `.slx` models. Do not
 add multiple active TripCommand blocks to the same single-line label model,
@@ -117,10 +118,10 @@ The clean lab starts without `L01_HandwiredTimedBreaker`,
 `L02_HandwiredTimedBreaker`, `L03_HandwiredTimedBreaker`,
 `L04_HandwiredTimedBreaker`, or `L05_HandwiredTimedBreaker`. The user wired L02
 first, then per-line clean L03, L04, and L05; all five handwired line-trip
-labels L01-L05 are now training-ready in the compact phasor_RMS gate. The next
-manual targets should be L06 and L07 in independent per-line clean lab `.slx`
-files, not the old handwired model and not any clean lab that already contains a
-different active line trip.
+labels L01-L08 are now training-ready in the compact phasor_RMS gate. The L06,
+L07, and L08 labels use independent per-line clean lab `.slx` files. Later
+optional labels such as L09/L10 must also avoid the old handwired model and
+any clean lab that already contains a different active line trip.
 
 ## Boundaries
 
@@ -129,3 +130,4 @@ different active line trip.
 - `generator_speed_proxy` is not direct frequency.
 - The handwired `.slx` must not be committed.
 - `static_topology_disable` is not a training-ready line-trip label.
+

@@ -35,4 +35,5 @@ def test_per_line_clean_breaker_lab_docs_separate_single_line_and_sequence_cases
     per_line = docs[0].read_text(encoding="utf-8").lower()
     assert "multi-line cascading trip sequence" in per_line
     assert "must not be mixed into single-line label collection" in per_line
-    assert "allowed_for_dynamic_aware_training = false" in per_line
+    assert "allowed_for_dynamic_aware_training = true" in per_line
+    assert "preview training" in per_line

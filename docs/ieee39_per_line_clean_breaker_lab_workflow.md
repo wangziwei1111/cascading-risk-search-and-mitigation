@@ -6,11 +6,11 @@ The current goal is to collect single-line dynamic labels. A single-line label
 means that only the target line's handwired breaker acts during the compact
 simulation. It is not a multi-line cascading trip sequence.
 
-Clean L02 and per-line clean L03, L04, and L05 have already passed structure
-validation and isolated compact simulation, and they are counted as
-training-ready handwired line-trip labels. Future L06/L07/L08 targets should
-follow the same one-line-per-clean-lab rule, using only paths verified from the
-wrapper Grid inventory.
+Clean L02 and per-line clean L03, L04, L05, L06, L07, and L08 have already
+passed structure validation and isolated compact simulation, and they are
+counted as training-ready handwired line-trip labels. Later optional targets
+should follow the same one-line-per-clean-lab rule, using only paths verified
+from the wrapper Grid inventory.
 
 ## Why One Clean Lab Per Line
 
@@ -108,16 +108,14 @@ Clean L02 and per-line clean L03/L04/L05 are the latest successful per-line
 results:
 
 ```text
-num_training_ready_labels = 7
-num_training_ready_handwired_line_trip_labels = 5
-num_unique_handwired_line_ids = 5
-allowed_for_dynamic_aware_training = false
+num_training_ready_labels = 10
+num_training_ready_handwired_line_trip_labels = 8
+num_unique_handwired_line_ids = 8
+allowed_for_dynamic_aware_training = true
 ```
 
-Because the label count is still below 10, dynamic-aware reranker training
-remains blocked.
-
-In short, dynamic-aware reranker training remains blocked.
+The label count has reached 10, so preview training for the dynamic-aware
+reranker can run in a separate commit. This validation round does not train the reranker.
 
 ## Boundaries
 
@@ -127,4 +125,5 @@ In short, dynamic-aware reranker training remains blocked.
 - Sequential or simultaneous multi-line trip experiments can be studied later,
   but they must not be mixed into single-line label collection.
 - Do not commit `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories, or full timeseries.
+
 

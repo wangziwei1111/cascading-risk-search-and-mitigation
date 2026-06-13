@@ -1171,6 +1171,109 @@ empty
 
 RL mitigation files were not modified. Generated `.slx`, `.mat`, full per-case dynamic results, raw event logs, and full per-path ranking artifacts remain local ignored artifacts and are not intended for commit.
 
+## Round 34: Clean Breaker Lab L06-L08 Batch Validation
+
+This round batch-validates the user-handwired per-line clean breaker lab models
+for L06, L07, and L08. It does not train the dynamic-aware reranker. The goal is
+only to confirm that the three new single-line labels are structurally valid,
+execute a breaker action in compact phasor_RMS simulation, and pass the compact
+measurement gate.
+
+MATLAB structure validation:
+
+```matlab
+cd("C:/Users/24186/Documents/New project 7/simulink-dynamic-validation-worktree/matlab/simulink_ieee39")
+configure_ieee39_short_filegen_paths()
+validate_ieee39_clean_breaker_lab_lines_batch(string({'L06','L07','L08'}))
+```
+
+The batch validator now reads the extended line map, so the validated paths are:
+
+```text
+L06 -> IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B14 to B15
+L07 -> IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B15 to B16
+L08 -> IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B16 to B17
+```
+
+Compact isolated simulation:
+
+```powershell
+python scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py --line-ids L06 L07 L08 --model-path-pattern "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_{line_id}.slx" --timeout-seconds 240 --simulation-stop-time 0.5
+```
+
+Simulation results:
+
+| line | simulation_success | measurement | training_ready | breaker_opened | min_voltage_pu | max_voltage_pu | min_frequency_hz | max_frequency_hz | max_speed_deviation | max_rotor_angle_separation_deg |
+| --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| L06 | 1 | voltage_speed_angle | 1 | 1 | 0.981795 | 1.063500 | 49.992072 | 50.001596 | 0.000159 | 59.419548 |
+| L07 | 1 | voltage_speed_angle | 1 | 1 | 0.977276 | 1.063500 | 49.965959 | 50.063884 | 0.001278 | 64.260372 |
+| L08 | 1 | voltage_speed_angle | 1 | 1 | 0.980435 | 1.063500 | 49.922009 | 50.059338 | 0.001560 | 68.693688 |
+
+The latest formal merged summary is:
+
+```text
+results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05_l06_l07_l08.csv
+```
+
+Updated compact label gate:
+
+```text
+num_training_ready_labels = 10
+num_training_ready_handwired_line_trip_labels = 8
+num_unique_handwired_line_ids = 8
+num_handwired_validation_passed = 8
+allowed_for_dynamic_aware_training = true
+ready_for_preview_training = true
+```
+
+Interpretation:
+
+```text
+The compact label gate is now sufficient for preview dynamic-aware reranker
+training in a separate commit. This is not a final dynamic performance
+conclusion. The model remains phasor_RMS, not EMT, and generator_speed_proxy is
+not direct frequency.
+```
+
+Validation to run:
+
+```powershell
+python -m pytest tests/test_ieee39_wrapper_grid_line_inventory.py tests/test_ieee39_line_breaker_map_extension.py tests/test_ieee39_line_map_extension_docs.py tests/test_ieee39_clean_breaker_lab_batch_prepare.py tests/test_ieee39_clean_breaker_lab_batch_checklist.py tests/test_ieee39_clean_breaker_lab_batch_validation_schema.py tests/test_ieee39_clean_breaker_lab_batch_isolated_summary.py tests/test_ieee39_batch_per_line_clean_breaker_lab_docs.py
+
+python -m pytest tests/test_ieee39_clean_breaker_lab_prepare.py tests/test_ieee39_clean_breaker_lab_checklist.py tests/test_ieee39_clean_breaker_lab_validation_schema.py tests/test_ieee39_clean_breaker_lab_docs.py tests/test_ieee39_clean_breaker_lab_per_line_prepare.py tests/test_ieee39_clean_breaker_lab_per_line_checklist.py tests/test_ieee39_per_line_clean_breaker_lab_docs.py tests/test_ieee39_clean_breaker_lab_isolated_summary.py
+
+python -m pytest tests/test_ieee39_handwired_fault_summary_merge.py tests/test_ieee39_multi_handwired_label_gate.py tests/test_ieee39_dynamic_label_quality_gate.py tests/test_ieee39_training_ready_label_gate.py tests/test_ieee39_measurement_quality_gate.py
+
+python -m pytest tests/test_ieee39_dynamic_aware_training_readiness.py
+
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+
+git diff -- src/rl_mitigation scripts/rl_mitigation
+```
+
+Executed validation:
+
+```text
+python -m pytest tests/test_ieee39_wrapper_grid_line_inventory.py tests/test_ieee39_line_breaker_map_extension.py tests/test_ieee39_line_map_extension_docs.py tests/test_ieee39_clean_breaker_lab_batch_prepare.py tests/test_ieee39_clean_breaker_lab_batch_checklist.py tests/test_ieee39_clean_breaker_lab_batch_validation_schema.py tests/test_ieee39_clean_breaker_lab_batch_isolated_summary.py tests/test_ieee39_batch_per_line_clean_breaker_lab_docs.py
+9 passed
+
+python -m pytest tests/test_ieee39_clean_breaker_lab_prepare.py tests/test_ieee39_clean_breaker_lab_checklist.py tests/test_ieee39_clean_breaker_lab_validation_schema.py tests/test_ieee39_clean_breaker_lab_docs.py tests/test_ieee39_clean_breaker_lab_per_line_prepare.py tests/test_ieee39_clean_breaker_lab_per_line_checklist.py tests/test_ieee39_per_line_clean_breaker_lab_docs.py tests/test_ieee39_clean_breaker_lab_isolated_summary.py
+11 passed
+
+python -m pytest tests/test_ieee39_handwired_fault_summary_merge.py tests/test_ieee39_multi_handwired_label_gate.py tests/test_ieee39_dynamic_label_quality_gate.py tests/test_ieee39_training_ready_label_gate.py tests/test_ieee39_measurement_quality_gate.py tests/test_ieee39_dynamic_aware_training_readiness.py
+11 passed
+
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+PASS: GCN Simulink dynamic validation artifacts are review-ready.
+
+git diff -- src/rl_mitigation scripts/rl_mitigation
+empty
+```
+
+RL mitigation files are not modified. Generated `.slx`, `.slxc`, `slprj`,
+`.mat`, raw trajectories, and full timeseries remain local artifacts and are
+not intended for commit.
+
 ## Round 32: Batch Validate Clean L04/L05 Per-Line Breaker Labs
 
 Goal: validate the user-handwired per-line clean breaker lab models for L04 and L05, run isolated compact simulations, and merge only successful single-line labels into the formal IEEE39 dynamic-label summary.

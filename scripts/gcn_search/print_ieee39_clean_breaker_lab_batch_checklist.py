@@ -56,17 +56,21 @@ Already successful training-ready handwired line trips:
 - per-line clean lab L03
 - per-line clean lab L04
 - per-line clean lab L05
+- per-line clean lab L06
+- per-line clean lab L07
+- per-line clean lab L08
 
 Current expected label gate:
-- num_training_ready_labels = 7
-- num_training_ready_handwired_line_trip_labels = 5
-- num_unique_handwired_line_ids = 5
-- allowed_for_dynamic_aware_training = false
+- num_training_ready_labels = 10
+- num_training_ready_handwired_line_trip_labels = 8
+- num_unique_handwired_line_ids = 8
+- allowed_for_dynamic_aware_training = true
+- ready_for_preview_training = true
 
 Next recommended manual targets:
-- priority: L06
-- priority: L07
-- priority: L08
+- preview training should run in a separate commit
+- optional additional manual targets: L09
+- optional additional manual targets: L10
 - L06-L10 are listed below only if present in the verified line map; otherwise they are marked not_in_current_line_map.
 
 Per-line targets:

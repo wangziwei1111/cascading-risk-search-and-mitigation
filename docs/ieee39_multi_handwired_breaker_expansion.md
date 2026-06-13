@@ -22,6 +22,9 @@ breakers automatically and does not modify Simscape physical-port wiring.
 - In the clean breaker lab, the user manually wired L02 and the isolated
   compact simulation succeeded. Clean lab L02 is now counted as one additional
   training-ready handwired line-trip label.
+- Per-line clean L03-L08 now pass structure validation and isolated compact
+  simulation. The compact label gate now has ten training-ready labels, eight
+  of which are handwired line-trip labels.
 
 ## Naming Convention
 
@@ -36,18 +39,18 @@ Each trip command should use `Step time = 0.5 s`, with default `Initial value =
 0` and `Final value = 1`. If the control direction appears reversed, try
 `Initial value = 1` and `Final value = 0`.
 
-## Recommended Next Batch
+## Current Clean Lab Rule
 
-Do not continue wiring L02-L04 in the old handwired model. Continue from the
-clean breaker lab model. L02 is now passed; the next manual target should be
-L03:
+Do not continue wiring L02-L08 in the old handwired model. Continue from
+independent clean breaker lab models, one target line per local `.slx`:
 
 ```text
 results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab.slx
 ```
 
-After clean L03 passes structure validation and isolated compact simulation,
-then consider L04 in a later round.
+Preview dynamic-aware reranker training can run in a separate commit, but this
+is still a compact phasor_RMS preview label gate rather than a final dynamic
+performance conclusion.
 
 ## Commands
 
@@ -104,17 +107,17 @@ python src/gcn_search/legacy_rts79/export_ieee39_dynamic_labels.py --fault-summa
 validation_passed lines = 4
 passed line IDs = L01, L02, L03, L04
 multi line-trip simulation_success count = 1
-num_training_ready_handwired_line_trip_labels = 5
-num_unique_handwired_line_ids = 5
-num_training_ready_labels = 7
-allowed_for_dynamic_aware_training = false
+num_training_ready_handwired_line_trip_labels = 8
+num_unique_handwired_line_ids = 8
+num_training_ready_labels = 10
+allowed_for_dynamic_aware_training = true
 ```
 
 The old handwired L02 timeout remains in the historical summary as a failed
 row, but it is not promoted to training-ready. Clean lab L02 is the successful
-L02 result. Training remains blocked because `num_training_ready_labels < 10`.
-If the count eventually reaches ten, the next step is only preliminary preview
-training, not an official dynamic performance conclusion.
+L02 result. The count has reached ten after L06/L07/L08, so the next step is
+only preliminary preview training in a separate commit, not an official dynamic
+performance conclusion.
 This remains preliminary preview training guidance only, not a final dynamic
 performance conclusion.
 
@@ -147,15 +150,15 @@ results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSyst
 ```
 
 ```text
-num_training_ready_handwired_line_trip_labels = 5
-num_unique_handwired_line_ids = 5
-num_training_ready_labels = 7
-allowed_for_dynamic_aware_training = false
+num_training_ready_handwired_line_trip_labels = 8
+num_unique_handwired_line_ids = 8
+num_training_ready_labels = 10
+allowed_for_dynamic_aware_training = true
 ```
 
-The next manual batch should use independent per-line clean labs for L06, L07,
-and L08. For later lines, do not invent a block path if the line is not present
-in the inventory-backed extended map.
+L06, L07, and L08 now use independent per-line clean labs and have passed compact
+simulation. For later lines, do not invent a block path if the line is not
+present in the inventory-backed extended map.
 
 ## Boundaries
 
@@ -165,4 +168,5 @@ in the inventory-backed extended map.
   protection.
 - `generator_speed_proxy` is not direct frequency.
 - This round does not train a dynamic-aware reranker.
+
 

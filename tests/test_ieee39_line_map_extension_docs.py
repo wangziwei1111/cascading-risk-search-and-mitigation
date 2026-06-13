@@ -10,9 +10,9 @@ def test_ieee39_line_map_extension_docs_are_conservative() -> None:
     text = doc.read_text(encoding="utf-8").lower()
     for required in [
         "l01-l05",
-        "num_training_ready_labels = 7",
-        "7 < 10",
-        "allowed_for_dynamic_aware_training = false",
+        "num_training_ready_labels = 10",
+        "allowed_for_dynamic_aware_training = true",
+        "preview training",
         "l06",
         "grid/b14 to b15",
         "l07",
