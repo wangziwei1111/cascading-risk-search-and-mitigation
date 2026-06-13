@@ -6,7 +6,7 @@ function summaryTable = prepare_ieee39_clean_handwired_breaker_labs_for_lines(li
 % physical ports, or save changes to the source wrapper.
 
 if nargin < 1 || isempty(lineIds)
-    lineIds = ["L04", "L05"];
+    lineIds = ["L06", "L07", "L08"];
 end
 if nargin < 2 || isempty(sourceWrapperPath)
     sourceWrapperPath = "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper.slx";
@@ -49,7 +49,10 @@ for idx = 1:numel(lineIds)
     status = "not_started";
     note = "";
 
-    if ~sourceFound
+    if lineBlockPath == "not_in_current_line_map"
+        status = "not_mapped";
+        note = "line_id is not mapped to a verified real Grid line block; do not wire until mapped";
+    elseif ~sourceFound
         status = "source_missing";
         note = "source wrapper not found";
     elseif sourceHasHandwired
@@ -114,7 +117,13 @@ found = ~isempty(matches);
 end
 
 function lineMap = readLineMap()
-mapPath = "../../results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map.csv";
+extendedMapPath = "../../results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_extended.csv";
+legacyMapPath = "../../results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map.csv";
+if isfile(extendedMapPath)
+    mapPath = extendedMapPath;
+else
+    mapPath = legacyMapPath;
+end
 if isfile(mapPath)
     lineMap = readtable(mapPath, "TextType", "string", "VariableNamingRule", "preserve", "Delimiter", ",");
 else

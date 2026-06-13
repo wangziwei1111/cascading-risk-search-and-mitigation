@@ -1251,6 +1251,81 @@ git diff -- src/rl_mitigation scripts/rl_mitigation
 
 RL mitigation files were not modified. Generated `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories, and full timeseries remain local-only and must not be committed.
 
+## Round 33: Extend IEEE39 Wrapper Line Map For L06/L07/L08
+
+Goal: extend the IEEE39 wrapper line map using real Simulink `Grid` block
+inventory before any new manual breaker wiring. This round does not insert
+breakers, does not modify Simscape physical-port wiring, does not run
+L06/L07/L08 compact simulation, and does not train the dynamic-aware reranker.
+
+Plain-language result: the wrapper was scanned read-only, and L06/L07/L08 were
+mapped to real line blocks instead of guessed paths. Local clean lab `.slx`
+copies were prepared for later user wiring only.
+
+Commands:
+
+```powershell
+matlab -batch "cd('C:/Users/24186/Documents/New project 7/simulink-dynamic-validation-worktree/matlab/simulink_ieee39'); configure_ieee39_short_filegen_paths(); inspect_ieee39_wrapper_grid_line_blocks();"
+
+python scripts/gcn_search/update_ieee39_line_breaker_map_from_inventory.py
+
+matlab -batch "cd('C:/Users/24186/Documents/New project 7/simulink-dynamic-validation-worktree/matlab/simulink_ieee39'); configure_ieee39_short_filegen_paths(); prepare_ieee39_clean_handwired_breaker_labs_for_lines(string({'L06','L07','L08'}));"
+
+python scripts/gcn_search/print_ieee39_clean_breaker_lab_batch_checklist.py
+```
+
+Inventory outputs:
+
+```text
+results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_grid_line_block_inventory.csv
+results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_grid_line_block_inventory.json
+```
+
+Extended map outputs:
+
+```text
+results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_extended.csv
+results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_extension_summary.json
+```
+
+Verified next line paths:
+
+```text
+L06 -> IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B14 to B15
+L07 -> IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B15 to B16
+L08 -> IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B16 to B17
+```
+
+Local-only clean lab `.slx` files prepared:
+
+```text
+results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L06.slx
+results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L07.slx
+results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L08.slx
+```
+
+Current label gate remains:
+
+```text
+num_training_ready_labels = 7
+num_training_ready_handwired_line_trip_labels = 5
+num_unique_handwired_line_ids = 5
+allowed_for_dynamic_aware_training = false
+```
+
+After the user manually wires L06/L07/L08, run:
+
+```text
+validate_ieee39_clean_breaker_lab_lines_batch(["L06","L07","L08"])
+
+python scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py --line-ids L06 L07 L08 --model-path-pattern "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_{line_id}.slx" --timeout-seconds 240 --simulation-stop-time 0.5
+```
+
+Boundaries: phasor_RMS is not EMT; `generator_speed_proxy` is not direct
+frequency; handwired breaker validation is pilot breaker-like, not
+engineering-grade protection; `.slx`, `.slxc`, `slprj`, `.mat`, raw
+trajectories, and full timeseries remain local-only and must not be committed.
+
 ## Round 31 Follow-up: Windows Path-Length Fix And Handwired Suite Validation
 
 The handwired IEEE39 wrapper initially failed in Simulink build because generated

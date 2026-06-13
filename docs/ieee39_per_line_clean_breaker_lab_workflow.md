@@ -8,8 +8,9 @@ simulation. It is not a multi-line cascading trip sequence.
 
 Clean L02 and per-line clean L03, L04, and L05 have already passed structure
 validation and isolated compact simulation, and they are counted as
-training-ready handwired line-trip labels. Future targets should follow the same
-one-line-per-clean-lab rule.
+training-ready handwired line-trip labels. Future L06/L07/L08 targets should
+follow the same one-line-per-clean-lab rule, using only paths verified from the
+wrapper Grid inventory.
 
 ## Why One Clean Lab Per Line
 
@@ -30,6 +31,9 @@ IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L02.slx
 IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L03.slx
 IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04.slx
 IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L05.slx
+IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L06.slx
+IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L07.slx
+IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L08.slx
 ```
 
 These `.slx` files are local-only and must not be committed.

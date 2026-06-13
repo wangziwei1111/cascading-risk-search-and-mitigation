@@ -1,0 +1,28 @@
+{
+  "existing_mapped_line_ids": [
+    "L01",
+    "L02",
+    "L03",
+    "L04",
+    "L05"
+  ],
+  "preserved_line_ids": [
+    "L01",
+    "L02",
+    "L03",
+    "L04",
+    "L05"
+  ],
+  "newly_mapped_line_ids": [
+    "L06",
+    "L07",
+    "L08",
+    "L09",
+    "L10"
+  ],
+  "unmapped_line_ids": [],
+  "mapping_rule": "Preserve L01-L05 exactly from ieee39_line_breaker_map.csv. For L06-L10, use unused real line-like Grid blocks from ieee39_wrapper_grid_line_block_inventory.csv in ascending inventory_index order.",
+  "source_inventory_path": "results\\gcn_search\\ieee39_graphical_dynamic_model\\wrapper\\ieee39_wrapper_grid_line_block_inventory.csv",
+  "output_map_path": "results\\gcn_search\\ieee39_graphical_dynamic_model\\wrapper\\ieee39_line_breaker_map_extended.csv",
+  "warnings": []
+}

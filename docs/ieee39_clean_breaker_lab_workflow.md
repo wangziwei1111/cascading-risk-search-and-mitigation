@@ -111,8 +111,9 @@ allowed_for_dynamic_aware_training = false
 ```
 
 Per-line clean L03, L04, and L05 have now passed validation and compact
-simulation. The next manual targets should be L06 and L07, if their line blocks
-are mapped and independent clean lab `.slx` files are prepared. Do not keep
+simulation. The next manual targets should be L06, L07, and L08; their block
+paths were verified from the wrapper Grid inventory as `Grid/B14 to B15`,
+`Grid/B15 to B16`, and `Grid/B16 to B17`. Do not keep
 adding new TripCommand blocks into a clean lab that already contains another
 active line trip. If two TripCommand blocks both act at 0.5 s, the simulation
 becomes a simultaneous two-line trip and cannot be used as a single-line label.
@@ -136,8 +137,9 @@ num_unique_handwired_line_ids = 5
 allowed_for_dynamic_aware_training = false
 ```
 
-The next batch should prepare L06 and L07 as separate per-line clean lab
-models when those line IDs are available in the wrapper line map.
+The next batch prepares L06, L07, and L08 as separate per-line clean lab
+models. Do not invent a block path for any later line that is not present in the
+inventory-backed extended map.
 
 ## Boundaries
 

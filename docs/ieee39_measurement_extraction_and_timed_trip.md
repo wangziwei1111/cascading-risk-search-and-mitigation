@@ -110,8 +110,9 @@ compact simulation, so it is counted as an additional training-ready handwired
 line-trip label. L03-L04 are not counted as training-ready yet.
 
 Per-line clean L03, L04, and L05 single-line labels now use independent
-per-line clean lab models. Future L06/L07 labels should follow the same
-one-line-per-model rule. Adding a new target into a clean lab that already
+per-line clean lab models. Future L06/L07/L08 labels should follow the same
+one-line-per-model rule, with verified wrapper Grid paths `Grid/B14 to B15`,
+`Grid/B15 to B16`, and `Grid/B16 to B17`. Adding a new target into a clean lab that already
 contains another active TripCommand can make both TripCommand blocks act at
 0.5 s, turning the case into a simultaneous multi-line trip. That kind of
 sequential or simultaneous trip experiment should be handled separately and

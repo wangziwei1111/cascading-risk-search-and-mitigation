@@ -34,8 +34,9 @@ def test_batch_per_line_clean_breaker_lab_docs_are_conservative() -> None:
             assert forbidden not in text
 
     batch_doc = docs[0].read_text(encoding="utf-8").lower()
-    for required in ["l04", "l05", "grid/b11 to b6", "grid/b13 to b14"]:
+    for required in ["l06", "l07", "l08", "grid/b14 to b15", "grid/b15 to b16", "grid/b16 to b17"]:
         assert required in batch_doc
+    assert "do not invent a block path" in batch_doc
     assert "sequential or simultaneous multi-line trip experiments" in batch_doc
     assert "must not be mixed into single-line labels" in batch_doc
 

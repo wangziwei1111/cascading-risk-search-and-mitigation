@@ -118,14 +118,17 @@ training, not an official dynamic performance conclusion.
 This remains preliminary preview training guidance only, not a final dynamic
 performance conclusion.
 
-Recommended next step: continue with L06/L07 in their own per-line clean breaker
-labs when their line blocks are mapped. Confirm that each `Lxx_TripCommand`
+Recommended next step: continue with L06/L07/L08 in their own per-line clean
+breaker labs. Their verified wrapper Grid paths are `Grid/B14 to B15`,
+`Grid/B15 to B16`, and `Grid/B16 to B17`. Confirm that each `Lxx_TripCommand`
 opens only the matching `Lxx_HandwiredTimedBreaker`, the breaker is really
 inserted on the intended line, and opening it does not create an abnormal
 Simscape island or disconnected physical network.
 
 ```text
 results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L06.slx
+results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L07.slx
+results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L08.slx
 ```
 
 Do not add a new target to the same clean lab that already contains another
@@ -150,8 +153,9 @@ num_training_ready_labels = 7
 allowed_for_dynamic_aware_training = false
 ```
 
-The next manual batch should use independent per-line clean labs for L06 and
-L07 if those line IDs are available in the wrapper line map.
+The next manual batch should use independent per-line clean labs for L06, L07,
+and L08. For later lines, do not invent a block path if the line is not present
+in the inventory-backed extended map.
 
 ## Boundaries
 

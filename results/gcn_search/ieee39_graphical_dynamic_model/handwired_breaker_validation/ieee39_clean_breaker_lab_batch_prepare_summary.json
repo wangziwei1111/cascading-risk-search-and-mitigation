@@ -1,8 +1,8 @@
 [
   {
-    "line_id": "L04",
-    "line_block_path": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B11 to B6",
-    "target_clean_lab_path": "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04.slx",
+    "line_id": "L06",
+    "line_block_path": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B14 to B15",
+    "target_clean_lab_path": "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L06.slx",
     "source_found": true,
     "target_created": true,
     "target_loadable": true,
@@ -12,9 +12,21 @@
     "note": "per-line clean breaker lab copied from source wrapper; no breaker was inserted"
   },
   {
-    "line_id": "L05",
-    "line_block_path": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B13 to B14",
-    "target_clean_lab_path": "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L05.slx",
+    "line_id": "L07",
+    "line_block_path": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B15 to B16",
+    "target_clean_lab_path": "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L07.slx",
+    "source_found": true,
+    "target_created": true,
+    "target_loadable": true,
+    "existing_handwired_breaker_found": false,
+    "clean_lab_committed": false,
+    "status": "prepared",
+    "note": "per-line clean breaker lab copied from source wrapper; no breaker was inserted"
+  },
+  {
+    "line_id": "L08",
+    "line_block_path": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B16 to B17",
+    "target_clean_lab_path": "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L08.slx",
     "source_found": true,
     "target_created": true,
     "target_loadable": true,

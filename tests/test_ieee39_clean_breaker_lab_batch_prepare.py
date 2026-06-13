@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 
 
-def test_batch_clean_breaker_lab_prepare_summary_contains_l04_l05() -> None:
+def test_batch_clean_breaker_lab_prepare_summary_contains_l06_l07_l08() -> None:
     root = Path(__file__).resolve().parents[1]
     csv_path = root / "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_batch_prepare_summary.csv"
     json_path = root / "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_batch_prepare_summary.json"
@@ -26,8 +26,12 @@ def test_batch_clean_breaker_lab_prepare_summary_contains_l04_l05() -> None:
         "note",
     }
     assert required.issubset(table.columns)
-    assert set(table["line_id"].astype(str)) == {"L04", "L05"}
-    for line_id, line_path in {"L04": "Grid/B11 to B6", "L05": "Grid/B13 to B14"}.items():
+    assert set(table["line_id"].astype(str)) == {"L06", "L07", "L08"}
+    for line_id, line_path in {
+        "L06": "Grid/B14 to B15",
+        "L07": "Grid/B15 to B16",
+        "L08": "Grid/B16 to B17",
+    }.items():
         row = table[table["line_id"].astype(str) == line_id].iloc[0]
         assert line_path in row["line_block_path"]
         assert row["target_clean_lab_path"].endswith(f"IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_{line_id}.slx")
@@ -38,4 +42,4 @@ def test_batch_clean_breaker_lab_prepare_summary_contains_l04_l05() -> None:
         assert str(row["clean_lab_committed"]).lower() in {"0", "false"}
         assert row["status"] == "prepared"
     payload = json.loads(json_path.read_text(encoding="utf-8"))
-    assert len(payload) == 2
+    assert len(payload) == 3

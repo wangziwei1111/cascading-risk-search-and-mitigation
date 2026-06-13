@@ -73,6 +73,7 @@ REQUIRED_FILES = [
     "matlab/simulink_ieee39/prepare_ieee39_clean_handwired_breaker_lab.m",
     "matlab/simulink_ieee39/prepare_ieee39_clean_handwired_breaker_lab_for_line.m",
     "matlab/simulink_ieee39/prepare_ieee39_clean_handwired_breaker_labs_for_lines.m",
+    "matlab/simulink_ieee39/inspect_ieee39_wrapper_grid_line_blocks.m",
     "matlab/simulink_ieee39/validate_ieee39_clean_breaker_lab_line.m",
     "matlab/simulink_ieee39/validate_ieee39_clean_breaker_lab_lines_batch.m",
     "matlab/simulink_ieee39/inventory_ieee39_simlog_tree.m",
@@ -98,6 +99,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/print_ieee39_clean_breaker_lab_batch_checklist.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trip_isolated.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py",
+    "scripts/gcn_search/update_ieee39_line_breaker_map_from_inventory.py",
     "tests/test_simulink_dynamic_case_export.py",
     "tests/test_simulink_dynamic_result_analysis.py",
     "tests/test_simulink_dynamic_disagreement.py",
@@ -170,6 +172,9 @@ REQUIRED_FILES = [
     "tests/test_ieee39_clean_breaker_lab_validation_schema.py",
     "tests/test_ieee39_clean_breaker_lab_isolated_summary.py",
     "tests/test_ieee39_clean_breaker_lab_docs.py",
+    "tests/test_ieee39_wrapper_grid_line_inventory.py",
+    "tests/test_ieee39_line_breaker_map_extension.py",
+    "tests/test_ieee39_line_map_extension_docs.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
     "docs/pio_gcn_simulink_real_topk_event_driven_validation.md",
@@ -194,6 +199,7 @@ REQUIRED_FILES = [
     "docs/ieee39_clean_breaker_lab_workflow.md",
     "docs/ieee39_per_line_clean_breaker_lab_workflow.md",
     "docs/ieee39_batch_per_line_clean_breaker_lab_workflow.md",
+    "docs/ieee39_line_map_extension_workflow.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -215,6 +221,10 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_grid_line_block_inventory.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_grid_line_block_inventory.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_extended.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_extension_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_block_parameter_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.json",
@@ -1269,14 +1279,21 @@ def main() -> int:
             import pandas as pd
 
             table = pd.read_csv(batch_prepare)
-            if set(table.get("line_id", pd.Series(dtype=str)).astype(str)) != {"L04", "L05"}:
-                failures.append("Batch clean lab prepare summary must currently contain L04 and L05.")
-            for line_id in ["L04", "L05"]:
+            expected_paths = {
+                "L06": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B14 to B15",
+                "L07": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B15 to B16",
+                "L08": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B16 to B17",
+            }
+            if set(table.get("line_id", pd.Series(dtype=str)).astype(str)) != set(expected_paths):
+                failures.append("Batch clean lab prepare summary must currently contain L06, L07, and L08.")
+            for line_id, expected_path in expected_paths.items():
                 row = table[table["line_id"].astype(str).eq(line_id)]
                 if row.empty:
                     failures.append(f"Batch clean lab prepare summary missing {line_id}.")
                     continue
                 row = row.iloc[0]
+                if str(row.get("line_block_path", "")) != expected_path:
+                    failures.append(f"Batch clean lab prepare {line_id} must use verified path {expected_path}.")
                 if str(row.get("status", "")) != "prepared":
                     failures.append(f"Batch clean lab prepare {line_id} must be prepared.")
                 if str(row.get("clean_lab_committed", "")).lower() not in {"0", "false"}:
