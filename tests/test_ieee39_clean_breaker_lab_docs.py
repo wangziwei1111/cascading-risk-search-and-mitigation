@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from pathlib import Path
 
@@ -37,8 +37,9 @@ def test_clean_breaker_lab_docs_are_conservative() -> None:
         "validation_passed = true",
         "simulation_success = true",
         "training_ready_candidate = true",
-        "num_training_ready_labels = 5",
+        "num_training_ready_labels = 7",
         "allowed_for_dynamic_aware_training = false",
-        "next manual wiring target should be l03",
+        "next manual targets should be l06 and l07",
     ]:
         assert required in clean_doc
+

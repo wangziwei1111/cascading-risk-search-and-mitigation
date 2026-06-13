@@ -22,7 +22,7 @@ def model_path_for(pattern: str, line_id: str) -> str:
 
 
 def validation_path_for(line_id: str) -> str:
-    return f"../../results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_{line_id}_validation_summary.csv"
+    return "../../results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_batch_validation_summary.csv"
 
 
 def run_batch(line_ids: list[str], model_path_pattern: str, output_dir: Path, timeout_seconds: int, simulation_stop_time: float) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:

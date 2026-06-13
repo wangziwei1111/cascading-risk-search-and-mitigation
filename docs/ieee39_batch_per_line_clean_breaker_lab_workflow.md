@@ -1,10 +1,11 @@
-# IEEE39 Batch Per-Line Clean Breaker Lab Workflow
+﻿# IEEE39 Batch Per-Line Clean Breaker Lab Workflow
 
 ## Purpose
 
-Clean lab L02 and per-line clean lab L03 have both passed as single-line
-handwired line-trip labels. The next goal is to prepare the next batch of
-independent clean lab `.slx` files so the user can manually wire L04 and L05.
+Clean lab L02 and per-line clean lab L03, L04, and L05 have passed as
+single-line handwired line-trip labels. This workflow records how batch
+per-line clean labs are prepared, validated, and simulated. The same pattern can
+be reused for later targets such as L06/L07 when their line blocks are mapped.
 
 This is still single-line label collection, not simultaneous or sequential
 multi-line trip experimentation. Each `.slx` must contain only the breaker for
@@ -16,21 +17,23 @@ its own target line.
 L01
 clean lab L02
 per-line clean lab L03
+per-line clean lab L04
+per-line clean lab L05
 ```
 
 Current label gate:
 
 ```text
-num_training_ready_labels = 5
-num_training_ready_handwired_line_trip_labels = 3
-num_unique_handwired_line_ids = 3
+num_training_ready_labels = 7
+num_training_ready_handwired_line_trip_labels = 5
+num_unique_handwired_line_ids = 5
 allowed_for_dynamic_aware_training = false
 ```
 
 Because labels are still below 10, dynamic-aware reranker training remains
 blocked.
 
-## Batch Prepare
+## L04/L05 Batch Prepare And Validation Reference
 
 Run:
 
@@ -90,14 +93,22 @@ configure_ieee39_short_filegen_paths()
 validate_ieee39_clean_breaker_lab_lines_batch(["L04","L05"])
 ```
 
-If validation passes, run:
+If validation passes, run. In PowerShell, quote the model path pattern so
+`{line_id}` is preserved:
 
 ```powershell
-python scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py --line-ids L04 L05 --model-path-pattern ../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_{line_id}.slx --timeout-seconds 240 --simulation-stop-time 0.5
+python scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py --line-ids L04 L05 --model-path-pattern "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_{line_id}.slx" --timeout-seconds 240 --simulation-stop-time 0.5
 ```
 
 Each line runs in its own MATLAB process. A timeout on one line must not block
 the next line.
+
+The current L04/L05 compact simulations both passed:
+
+```text
+L04: simulation_success = true, measurement_extraction_status = voltage_speed_angle, breaker_opened = true
+L05: simulation_success = true, measurement_extraction_status = voltage_speed_angle, breaker_opened = true
+```
 
 ## Boundaries
 
@@ -107,3 +118,4 @@ the next line.
 - Sequential or simultaneous multi-line trip experiments can be studied later,
   but they must not be mixed into single-line labels.
 - Do not commit `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories, or full timeseries.
+

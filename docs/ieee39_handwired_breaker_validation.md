@@ -75,9 +75,10 @@ The label exporter now recognizes:
 Current compact gate:
 
 ```text
-num_training_ready_labels = 5
-num_training_ready_handwired_line_trip_labels = 3
-num_handwired_validation_passed = 4
+num_training_ready_labels = 7
+num_training_ready_handwired_line_trip_labels = 5
+num_handwired_validation_passed = 5
+num_unique_handwired_line_ids = 5
 handwired_model_used = true
 handwired_model_committed = false
 allowed_for_dynamic_aware_training = false
@@ -98,10 +99,10 @@ and isolated compact simulation, so L01 and clean lab L02 are training-ready.
 Training remains blocked while the total training-ready label count is below
 ten.
 
-Future L03/L04 labels should use one independent per-line clean lab `.slx` per
-line. Do not add L03 to the clean lab that already contains L02, because two
-TripCommand blocks acting at 0.5 s would create a simultaneous multi-line trip
-instead of a single-line label.
+L03, L04, and L05 now use independent per-line clean lab `.slx` models. Do not
+add multiple active TripCommand blocks to the same single-line label model,
+because two TripCommand blocks acting at 0.5 s would create a simultaneous
+multi-line trip instead of a single-line label.
 
 ## Clean Breaker Lab Reset
 
@@ -113,11 +114,13 @@ results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSyst
 ```
 
 The clean lab starts without `L01_HandwiredTimedBreaker`,
-`L02_HandwiredTimedBreaker`, `L03_HandwiredTimedBreaker`, or
-`L04_HandwiredTimedBreaker`. The user wired L02 first, and clean L02 now passes
-compact validation. The next manual target should be L03 in
-`IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L03.slx`, not the
-old handwired model and not the L02 clean lab.
+`L02_HandwiredTimedBreaker`, `L03_HandwiredTimedBreaker`,
+`L04_HandwiredTimedBreaker`, or `L05_HandwiredTimedBreaker`. The user wired L02
+first, then per-line clean L03, L04, and L05; all five handwired line-trip
+labels L01-L05 are now training-ready in the compact phasor_RMS gate. The next
+manual targets should be L06 and L07 in independent per-line clean lab `.slx`
+files, not the old handwired model and not any clean lab that already contains a
+different active line trip.
 
 ## Boundaries
 

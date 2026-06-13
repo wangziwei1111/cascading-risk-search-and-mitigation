@@ -1,0 +1,3 @@
+﻿test_case,event_time_s,event_type,physical_executed,event_note,source_model
+clean_lab_handwired_line_trip_L04,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L04
+clean_lab_handwired_line_trip_L05,0.5,pilot_line_trip,1,handwired timed breaker validated and compact simulation completed,clean_breaker_lab_L05

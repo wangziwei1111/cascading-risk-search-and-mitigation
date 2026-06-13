@@ -1,4 +1,4 @@
-# IEEE39 Multi-Handwired Breaker Expansion
+﻿# IEEE39 Multi-Handwired Breaker Expansion
 
 ## Purpose
 
@@ -104,9 +104,9 @@ python src/gcn_search/legacy_rts79/export_ieee39_dynamic_labels.py --fault-summa
 validation_passed lines = 4
 passed line IDs = L01, L02, L03, L04
 multi line-trip simulation_success count = 1
-num_training_ready_handwired_line_trip_labels = 3
-num_unique_handwired_line_ids = 3
-num_training_ready_labels = 5
+num_training_ready_handwired_line_trip_labels = 5
+num_unique_handwired_line_ids = 5
+num_training_ready_labels = 7
 allowed_for_dynamic_aware_training = false
 ```
 
@@ -118,32 +118,40 @@ training, not an official dynamic performance conclusion.
 This remains preliminary preview training guidance only, not a final dynamic
 performance conclusion.
 
-Recommended next step: wire L03 in its own per-line clean breaker lab and confirm that
-`L03_TripCommand` opens only `L03_HandwiredTimedBreaker`, the breaker is really
+Recommended next step: continue with L06/L07 in their own per-line clean breaker
+labs when their line blocks are mapped. Confirm that each `Lxx_TripCommand`
+opens only the matching `Lxx_HandwiredTimedBreaker`, the breaker is really
 inserted on the intended line, and opening it does not create an abnormal
 Simscape island or disconnected physical network.
+
+```text
+results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L06.slx
+```
+
+Do not add a new target to the same clean lab that already contains another
+active line trip. If multiple
+TripCommand blocks act at 0.5 s, the run becomes a simultaneous multi-line trip,
+not a single-line label. Sequential or simultaneous trip experiments can be
+studied later, but they must not be mixed into the single-line label set.
+
+Per-line clean L03, L04, and L05 now pass and are merged as training-ready
+handwired line-trip labels. Current formal label gate:
+
+Historical per-line L03 reference model:
 
 ```text
 results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L03.slx
 ```
 
-Do not add L03 to the same clean lab that already contains L02. If multiple
-TripCommand blocks act at 0.5 s, the run becomes a simultaneous multi-line trip,
-not a single-line label. Sequential or simultaneous trip experiments can be
-studied later, but they must not be mixed into the single-line label set.
-
-Per-line clean L03 now passes and is merged as a training-ready handwired
-line-trip label. Current formal label gate:
-
 ```text
-num_training_ready_handwired_line_trip_labels = 3
-num_unique_handwired_line_ids = 3
-num_training_ready_labels = 5
+num_training_ready_handwired_line_trip_labels = 5
+num_unique_handwired_line_ids = 5
+num_training_ready_labels = 7
 allowed_for_dynamic_aware_training = false
 ```
 
-The next manual batch should use independent per-line clean labs for L04 and
-L05.
+The next manual batch should use independent per-line clean labs for L06 and
+L07 if those line IDs are available in the wrapper line map.
 
 ## Boundaries
 
@@ -153,3 +161,4 @@ L05.
   protection.
 - `generator_speed_proxy` is not direct frequency.
 - This round does not train a dynamic-aware reranker.
+

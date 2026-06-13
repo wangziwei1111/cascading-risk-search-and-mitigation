@@ -1,13 +1,13 @@
-# IEEE39 Clean Breaker Lab Workflow
+﻿# IEEE39 Clean Breaker Lab Workflow
 
 ## Purpose
 
 The old handwired `.slx` has been edited many times. L01 can still provide one
-training-ready handwired line-trip label, but L02-L04 passed structural
-validation while compact dynamic simulation failed or timed out. To eliminate
-possible hidden bypasses, short circuits, wrong control wiring, or abnormal
-physical network states, new manual breaker wiring should start from a clean
-lab model.
+training-ready handwired line-trip label, and clean/per-line clean lab models
+now provide training-ready L02, L03, L04, and L05 labels. To eliminate possible
+hidden bypasses, short circuits, wrong control wiring, or abnormal physical
+network states, future manual breaker wiring should continue from independent
+per-line clean lab models.
 
 ## Clean Lab Model
 
@@ -104,19 +104,20 @@ training-ready.
 Current label gate:
 
 ```text
-num_training_ready_handwired_line_trip_labels = 3
-num_unique_handwired_line_ids = 3
-num_training_ready_labels = 5
+num_training_ready_handwired_line_trip_labels = 5
+num_unique_handwired_line_ids = 5
+num_training_ready_labels = 7
 allowed_for_dynamic_aware_training = false
 ```
 
-The next manual wiring target should be L03, but it must use its own per-line
-clean lab model. Do not keep adding L03 into the clean lab that already
-contains L02. If L02 and L03 TripCommand blocks both act at 0.5 s, the
-simulation becomes a simultaneous two-line trip and cannot be used as a
-single-line L03 label.
+Per-line clean L03, L04, and L05 have now passed validation and compact
+simulation. The next manual targets should be L06 and L07, if their line blocks
+are mapped and independent clean lab `.slx` files are prepared. Do not keep
+adding new TripCommand blocks into a clean lab that already contains another
+active line trip. If two TripCommand blocks both act at 0.5 s, the simulation
+becomes a simultaneous two-line trip and cannot be used as a single-line label.
 
-Per-line L03 target:
+Per-line L03 reference target:
 
 ```text
 results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L03.slx
@@ -125,18 +126,18 @@ breaker name: L03_HandwiredTimedBreaker
 trip command name: L03_TripCommand
 ```
 
-Per-line clean L03 has now passed validation and compact simulation. The
-current formal label gate is:
+Per-line clean L03, L04, and L05 have now passed validation and compact
+simulation. The current formal label gate is:
 
 ```text
-num_training_ready_labels = 5
-num_training_ready_handwired_line_trip_labels = 3
-num_unique_handwired_line_ids = 3
+num_training_ready_labels = 7
+num_training_ready_handwired_line_trip_labels = 5
+num_unique_handwired_line_ids = 5
 allowed_for_dynamic_aware_training = false
 ```
 
-The next batch should prepare L04 and L05 as separate per-line clean lab
-models.
+The next batch should prepare L06 and L07 as separate per-line clean lab
+models when those line IDs are available in the wrapper line map.
 
 ## Boundaries
 
@@ -145,3 +146,4 @@ models.
 - The handwired breaker is pilot breaker-like validation, not engineering-grade protection.
 - If total training-ready labels remain below 10, dynamic-aware reranker training remains blocked.
 - Do not commit `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories, or full timeseries.
+

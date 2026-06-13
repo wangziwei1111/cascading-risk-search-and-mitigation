@@ -46,15 +46,17 @@ Already successful training-ready handwired line trips:
 - L01
 - clean lab L02
 - per-line clean lab L03
+- per-line clean lab L04
+- per-line clean lab L05
 
 Current expected label gate:
-- num_training_ready_labels = 5
-- num_training_ready_handwired_line_trip_labels = 3
+- num_training_ready_labels = 7
+- num_training_ready_handwired_line_trip_labels = 5
 - allowed_for_dynamic_aware_training = false
 
 Next recommended manual targets:
-- priority: L04
-- priority: L05
+- priority: L06
+- priority: L07
 - L06-L10 are listed below only if present in the current line map; otherwise they are marked not_in_current_line_map.
 
 Per-line targets:
@@ -78,7 +80,7 @@ validate_ieee39_clean_breaker_lab_lines_batch(["L04","L05"])
 
 If validation passes, ask Codex to run batch isolated compact simulation:
 powershell:
-python scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py --line-ids L04 L05 --model-path-pattern ../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_{{line_id}}.slx --timeout-seconds 240 --simulation-stop-time 0.5
+python scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py --line-ids L04 L05 --model-path-pattern "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_{{line_id}}.slx" --timeout-seconds 240 --simulation-stop-time 0.5
 
 Boundaries:
 - The model remains phasor_RMS, not EMT.

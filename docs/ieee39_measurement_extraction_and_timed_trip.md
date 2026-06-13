@@ -1,4 +1,4 @@
-# IEEE39 Measurement Extraction and Timed Trip Status
+﻿# IEEE39 Measurement Extraction and Timed Trip Status
 
 ## Round 29 Purpose
 
@@ -109,19 +109,22 @@ clean breaker lab. Clean lab L02 passes structure validation and isolated
 compact simulation, so it is counted as an additional training-ready handwired
 line-trip label. L03-L04 are not counted as training-ready yet.
 
-Future L03/L04 single-line labels should use independent per-line clean lab
-models. Adding L03 into the same clean lab that already contains L02 can make
-both TripCommand blocks act at 0.5 s, turning the case into a simultaneous
-multi-line trip. That kind of sequential or simultaneous trip experiment should
-be handled separately and must not be mixed into the single-line label set.
+Per-line clean L03, L04, and L05 single-line labels now use independent
+per-line clean lab models. Future L06/L07 labels should follow the same
+one-line-per-model rule. Adding a new target into a clean lab that already
+contains another active TripCommand can make both TripCommand blocks act at
+0.5 s, turning the case into a simultaneous multi-line trip. That kind of
+sequential or simultaneous trip experiment should be handled separately and
+must not be mixed into the single-line label set.
 
-Per-line clean L03 now passes structure validation and compact isolated
-simulation, so the formal label gate is updated to five training-ready labels:
+Per-line clean L03, L04, and L05 now pass structure validation and compact
+isolated simulation, so the formal label gate is updated to seven
+training-ready labels:
 
 ```text
-num_training_ready_handwired_line_trip_labels = 3
-num_unique_handwired_line_ids = 3
-num_training_ready_labels = 5
+num_training_ready_handwired_line_trip_labels = 5
+num_unique_handwired_line_ids = 5
+num_training_ready_labels = 7
 allowed_for_dynamic_aware_training = false
 ```
 
@@ -129,11 +132,12 @@ Current result:
 
 ```text
 handwired_model_found = true
-multi_handwired_validation_passed_lines = L01, L02, L03, L04
-num_training_ready_handwired_line_trip_labels = 3
-num_unique_handwired_line_ids = 3
-num_training_ready_labels = 5
+handwired_validation_passed_lines = L01, L02, L03, L04, L05
+num_training_ready_handwired_line_trip_labels = 5
+num_unique_handwired_line_ids = 5
+num_training_ready_labels = 7
 allowed_for_dynamic_aware_training = false
 ```
 
 The handwired `.slx` is not committed.
+

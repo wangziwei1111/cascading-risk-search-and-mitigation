@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from pathlib import Path
 
@@ -11,7 +11,7 @@ def test_batch_clean_breaker_lab_checklist_is_single_line_per_model() -> None:
     for required in [
         "clean lab l02",
         "per-line clean lab l03",
-        "num_training_ready_labels = 5",
+        "num_training_ready_labels = 7",
         "line_id: l04",
         "line block path: grid/b11 to b6",
         "l04_handwiredtimedbreaker",
@@ -32,3 +32,4 @@ def test_batch_clean_breaker_lab_checklist_is_single_line_per_model() -> None:
         "emt validation completed",
     ]:
         assert forbidden not in text
+

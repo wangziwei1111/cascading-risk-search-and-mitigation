@@ -256,6 +256,11 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_L03_line_trip_summary.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_l03_merge_summary.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_batch_line_trip_summary.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_batch_signal_summary.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_batch_event_log.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_l04_l05_merge_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_multi_handwired_line_trip_summary.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_multi_handwired.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_multi_handwired_merge_summary.json",
@@ -851,14 +856,14 @@ def main() -> int:
         ]:
             if required_key not in quality:
                 failures.append(f"IEEE39 quality summary missing key: {required_key}")
-        if quality.get("num_training_ready_labels") != 5:
-            failures.append("IEEE39 quality summary must report five training-ready labels after clean lab L03.")
-        if quality.get("num_training_ready_handwired_line_trip_labels") != 3:
-            failures.append("IEEE39 quality summary must report three training-ready handwired line-trip labels.")
-        if quality.get("num_training_ready_handwired_line_trip_labels_by_line") != {"L01": 1, "L02": 1, "L03": 1}:
-            failures.append("IEEE39 quality summary must report L01, L02, and L03 as handwired training-ready lines.")
-        if quality.get("num_unique_handwired_line_ids") != 3:
-            failures.append("IEEE39 quality summary must report three unique handwired line IDs.")
+        if quality.get("num_training_ready_labels") != 7:
+            failures.append("IEEE39 quality summary must report seven training-ready labels after clean lab L04/L05.")
+        if quality.get("num_training_ready_handwired_line_trip_labels") != 5:
+            failures.append("IEEE39 quality summary must report five training-ready handwired line-trip labels.")
+        if quality.get("num_training_ready_handwired_line_trip_labels_by_line") != {"L01": 1, "L02": 1, "L03": 1, "L04": 1, "L05": 1}:
+            failures.append("IEEE39 quality summary must report L01 through L05 as handwired training-ready lines.")
+        if quality.get("num_unique_handwired_line_ids") != 5:
+            failures.append("IEEE39 quality summary must report five unique handwired line IDs.")
         if quality.get("allowed_for_dynamic_aware_training", True):
             failures.append("IEEE39 quality summary must keep dynamic-aware training blocked while labels < 10.")
 
@@ -1242,6 +1247,21 @@ def main() -> int:
                 failures.append("Clean L03 merge must not let static_topology_disable overwrite handwired rows.")
         except Exception as exc:
             failures.append(f"Failed to read clean L03 merge summary: {exc}")
+
+    clean_l04_l05_merge = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_l04_l05_merge_summary.json"
+    if clean_l04_l05_merge.exists():
+        try:
+            import json
+
+            payload = json.loads(clean_l04_l05_merge.read_text(encoding="utf-8"))
+            if payload.get("num_training_ready_handwired_rows") != 5:
+                failures.append("Clean L04/L05 merge summary must report five training-ready handwired rows.")
+            if payload.get("num_training_ready_handwired_rows_by_line") != {"L01": 1, "L02": 1, "L03": 1, "L04": 1, "L05": 1}:
+                failures.append("Clean L04/L05 merge summary must report L01 through L05 ready rows.")
+            if payload.get("static_topology_disable_overwrote_handwired") is not False:
+                failures.append("Clean L04/L05 merge must not let static_topology_disable overwrite handwired rows.")
+        except Exception as exc:
+            failures.append(f"Failed to read clean L04/L05 merge summary: {exc}")
 
     batch_prepare = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_batch_prepare_summary.csv"
     if batch_prepare.exists():

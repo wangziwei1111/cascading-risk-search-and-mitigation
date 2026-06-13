@@ -21,4 +21,21 @@ def test_batch_isolated_runner_builds_per_line_model_paths() -> None:
     pattern = "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_{line_id}.slx"
     assert module.model_path_for(pattern, "L04").endswith("IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04.slx")
     assert module.model_path_for(pattern, "L05").endswith("IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L05.slx")
-    assert module.validation_path_for("L04").endswith("ieee39_clean_breaker_lab_L04_validation_summary.csv")
+    assert module.validation_path_for("L04").endswith("ieee39_clean_breaker_lab_batch_validation_summary.csv")
+
+
+def test_batch_isolated_summary_contains_training_ready_l04_l05() -> None:
+    import pandas as pd
+
+    root = Path(__file__).resolve().parents[1]
+    path = root / "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_batch_line_trip_summary.csv"
+    assert path.exists()
+    table = pd.read_csv(path)
+    assert set(table["tripped_line"].astype(str)) == {"L04", "L05"}
+    for line_id in ["L04", "L05"]:
+        row = table[table["tripped_line"].astype(str) == line_id].iloc[0]
+        assert str(row["simulation_success"]).lower() in {"1", "true"}
+        assert str(row["physical_fault_or_breaker_action_executed"]).lower() in {"1", "true"}
+        assert str(row["breaker_opened"]).lower() in {"1", "true"}
+        assert str(row["training_ready_candidate"]).lower() in {"1", "true"}
+        assert row["measurement_extraction_status"] == "voltage_speed_angle"

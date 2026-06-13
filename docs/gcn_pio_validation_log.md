@@ -1,4 +1,4 @@
-# GCN PIO Validation Log
+﻿# GCN PIO Validation Log
 
 This compact log preserves the review milestones for the RTS-79 PIO-GCN PathRank work after repository cleanup.
 
@@ -299,9 +299,9 @@ results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_
 Updated label gate:
 
 ```text
-num_training_ready_handwired_line_trip_labels = 3
-num_unique_handwired_line_ids = 3
-num_training_ready_labels = 5
+num_training_ready_handwired_line_trip_labels = 5
+num_unique_handwired_line_ids = 5
+num_training_ready_labels = 7
 allowed_for_dynamic_aware_training = false
 ```
 
@@ -1171,6 +1171,86 @@ empty
 
 RL mitigation files were not modified. Generated `.slx`, `.mat`, full per-case dynamic results, raw event logs, and full per-path ranking artifacts remain local ignored artifacts and are not intended for commit.
 
+## Round 32: Batch Validate Clean L04/L05 Per-Line Breaker Labs
+
+Goal: validate the user-handwired per-line clean breaker lab models for L04 and L05, run isolated compact simulations, and merge only successful single-line labels into the formal IEEE39 dynamic-label summary.
+
+Plain-language result: L04 and L05 are now both usable as pilot breaker-like single-line trip labels. The breaker blocks and trip commands were found, the compact phasor_RMS simulations completed, and voltage, generator speed proxy, and rotor-angle signals were extracted. This is still not EMT validation and not engineering-grade protection.
+
+Commands:
+
+```powershell
+matlab -batch "cd('C:/Users/24186/Documents/New project 7/simulink-dynamic-validation-worktree/matlab/simulink_ieee39'); configure_ieee39_short_filegen_paths(); validate_ieee39_clean_breaker_lab_lines_batch(string({'L04','L05'}));"
+
+python scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py --line-ids L04 L05 --timeout-seconds 240 --simulation-stop-time 0.5
+
+python src/gcn_search/legacy_rts79/merge_ieee39_handwired_fault_summaries.py --base-summary-csv results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03.csv --multi-handwired-summary-csv results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_batch_line_trip_summary.csv --output-csv results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05.csv --output-summary-json results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_l04_l05_merge_summary.json
+
+python src/gcn_search/legacy_rts79/export_ieee39_dynamic_labels.py --fault-summary-csv results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05.csv --event-log-csv results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_event_log.csv --output-dir results/gcn_search/ieee39_dynamic_labels
+```
+
+L04 compact result:
+
+```text
+validation_passed = true
+simulation_success = true
+measurement_extraction_status = voltage_speed_angle
+training_ready_candidate = true
+breaker_opened = true
+min_voltage_pu = 0.970568931976294
+max_voltage_pu = 1.06388416646219
+min_frequency_hz = 49.9194265059914
+max_frequency_hz = 50.0604917001817
+max_speed_deviation = 0.0016114698801721
+max_rotor_angle_separation_deg = 60.3441340196063
+```
+
+L05 compact result:
+
+```text
+validation_passed = true
+simulation_success = true
+measurement_extraction_status = voltage_speed_angle
+training_ready_candidate = true
+breaker_opened = true
+min_voltage_pu = 0.976533231451396
+max_voltage_pu = 1.06672687760572
+min_frequency_hz = 49.9435041779294
+max_frequency_hz = 50.0350763401759
+max_speed_deviation = 0.0011299164414124
+max_rotor_angle_separation_deg = 59.3996260385128
+```
+
+Updated label gate:
+
+```text
+merged_training_ready_handwired_lines = L01, L02, L03, L04, L05
+latest_fault_summary = results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05.csv
+num_training_ready_handwired_line_trip_labels = 5
+num_unique_handwired_line_ids = 5
+num_training_ready_labels = 7
+num_handwired_validation_passed = 5
+allowed_for_dynamic_aware_training = false
+```
+
+Important fix: the batch isolated runner now uses the batch validation table. When passing `--model-path-pattern` from PowerShell, quote the pattern so `{line_id}` is not consumed by PowerShell.
+
+Validation to run:
+
+```text
+python -m pytest tests/test_ieee39_clean_breaker_lab_batch_prepare.py tests/test_ieee39_clean_breaker_lab_batch_checklist.py tests/test_ieee39_clean_breaker_lab_batch_validation_schema.py tests/test_ieee39_clean_breaker_lab_batch_isolated_summary.py tests/test_ieee39_batch_per_line_clean_breaker_lab_docs.py
+
+python -m pytest tests/test_ieee39_clean_breaker_lab_prepare.py tests/test_ieee39_clean_breaker_lab_checklist.py tests/test_ieee39_clean_breaker_lab_validation_schema.py tests/test_ieee39_clean_breaker_lab_docs.py tests/test_ieee39_clean_breaker_lab_per_line_prepare.py tests/test_ieee39_clean_breaker_lab_per_line_checklist.py tests/test_ieee39_per_line_clean_breaker_lab_docs.py tests/test_ieee39_clean_breaker_lab_isolated_summary.py
+
+python -m pytest tests/test_ieee39_handwired_fault_summary_merge.py tests/test_ieee39_multi_handwired_label_gate.py tests/test_ieee39_dynamic_label_quality_gate.py tests/test_ieee39_training_ready_label_gate.py tests/test_ieee39_measurement_quality_gate.py
+
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+
+git diff -- src/rl_mitigation scripts/rl_mitigation
+```
+
+RL mitigation files were not modified. Generated `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories, and full timeseries remain local-only and must not be committed.
+
 ## Round 31 Follow-up: Windows Path-Length Fix And Handwired Suite Validation
 
 The handwired IEEE39 wrapper initially failed in Simulink build because generated
@@ -1339,7 +1419,7 @@ Local model search found two candidates:
 | candidate | path | MATLAB open check |
 | --- | --- | ---: |
 | MathWorks IEEE39BusSystem example | `C:/Users/24186/Documents/MATLAB/Examples/R2024b/simscapeelectrical/IEEE39BusSystemExample/IEEE39BusSystem.slx` | yes |
-| local user copy | `C:/Users/24186/Desktop/山东项目/IEEE39BusSystemExample/IEEE39BusSystem.slx` | yes |
+| local user copy | `C:/Users/24186/Desktop/灞变笢椤圭洰/IEEE39BusSystemExample/IEEE39BusSystem.slx` | yes |
 
 Primary selected model:
 
@@ -1644,3 +1724,4 @@ empty
 ```
 
 RL mitigation files were not modified. Generated `.slx`, `.mat`, full per-case dynamic results, raw event logs, and full per-path ranking artifacts remain local ignored artifacts and are not intended for commit.
+

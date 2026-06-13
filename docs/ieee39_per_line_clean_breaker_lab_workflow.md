@@ -1,4 +1,4 @@
-# IEEE39 Per-Line Clean Breaker Lab Workflow
+﻿# IEEE39 Per-Line Clean Breaker Lab Workflow
 
 ## Purpose
 
@@ -6,10 +6,10 @@ The current goal is to collect single-line dynamic labels. A single-line label
 means that only the target line's handwired breaker acts during the compact
 simulation. It is not a multi-line cascading trip sequence.
 
-Clean L02 has already passed structure validation and isolated compact
-simulation, and it is already counted as one training-ready handwired line-trip
-label. The next target is L03, but L03 should not be wired into the same clean
-lab `.slx` that already contains L02.
+Clean L02 and per-line clean L03, L04, and L05 have already passed structure
+validation and isolated compact simulation, and they are counted as
+training-ready handwired line-trip labels. Future targets should follow the same
+one-line-per-clean-lab rule.
 
 ## Why One Clean Lab Per Line
 
@@ -23,17 +23,18 @@ The recommended design is one independent clean lab .slx per line:
 one target line -> one independent clean lab .slx
 ```
 
-Recommended local models:
+Reference local models:
 
 ```text
 IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L02.slx
 IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L03.slx
 IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04.slx
+IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L05.slx
 ```
 
 These `.slx` files are local-only and must not be committed.
 
-## Prepare Per-Line L03
+## Prepare Per-Line L03 Reference
 
 Run:
 
@@ -52,7 +53,7 @@ results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSyst
 The script only copies the original clean generated wrapper. It does not insert
 a breaker and does not modify Simscape physical-port wiring.
 
-## Manual L03 Target
+## Manual L03 Reference Target
 
 Open:
 
@@ -99,12 +100,13 @@ training-ready L03 label.
 
 ## Current Label Gate
 
-Clean L02 and per-line clean L03 are the latest successful per-line results:
+Clean L02 and per-line clean L03/L04/L05 are the latest successful per-line
+results:
 
 ```text
-num_training_ready_labels = 5
-num_training_ready_handwired_line_trip_labels = 3
-num_unique_handwired_line_ids = 3
+num_training_ready_labels = 7
+num_training_ready_handwired_line_trip_labels = 5
+num_unique_handwired_line_ids = 5
 allowed_for_dynamic_aware_training = false
 ```
 
@@ -121,3 +123,4 @@ In short, dynamic-aware reranker training remains blocked.
 - Sequential or simultaneous multi-line trip experiments can be studied later,
   but they must not be mixed into single-line label collection.
 - Do not commit `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories, or full timeseries.
+
