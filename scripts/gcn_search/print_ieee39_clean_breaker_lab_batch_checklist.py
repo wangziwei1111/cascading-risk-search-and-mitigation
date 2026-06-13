@@ -10,7 +10,7 @@ EXTENDED_MAP_PATH = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/wr
 LEGACY_MAP_PATH = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map.csv"
 OUT_DIR = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation"
 OUT_PATH = OUT_DIR / "clean_breaker_lab_batch_checklist.txt"
-TARGET_LINES = ["L06", "L07", "L08", "L09", "L10"]
+TARGET_LINES = ["L09", "L10"]
 
 
 def _line_map() -> pd.DataFrame:
@@ -68,10 +68,13 @@ Current expected label gate:
 - ready_for_preview_training = true
 
 Next recommended manual targets:
-- preview training should run in a separate commit
-- optional additional manual targets: L09
-- optional additional manual targets: L10
-- L06-L10 are listed below only if present in the verified line map; otherwise they are marked not_in_current_line_map.
+- L09
+- L10
+
+Preview dynamic-aware reranker training has already run as a sanity check.
+It is not a final dynamic performance conclusion.
+
+L09/L10 are listed below only if present in the verified line map; otherwise they are marked not_in_current_line_map.
 
 Per-line targets:
 {chr(10).join(blocks)}
@@ -81,7 +84,7 @@ Manual wiring rules:
 2. Each .slx must contain only the corresponding line_id breaker.
 3. Do not wire more than one target breaker inside the same per-line .slx.
 4. Do not copy from the old handwired model.
-5. Do not copy from clean labs that already contain L02 or L03.
+5. Do not copy from clean labs that already contain L02-L08.
 6. During a single-line label run, only the target breaker may act.
 7. Sequential or simultaneous multi-line trip experiments can be studied later, but not mixed into single-line labels.
 8. Keep all .slx files local; do not commit .slx, .slxc, slprj, .mat, raw trajectories, or full timeseries.
@@ -90,17 +93,17 @@ After manual wiring, ask Codex to run batch validation:
 matlab:
 cd matlab/simulink_ieee39
 configure_ieee39_short_filegen_paths()
-validate_ieee39_clean_breaker_lab_lines_batch(["L06","L07","L08"])
+validate_ieee39_clean_breaker_lab_lines_batch(["L09","L10"])
 
 If validation passes, ask Codex to run batch isolated compact simulation:
 powershell:
-python scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py --line-ids L06 L07 L08 --model-path-pattern "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_{{line_id}}.slx" --timeout-seconds 240 --simulation-stop-time 0.5
+python scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py --line-ids L09 L10 --model-path-pattern "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_{{line_id}}.slx" --timeout-seconds 240 --simulation-stop-time 0.5
 
 Boundaries:
 - The model remains phasor_RMS, not EMT.
 - generator_speed_proxy is not direct frequency.
 - The handwired breaker is pilot breaker-like validation, not engineering-grade protection.
-- If training-ready labels remain below 10, dynamic-aware reranker training remains blocked.
+- Current preview training is a workflow sanity check only, not a final dynamic performance conclusion.
 """
 
 

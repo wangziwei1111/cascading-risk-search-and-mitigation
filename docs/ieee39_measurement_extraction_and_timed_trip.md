@@ -134,6 +134,11 @@ measurements only as a sanity-check dataset. It does not convert
 `generator_speed_proxy` into direct frequency, and it does not establish a
 final dynamic performance conclusion.
 
+The next sample-expansion step prepares L09/L10 independent per-line clean lab
+models only. L09 maps to `Grid/B16 to B24`, and L10 maps to `Grid/B17 to B27`.
+This preparation does not wire breakers, does not run L09/L10 compact
+simulation, and does not retrain the dynamic-aware reranker.
+
 Current result:
 
 ```text

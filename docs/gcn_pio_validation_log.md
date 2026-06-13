@@ -1366,6 +1366,97 @@ empty
 No `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories, or full timeseries are
 included in the preview training artifacts.
 
+## Round 36: Prepare Clean L09/L10 Breaker Labs
+
+This round prepares the next independent per-line clean lab `.slx` files for
+manual L09/L10 wiring. It does not automatically insert breakers, does not
+modify Simscape physical-port wiring, does not run L09/L10 compact simulation,
+and does not train the dynamic-aware reranker.
+
+Extended line map check:
+
+```text
+L09 -> IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B16 to B24
+L10 -> IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B17 to B27
+```
+
+MATLAB prepare command:
+
+```matlab
+cd("C:/Users/24186/Documents/New project 7/simulink-dynamic-validation-worktree/matlab/simulink_ieee39")
+configure_ieee39_short_filegen_paths()
+prepare_ieee39_clean_handwired_breaker_labs_for_lines(string({'L09','L10'}))
+```
+
+Prepare summary:
+
+```text
+L09 status = prepared
+L09 target_created = true
+L09 target_loadable = true
+L09 clean_lab_committed = false
+L10 status = prepared
+L10 target_created = true
+L10 target_loadable = true
+L10 clean_lab_committed = false
+```
+
+Local-only prepared models:
+
+```text
+results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L09.slx
+results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L10.slx
+```
+
+Checklist output:
+
+```text
+results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/clean_breaker_lab_batch_checklist.txt
+```
+
+After the user manually wires L09/L10, ask Codex to run:
+
+```matlab
+validate_ieee39_clean_breaker_lab_lines_batch(["L09","L10"])
+```
+
+If validation passes, ask Codex to run:
+
+```powershell
+python scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py --line-ids L09 L10 --model-path-pattern "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_{line_id}.slx" --timeout-seconds 240 --simulation-stop-time 0.5
+```
+
+Boundaries:
+
+```text
+phasor_RMS, not EMT
+generator_speed_proxy, not direct frequency
+pilot breaker-like validation, not engineering-grade protection
+single-line labels only
+.slx files remain local and are not committed
+preview training already ran, but remains a workflow sanity check only
+```
+
+Validation:
+
+```text
+python -m pytest tests/test_ieee39_clean_breaker_lab_batch_prepare.py tests/test_ieee39_clean_breaker_lab_batch_checklist.py tests/test_ieee39_clean_breaker_lab_batch_validation_schema.py tests/test_ieee39_batch_per_line_clean_breaker_lab_docs.py
+4 passed
+
+python -m pytest tests/test_ieee39_dynamic_aware_reranker_preview_training.py tests/test_ieee39_dynamic_aware_training_readiness.py tests/test_ieee39_dynamic_label_quality_gate.py tests/test_ieee39_training_ready_label_gate.py tests/test_ieee39_measurement_quality_gate.py
+8 passed
+
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+PASS: GCN Simulink dynamic validation artifacts are review-ready.
+
+git diff -- src/rl_mitigation scripts/rl_mitigation
+empty
+```
+
+No `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories, full timeseries, or
+large checkpoint files are committed. The L09/L10 `.slx` files remain local
+manual-wiring targets.
+
 ## Round 32: Batch Validate Clean L04/L05 Per-Line Breaker Labs
 
 Goal: validate the user-handwired per-line clean breaker lab models for L04 and L05, run isolated compact simulations, and merge only successful single-line labels into the formal IEEE39 dynamic-label summary.

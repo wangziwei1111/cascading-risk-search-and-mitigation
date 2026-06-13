@@ -3,9 +3,9 @@
 ## Purpose
 
 This round extends the IEEE39 wrapper line map before any new manual breaker
-wiring. The goal is to confirm real Simulink `Grid` block paths for L06/L07/L08
-from the generated wrapper inventory, then prepare independent local clean lab
-`.slx` files for later user wiring.
+wiring. The goal is to confirm real Simulink `Grid` block paths from the
+generated wrapper inventory, then prepare independent local clean lab `.slx`
+files for later user wiring.
 
 Current successful single-line labels:
 
@@ -75,6 +75,13 @@ L07 -> Grid/B15 to B16
 L08 -> Grid/B16 to B17
 ```
 
+Mapped next manual targets:
+
+```text
+L09 -> Grid/B16 to B24
+L10 -> Grid/B17 to B27
+```
+
 ## Clean Lab Preparation
 
 Run:
@@ -82,23 +89,21 @@ Run:
 ```matlab
 cd("C:/Users/24186/Documents/New project 7/simulink-dynamic-validation-worktree/matlab/simulink_ieee39")
 configure_ieee39_short_filegen_paths()
-prepare_ieee39_clean_handwired_breaker_labs_for_lines(string({'L06','L07','L08'}))
+prepare_ieee39_clean_handwired_breaker_labs_for_lines(string({'L09','L10'}))
 ```
 
 Local-only prepared models:
 
 ```text
-results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L06.slx
-results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L07.slx
-results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L08.slx
+results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L09.slx
+results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L10.slx
 ```
 
 One line uses one independent per-line clean lab .slx:
 
 ```text
-L06 model: wire only L06_HandwiredTimedBreaker and L06_TripCommand on Grid/B14 to B15
-L07 model: wire only L07_HandwiredTimedBreaker and L07_TripCommand on Grid/B15 to B16
-L08 model: wire only L08_HandwiredTimedBreaker and L08_TripCommand on Grid/B16 to B17
+L09 model: wire only L09_HandwiredTimedBreaker and L09_TripCommand on Grid/B16 to B24
+L10 model: wire only L10_HandwiredTimedBreaker and L10_TripCommand on Grid/B17 to B27
 ```
 
 Do not place multiple active breakers in one single-line label model. Sequential
@@ -107,19 +112,20 @@ be mixed into the single-line label set.
 
 ## After Manual Wiring
 
-After the user manually wired and saved L06/L07/L08, validation was run first:
+After the user manually wires and saves L09/L10, validation should run first:
 
 ```matlab
-validate_ieee39_clean_breaker_lab_lines_batch(["L06","L07","L08"])
+validate_ieee39_clean_breaker_lab_lines_batch(["L09","L10"])
 ```
 
 Only after validation passes, run compact simulation:
 
 ```powershell
-python scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py --line-ids L06 L07 L08 --model-path-pattern "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_{line_id}.slx" --timeout-seconds 240 --simulation-stop-time 0.5
+python scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py --line-ids L09 L10 --model-path-pattern "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_{line_id}.slx" --timeout-seconds 240 --simulation-stop-time 0.5
 ```
 
-This round also ran L06/L07/L08 compact simulation after validation passed.
+This round only prepares L09/L10 clean lab files. It does not wire breakers,
+run L09/L10 compact simulation, or train the dynamic-aware reranker.
 
 ## Boundaries
 

@@ -105,4 +105,9 @@ also appear in the feature set.
 - It is not a final dynamic performance conclusion.
 - Formal experiments need more samples, more fault types, an independent test
   set, and stricter dynamic models.
+- The next sample-expansion step prepares independent per-line clean lab `.slx`
+  files for L09 and L10: L09 uses `Grid/B16 to B24`, and L10 uses
+  `Grid/B17 to B27`.
+- The L09/L10 preparation step does not wire breakers, does not run compact
+  simulation, and does not retrain the preview reranker.
 - Do not commit `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories, or full timeseries.

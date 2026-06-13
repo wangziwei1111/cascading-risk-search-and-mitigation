@@ -6,7 +6,7 @@ function summaryTable = prepare_ieee39_clean_handwired_breaker_labs_for_lines(li
 % physical ports, or save changes to the source wrapper.
 
 if nargin < 1 || isempty(lineIds)
-    lineIds = ["L06", "L07", "L08"];
+    lineIds = ["L09", "L10"];
 end
 if nargin < 2 || isempty(sourceWrapperPath)
     sourceWrapperPath = "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper.slx";

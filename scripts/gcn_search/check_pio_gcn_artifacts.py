@@ -1311,12 +1311,11 @@ def main() -> int:
 
             table = pd.read_csv(batch_prepare)
             expected_paths = {
-                "L06": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B14 to B15",
-                "L07": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B15 to B16",
-                "L08": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B16 to B17",
+                "L09": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B16 to B24",
+                "L10": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B17 to B27",
             }
             if set(table.get("line_id", pd.Series(dtype=str)).astype(str)) != set(expected_paths):
-                failures.append("Batch clean lab prepare summary must currently contain L06, L07, and L08.")
+                failures.append("Batch clean lab prepare summary must currently contain L09 and L10.")
             for line_id, expected_path in expected_paths.items():
                 row = table[table["line_id"].astype(str).eq(line_id)]
                 if row.empty:
