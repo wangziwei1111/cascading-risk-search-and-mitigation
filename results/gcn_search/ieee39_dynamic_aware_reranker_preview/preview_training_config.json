@@ -1,0 +1,11 @@
+{
+  "dynamic_label_summary": "results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_label_quality_summary.json",
+  "training_readiness": "results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_aware_training_readiness.json",
+  "fault_summary_csv": "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05_l06_l07_l08.csv",
+  "output_dir": "results/gcn_search/ieee39_dynamic_aware_reranker_preview",
+  "random_seed": 42,
+  "ridge_alpha": 1.0,
+  "logistic_l2": 0.1,
+  "logistic_learning_rate": 0.2,
+  "logistic_epochs": 800
+}

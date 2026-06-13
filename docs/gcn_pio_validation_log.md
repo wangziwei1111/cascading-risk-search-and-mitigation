@@ -1274,6 +1274,98 @@ RL mitigation files are not modified. Generated `.slx`, `.slxc`, `slprj`,
 `.mat`, raw trajectories, and full timeseries remain local artifacts and are
 not intended for commit.
 
+## Round 35: IEEE39 Dynamic-Aware Reranker Preview Training
+
+This round starts the preview dynamic-aware reranker training step after the
+compact IEEE39 label gate reached ten training-ready labels. It is a
+small-sample sanity check and workflow validation only, not a final dynamic
+performance conclusion.
+
+Gate check:
+
+```text
+num_training_ready_labels = 10
+num_training_ready_handwired_line_trip_labels = 8
+num_unique_handwired_line_ids = 8
+allowed_for_dynamic_aware_training = true
+ready_for_preview_training = true
+```
+
+Training command:
+
+```powershell
+python scripts/gcn_search/train_ieee39_dynamic_aware_reranker_preview.py ^
+  --dynamic-label-summary results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_label_quality_summary.json ^
+  --training-readiness results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_aware_training_readiness.json ^
+  --fault-summary-csv results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05_l06_l07_l08.csv ^
+  --output-dir results/gcn_search/ieee39_dynamic_aware_reranker_preview ^
+  --random-seed 42
+```
+
+Preview outputs:
+
+```text
+results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_training_dataset.csv
+results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_training_config.json
+results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_training_metrics.json
+results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_training_predictions.csv
+results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_model_coefficients.csv
+results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_dynamic_aware_reranker_model.json
+results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_training_readme.md
+```
+
+Preview metrics:
+
+```text
+num_samples = 10
+target_columns = dynamic_stress_score, unstable_flag
+cv_strategy = leave_one_out
+regression_mae = 0.025776
+regression_rmse = 0.034688
+regression_spearman = 0.899700
+classification_accuracy = 1.000000
+classification_f1 = 1.000000
+classification_roc_auc = 1.000000
+```
+
+Interpretation:
+
+```text
+The preview model can be trained and evaluated on the compact IEEE39 labels,
+but the sample count is very small. The continuous dynamic_stress_score is
+derived from compact dynamic measurements, and those measurements are also
+included as features, so the metrics are likely optimistic. This is a workflow
+sanity check only.
+```
+
+Boundaries:
+
+```text
+phasor_RMS, not EMT
+generator_speed_proxy, not direct frequency
+pilot breaker-like validation, not engineering-grade protection
+preview only, not final dynamic performance conclusion
+```
+
+Validation:
+
+```text
+python -m pytest tests/test_ieee39_dynamic_aware_reranker_preview_training.py
+3 passed
+
+python -m pytest tests/test_ieee39_dynamic_aware_training_readiness.py tests/test_ieee39_dynamic_label_quality_gate.py tests/test_ieee39_training_ready_label_gate.py tests/test_ieee39_measurement_quality_gate.py tests/test_ieee39_handwired_fault_summary_merge.py tests/test_ieee39_multi_handwired_label_gate.py
+11 passed
+
+python scripts/gcn_search/check_pio_gcn_artifacts.py
+PASS: GCN Simulink dynamic validation artifacts are review-ready.
+
+git diff -- src/rl_mitigation scripts/rl_mitigation
+empty
+```
+
+No `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories, or full timeseries are
+included in the preview training artifacts.
+
 ## Round 32: Batch Validate Clean L04/L05 Per-Line Breaker Labs
 
 Goal: validate the user-handwired per-line clean breaker lab models for L04 and L05, run isolated compact simulations, and merge only successful single-line labels into the formal IEEE39 dynamic-label summary.

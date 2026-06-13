@@ -97,6 +97,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/print_ieee39_clean_breaker_lab_checklist.py",
     "scripts/gcn_search/print_ieee39_clean_breaker_lab_per_line_checklist.py",
     "scripts/gcn_search/print_ieee39_clean_breaker_lab_batch_checklist.py",
+    "scripts/gcn_search/train_ieee39_dynamic_aware_reranker_preview.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trip_isolated.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py",
     "scripts/gcn_search/update_ieee39_line_breaker_map_from_inventory.py",
@@ -181,6 +182,7 @@ REQUIRED_FILES = [
     "tests/test_ieee39_clean_breaker_lab_batch_isolated_summary.py",
     "tests/test_ieee39_batch_per_line_clean_breaker_lab_docs.py",
     "tests/test_ieee39_dynamic_aware_training_readiness.py",
+    "tests/test_ieee39_dynamic_aware_reranker_preview_training.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
     "docs/pio_gcn_simulink_real_topk_event_driven_validation.md",
@@ -206,6 +208,7 @@ REQUIRED_FILES = [
     "docs/ieee39_per_line_clean_breaker_lab_workflow.md",
     "docs/ieee39_batch_per_line_clean_breaker_lab_workflow.md",
     "docs/ieee39_line_map_extension_workflow.md",
+    "docs/ieee39_dynamic_aware_reranker_preview_training.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -280,6 +283,13 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_l04_l05_merge_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05_l06_l07_l08.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_l06_l07_l08_merge_summary.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_training_dataset.csv",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_training_config.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_training_metrics.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_training_predictions.csv",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_model_coefficients.csv",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_dynamic_aware_reranker_model.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_training_readme.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_multi_handwired_line_trip_summary.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_multi_handwired.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_multi_handwired_merge_summary.json",
@@ -1432,6 +1442,88 @@ def main() -> int:
                 failures.append("IEEE39 dynamic-aware readiness must set ready_for_preview_training=true.")
         except Exception as exc:
             failures.append(f"Failed to read IEEE39 dynamic-aware readiness summary: {exc}")
+
+    preview_metrics = ROOT / "results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_training_metrics.json"
+    if preview_metrics.exists():
+        try:
+            import json
+
+            payload = json.loads(preview_metrics.read_text(encoding="utf-8"))
+            if payload.get("preview_only") is not True:
+                failures.append("IEEE39 dynamic-aware reranker preview metrics must set preview_only=true.")
+            if payload.get("allowed_for_dynamic_aware_training") is not True:
+                failures.append("IEEE39 dynamic-aware reranker preview metrics must preserve allowed_for_dynamic_aware_training=true.")
+            if payload.get("ready_for_preview_training") is not True:
+                failures.append("IEEE39 dynamic-aware reranker preview metrics must preserve ready_for_preview_training=true.")
+            if payload.get("num_samples") != 10:
+                failures.append("IEEE39 dynamic-aware reranker preview metrics must report ten samples.")
+            if payload.get("num_training_ready_labels") != 10:
+                failures.append("IEEE39 dynamic-aware reranker preview metrics must report ten training-ready labels.")
+            if payload.get("num_handwired_line_trip_labels") != 8:
+                failures.append("IEEE39 dynamic-aware reranker preview metrics must report eight handwired line-trip labels.")
+            if "dynamic_stress_score" not in payload.get("target_columns", []):
+                failures.append("IEEE39 dynamic-aware reranker preview metrics missing dynamic_stress_score target.")
+            if "unstable_flag" not in payload.get("target_columns", []):
+                failures.append("IEEE39 dynamic-aware reranker preview metrics missing unstable_flag target.")
+            if not payload.get("regression_metrics"):
+                failures.append("IEEE39 dynamic-aware reranker preview metrics must include regression_metrics.")
+            if not payload.get("classification_metrics") and not payload.get("skipped_metrics_reason"):
+                failures.append("IEEE39 dynamic-aware reranker preview must include classification metrics or a skipped reason.")
+        except Exception as exc:
+            failures.append(f"Failed to read IEEE39 dynamic-aware reranker preview metrics: {exc}")
+
+    preview_predictions = ROOT / "results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_training_predictions.csv"
+    if preview_predictions.exists():
+        try:
+            import pandas as pd
+
+            table = pd.read_csv(preview_predictions)
+            required = {
+                "line_id",
+                "test_case",
+                "source_model",
+                "y_true_dynamic_stress_score",
+                "y_pred_dynamic_stress_score",
+                "residual",
+                "y_true_unstable_flag",
+                "fold_id",
+                "note",
+            }
+            if not required.issubset(table.columns):
+                failures.append("IEEE39 dynamic-aware reranker preview predictions missing required columns.")
+            if len(table) != 10:
+                failures.append("IEEE39 dynamic-aware reranker preview predictions must contain ten rows.")
+            for column in ["y_true_dynamic_stress_score", "y_pred_dynamic_stress_score", "residual"]:
+                if column in table.columns and not pd.to_numeric(table[column], errors="coerce").notna().all():
+                    failures.append(f"IEEE39 dynamic-aware reranker preview predictions must have numeric {column}.")
+        except Exception as exc:
+            failures.append(f"Failed to read IEEE39 dynamic-aware reranker preview predictions: {exc}")
+
+    preview_doc = ROOT / "docs/ieee39_dynamic_aware_reranker_preview_training.md"
+    if preview_doc.exists():
+        text = _read_text("docs/ieee39_dynamic_aware_reranker_preview_training.md").lower()
+        for required in [
+            "preview dynamic-aware reranker training",
+            "not a final dynamic performance conclusion",
+            "phasor_rms, not emt",
+            "generator_speed_proxy",
+            "not direct frequency",
+            "pilot breaker-like",
+            "not engineering-grade protection",
+            "do not commit `.slx`",
+            "raw trajectories",
+            "full timeseries",
+        ]:
+            if required not in text:
+                failures.append(f"IEEE39 dynamic-aware reranker preview doc missing: {required}")
+        for bad in [
+            "emt validation completed",
+            "engineering-grade protection completed",
+            "production ready",
+            "is a final dynamic performance conclusion",
+        ]:
+            if bad in text:
+                failures.append(f"IEEE39 dynamic-aware reranker preview doc contains overstatement: {bad}")
 
     handwired_summary = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_handwired_breaker_validation_summary.json"
     if handwired_summary.exists():

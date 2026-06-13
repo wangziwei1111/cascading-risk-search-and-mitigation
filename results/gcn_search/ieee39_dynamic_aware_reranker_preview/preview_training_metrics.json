@@ -1,0 +1,59 @@
+{
+  "preview_only": true,
+  "allowed_for_dynamic_aware_training": true,
+  "ready_for_preview_training": true,
+  "num_samples": 10,
+  "num_training_ready_labels": 10,
+  "num_handwired_line_trip_labels": 8,
+  "num_unique_handwired_line_ids": 8,
+  "target_columns": [
+    "dynamic_stress_score",
+    "unstable_flag"
+  ],
+  "feature_columns": [
+    "line_id_numeric",
+    "min_voltage_pu",
+    "max_voltage_pu",
+    "min_frequency_hz",
+    "max_frequency_hz",
+    "max_speed_deviation",
+    "max_rotor_angle_separation_deg",
+    "breaker_opened",
+    "physical_fault_or_breaker_action_executed",
+    "line_id_L01",
+    "line_id_L02",
+    "line_id_L03",
+    "line_id_L04",
+    "line_id_L05",
+    "line_id_L06",
+    "line_id_L07",
+    "line_id_L08",
+    "line_id_NO_LINE",
+    "fault_type_basic_relay_proxy",
+    "fault_type_pilot_line_trip",
+    "fault_type_three_phase_fault_clear",
+    "trip_implementation_basic_relay_proxy",
+    "trip_implementation_existing_three_phase_fault_block",
+    "trip_implementation_handwired_timed_breaker"
+  ],
+  "cv_strategy": "leave_one_out",
+  "random_seed": 42,
+  "regression_metrics": {
+    "mae": 0.025775603456558487,
+    "rmse": 0.034688070217683144,
+    "pearson": 0.9852496527991237,
+    "spearman": 0.8997002046464956
+  },
+  "classification_metrics": {
+    "accuracy": 1.0,
+    "f1": 1.0,
+    "roc_auc": 1.0
+  },
+  "skipped_metrics_reason": "",
+  "notes": [
+    "Preview-only small-sample sanity check.",
+    "phasor_RMS, not EMT.",
+    "generator_speed_proxy is not direct frequency.",
+    "handwired breaker is pilot breaker-like validation, not engineering-grade protection."
+  ]
+}

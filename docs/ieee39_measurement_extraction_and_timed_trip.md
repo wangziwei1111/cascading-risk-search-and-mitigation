@@ -128,6 +128,12 @@ num_training_ready_labels = 10
 allowed_for_dynamic_aware_training = true
 ```
 
+The follow-up preview dynamic-aware reranker training has been run with the
+compact label set. This preview training uses the compact phasor_RMS
+measurements only as a sanity-check dataset. It does not convert
+`generator_speed_proxy` into direct frequency, and it does not establish a
+final dynamic performance conclusion.
+
 Current result:
 
 ```text

@@ -23,6 +23,9 @@ allowed_for_dynamic_aware_training = true
 
 The label count has now reached the preview threshold after L06/L07/L08
 validation. Do not train the dynamic-aware reranker in this round; run preview training in a separate commit.
+The follow-up preview training commit uses
+`scripts/gcn_search/train_ieee39_dynamic_aware_reranker_preview.py` and keeps
+the result explicitly preview-only.
 
 ## Inventory Step
 
