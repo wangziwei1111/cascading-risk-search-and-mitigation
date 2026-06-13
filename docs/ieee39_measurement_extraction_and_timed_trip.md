@@ -153,3 +153,21 @@ allowed_for_dynamic_aware_training = true
 The handwired `.slx` is not committed.
 
 
+## L09/L10 clean lab measurement update
+
+The latest clean breaker lab compact runs add `L09` and `L10` as
+training-ready handwired line-trip labels. Both runs use phasor_RMS, not EMT, and
+keep `generator_speed_proxy` as a proxy signal, not direct frequency.
+
+- `L09`: `simulation_success = true`, `breaker_opened = true`,
+  `measurement_extraction_status = voltage_speed_angle`
+- `L10`: `simulation_success = true`, `breaker_opened = true`,
+  `measurement_extraction_status = voltage_speed_angle`
+
+The current gate is:
+
+- `num_training_ready_labels = 12`
+- `num_training_ready_handwired_line_trip_labels = 10`
+- `allowed_for_dynamic_aware_training = true`
+
+This is still pilot breaker-like validation, not engineering-grade protection.

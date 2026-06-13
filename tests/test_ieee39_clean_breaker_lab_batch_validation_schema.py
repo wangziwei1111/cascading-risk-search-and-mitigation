@@ -25,11 +25,10 @@ def test_batch_clean_breaker_lab_validation_schema_records_handwired_lines() -> 
         "clean_lab_model_committed",
     }
     assert required.issubset(table.columns)
-    assert set(table["line_id"].astype(str)) == {"L06", "L07", "L08"}
+    assert set(table["line_id"].astype(str)) == {"L09", "L10"}
     expected_paths = {
-        "L06": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B14 to B15",
-        "L07": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B15 to B16",
-        "L08": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B16 to B17",
+        "L09": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B16 to B24",
+        "L10": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B17 to B27",
     }
     for line_id, expected_path in expected_paths.items():
         row = table[table["line_id"].astype(str) == line_id].iloc[0]

@@ -101,6 +101,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trip_isolated.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py",
     "scripts/gcn_search/update_ieee39_line_breaker_map_from_inventory.py",
+    "scripts/gcn_search/build_ieee39_full_line_map.py",
     "tests/test_simulink_dynamic_case_export.py",
     "tests/test_simulink_dynamic_result_analysis.py",
     "tests/test_simulink_dynamic_disagreement.py",
@@ -183,6 +184,9 @@ REQUIRED_FILES = [
     "tests/test_ieee39_batch_per_line_clean_breaker_lab_docs.py",
     "tests/test_ieee39_dynamic_aware_training_readiness.py",
     "tests/test_ieee39_dynamic_aware_reranker_preview_training.py",
+    "tests/test_ieee39_remaining_line_map_full.py",
+    "tests/test_ieee39_remaining_clean_breaker_lab_prepare.py",
+    "tests/test_ieee39_remaining_clean_breaker_lab_checklist.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
     "docs/pio_gcn_simulink_real_topk_event_driven_validation.md",
@@ -235,6 +239,8 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_grid_line_block_inventory.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_extended.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_extension_summary.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_full.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_full_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_block_parameter_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.json",
@@ -262,6 +268,8 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_batch_validation_summary.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_batch_validation_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_batch_block_inventory.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_remaining_prepare_summary.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_remaining_prepare_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/clean_breaker_lab_checklist.txt",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/clean_breaker_lab_per_line_checklist.txt",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/clean_breaker_lab_batch_checklist.txt",
@@ -283,6 +291,8 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_l04_l05_merge_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05_l06_l07_l08.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_l06_l07_l08_merge_summary.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05_l06_l07_l08_l09_l10.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_l09_l10_merge_summary.json",
     "results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_training_dataset.csv",
     "results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_training_config.json",
     "results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_training_metrics.json",
@@ -894,17 +904,19 @@ def main() -> int:
             "L06": 1,
             "L07": 1,
             "L08": 1,
+            "L09": 1,
+            "L10": 1,
         }
-        if quality.get("num_training_ready_labels") != 10:
-            failures.append("IEEE39 quality summary must report ten training-ready labels after clean lab L06/L07/L08.")
-        if quality.get("num_training_ready_handwired_line_trip_labels") != 8:
-            failures.append("IEEE39 quality summary must report eight training-ready handwired line-trip labels.")
+        if quality.get("num_training_ready_labels") != 12:
+            failures.append("IEEE39 quality summary must report twelve training-ready labels after clean lab L09/L10.")
+        if quality.get("num_training_ready_handwired_line_trip_labels") != 10:
+            failures.append("IEEE39 quality summary must report ten training-ready handwired line-trip labels.")
         if quality.get("num_training_ready_handwired_line_trip_labels_by_line") != expected_handwired_lines:
-            failures.append("IEEE39 quality summary must report L01 through L08 as handwired training-ready lines.")
-        if quality.get("num_unique_handwired_line_ids") != 8:
-            failures.append("IEEE39 quality summary must report eight unique handwired line IDs.")
-        if quality.get("num_handwired_validation_passed") != 8:
-            failures.append("IEEE39 quality summary must report eight handwired validation-passed lines.")
+            failures.append("IEEE39 quality summary must report L01 through L10 as handwired training-ready lines.")
+        if quality.get("num_unique_handwired_line_ids") != 10:
+            failures.append("IEEE39 quality summary must report ten unique handwired line IDs.")
+        if quality.get("num_handwired_validation_passed") != 10:
+            failures.append("IEEE39 quality summary must report ten handwired validation-passed lines.")
         if quality.get("allowed_for_dynamic_aware_training") is not True:
             failures.append("IEEE39 quality summary must allow preview dynamic-aware training once ten labels are ready.")
 
@@ -920,6 +932,32 @@ def main() -> int:
                 failures.append("IEEE39 line/breaker map missing mapping_status.")
         except Exception as exc:
             failures.append(f"Failed to read IEEE39 line/breaker map: {exc}")
+
+    full_line_map = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_full.csv"
+    full_line_map_summary = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_full_summary.json"
+    inventory_path = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_grid_line_block_inventory.csv"
+    if full_line_map.exists():
+        try:
+            import json
+            import pandas as pd
+
+            table = pd.read_csv(full_line_map)
+            inventory = pd.read_csv(inventory_path)
+            summary = json.loads(full_line_map_summary.read_text(encoding="utf-8"))
+            expected_lines = {f"L{i:02d}" for i in range(1, 35)}
+            if set(table.get("line_id", pd.Series(dtype=str)).astype(str)) != expected_lines:
+                failures.append("IEEE39 full line map must contain L01 through L34.")
+            if summary.get("preserved_line_ids") != [f"L{i:02d}" for i in range(1, 11)]:
+                failures.append("IEEE39 full line map must preserve L01 through L10.")
+            if summary.get("newly_mapped_line_ids") != [f"L{i:02d}" for i in range(11, 35)]:
+                failures.append("IEEE39 full line map must newly map L11 through L34.")
+            if summary.get("warnings") != []:
+                failures.append("IEEE39 full line map summary must not contain warnings.")
+            inventory_paths = set(inventory.get("block_path", pd.Series(dtype=str)).astype(str))
+            if not set(table.get("line_block_path", pd.Series(dtype=str)).astype(str)).issubset(inventory_paths):
+                failures.append("IEEE39 full line map must use only paths found in the Grid inventory.")
+        except Exception as exc:
+            failures.append(f"Failed to read IEEE39 full line map: {exc}")
 
     real_fault_doc = ROOT / "docs/ieee39_real_fault_execution_status.md"
     if real_fault_doc.exists():
@@ -1340,12 +1378,11 @@ def main() -> int:
 
             table = pd.read_csv(batch_validation)
             expected_paths = {
-                "L06": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B14 to B15",
-                "L07": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B15 to B16",
-                "L08": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B16 to B17",
+                "L09": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B16 to B24",
+                "L10": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B17 to B27",
             }
             if set(table.get("line_id", pd.Series(dtype=str)).astype(str)) != set(expected_paths):
-                failures.append("Batch clean lab validation summary must currently contain L06, L07, and L08.")
+                failures.append("Batch clean lab validation summary must currently contain L09 and L10.")
             for line_id, expected_path in expected_paths.items():
                 row = table[table["line_id"].astype(str).eq(line_id)]
                 if row.empty:
@@ -1375,7 +1412,7 @@ def main() -> int:
             import pandas as pd
 
             table = pd.read_csv(batch_line_trip)
-            for line_id in ["L06", "L07", "L08"]:
+            for line_id in ["L09", "L10"]:
                 row = table[table.get("tripped_line", pd.Series("", index=table.index)).astype(str).eq(line_id)]
                 if row.empty:
                     failures.append(f"Batch clean lab compact summary must include {line_id}.")
@@ -1397,6 +1434,33 @@ def main() -> int:
                     failures.append(f"Batch clean lab {line_id} signal summary must keep frequency=generator_speed_proxy.")
         except Exception as exc:
             failures.append(f"Failed to read batch clean lab compact summary: {exc}")
+
+    remaining_prepare = ROOT / (
+        "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/"
+        "ieee39_clean_breaker_lab_remaining_prepare_summary.csv"
+    )
+    if remaining_prepare.exists():
+        try:
+            import pandas as pd
+
+            table = pd.read_csv(remaining_prepare)
+            expected_lines = {f"L{i:02d}" for i in range(11, 35)}
+            if set(table.get("line_id", pd.Series(dtype=str)).astype(str)) != expected_lines:
+                failures.append("Remaining clean lab prepare summary must contain L11 through L34.")
+            if not table.get("status", pd.Series(dtype=str)).astype(str).eq("prepared").all():
+                failures.append("Remaining clean lab prepare summary must mark every row prepared.")
+            for column in ["source_found", "target_created", "target_loadable"]:
+                if not table.get(column, pd.Series(dtype=str)).astype(str).str.lower().isin({"1", "true"}).all():
+                    failures.append(f"Remaining clean lab prepare summary must have {column}=true for all rows.")
+            for column in ["existing_handwired_breaker_found", "clean_lab_committed"]:
+                if not table.get(column, pd.Series(dtype=str)).astype(str).str.lower().isin({"0", "false"}).all():
+                    failures.append(f"Remaining clean lab prepare summary must have {column}=false for all rows.")
+            tracked_generated = "\n".join(_git_ls_files("results/gcn_search/ieee39_graphical_dynamic_model/generated_models")).lower()
+            for line_id in expected_lines:
+                if f"clean_breaker_lab_{line_id.lower()}.slx" in tracked_generated:
+                    failures.append(f"Remaining clean lab {line_id} .slx must remain untracked.")
+        except Exception as exc:
+            failures.append(f"Failed to read remaining clean lab prepare summary: {exc}")
 
     clean_l06_l07_l08_merge = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_l06_l07_l08_merge_summary.json"
     if clean_l06_l07_l08_merge.exists():
@@ -1423,18 +1487,34 @@ def main() -> int:
         except Exception as exc:
             failures.append(f"Failed to read clean L06/L07/L08 merge summary: {exc}")
 
+    clean_l09_l10_merge = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_l09_l10_merge_summary.json"
+    if clean_l09_l10_merge.exists():
+        try:
+            import json
+
+            payload = json.loads(clean_l09_l10_merge.read_text(encoding="utf-8"))
+            expected_lines = {f"L{i:02d}": 1 for i in range(1, 11)}
+            if payload.get("num_training_ready_handwired_rows") != 10:
+                failures.append("Clean L09/L10 merge summary must report ten training-ready handwired rows.")
+            if payload.get("num_training_ready_handwired_rows_by_line") != expected_lines:
+                failures.append("Clean L09/L10 merge summary must report L01 through L10 ready rows.")
+            if payload.get("static_topology_disable_overwrote_handwired") is not False:
+                failures.append("Clean L09/L10 merge must not let static_topology_disable overwrite handwired rows.")
+        except Exception as exc:
+            failures.append(f"Failed to read clean L09/L10 merge summary: {exc}")
+
     readiness = ROOT / "results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_aware_training_readiness.json"
     if readiness.exists():
         try:
             import json
 
             payload = json.loads(readiness.read_text(encoding="utf-8"))
-            if payload.get("num_training_ready_labels") != 10:
-                failures.append("IEEE39 dynamic-aware readiness must report ten training-ready labels.")
-            if payload.get("num_training_ready_handwired_line_trip_labels") != 8:
-                failures.append("IEEE39 dynamic-aware readiness must report eight handwired line-trip labels.")
-            if payload.get("num_unique_handwired_line_ids") != 8:
-                failures.append("IEEE39 dynamic-aware readiness must report eight unique handwired line IDs.")
+            if payload.get("num_training_ready_labels") != 12:
+                failures.append("IEEE39 dynamic-aware readiness must report twelve training-ready labels.")
+            if payload.get("num_training_ready_handwired_line_trip_labels") != 10:
+                failures.append("IEEE39 dynamic-aware readiness must report ten handwired line-trip labels.")
+            if payload.get("num_unique_handwired_line_ids") != 10:
+                failures.append("IEEE39 dynamic-aware readiness must report ten unique handwired line IDs.")
             if payload.get("allowed_for_dynamic_aware_training") is not True:
                 failures.append("IEEE39 dynamic-aware readiness must allow preview training.")
             if payload.get("ready_for_preview_training") is not True:

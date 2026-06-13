@@ -1,7 +1,20 @@
 IEEE39 batch per-line clean breaker lab checklist
 
-Already successful training-ready handwired line trips:
-- L01
+Validated L09/L10 results:
+- L09: validation_passed=1, simulation_success=1, training_ready_candidate=True, measurement_extraction_status=voltage_speed_angle, line block path=Grid/B16 to B24
+- L10: validation_passed=1, simulation_success=1, training_ready_candidate=True, measurement_extraction_status=voltage_speed_angle, line block path=Grid/B17 to B27
+
+Validated line targets:
+- line_id: L09
+  line block path: Grid/B16 to B24
+  breaker name: L09_HandwiredTimedBreaker
+  trip command name: L09_TripCommand
+- line_id: L10
+  line block path: Grid/B17 to B27
+  breaker name: L10_HandwiredTimedBreaker
+  trip command name: L10_TripCommand
+
+Already successful earlier clean lab labels:
 - clean lab L02
 - per-line clean lab L03
 - per-line clean lab L04
@@ -10,36 +23,213 @@ Already successful training-ready handwired line trips:
 - per-line clean lab L07
 - per-line clean lab L08
 
+Latest formal fault summary:
+- results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05_l06_l07_l08_l09_l10.csv
+
 Current expected label gate:
-- num_training_ready_labels = 10
-- num_training_ready_handwired_line_trip_labels = 8
-- num_unique_handwired_line_ids = 8
+- num_training_ready_labels = 12
+- num_training_ready_handwired_line_trip_labels = 10
+- num_unique_handwired_line_ids = 10
 - allowed_for_dynamic_aware_training = true
 - ready_for_preview_training = true
 
-Next recommended manual targets:
-- L09
-- L10
+Preview dynamic-aware reranker training already ran earlier as a sanity check.
+Do not retrain the dynamic-aware reranker in this round.
 
-Preview dynamic-aware reranker training has already run as a sanity check.
-It is not a final dynamic performance conclusion.
-
-L09/L10 are listed below only if present in the verified line map; otherwise they are marked not_in_current_line_map.
+Remaining prepared-but-unwired clean lab targets:
+- prepare summary status: available
+- target line ids: L11-L34
 
 Per-line targets:
-- line_id: L09
-  line block path: Grid/B16 to B24
-  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L09.slx
-  breaker name: L09_HandwiredTimedBreaker
-  trip command name: L09_TripCommand
+- line_id: L11
+  line block path: Grid/B18 to B17
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L11.slx
+  breaker name: L11_HandwiredTimedBreaker
+  trip command name: L11_TripCommand
   Step time: 0.5 s
   Initial value: 0
   Final value: 1
-- line_id: L10
-  line block path: Grid/B17 to B27
-  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L10.slx
-  breaker name: L10_HandwiredTimedBreaker
-  trip command name: L10_TripCommand
+- line_id: L12
+  line block path: Grid/B19 to B16
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L12.slx
+  breaker name: L12_HandwiredTimedBreaker
+  trip command name: L12_TripCommand
+  Step time: 0.5 s
+  Initial value: 0
+  Final value: 1
+- line_id: L13
+  line block path: Grid/B2 to B25
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L13.slx
+  breaker name: L13_HandwiredTimedBreaker
+  trip command name: L13_TripCommand
+  Step time: 0.5 s
+  Initial value: 0
+  Final value: 1
+- line_id: L14
+  line block path: Grid/B21 to B16
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L14.slx
+  breaker name: L14_HandwiredTimedBreaker
+  trip command name: L14_TripCommand
+  Step time: 0.5 s
+  Initial value: 0
+  Final value: 1
+- line_id: L15
+  line block path: Grid/B21 to B22
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15.slx
+  breaker name: L15_HandwiredTimedBreaker
+  trip command name: L15_TripCommand
+  Step time: 0.5 s
+  Initial value: 0
+  Final value: 1
+- line_id: L16
+  line block path: Grid/B23 to B22
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L16.slx
+  breaker name: L16_HandwiredTimedBreaker
+  trip command name: L16_TripCommand
+  Step time: 0.5 s
+  Initial value: 0
+  Final value: 1
+- line_id: L17
+  line block path: Grid/B23 to B24
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L17.slx
+  breaker name: L17_HandwiredTimedBreaker
+  trip command name: L17_TripCommand
+  Step time: 0.5 s
+  Initial value: 0
+  Final value: 1
+- line_id: L18
+  line block path: Grid/B25 to B26
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L18.slx
+  breaker name: L18_HandwiredTimedBreaker
+  trip command name: L18_TripCommand
+  Step time: 0.5 s
+  Initial value: 0
+  Final value: 1
+- line_id: L19
+  line block path: Grid/B26 to B28
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L19.slx
+  breaker name: L19_HandwiredTimedBreaker
+  trip command name: L19_TripCommand
+  Step time: 0.5 s
+  Initial value: 0
+  Final value: 1
+- line_id: L20
+  line block path: Grid/B26 to B29
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L20.slx
+  breaker name: L20_HandwiredTimedBreaker
+  trip command name: L20_TripCommand
+  Step time: 0.5 s
+  Initial value: 0
+  Final value: 1
+- line_id: L21
+  line block path: Grid/B27 to B26
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L21.slx
+  breaker name: L21_HandwiredTimedBreaker
+  trip command name: L21_TripCommand
+  Step time: 0.5 s
+  Initial value: 0
+  Final value: 1
+- line_id: L22
+  line block path: Grid/B28 to B29
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L22.slx
+  breaker name: L22_HandwiredTimedBreaker
+  trip command name: L22_TripCommand
+  Step time: 0.5 s
+  Initial value: 0
+  Final value: 1
+- line_id: L23
+  line block path: Grid/B3 to B18
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L23.slx
+  breaker name: L23_HandwiredTimedBreaker
+  trip command name: L23_TripCommand
+  Step time: 0.5 s
+  Initial value: 0
+  Final value: 1
+- line_id: L24
+  line block path: Grid/B3 to B2
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L24.slx
+  breaker name: L24_HandwiredTimedBreaker
+  trip command name: L24_TripCommand
+  Step time: 0.5 s
+  Initial value: 0
+  Final value: 1
+- line_id: L25
+  line block path: Grid/B39 to B1
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L25.slx
+  breaker name: L25_HandwiredTimedBreaker
+  trip command name: L25_TripCommand
+  Step time: 0.5 s
+  Initial value: 0
+  Final value: 1
+- line_id: L26
+  line block path: Grid/B4 to B14
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L26.slx
+  breaker name: L26_HandwiredTimedBreaker
+  trip command name: L26_TripCommand
+  Step time: 0.5 s
+  Initial value: 0
+  Final value: 1
+- line_id: L27
+  line block path: Grid/B4 to B3
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L27.slx
+  breaker name: L27_HandwiredTimedBreaker
+  trip command name: L27_TripCommand
+  Step time: 0.5 s
+  Initial value: 0
+  Final value: 1
+- line_id: L28
+  line block path: Grid/B5 to B4
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L28.slx
+  breaker name: L28_HandwiredTimedBreaker
+  trip command name: L28_TripCommand
+  Step time: 0.5 s
+  Initial value: 0
+  Final value: 1
+- line_id: L29
+  line block path: Grid/B6 to B5
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L29.slx
+  breaker name: L29_HandwiredTimedBreaker
+  trip command name: L29_TripCommand
+  Step time: 0.5 s
+  Initial value: 0
+  Final value: 1
+- line_id: L30
+  line block path: Grid/B7 to B6
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L30.slx
+  breaker name: L30_HandwiredTimedBreaker
+  trip command name: L30_TripCommand
+  Step time: 0.5 s
+  Initial value: 0
+  Final value: 1
+- line_id: L31
+  line block path: Grid/B8 to B5
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L31.slx
+  breaker name: L31_HandwiredTimedBreaker
+  trip command name: L31_TripCommand
+  Step time: 0.5 s
+  Initial value: 0
+  Final value: 1
+- line_id: L32
+  line block path: Grid/B8 to B7
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L32.slx
+  breaker name: L32_HandwiredTimedBreaker
+  trip command name: L32_TripCommand
+  Step time: 0.5 s
+  Initial value: 0
+  Final value: 1
+- line_id: L33
+  line block path: Grid/B9 to B39
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L33.slx
+  breaker name: L33_HandwiredTimedBreaker
+  trip command name: L33_TripCommand
+  Step time: 0.5 s
+  Initial value: 0
+  Final value: 1
+- line_id: L34
+  line block path: Grid/B9 to B8
+  per-line clean lab .slx path: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L34.slx
+  breaker name: L34_HandwiredTimedBreaker
+  trip command name: L34_TripCommand
   Step time: 0.5 s
   Initial value: 0
   Final value: 1
@@ -49,20 +239,19 @@ Manual wiring rules:
 2. Each .slx must contain only the corresponding line_id breaker.
 3. Do not wire more than one target breaker inside the same per-line .slx.
 4. Do not copy from the old handwired model.
-5. Do not copy from clean labs that already contain L02-L08.
+5. Do not copy from clean labs that already contain L02-L10.
 6. During a single-line label run, only the target breaker may act.
-7. Sequential or simultaneous multi-line trip experiments can be studied later, but not mixed into single-line labels.
+7. Sequential or simultaneous multi-line trip experiments can be studied later, but must not be mixed into single-line labels.
 8. Keep all .slx files local; do not commit .slx, .slxc, slprj, .mat, raw trajectories, or full timeseries.
+9. This checklist does not auto-insert breakers and does not modify Simscape physical wiring.
 
-After manual wiring, ask Codex to run batch validation:
-matlab:
+After manual wiring, ask Codex to run batch validation for the newly wired line ids.
+Example MATLAB flow:
 cd matlab/simulink_ieee39
 configure_ieee39_short_filegen_paths()
-validate_ieee39_clean_breaker_lab_lines_batch(["L09","L10"])
+validate_ieee39_clean_breaker_lab_lines_batch(["L11","L12"])
 
-If validation passes, ask Codex to run batch isolated compact simulation:
-powershell:
-python scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py --line-ids L09 L10 --model-path-pattern "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_{line_id}.slx" --timeout-seconds 240 --simulation-stop-time 0.5
+If validation passes, ask Codex to run batch isolated compact simulation for the same line ids.
 
 Boundaries:
 - The model remains phasor_RMS, not EMT.

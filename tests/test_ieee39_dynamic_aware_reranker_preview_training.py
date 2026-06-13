@@ -20,7 +20,7 @@ QUALITY = ROOT / "results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_label_
 READINESS = ROOT / "results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_aware_training_readiness.json"
 FAULT_SUMMARY = ROOT / (
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/"
-    "ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05_l06_l07_l08.csv"
+    "ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05_l06_l07_l08_l09_l10.csv"
 )
 
 
@@ -60,14 +60,14 @@ def test_preview_training_generates_dataset_metrics_and_predictions(tmp_path: Pa
     metrics = json.loads(Path(result["metrics"]).read_text(encoding="utf-8"))
     predictions = pd.read_csv(result["predictions"])
 
-    assert len(dataset) == 10
+    assert len(dataset) == 12
     assert metrics["preview_only"] is True
     assert metrics["allowed_for_dynamic_aware_training"] is True
     assert metrics["ready_for_preview_training"] is True
-    assert metrics["num_samples"] == 10
-    assert metrics["num_training_ready_labels"] == 10
-    assert metrics["num_handwired_line_trip_labels"] == 8
-    assert metrics["num_unique_handwired_line_ids"] == 8
+    assert metrics["num_samples"] == 12
+    assert metrics["num_training_ready_labels"] == 12
+    assert metrics["num_handwired_line_trip_labels"] == 10
+    assert metrics["num_unique_handwired_line_ids"] == 10
     assert metrics["cv_strategy"] == "leave_one_out"
     assert "dynamic_stress_score" in metrics["target_columns"]
     assert "unstable_flag" in metrics["target_columns"]
@@ -98,7 +98,8 @@ def test_preview_training_docs_are_conservative() -> None:
     doc = (ROOT / "docs/ieee39_dynamic_aware_reranker_preview_training.md").read_text(encoding="utf-8").lower()
     for required in [
         "preview dynamic-aware reranker training",
-        "num_training_ready_labels = 10",
+        "num_training_ready_labels = 12",
+        "historical preview training artifact still contains 10 samples",
         "allowed_for_dynamic_aware_training = true",
         "ready_for_preview_training = true",
         "phasor_rms, not emt",

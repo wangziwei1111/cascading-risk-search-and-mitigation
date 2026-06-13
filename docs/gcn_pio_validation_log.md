@@ -2086,3 +2086,54 @@ empty
 
 RL mitigation files were not modified. Generated `.slx`, `.mat`, full per-case dynamic results, raw event logs, and full per-path ranking artifacts remain local ignored artifacts and are not intended for commit.
 
+## Round 37: Clean L09/L10 validation and remaining IEEE39 lab preparation
+
+This round validated the user-handwired per-line clean breaker labs for `L09`
+and `L10`, merged the successful compact results into the formal IEEE39 fault
+summary, refreshed the dynamic label gate, and prepared local clean lab `.slx`
+models for the remaining mapped lines `L11-L34`.
+
+L09/L10 validation and simulation:
+
+- `L09`: `validation_passed = true`, `simulation_success = true`,
+  `breaker_opened = true`, `training_ready_candidate = true`,
+  `measurement_extraction_status = voltage_speed_angle`
+- `L10`: `validation_passed = true`, `simulation_success = true`,
+  `breaker_opened = true`, `training_ready_candidate = true`,
+  `measurement_extraction_status = voltage_speed_angle`
+- Batch validation summary:
+  `results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_batch_validation_summary.csv`
+- Batch compact simulation summary:
+  `results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_batch_line_trip_summary.csv`
+- Latest formal fault summary:
+  `results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05_l06_l07_l08_l09_l10.csv`
+
+Updated dynamic label gate:
+
+- `num_training_ready_labels = 12`
+- `num_training_ready_handwired_line_trip_labels = 10`
+- `num_unique_handwired_line_ids = 10`
+- `allowed_for_dynamic_aware_training = true`
+- `ready_for_preview_training = true`
+
+Full line map and remaining lab preparation:
+
+- Full map:
+  `results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_full.csv`
+- Newly mapped line IDs: `L11-L34`
+- Remaining prepare summary:
+  `results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_remaining_prepare_summary.csv`
+- The `L11-L34` clean lab `.slx` files were generated locally only. They are
+  prepared-but-unwired: no breaker was auto-inserted and no Simscape physical
+  wiring was modified.
+
+Boundaries:
+
+- No dynamic-aware reranker retraining in this round.
+- The model remains `phasor_RMS`, not EMT.
+- `generator_speed_proxy` is not direct frequency.
+- The handwired breaker remains pilot breaker-like validation, not
+  engineering-grade protection.
+- `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories, and full timeseries are
+  not intended for commit.
+- RL mitigation files were not modified.

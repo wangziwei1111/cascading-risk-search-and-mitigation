@@ -1,11 +1,11 @@
 {
-  "num_training_ready_labels": 10,
-  "num_training_ready_handwired_line_trip_labels": 8,
-  "num_unique_handwired_line_ids": 8,
+  "num_training_ready_labels": 12,
+  "num_training_ready_handwired_line_trip_labels": 10,
+  "num_unique_handwired_line_ids": 10,
   "allowed_for_dynamic_aware_training": true,
   "ready_for_preview_training": true,
-  "reason": "Reached at least 10 training-ready IEEE39 compact dynamic labels.",
-  "next_step": "Run preview dynamic-aware reranker training in a separate commit.",
+  "reason": "Reached at least 10 training-ready IEEE39 compact dynamic labels; current gate includes L01-L10 handwired line-trip labels.",
+  "next_step": "Do not retrain in this round; after more labels are wired and validated, rerun preview training or a stricter comparison in a separate commit.",
   "caveats": [
     "phasor_RMS, not EMT",
     "generator_speed_proxy, not direct frequency",

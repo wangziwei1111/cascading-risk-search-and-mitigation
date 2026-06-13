@@ -138,3 +138,26 @@ run L09/L10 compact simulation, or train the dynamic-aware reranker.
 - .slx files are local-only and must not be committed.
 - Do not commit `.slxc`, `slprj`, `.mat`, raw trajectories, or full timeseries.
 
+## Full line map and remaining clean lab preparation
+
+The latest full map file is:
+
+- `results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_full.csv`
+
+It preserves the verified `L01-L10` mapping and appends unused line-like Grid
+blocks as `L11-L34`. The current gate is:
+
+- `num_training_ready_labels = 12`
+- `num_training_ready_handwired_line_trip_labels = 10`
+- `num_unique_handwired_line_ids = 10`
+- `allowed_for_dynamic_aware_training = true`
+
+`L09` and `L10` have passed validation and compact isolated simulation:
+
+- `L09`: `Grid/B16 to B24`
+- `L10`: `Grid/B17 to B27`
+
+Remaining prepared-but-unwired clean lab models are `L11-L34`. They are local
+`.slx` files prepared from the wrapper only; the prepare step does not invent a
+block path, does not auto-insert breakers, does not modify Simscape physical
+wiring, and no dynamic-aware reranker training was run.

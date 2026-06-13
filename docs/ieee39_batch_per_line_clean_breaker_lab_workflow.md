@@ -118,7 +118,7 @@ the next line.
 
 This round only prepares the L09/L10 clean lab `.slx` files. It does not wire
 breakers, run L09/L10 compact simulation, or train the dynamic-aware reranker.
-In short: it does not wire breakers and does not train the dynamic-aware reranker.
+In short: it does not wire breakers and no dynamic-aware reranker training was run.
 
 The current L06/L07/L08 compact simulations passed:
 
@@ -148,3 +148,30 @@ L05: simulation_success = true, measurement_extraction_status = voltage_speed_an
 - Do not commit `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories, or full timeseries.
 
 
+## Round update: L09/L10 validated, L11-L34 prepared
+
+The latest batch clean breaker lab validation now covers `L09` and `L10`.
+Both lines use one independent per-line clean lab `.slx`, both pass structure
+validation, and both isolated compact simulations report:
+
+- `simulation_success = true`
+- `breaker_opened = true`
+- `training_ready_candidate = true`
+- `measurement_extraction_status = voltage_speed_angle`
+
+The current dynamic label gate is:
+
+- `num_training_ready_labels = 12`
+- `num_training_ready_handwired_line_trip_labels = 10`
+- `num_unique_handwired_line_ids = 10`
+- `allowed_for_dynamic_aware_training = true`
+
+The previous preview dynamic-aware reranker training artifact still contains 10
+samples because this round does not retrain the dynamic-aware reranker. It is
+kept only as a historical sanity-check artifact.
+
+The full wrapper line map now preserves `L01-L10` and extends remaining line-like
+Grid blocks to `L11-L34`. The prepare step created local per-line clean lab
+`.slx` files for `L11-L34`, but it does not wire breakers, does not auto-insert
+breakers, and does not modify Simscape physical wiring. These `.slx` files remain
+local-only and must not be committed.

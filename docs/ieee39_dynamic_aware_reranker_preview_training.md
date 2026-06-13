@@ -111,3 +111,22 @@ also appear in the feature set.
 - The L09/L10 preparation step does not wire breakers, does not run compact
   simulation, and does not retrain the preview reranker.
 - Do not commit `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories, or full timeseries.
+## Current label gate after L09/L10
+
+The current label gate has advanced beyond the historical preview artifact:
+
+- `num_training_ready_labels = 12`
+- `num_training_ready_handwired_line_trip_labels = 10`
+- `num_unique_handwired_line_ids = 10`
+- `allowed_for_dynamic_aware_training = true`
+- `ready_for_preview_training = true`
+
+The historical preview training artifact still contains 10 samples because this
+round intentionally does not retrain the dynamic-aware reranker. The artifact is
+therefore a workflow sanity check only, not a final dynamic performance
+conclusion.
+
+`L09` and `L10` were added through independent per-line clean lab `.slx` models
+and passed compact isolated simulation. `L11-L34` clean lab `.slx` files are
+prepared locally for future manual wiring, but no breaker was auto-inserted and
+no Simscape physical wiring was modified.

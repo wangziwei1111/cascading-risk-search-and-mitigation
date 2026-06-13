@@ -149,3 +149,20 @@ the inventory-backed extended map.
 - Do not commit `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories, or full timeseries.
 
 
+## Latest clean lab status
+
+`L01-L10` are now available as training-ready handwired line-trip labels, with
+`L09` and `L10` added through the latest batch clean lab validation and compact
+isolated simulation.
+
+- `validation_passed = true` for `L09` and `L10`
+- `simulation_success = true` for `L09` and `L10`
+- `training_ready_candidate = true` for `L09` and `L10`
+- `num_training_ready_labels = 12`
+- `num_training_ready_handwired_line_trip_labels = 10`
+- `allowed_for_dynamic_aware_training = true`
+
+The full map also prepares `L11-L34` local `.slx` clean labs for future manual
+wiring. The prepare step does not auto-insert breakers, does not modify Simscape
+physical wiring, and no dynamic-aware reranker training was run. Preview
+training remains a sanity check, not a final dynamic performance conclusion.

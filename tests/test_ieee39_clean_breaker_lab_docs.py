@@ -37,7 +37,8 @@ def test_clean_breaker_lab_docs_are_conservative() -> None:
         "validation_passed = true",
         "simulation_success = true",
         "training_ready_candidate = true",
-        "num_training_ready_labels = 10",
+        "num_training_ready_labels = 12",
+        "num_training_ready_handwired_line_trip_labels = 10",
         "allowed_for_dynamic_aware_training = true",
         "preview training",
     ]:

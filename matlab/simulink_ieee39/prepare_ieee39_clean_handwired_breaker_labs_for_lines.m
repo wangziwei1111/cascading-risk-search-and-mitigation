@@ -1,4 +1,4 @@
-function summaryTable = prepare_ieee39_clean_handwired_breaker_labs_for_lines(lineIds, sourceWrapperPath, outputDir)
+function summaryTable = prepare_ieee39_clean_handwired_breaker_labs_for_lines(lineIds, sourceWrapperPath, outputDir, outputBaseName)
 %PREPARE_IEEE39_CLEAN_HANDWIRED_BREAKER_LABS_FOR_LINES Copy per-line clean labs.
 %
 % This batch helper copies the original clean generated wrapper into one
@@ -13,6 +13,9 @@ if nargin < 2 || isempty(sourceWrapperPath)
 end
 if nargin < 3 || isempty(outputDir)
     outputDir = "../../results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation";
+end
+if nargin < 4 || isempty(outputBaseName)
+    outputBaseName = "ieee39_clean_breaker_lab_batch_prepare_summary";
 end
 if ~exist(outputDir, "dir")
     mkdir(outputDir);
@@ -99,8 +102,8 @@ summaryTable = cell2table(rows, "VariableNames", { ...
     'target_created', 'target_loadable', 'existing_handwired_breaker_found', ...
     'clean_lab_committed', 'status', 'note' ...
 });
-writetable(summaryTable, fullfile(outputDir, "ieee39_clean_breaker_lab_batch_prepare_summary.csv"));
-writeJsonTable(summaryTable, fullfile(outputDir, "ieee39_clean_breaker_lab_batch_prepare_summary.json"));
+writetable(summaryTable, fullfile(outputDir, outputBaseName + ".csv"));
+writeJsonTable(summaryTable, fullfile(outputDir, outputBaseName + ".json"));
 fprintf("Wrote IEEE39 batch clean breaker lab prepare summary under: %s\n", outputDir);
 end
 
@@ -117,9 +120,12 @@ found = ~isempty(matches);
 end
 
 function lineMap = readLineMap()
+fullMapPath = "../../results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_full.csv";
 extendedMapPath = "../../results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_extended.csv";
 legacyMapPath = "../../results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map.csv";
-if isfile(extendedMapPath)
+if isfile(fullMapPath)
+    mapPath = fullMapPath;
+elseif isfile(extendedMapPath)
     mapPath = extendedMapPath;
 else
     mapPath = legacyMapPath;

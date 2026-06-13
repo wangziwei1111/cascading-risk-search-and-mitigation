@@ -14,7 +14,7 @@ def test_batch_per_line_clean_breaker_lab_docs_are_conservative() -> None:
         assert doc.exists()
         text = doc.read_text(encoding="utf-8").lower()
         for required in [
-            "num_training_ready_labels = 10",
+            "num_training_ready_labels = 12",
             "one",
             ".slx",
             "phasor_rms",
@@ -35,6 +35,7 @@ def test_batch_per_line_clean_breaker_lab_docs_are_conservative() -> None:
 
     batch_doc = docs[0].read_text(encoding="utf-8").lower()
     for required in [
+        "num_training_ready_handwired_line_trip_labels = 10",
         "l06",
         "l07",
         "l08",
@@ -45,8 +46,9 @@ def test_batch_per_line_clean_breaker_lab_docs_are_conservative() -> None:
         "l10",
         "grid/b16 to b24",
         "grid/b17 to b27",
+        "l11-l34",
         "does not wire breakers",
-        "does not train the dynamic-aware reranker",
+        "no dynamic-aware reranker training was run",
     ]:
         assert required in batch_doc
     assert "do not invent a block path" in batch_doc

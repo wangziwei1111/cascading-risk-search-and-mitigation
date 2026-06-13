@@ -127,3 +127,22 @@ reranker can run in a separate commit. This validation round does not train the 
 - Do not commit `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories, or full timeseries.
 
 
+## Current per-line clean lab status
+
+The per-line clean lab workflow has reached `L01-L10` as training-ready
+handwired line-trip labels. The newest validated lines are:
+
+- `L09`: `Grid/B16 to B24`
+- `L10`: `Grid/B17 to B27`
+
+The current gate is:
+
+- `num_training_ready_labels = 12`
+- `num_training_ready_handwired_line_trip_labels = 10`
+- `allowed_for_dynamic_aware_training = true`
+
+The remaining `L11-L34` per-line clean lab `.slx` files have been prepared
+locally, but they are intentionally unwired. They should be opened one at a time
+for manual breaker wiring. Do not copy from labs that already contain `L02-L10`,
+do not auto-insert breakers, do not modify Simscape physical wiring, and do not
+commit `.slx` files.
