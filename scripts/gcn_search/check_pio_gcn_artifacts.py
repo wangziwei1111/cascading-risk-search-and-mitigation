@@ -103,6 +103,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/run_ieee39_dynamic_aware_stricter_comparison.py",
     "scripts/gcn_search/prepare_ieee39_non_line_trip_fault_expansion.py",
     "scripts/gcn_search/run_ieee39_non_line_trip_fault_smoke_tests.py",
+    "scripts/gcn_search/export_ieee39_non_line_trip_dynamic_labels.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trip_isolated.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py",
     "scripts/gcn_search/update_ieee39_line_breaker_map_from_inventory.py",
@@ -198,6 +199,9 @@ REQUIRED_FILES = [
     "tests/test_ieee39_non_line_trip_fault_expansion_dry_run.py",
     "tests/test_ieee39_non_line_trip_fault_smoke_tests.py",
     "tests/test_ieee39_non_line_trip_fault_smoke_docs.py",
+    "tests/test_ieee39_non_line_trip_label_export.py",
+    "tests/test_ieee39_dynamic_label_schema_v2_candidates.py",
+    "tests/test_ieee39_non_line_trip_label_export_docs.py",
     "tests/test_ieee39_remaining_line_map_full.py",
     "tests/test_ieee39_remaining_clean_breaker_lab_prepare.py",
     "tests/test_ieee39_remaining_clean_breaker_lab_checklist.py",
@@ -237,6 +241,7 @@ REQUIRED_FILES = [
     "docs/ieee39_dynamic_aware_stricter_independent_test_comparison.md",
     "docs/ieee39_non_line_trip_fault_type_expansion.md",
     "docs/ieee39_non_line_trip_fault_smoke_tests.md",
+    "docs/ieee39_non_line_trip_label_export.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -266,6 +271,14 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_smoke_test_summary.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_smoke_test_report.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_smoke_test_report.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/non_line_trip_label_export/ieee39_non_line_trip_dynamic_label_candidates.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/non_line_trip_label_export/ieee39_non_line_trip_dynamic_label_candidates.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/non_line_trip_label_export/ieee39_dynamic_label_schema_v2_combined_candidates.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/non_line_trip_label_export/ieee39_dynamic_label_schema_v2_combined_candidates.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/non_line_trip_label_export/ieee39_dynamic_label_quality_summary_v2_with_non_line_trip_candidates.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/non_line_trip_label_export/ieee39_dynamic_aware_training_readiness_v2_with_non_line_trip_candidates.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/non_line_trip_label_export/ieee39_non_line_trip_duplicate_provenance_report.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/non_line_trip_label_export/ieee39_non_line_trip_duplicate_provenance_report.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -1033,6 +1046,87 @@ def main() -> int:
         ]:
             if required not in text:
                 failures.append(f"Non-line-trip smoke doc missing: {required}")
+
+    non_line_export_dir = non_line_dir / "non_line_trip_label_export"
+    non_line_candidates = non_line_export_dir / "ieee39_non_line_trip_dynamic_label_candidates.csv"
+    combined_v2 = non_line_export_dir / "ieee39_dynamic_label_schema_v2_combined_candidates.csv"
+    quality_v2 = non_line_export_dir / "ieee39_dynamic_label_quality_summary_v2_with_non_line_trip_candidates.json"
+    readiness_v2 = non_line_export_dir / "ieee39_dynamic_aware_training_readiness_v2_with_non_line_trip_candidates.json"
+    provenance_report = non_line_export_dir / "ieee39_non_line_trip_duplicate_provenance_report.json"
+    if non_line_candidates.exists() and combined_v2.exists() and quality_v2.exists() and readiness_v2.exists() and provenance_report.exists():
+        try:
+            import json
+            import pandas as pd
+
+            candidates = pd.read_csv(non_line_candidates)
+            combined = pd.read_csv(combined_v2)
+            quality = json.loads(quality_v2.read_text(encoding="utf-8"))
+            readiness = json.loads(readiness_v2.read_text(encoding="utf-8"))
+            provenance = json.loads(provenance_report.read_text(encoding="utf-8"))
+            expected_ids = {"NF01", "NF02", "NF03", "NF04", "NF06"}
+            if len(candidates) != 5 or set(candidates.get("scenario_id", pd.Series(dtype=str)).astype(str)) != expected_ids:
+                failures.append("Non-line-trip candidate export must contain exactly NF01/NF02/NF03/NF04/NF06.")
+            if len(combined) != 40:
+                failures.append("Combined v2 candidate schema must contain 40 rows.")
+            if int(combined.get("non_line_trip_label", pd.Series(dtype=bool)).astype(bool).sum()) != 5:
+                failures.append("Combined v2 candidate schema must contain five non-line-trip rows.")
+            if int(combined.get("handwired_line_trip_label", pd.Series(dtype=bool)).astype(bool).sum()) != 33:
+                failures.append("Combined v2 candidate schema must preserve 33 handwired line-trip rows.")
+            if not candidates.get("label_family", pd.Series(dtype=str)).astype(str).eq("non_line_trip").all():
+                failures.append("All non-line-trip candidates must have label_family=non_line_trip.")
+            if candidates.get("handwired_line_trip_label", pd.Series(dtype=bool)).astype(bool).any():
+                failures.append("Non-line-trip candidates must not be handwired line-trip labels.")
+            if candidates.get("formal_line_trip_label", pd.Series(dtype=bool)).astype(bool).any():
+                failures.append("Non-line-trip candidates must not be formal line-trip labels.")
+            nf06 = candidates[candidates.get("scenario_id", pd.Series(dtype=str)).astype(str).eq("NF06")]
+            if nf06.empty or not bool(nf06.iloc[0].get("provenance_check_required", False)):
+                failures.append("NF06 must be marked provenance_check_required.")
+            joined = candidates.to_json().lower()
+            for forbidden in ["l12", "handwired_timed_breaker", "single_line_trip"]:
+                if forbidden in joined:
+                    failures.append(f"Non-line-trip candidate export must not contain {forbidden}.")
+            if "l12" in combined.to_json().lower():
+                failures.append("Combined v2 candidate schema must keep L12 excluded.")
+            if quality.get("original_formal_gate_preserved") is not True:
+                failures.append("V2 quality summary must preserve the original formal gate.")
+            if quality.get("original_num_training_ready_labels") != 35:
+                failures.append("V2 quality summary must report original 35 training-ready labels.")
+            if quality.get("original_num_training_ready_handwired_line_trip_labels") != 33:
+                failures.append("V2 quality summary must report original 33 handwired line-trip labels.")
+            if quality.get("num_non_line_trip_candidate_labels") != 5:
+                failures.append("V2 quality summary must report five non-line-trip candidates.")
+            if quality.get("num_training_ready_labels_v2_combined_candidate") != 40:
+                failures.append("V2 quality summary must report 40 combined candidate rows.")
+            if quality.get("should_retrain_reranker_now") is not False:
+                failures.append("V2 quality summary must not request immediate reranker retraining.")
+            if readiness.get("ready_for_v2_preview_training") is not True or readiness.get("should_train_now") is not False:
+                failures.append("V2 readiness must be ready for future preview but should_train_now=false.")
+            provenance_text = json.dumps(provenance).lower()
+            for required_id in ["nf01", "nf04", "nf06"]:
+                if required_id not in provenance_text:
+                    failures.append(f"Duplicate/provenance report missing {required_id}.")
+            if provenance.get("provenance_check_required_scenarios") != ["NF06"]:
+                failures.append("Duplicate/provenance report must mark NF06 only.")
+        except Exception as exc:
+            failures.append(f"Failed to read non-line-trip v2 export artifacts: {exc}")
+
+    non_line_export_doc = ROOT / "docs/ieee39_non_line_trip_label_export.md"
+    if non_line_export_doc.exists():
+        text = _read_text("docs/ieee39_non_line_trip_label_export.md").lower()
+        for required in [
+            "did not run simulink",
+            "did not modify `.slx`",
+            "did not fix l12",
+            "35 / 33 / 33",
+            "non-line-trip candidate labels: `5`",
+            "v2 combined candidate rows: `40`",
+            "provenance_check_required = true",
+            "phasor_rms, not emt",
+            "generator_speed_proxy` is not direct frequency",
+            "relay proxy is not engineering-grade protection",
+        ]:
+            if required not in text:
+                failures.append(f"Non-line-trip label export doc missing: {required}")
 
     relay_doc = ROOT / "docs/ieee39_fault_breaker_relay_wrapper.md"
     if relay_doc.exists():

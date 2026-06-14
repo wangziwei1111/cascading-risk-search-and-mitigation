@@ -1,0 +1,12 @@
+{
+  "ready_for_v2_preview_training": true,
+  "should_train_now": false,
+  "reason": "The v2 candidate set is ready for a future preview training run, but this export round does not retrain. Duplicate/provenance checks should be reviewed first, especially NF06.",
+  "caveats": [
+    "phasor_RMS, not EMT",
+    "generator_speed_proxy, not direct frequency",
+    "relay proxy not engineering-grade protection",
+    "duplicate smoke candidates are not necessarily independent physical samples",
+    "preview-only, not final dynamic performance conclusion"
+  ]
+}

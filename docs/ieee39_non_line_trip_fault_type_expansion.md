@@ -95,3 +95,18 @@ remains excluded, and the dynamic-aware reranker was not retrained.
 Details are in:
 
 `docs/ieee39_non_line_trip_fault_smoke_tests.md`
+
+## Candidate Label Export Follow-Up
+
+The successful smoke candidates have now been exported into a separate
+non-line-trip candidate set. The export creates a v2 combined candidate schema
+with `40` rows: the existing `35` formal training-ready rows plus `5`
+non-line-trip candidate rows. It does not overwrite the original formal gate.
+
+`NF01`, `NF04`, and `NF06` are flagged in the duplicate/provenance report.
+`NF06` is specifically marked `provenance_check_required = true` because its
+relay proxy measurements currently match the `0.10 s` fault group.
+
+Details are in:
+
+`docs/ieee39_non_line_trip_label_export.md`

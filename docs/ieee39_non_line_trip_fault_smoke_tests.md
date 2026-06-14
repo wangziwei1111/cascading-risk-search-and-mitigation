@@ -70,3 +70,17 @@ Create a separate non-line-trip label export / merge round for successful smoke
 candidates. That round should explicitly keep non-line-trip labels separate
 from handwired line-trip labels and should not change the current formal gate
 until the new label schema is reviewed.
+
+## Candidate Export Follow-Up
+
+The successful smoke rows have now been exported as a separate non-line-trip
+candidate label set. The original formal gate remains `35 / 33 / 33`; the new
+v2 combined candidate schema has `40` rows, including `5` non-line-trip
+candidate labels.
+
+`NF01`, `NF04`, and `NF06` share identical compact measurements. `NF06` remains
+in the candidate export, but it is marked `provenance_check_required = true`
+because the relay proxy row currently matches the `0.10 s` fault group.
+
+This export still does not retrain the dynamic-aware reranker and is not final
+dynamic performance conclusion.

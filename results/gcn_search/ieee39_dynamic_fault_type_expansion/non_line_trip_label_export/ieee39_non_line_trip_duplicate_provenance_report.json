@@ -1,0 +1,55 @@
+{
+  "num_duplicate_measurement_groups": 1,
+  "duplicate_measurement_groups": [
+    {
+      "duplicate_measurement_group": "group_1",
+      "scenario_ids": [
+        "NF01",
+        "NF04",
+        "NF06"
+      ],
+      "fault_types": [
+        "fault_duration_sweep_smoke",
+        "relay_proxy_fault_smoke",
+        "three_phase_fault_clear_smoke"
+      ],
+      "same_fault_start_clear_duration": true,
+      "output_summary_paths": [
+        "results/gcn_search/ieee39_dynamic_fault_type_expansion/smoke_outputs/NF01/ieee39_fault_test_summary.csv",
+        "results/gcn_search/ieee39_dynamic_fault_type_expansion/smoke_outputs/NF04/ieee39_fault_test_summary.csv",
+        "results/gcn_search/ieee39_dynamic_fault_type_expansion/smoke_outputs/NF06/ieee39_fault_test_summary.csv"
+      ],
+      "fault_type_differs_but_measurement_identical": true,
+      "note": "NF01/NF04 duplicate timing is expected; NF06 needs provenance check because relay proxy measurements match the same group."
+    }
+  ],
+  "measurement_identical_scenarios": [
+    [
+      "NF01",
+      "NF04",
+      "NF06"
+    ]
+  ],
+  "same_timing_scenarios": [
+    {
+      "scenario_ids": [
+        "NF01",
+        "NF04",
+        "NF06"
+      ],
+      "fault_start_s": 0.5,
+      "fault_clear_s": 0.6,
+      "duration_s": 0.1,
+      "fault_types": [
+        "fault_duration_sweep_smoke",
+        "relay_proxy_fault_smoke",
+        "three_phase_fault_clear_smoke"
+      ]
+    }
+  ],
+  "nf01_nf04_nf06_conclusion": "NF01 and NF04 are both existing three-phase fault block 0.10 s cases, so identical values are expected. NF06 is relay_proxy_fault_smoke but currently has measurements identical to the 0.10 s fault group, so it is retained but marked provenance_check_required and not_independent_physical_sample_until_verified.",
+  "provenance_check_required_scenarios": [
+    "NF06"
+  ],
+  "rows_deleted_due_to_duplicates": 0
+}

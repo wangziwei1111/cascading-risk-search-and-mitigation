@@ -242,3 +242,14 @@ fix L12, and does not retrain the dynamic-aware reranker.
 The model remains `phasor_RMS`, not EMT. `generator_speed_proxy` remains a proxy
 signal, not direct frequency. Handwired breaker validation remains
 pilot breaker-like validation, not engineering-grade protection.
+
+## Non-line-trip v2 candidate export
+
+The successful non-line-trip smoke rows have now been exported as `5` candidate
+labels and combined with the existing `35` formal rows into a `40`-row v2
+candidate schema. This does not overwrite the old formal gate and does not
+retrain the reranker.
+
+`NF01`, `NF04`, and `NF06` share identical compact measurements. `NF06` is
+marked `provenance_check_required = true`, so a future v2 preview training run
+must carry this duplicate/provenance warning into the report.

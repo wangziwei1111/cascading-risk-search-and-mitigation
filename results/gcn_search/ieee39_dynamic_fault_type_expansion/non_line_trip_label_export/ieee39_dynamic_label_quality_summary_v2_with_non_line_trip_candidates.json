@@ -1,0 +1,41 @@
+{
+  "schema_version": "ieee39_dynamic_label_schema_v2",
+  "original_formal_gate_preserved": true,
+  "original_num_training_ready_labels": 35,
+  "original_num_training_ready_handwired_line_trip_labels": 33,
+  "original_num_unique_handwired_line_ids": 33,
+  "num_non_line_trip_candidate_labels": 5,
+  "num_training_ready_labels_v2_combined_candidate": 40,
+  "num_duplicate_measurement_groups": 1,
+  "duplicate_measurement_groups": [
+    {
+      "duplicate_measurement_group": "group_1",
+      "scenario_ids": [
+        "NF01",
+        "NF04",
+        "NF06"
+      ],
+      "fault_types": [
+        "fault_duration_sweep_smoke",
+        "relay_proxy_fault_smoke",
+        "three_phase_fault_clear_smoke"
+      ],
+      "same_fault_start_clear_duration": true,
+      "output_summary_paths": [
+        "results/gcn_search/ieee39_dynamic_fault_type_expansion/smoke_outputs/NF01/ieee39_fault_test_summary.csv",
+        "results/gcn_search/ieee39_dynamic_fault_type_expansion/smoke_outputs/NF04/ieee39_fault_test_summary.csv",
+        "results/gcn_search/ieee39_dynamic_fault_type_expansion/smoke_outputs/NF06/ieee39_fault_test_summary.csv"
+      ],
+      "fault_type_differs_but_measurement_identical": true,
+      "note": "NF01/NF04 duplicate timing is expected; NF06 needs provenance check because relay proxy measurements match the same group."
+    }
+  ],
+  "provenance_check_required_scenarios": [
+    "NF06"
+  ],
+  "l12_excluded": true,
+  "l12_reason": "simulation_timeout / suspected islanding",
+  "allowed_for_dynamic_aware_training_v2_preview": true,
+  "should_retrain_reranker_now": false,
+  "recommended_next_step": "Review duplicate/provenance warnings, especially NF06, then run a separate v2 preview training round."
+}

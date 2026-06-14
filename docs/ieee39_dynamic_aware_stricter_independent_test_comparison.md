@@ -107,3 +107,14 @@ does not retrain the dynamic-aware reranker.
 The relay proxy remains a basic proxy, not engineering-grade protection.
 `generator_speed_proxy` remains a proxy, not direct frequency, and the model is
 still `phasor_RMS`, not EMT.
+
+## Candidate Export Follow-Up
+
+The five successful non-line-trip smoke rows have now been exported as a
+separate candidate label family. The v2 combined candidate schema has `40` rows:
+the original `35` formal rows plus `5` non-line-trip candidates. This is useful
+for a future v2 preview training run, but it is not a final performance claim.
+
+The duplicate/provenance report flags `NF01`, `NF04`, and `NF06`. `NF06` needs
+special review because the relay proxy measurements currently match the `0.10 s`
+fault group.

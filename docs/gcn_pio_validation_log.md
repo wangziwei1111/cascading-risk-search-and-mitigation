@@ -2381,3 +2381,37 @@ Boundaries:
 - `generator_speed_proxy` is not direct frequency.
 - The relay proxy is not engineering-grade protection.
 - RL mitigation files were not modified.
+
+## Round 44: IEEE39 Non-Line-Trip Candidate Label Export
+
+This round did not run Simulink, did not modify `.slx`, did not fix L12, and did
+not retrain the dynamic-aware reranker. It only exports the successful
+non-line-trip smoke rows as a separate candidate label set and builds a v2
+combined candidate schema.
+
+Outputs:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/non_line_trip_label_export/ieee39_non_line_trip_dynamic_label_candidates.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/non_line_trip_label_export/ieee39_dynamic_label_schema_v2_combined_candidates.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/non_line_trip_label_export/ieee39_dynamic_label_quality_summary_v2_with_non_line_trip_candidates.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/non_line_trip_label_export/ieee39_dynamic_aware_training_readiness_v2_with_non_line_trip_candidates.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/non_line_trip_label_export/ieee39_non_line_trip_duplicate_provenance_report.md`
+- `docs/ieee39_non_line_trip_label_export.md`
+
+Counts:
+
+- original formal gate remains `35 / 33 / 33`
+- non-line-trip candidate labels = `5`
+- v2 combined candidate rows = `40`
+
+Duplicate/provenance warning:
+
+- `NF01`, `NF04`, and `NF06` have identical compact measurements.
+- `NF01` and `NF04` are both existing three-phase fault block `0.10 s` cases.
+- `NF06` is retained but marked `provenance_check_required = true` because the
+  relay proxy measurements match the same group.
+
+The v2 set is ready for a future preview training run, but this export round
+does not train. The model remains `phasor_RMS`, not EMT;
+`generator_speed_proxy` is not direct frequency; and relay proxy is not
+engineering-grade protection. RL mitigation files were not modified.
