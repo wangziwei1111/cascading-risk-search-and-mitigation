@@ -1,0 +1,13 @@
+# Dry-run command plan only. Do not execute automatically.
+# cd C:/Users/24186/Documents/New project 7/simulink-dynamic-validation-worktree/matlab/simulink_ieee39
+
+% NF01: run_ieee39_fault_test_suite("../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper.slx", "../../results/gcn_search/ieee39_dynamic_fault_type_expansion/smoke_outputs/NF01", true, ["three_phase_fault_clear"], 0.8, false)
+% NF02: configure_ieee39_three_phase_fault_case("../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper.slx", 0.5, 0.55, "../../results/gcn_search/ieee39_dynamic_fault_type_expansion/smoke_outputs/NF02")
+% NF03: configure_ieee39_three_phase_fault_case("../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper.slx", 0.5, 0.58, "../../results/gcn_search/ieee39_dynamic_fault_type_expansion/smoke_outputs/NF03")
+% NF04: configure_ieee39_three_phase_fault_case("../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper.slx", 0.5, 0.6, "../../results/gcn_search/ieee39_dynamic_fault_type_expansion/smoke_outputs/NF04")
+% NF05: configure_ieee39_three_phase_fault_case("../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper.slx", 0.5, 0.65, "../../results/gcn_search/ieee39_dynamic_fault_type_expansion/smoke_outputs/NF05")
+% NF06: run_ieee39_fault_test_suite("../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper.slx", "../../results/gcn_search/ieee39_dynamic_fault_type_expansion/smoke_outputs/NF06", true, ["relay_trip_test"], 0.8, false)
+% NF07: manual_required before execution - manual_required: map/select a B16 three-phase fault injection point
+% NF08: manual_required before execution - manual_required: map/select a B39 three-phase fault injection point
+% NF09: manual_required before execution - manual_required: add safe load-step disturbance input
+% NF10: manual_required before execution - manual_required: verify generator trip or Pm-step input

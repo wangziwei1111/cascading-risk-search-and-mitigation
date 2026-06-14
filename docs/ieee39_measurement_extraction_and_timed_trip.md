@@ -210,3 +210,17 @@ features. The no-leakage / topology-only results are more realistic preview
 signals, while the dynamic-measurement feature result is an optimistic upper
 bound because `dynamic_stress_score` is derived from compact measurements. It
 is not a final dynamic performance conclusion.
+
+## Non-line-trip fault preparation note
+
+The current measurement workflow is now being prepared for non-line-trip fault
+types. The preparation adds only taxonomy, manifest, feasibility, and dry-run
+command artifacts. It does not run Simulink, does not modify `.slx`, does not
+modify Simscape physical wiring, does not fix L12, and does not retrain the
+dynamic-aware reranker.
+
+The existing supported non-line-trip candidates are the baseline
+`three_phase_fault_clear`, configurable fault timing for a future duration
+sweep, and the basic relay proxy case. Different-bus faults, load steps,
+generator trips / mechanical-power steps, and bus-voltage-reference events are
+manual/future items until verified.

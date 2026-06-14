@@ -1,0 +1,50 @@
+{
+  "simulink_was_run": false,
+  "slx_modified": false,
+  "training_ready_label_count_changed": false,
+  "reranker_retrained": false,
+  "supported_without_slx_modification_now": [
+    "three_phase_bus_fault_clear baseline through run_ieee39_fault_test_suite",
+    "fault_duration_sweep timing configuration through configure_ieee39_three_phase_fault_case",
+    "relay_proxy_fault baseline through run_ieee39_fault_test_suite relay_trip_test"
+  ],
+  "manual_or_future_fault_types": [
+    "different-bus three-phase fault selector",
+    "load_step_disturbance",
+    "generator_trip_or_mechanical_power_step",
+    "bus_voltage_disturbance_or_reference_event"
+  ],
+  "first_smoke_test_candidates": [
+    "NF01",
+    "NF02",
+    "NF03",
+    "NF04",
+    "NF06"
+  ],
+  "largest_risks": [
+    "target-feature leakage if compact dynamic measurements are reused as both features and proxy labels",
+    "mixing non-line-trip labels with handwired line-trip labels",
+    "bus-specific fault injection requires manual mapping",
+    "duration sweep must not be reported as suite-grade until a duration-aware smoke runner is used"
+  ],
+  "mixes_with_handwired_line_trip_labels": false,
+  "target_feature_leakage_possible": true,
+  "capability_audit": {
+    "simulink_was_run": false,
+    "slx_modified": false,
+    "three_phase_fault_block_script_supported": true,
+    "fault_start_clear_parameterization_supported": true,
+    "fault_suite_three_phase_case_supported": true,
+    "different_bus_three_phase_fault_supported_without_slx_change": false,
+    "relay_proxy_fault_supported_without_slx_change": true,
+    "load_step_supported_without_slx_change": false,
+    "generator_trip_supported_without_slx_change": false,
+    "bus_voltage_reference_event_supported_without_slx_change": false,
+    "notes": [
+      "Existing scripts can configure an existing Fault (Three-Phase) block start/clear timing.",
+      "The current fault suite has a fixed three_phase_fault_clear row and a basic relay proxy row.",
+      "No generic target-bus selector for the three-phase fault was found in the current scripts.",
+      "Load-step, generator-trip, and bus-voltage-reference events require manual Simulink/MATLAB extension before execution."
+    ]
+  }
+}

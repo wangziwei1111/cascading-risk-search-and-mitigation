@@ -230,3 +230,15 @@ failure.
 The stricter comparison did not run Simulink, did not modify `.slx`, did not
 fix L12, and did not modify Simscape physical wiring. It is still preview-only
 and not a final dynamic performance conclusion.
+
+## Non-line-trip expansion note
+
+The next preparation step adds non-line-trip fault taxonomy and scenario
+manifest files only. The goal is to move beyond a narrow line-trip label family
+before trusting dynamic-aware generalization. This preparation does not add new
+training-ready labels, does not run Simulink, does not modify `.slx`, does not
+fix L12, and does not retrain the dynamic-aware reranker.
+
+The model remains `phasor_RMS`, not EMT. `generator_speed_proxy` remains a proxy
+signal, not direct frequency. Handwired breaker validation remains
+pilot breaker-like validation, not engineering-grade protection.

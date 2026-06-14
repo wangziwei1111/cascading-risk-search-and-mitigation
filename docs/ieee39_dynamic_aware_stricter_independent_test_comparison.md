@@ -78,3 +78,20 @@ features that are close to the proxy target construction.
 For a more credible conclusion, add non-line-trip fault types and build a truly
 independent test set across operating conditions, systems, or fault classes.
 Also keep checking target-feature leakage before reporting performance.
+
+## Non-Line-Trip Expansion Preparation
+
+The follow-up preparation step adds a taxonomy and manifest for non-line-trip
+fault types. It does not run Simulink, does not modify `.slx`, does not fix L12,
+and does not retrain the dynamic-aware reranker.
+
+The first recommended candidates are the existing three-phase fault-clear case,
+a short fault-duration sweep on the existing fault block, and the basic relay
+proxy case. Different-bus faults, load steps, generator-trip /
+mechanical-power-step events, and bus-voltage-reference events remain
+manual/future items until a safe injection point is verified.
+
+This expansion is important because the stricter comparison showed
+target-feature leakage risk. Non-line-trip faults are a necessary next check for
+generalization reliability, but they are not yet new training-ready labels. It
+is not a final dynamic performance conclusion.

@@ -91,3 +91,11 @@ the 35 training-ready compact dynamic labels, keeps L12 as
 The stricter dynamic-aware comparison also excludes L12. L12 remains excluded.
 It does not fix L12, does not run Simulink, and does not modify Simscape
 physical wiring. It is not a final dynamic performance conclusion.
+
+## Non-line-trip expansion boundary
+
+The non-line-trip fault expansion preparation also excludes L12. It does not
+repair, rerun, or merge the L12 timeout case. The new manifest is for
+three-phase fault-clear, duration-sweep, relay-proxy, and future manual
+non-line-trip scenarios only; it is not a new training-ready label set and it
+does not change the current L12 status.

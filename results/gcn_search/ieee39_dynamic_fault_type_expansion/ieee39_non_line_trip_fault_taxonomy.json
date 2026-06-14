@@ -1,0 +1,103 @@
+[
+  {
+    "fault_type": "three_phase_bus_fault_clear",
+    "description": "Use the existing Simscape Fault (Three-Phase) block and clear it after a short duration.",
+    "requires_slx_modification": false,
+    "runnable_with_existing_scripts": true,
+    "expected_measurements": [
+      "min_voltage_pu",
+      "generator_speed_proxy",
+      "max_speed_deviation",
+      "max_rotor_angle_separation_deg"
+    ],
+    "expected_training_ready_gate": "simulation_success=true, physical_fault_or_breaker_action_executed=true, measurement_extraction_status=voltage_speed_angle",
+    "risks": [
+      "current suite uses the existing fault block location",
+      "different target buses are not yet parameterized"
+    ],
+    "recommended_first_batch": true
+  },
+  {
+    "fault_type": "fault_duration_sweep",
+    "description": "Vary fault_clear_s while keeping fault_start_s fixed to test sensitivity to clearing time.",
+    "requires_slx_modification": false,
+    "runnable_with_existing_scripts": true,
+    "expected_measurements": [
+      "voltage sag depth",
+      "generator_speed_proxy excursion",
+      "rotor-angle separation"
+    ],
+    "expected_training_ready_gate": "same as three_phase_bus_fault_clear, with duration recorded and no line-trip label mixing",
+    "risks": [
+      "run_ieee39_fault_test_suite has a fixed three_phase_fault_clear row, so duration sweeps should use a dedicated smoke wrapper before label export"
+    ],
+    "recommended_first_batch": true
+  },
+  {
+    "fault_type": "relay_proxy_fault",
+    "description": "Use the existing basic relay proxy case as a non-engineering-grade relay-like disturbance.",
+    "requires_slx_modification": false,
+    "runnable_with_existing_scripts": true,
+    "expected_measurements": [
+      "relay_operated",
+      "trip_time_s",
+      "voltage_speed_angle compact signals"
+    ],
+    "expected_training_ready_gate": "relay proxy row is separated from handwired line-trip labels and marked basic proxy",
+    "risks": [
+      "proxy is not engineering-grade protection coordination"
+    ],
+    "recommended_first_batch": true
+  },
+  {
+    "fault_type": "load_step_disturbance",
+    "description": "Apply a small load increase/decrease at a selected bus.",
+    "requires_slx_modification": true,
+    "runnable_with_existing_scripts": false,
+    "expected_measurements": [
+      "voltage recovery",
+      "generator_speed_proxy deviation",
+      "rotor-angle response"
+    ],
+    "expected_training_ready_gate": "manual_required until load-step parameter and measurement export are added",
+    "risks": [
+      "manual Simulink change needed",
+      "load step magnitude can create label leakage if encoded as target-like feature"
+    ],
+    "recommended_first_batch": false
+  },
+  {
+    "fault_type": "generator_trip_or_mechanical_power_step",
+    "description": "Trip a generator or perturb its mechanical power input.",
+    "requires_slx_modification": true,
+    "runnable_with_existing_scripts": false,
+    "expected_measurements": [
+      "generator_speed_proxy response",
+      "rotor-angle separation",
+      "voltage recovery"
+    ],
+    "expected_training_ready_gate": "manual_required until generator control input is verified",
+    "risks": [
+      "model-specific generator internals",
+      "not all generator blocks expose safe trip or Pm inputs"
+    ],
+    "recommended_first_batch": false
+  },
+  {
+    "fault_type": "bus_voltage_disturbance_or_reference_event",
+    "description": "Perturb a voltage reference or bus voltage disturbance input if a safe model input exists.",
+    "requires_slx_modification": true,
+    "runnable_with_existing_scripts": false,
+    "expected_measurements": [
+      "voltage nadir",
+      "speed proxy",
+      "rotor-angle separation"
+    ],
+    "expected_training_ready_gate": "manual_required until a safe disturbance injection point is mapped",
+    "risks": [
+      "may not exist in the compact model",
+      "can be confused with measurement target leakage"
+    ],
+    "recommended_first_batch": false
+  }
+]

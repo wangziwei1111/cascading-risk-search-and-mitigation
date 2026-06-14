@@ -101,6 +101,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/train_ieee39_dynamic_aware_reranker_preview.py",
     "scripts/gcn_search/compare_ieee39_dynamic_aware_preview_runs.py",
     "scripts/gcn_search/run_ieee39_dynamic_aware_stricter_comparison.py",
+    "scripts/gcn_search/prepare_ieee39_non_line_trip_fault_expansion.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trip_isolated.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py",
     "scripts/gcn_search/update_ieee39_line_breaker_map_from_inventory.py",
@@ -191,6 +192,9 @@ REQUIRED_FILES = [
     "tests/test_ieee39_dynamic_aware_preview_comparison.py",
     "tests/test_ieee39_dynamic_aware_stricter_comparison.py",
     "tests/test_ieee39_dynamic_aware_stricter_comparison_docs.py",
+    "tests/test_ieee39_non_line_trip_fault_expansion_manifest.py",
+    "tests/test_ieee39_non_line_trip_fault_expansion_docs.py",
+    "tests/test_ieee39_non_line_trip_fault_expansion_dry_run.py",
     "tests/test_ieee39_remaining_line_map_full.py",
     "tests/test_ieee39_remaining_clean_breaker_lab_prepare.py",
     "tests/test_ieee39_remaining_clean_breaker_lab_checklist.py",
@@ -228,6 +232,7 @@ REQUIRED_FILES = [
     "docs/ieee39_l12_islanding_timeout_case.md",
     "docs/ieee39_dynamic_aware_reranker_preview_training.md",
     "docs/ieee39_dynamic_aware_stricter_independent_test_comparison.md",
+    "docs/ieee39_non_line_trip_fault_type_expansion.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -246,6 +251,13 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_label_schema.json",
     "results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_label_quality_summary.json",
     "results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_aware_training_readiness.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_fault_taxonomy.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_fault_taxonomy.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_scenario_manifest.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_scenario_manifest.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_feasibility_report.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_feasibility_report.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_dry_run_commands.txt",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -353,14 +365,19 @@ DISALLOWED_TRACKED_SUBSTRINGS = [
     ".npz",
     ".pkl",
     ".slx",
+    ".slxc",
     ".mat",
     ".mdl",
+    "slprj",
     "full_truth",
     "smoke_truth",
     "simulation_results",
     "scenario_checkpoints",
     "raw_trajectories",
     "dynamic_trajectories",
+    "full_timeseries",
+    "full timeseries",
+    "large_checkpoint",
     "simulink_dynamic_results",
     "learned_mlp_per_path_ranking.csv",
     "per_path_ranking.csv",
@@ -881,6 +898,77 @@ def main() -> int:
         failures.append("Validation log must contain Round 31.")
     if validation_log.exists() and "round 32" not in _read_text("docs/gcn_pio_validation_log.md").lower():
         failures.append("Validation log must contain Round 32.")
+    if validation_log.exists() and "round 42" not in _read_text("docs/gcn_pio_validation_log.md").lower():
+        failures.append("Validation log must contain Round 42.")
+
+    non_line_dir = ROOT / "results/gcn_search/ieee39_dynamic_fault_type_expansion"
+    non_line_manifest = non_line_dir / "ieee39_non_line_trip_scenario_manifest.csv"
+    non_line_taxonomy = non_line_dir / "ieee39_non_line_trip_fault_taxonomy.json"
+    non_line_feasibility = non_line_dir / "ieee39_non_line_trip_feasibility_report.json"
+    non_line_dry_run = non_line_dir / "ieee39_non_line_trip_dry_run_commands.txt"
+    if non_line_manifest.exists() and non_line_taxonomy.exists() and non_line_feasibility.exists():
+        try:
+            import json
+            import pandas as pd
+
+            manifest = pd.read_csv(non_line_manifest)
+            taxonomy = json.loads(non_line_taxonomy.read_text(encoding="utf-8"))
+            feasibility = json.loads(non_line_feasibility.read_text(encoding="utf-8"))
+            if manifest.empty:
+                failures.append("Non-line-trip scenario manifest must not be empty.")
+            if manifest["scenario_id"].duplicated().any():
+                failures.append("Non-line-trip scenario IDs must be unique.")
+            joined = manifest.to_json().lower()
+            for forbidden in ["l12", "handwired_timed_breaker", "single_line_trip"]:
+                if forbidden in joined:
+                    failures.append(f"Non-line-trip manifest must not contain {forbidden}.")
+            if "fault_duration_sweep" not in set(manifest["fault_type"].astype(str)):
+                failures.append("Non-line-trip manifest must include a fault_duration_sweep scenario.")
+            if not {"requires_slx_modification", "runnable_with_existing_scripts"}.issubset(manifest.columns):
+                failures.append("Non-line-trip manifest missing slx/runnable fields.")
+            tax_types = {row.get("fault_type") for row in taxonomy}
+            for required_type in [
+                "three_phase_bus_fault_clear",
+                "fault_duration_sweep",
+                "relay_proxy_fault",
+                "load_step_disturbance",
+                "generator_trip_or_mechanical_power_step",
+                "bus_voltage_disturbance_or_reference_event",
+            ]:
+                if required_type not in tax_types:
+                    failures.append(f"Non-line-trip taxonomy missing {required_type}.")
+            if feasibility.get("simulink_was_run") is not False:
+                failures.append("Non-line-trip feasibility must record simulink_was_run=false.")
+            if feasibility.get("slx_modified") is not False:
+                failures.append("Non-line-trip feasibility must record slx_modified=false.")
+            if feasibility.get("training_ready_label_count_changed") is not False:
+                failures.append("Non-line-trip feasibility must not change training-ready label counts.")
+        except Exception as exc:
+            failures.append(f"Failed to read non-line-trip expansion artifacts: {exc}")
+
+    if non_line_dry_run.exists():
+        text = non_line_dry_run.read_text(encoding="utf-8", errors="ignore").lower()
+        if "do not execute automatically" not in text:
+            failures.append("Non-line-trip dry-run commands must be marked as dry run only.")
+        for forbidden in ["l12", "handwired_timed_breaker", "single_line_trip"]:
+            if forbidden in text:
+                failures.append(f"Non-line-trip dry-run commands must not contain {forbidden}.")
+
+    non_line_doc = ROOT / "docs/ieee39_non_line_trip_fault_type_expansion.md"
+    if non_line_doc.exists():
+        text = _read_text("docs/ieee39_non_line_trip_fault_type_expansion.md").lower()
+        for required in [
+            "does not create new training-ready labels",
+            "did not run simulink",
+            "no `.slx` file was modified",
+            "l12 was not fixed",
+            "no dynamic-aware reranker retraining",
+            "phasor_rms, not emt",
+            "generator_speed_proxy` is not direct frequency",
+            "not engineering-grade protection",
+        ]:
+            if required not in text:
+                failures.append(f"Non-line-trip expansion doc missing: {required}")
 
     relay_doc = ROOT / "docs/ieee39_fault_breaker_relay_wrapper.md"
     if relay_doc.exists():

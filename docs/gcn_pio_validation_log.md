@@ -2291,3 +2291,54 @@ harder. That is expected and important because `dynamic_stress_score` is a
 synthetic proxy target derived from compact dynamic measurements. The result is
 still preview-only and not a final dynamic performance conclusion. L12 remains
 excluded because it is `simulation_timeout / suspected islanding`.
+
+## Round 42: IEEE39 Non-Line-Trip Fault Expansion Preparation
+
+This round prepares additional IEEE39 dynamic fault types without running
+Simulink and without modifying any `.slx` file. It is a feasibility audit and
+scenario-manifest step only.
+
+Generated artifacts:
+
+- `scripts/gcn_search/prepare_ieee39_non_line_trip_fault_expansion.py`
+- `docs/ieee39_non_line_trip_fault_type_expansion.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_fault_taxonomy.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_fault_taxonomy.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_scenario_manifest.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_scenario_manifest.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_feasibility_report.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_feasibility_report.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_dry_run_commands.txt`
+
+Capability audit:
+
+- Existing `three_phase_fault_clear` can be run by the current fault-test suite.
+- Existing `Fault (Three-Phase)` timing can be configured with
+  `fault_start_s` and `fault_clear_s`.
+- Existing `relay_trip_test` can be used as a basic relay proxy case.
+- Different-bus three-phase faults, load-step disturbances, generator-trip /
+  mechanical-power-step events, and bus-voltage-reference events are marked as
+  manual/future work until a safe injection point is verified.
+
+Recommended first smoke-test candidates:
+
+- `NF01`
+- `NF02`
+- `NF03`
+- `NF04`
+- `NF06`
+
+Boundaries:
+
+- This round did not run Simulink.
+- No `.slx` was modified.
+- No Simscape physical wiring was modified.
+- L12 was not fixed and remains excluded.
+- No dynamic-aware reranker retraining was run.
+- Training-ready label counts remain unchanged.
+- These preparation rows are not new training-ready labels.
+- The model remains `phasor_RMS`, not EMT.
+- `generator_speed_proxy` is not direct frequency.
+- Handwired breaker validation remains pilot breaker-like, not
+  engineering-grade protection.
+- RL mitigation files were not modified.
