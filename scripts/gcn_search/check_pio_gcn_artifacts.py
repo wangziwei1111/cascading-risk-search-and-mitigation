@@ -99,6 +99,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/print_ieee39_clean_breaker_lab_batch_checklist.py",
     "scripts/gcn_search/diagnose_ieee39_l12_islanding_case.py",
     "scripts/gcn_search/train_ieee39_dynamic_aware_reranker_preview.py",
+    "scripts/gcn_search/compare_ieee39_dynamic_aware_preview_runs.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trip_isolated.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py",
     "scripts/gcn_search/update_ieee39_line_breaker_map_from_inventory.py",
@@ -185,6 +186,8 @@ REQUIRED_FILES = [
     "tests/test_ieee39_batch_per_line_clean_breaker_lab_docs.py",
     "tests/test_ieee39_dynamic_aware_training_readiness.py",
     "tests/test_ieee39_dynamic_aware_reranker_preview_training.py",
+    "tests/test_ieee39_dynamic_aware_reranker_preview_expanded.py",
+    "tests/test_ieee39_dynamic_aware_preview_comparison.py",
     "tests/test_ieee39_remaining_line_map_full.py",
     "tests/test_ieee39_remaining_clean_breaker_lab_prepare.py",
     "tests/test_ieee39_remaining_clean_breaker_lab_checklist.py",
@@ -312,6 +315,15 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_model_coefficients.csv",
     "results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_dynamic_aware_reranker_model.json",
     "results/gcn_search/ieee39_dynamic_aware_reranker_preview/preview_training_readme.md",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_dataset.csv",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_config.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_metrics.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_predictions.csv",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_model_coefficients.csv",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_dynamic_aware_reranker_model.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_readme.md",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_comparison.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_comparison.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_multi_handwired_line_trip_summary.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_multi_handwired.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_multi_handwired_merge_summary.json",
@@ -1685,6 +1697,56 @@ def main() -> int:
                     failures.append(f"IEEE39 dynamic-aware reranker preview predictions must have numeric {column}.")
         except Exception as exc:
             failures.append(f"Failed to read IEEE39 dynamic-aware reranker preview predictions: {exc}")
+
+    expanded_metrics = ROOT / "results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_metrics.json"
+    expanded_dataset = ROOT / "results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_dataset.csv"
+    expanded_comparison = ROOT / "results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_comparison.json"
+    if expanded_metrics.exists() and expanded_dataset.exists():
+        try:
+            import json
+            import pandas as pd
+
+            metrics = json.loads(expanded_metrics.read_text(encoding="utf-8"))
+            dataset = pd.read_csv(expanded_dataset)
+            if metrics.get("preview_only") is not True:
+                failures.append("Expanded dynamic-aware preview metrics must set preview_only=true.")
+            if metrics.get("num_samples") != 35:
+                failures.append("Expanded dynamic-aware preview metrics must report 35 samples.")
+            if len(dataset) != 35:
+                failures.append("Expanded dynamic-aware preview dataset must contain 35 rows.")
+            if "L12" in set(dataset.get("line_id", pd.Series(dtype=str)).astype(str)):
+                failures.append("Expanded dynamic-aware preview dataset must exclude L12.")
+            if metrics.get("allowed_for_dynamic_aware_training") is not True:
+                failures.append("Expanded dynamic-aware preview metrics must preserve allowed_for_dynamic_aware_training=true.")
+            if metrics.get("ready_for_preview_training") is not True:
+                failures.append("Expanded dynamic-aware preview metrics must preserve ready_for_preview_training=true.")
+            if metrics.get("random_seed") != 42:
+                failures.append("Expanded dynamic-aware preview metrics must use random_seed=42.")
+            if metrics.get("cv_strategy") != "leave_one_out":
+                failures.append("Expanded dynamic-aware preview metrics must use leave_one_out.")
+        except Exception as exc:
+            failures.append(f"Failed to read expanded dynamic-aware preview artifacts: {exc}")
+
+    if expanded_comparison.exists():
+        try:
+            import json
+
+            payload = json.loads(expanded_comparison.read_text(encoding="utf-8"))
+            if payload.get("original_num_samples") != 10:
+                failures.append("Expanded preview comparison must report original_num_samples=10.")
+            if payload.get("expanded_num_samples") != 35:
+                failures.append("Expanded preview comparison must report expanded_num_samples=35.")
+            comparison_text = "\n".join(payload.get("interpretation", []) + payload.get("caveats", [])).lower()
+            for required in [
+                "compact phasor_rms preview",
+                "not a final dynamic performance conclusion",
+                "metrics can be optimistic",
+                "l12 remains excluded",
+            ]:
+                if required not in comparison_text:
+                    failures.append(f"Expanded preview comparison missing caveat: {required}")
+        except Exception as exc:
+            failures.append(f"Failed to read expanded preview comparison: {exc}")
 
     preview_doc = ROOT / "docs/ieee39_dynamic_aware_reranker_preview_training.md"
     if preview_doc.exists():

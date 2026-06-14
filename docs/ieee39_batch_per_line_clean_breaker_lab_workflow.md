@@ -234,3 +234,19 @@ opening, bypass paths, short circuits, `L12_TripCommand` target, Step `0 -> 1`,
 breaker control port direction, and the Bus19-side island. This is not a stable
 or unstable dynamic conclusion and it does not trigger dynamic-aware reranker
 retraining.
+
+## Expanded preview reranker after batch validation
+
+After the 35-label gate was confirmed, preview dynamic-aware reranker training
+was rerun into:
+
+```text
+results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/
+```
+
+The historical 10-sample preview directory is preserved. The expanded preview
+dataset has `num_samples = 35`, excludes L12, and keeps the result explicitly
+`preview_only = true`. This round did not fix L12, did not modify `.slx`, did
+not rerun Simulink, and did not modify Simscape physical wiring. Strong metrics
+must be interpreted cautiously because the target and some features both come
+from compact dynamic measurements.

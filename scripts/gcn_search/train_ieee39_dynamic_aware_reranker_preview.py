@@ -372,6 +372,8 @@ This is a preview-only sanity check, not a final dynamic performance conclusion.
 - Metrics: `{metrics_path.as_posix()}`
 - num_samples: {metrics['num_samples']}
 - num_training_ready_labels: {metrics['num_training_ready_labels']}
+- num_handwired_line_trip_labels: {metrics['num_handwired_line_trip_labels']}
+- L12 excluded: true, because it remains simulation_timeout / suspected islanding
 - allowed_for_dynamic_aware_training: {str(metrics['allowed_for_dynamic_aware_training']).lower()}
 - ready_for_preview_training: {str(metrics['ready_for_preview_training']).lower()}
 
@@ -381,6 +383,9 @@ Boundaries:
 - `generator_speed_proxy` is not direct frequency.
 - The handwired breaker workflow is pilot breaker-like validation, not engineering-grade protection.
 - The current sample count is small, so metrics are workflow/sanity-check evidence only.
+- `dynamic_stress_score` is a synthetic proxy target derived from compact dynamic measurements.
+- Some features also come from compact dynamic measurements, so metrics may be optimistic.
+- No `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories, or full timeseries are committed.
 """
 
 

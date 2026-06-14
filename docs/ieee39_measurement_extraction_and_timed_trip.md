@@ -195,3 +195,11 @@ structure validation passed, but the compact run ended with
 marks it as a suspected islanding / timeout case for `Grid/B19 to B16`, not a
 verified stable or unstable dynamic conclusion. It should not be used to retrain
 the dynamic-aware reranker unless the user manually repairs and revalidates it.
+
+The expanded preview dynamic-aware reranker rerun uses the 35 training-ready
+compact dynamic labels only. It excludes L12, preserves the historical
+10-sample preview directory, writes new artifacts to
+`results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/`, and does
+not rerun Simulink. The result is still preview-only; `dynamic_stress_score` is
+a synthetic proxy target derived from compact dynamic measurements, so metrics
+may be optimistic.

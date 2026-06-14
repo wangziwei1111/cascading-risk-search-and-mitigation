@@ -2221,3 +2221,45 @@ remains `phasor_RMS`, not EMT; `generator_speed_proxy` is not direct frequency;
 the handwired breaker remains pilot breaker-like validation, not
 engineering-grade protection; and `.slx`, `.slxc`, `slprj`, `.mat`, raw
 trajectories, and full timeseries are not committed.
+
+## Round 40: Expanded-label dynamic-aware preview rerun
+
+This round reruns the preview dynamic-aware reranker with the expanded IEEE39
+compact dynamic label set. It does not modify L12, `.slx` files, Simscape
+physical wiring, or RL mitigation.
+
+Input summary:
+
+- formal fault summary:
+  `results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05_l06_l07_l08_l09_l10_l11_to_l34.csv`
+- training-ready labels: `35`
+- handwired line-trip labels: `33`
+- L12 excluded: `simulation_timeout / suspected islanding`
+
+Expanded preview output:
+
+- `results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_dataset.csv`
+- `results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_metrics.json`
+- `results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_predictions.csv`
+- `results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_comparison.json`
+- `results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_comparison.md`
+
+Key metrics:
+
+```text
+num_samples = 35
+cv_strategy = leave_one_out
+random_seed = 42
+regression_mae = 0.022533
+regression_rmse = 0.030822
+regression_spearman = 0.576371
+classification_accuracy = 1.000000
+classification_f1 = 1.000000
+classification_roc_auc = 1.000000
+```
+
+The result is preview-only and may be optimistic because `dynamic_stress_score`
+is derived from compact dynamic measurements and some input features also come
+from compact dynamic measurements. The model remains `phasor_RMS`, not EMT;
+`generator_speed_proxy` is not direct frequency; and the handwired breaker is
+pilot breaker-like validation, not engineering-grade protection.

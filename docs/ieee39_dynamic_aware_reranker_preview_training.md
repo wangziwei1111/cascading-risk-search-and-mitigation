@@ -146,3 +146,68 @@ training-ready. The historical preview training artifact still contains 10
 samples because this validation round did not retrain the dynamic-aware
 reranker. A rerun of preview training or a stricter comparison should be done in
 a separate commit after reviewing the expanded labels.
+
+## Expanded-label preview rerun
+
+The preview dynamic-aware reranker has now been rerun into a separate expanded
+output directory. The historical 10-sample preview directory is preserved and
+not overwritten.
+
+Run command:
+
+```powershell
+python scripts/gcn_search/train_ieee39_dynamic_aware_reranker_preview.py ^
+  --dynamic-label-summary results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_label_quality_summary.json ^
+  --training-readiness results/gcn_search/ieee39_dynamic_labels/ieee39_dynamic_aware_training_readiness.json ^
+  --fault-summary-csv results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05_l06_l07_l08_l09_l10_l11_to_l34.csv ^
+  --output-dir results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded ^
+  --random-seed 42
+```
+
+Expanded output:
+
+```text
+results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_dataset.csv
+results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_config.json
+results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_metrics.json
+results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_predictions.csv
+results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_model_coefficients.csv
+results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_dynamic_aware_reranker_model.json
+results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_readme.md
+```
+
+Expanded result:
+
+```text
+num_samples = 35
+num_training_ready_labels = 35
+num_training_ready_handwired_line_trip_labels = 33
+num_unique_handwired_line_ids = 33
+cv_strategy = leave_one_out
+random_seed = 42
+regression_mae = 0.022533
+regression_rmse = 0.030822
+regression_spearman = 0.576371
+classification_accuracy = 1.000000
+classification_f1 = 1.000000
+classification_roc_auc = 1.000000
+```
+
+`L12` is excluded because its compact simulation timed out and it remains a
+suspected islanding / timeout special case. This round did not fix L12, did not
+modify `.slx`, did not rerun Simulink, and did not modify Simscape physical
+wiring.
+
+Comparison with the historical 10-sample preview:
+
+```text
+results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_comparison.json
+results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_comparison.md
+```
+
+The expanded run is more complete than the historical 10-sample preview, but it
+is still preview-only. `dynamic_stress_score` is a synthetic proxy target
+derived from compact dynamic measurements, and the feature set also includes
+compact dynamic measurement quantities, so the metrics may be optimistic. A more
+credible conclusion needs an independent test set, more fault types, leakage
+checks, and stricter comparison.

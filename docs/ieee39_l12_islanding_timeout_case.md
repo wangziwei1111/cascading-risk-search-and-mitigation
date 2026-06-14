@@ -80,3 +80,10 @@ python scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated
 - Do not commit `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories, or full
   timeseries.
 - No dynamic-aware reranker retraining is triggered by this L12 diagnosis.
+
+## Expanded Preview Training Note
+
+The later expanded-label preview training still excludes L12. That rerun uses
+the 35 training-ready compact dynamic labels, keeps L12 as
+`simulation_timeout / suspected islanding`, and does not fix or merge L12. No
+`.slx` file is modified for the expanded preview run.
