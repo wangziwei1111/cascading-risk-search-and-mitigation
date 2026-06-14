@@ -1,0 +1,81 @@
+# IEEE39 Dynamic-Aware Reranker v2 Preview Training
+
+## Purpose
+
+This round runs a lightweight preview training step on the IEEE39 dynamic label
+schema v2 candidate set. It does not run Simulink, does not modify `.slx`, does
+not fix L12, does not overwrite the old formal gate, and is not a final dynamic
+performance conclusion.
+
+Two versions are compared:
+
+- `include_all_candidates`: uses all `40` v2 candidate rows and includes `NF06`.
+- `exclude_provenance_required`: excludes `NF06`, which is marked
+  `provenance_check_required = true`, and uses `39` rows.
+
+The old formal gate remains `35 / 33 / 33`.
+
+## Outputs
+
+- include-all run:
+  `results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/include_all_candidates/`
+- exclude-provenance run:
+  `results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/exclude_provenance_required/`
+- comparison:
+  `results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/v2_preview_comparison.md`
+
+Each run writes:
+
+- `preview_training_dataset.csv`
+- `preview_training_config.json`
+- `preview_training_metrics.json`
+- `preview_training_predictions.csv`
+- `preview_model_coefficients.csv`
+- `preview_dynamic_aware_reranker_model.json`
+- `preview_training_readme.md`
+
+## Key Metrics
+
+| mode | samples | contains NF06 | LOO RMSE | label-family-holdout RMSE |
+| --- | ---: | ---: | ---: | ---: |
+| include_all_candidates | 40 | true | 0.028367 | 0.142731 |
+| exclude_provenance_required | 39 | false | 0.028697 | 0.142087 |
+
+The include/exclude leave-one-out gap is small:
+
+```text
+rmse_exclude_minus_include = 0.000330
+```
+
+The label-family holdout error is much larger than leave-one-out error. This is
+the more important warning: training on existing formal line-trip rows and
+testing on non-line-trip rows is a harder generalization smoke check.
+
+Classification for label-family holdout is skipped because the non-line-trip
+test fold contains only one `unstable_flag` class. Regression still runs.
+
+## Duplicate / Provenance Warning
+
+`NF01`, `NF04`, and `NF06` share the same duplicate measurement group.
+
+- `NF01` and `NF04` are both existing three-phase fault block `0.10 s` cases.
+- `NF06` is a relay proxy case, but its current measurements match the same
+  group.
+- `NF06` is excluded in the sensitivity check.
+
+Duplicate smoke candidates are not necessarily independent physical samples.
+
+## Boundaries
+
+- This is preview-only.
+- It is not a final dynamic performance conclusion.
+- `final_performance_conclusion = false`.
+- It does not run Simulink.
+- It does not modify `.slx`.
+- It does not fix L12.
+- It does not overwrite the old formal gate.
+- The model remains phasor_RMS, not EMT.
+- `generator_speed_proxy` is not direct frequency.
+- The relay proxy is not engineering-grade protection.
+- More genuinely independent non-line-trip fault types are still needed,
+  especially different-bus three-phase faults, load step, and generator trip.

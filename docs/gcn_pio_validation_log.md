@@ -2415,3 +2415,50 @@ The v2 set is ready for a future preview training run, but this export round
 does not train. The model remains `phasor_RMS`, not EMT;
 `generator_speed_proxy` is not direct frequency; and relay proxy is not
 engineering-grade protection. RL mitigation files were not modified.
+
+## Round 45: IEEE39 Dynamic-Aware v2 Preview Training
+
+This round did not run Simulink, did not modify `.slx`, did not fix L12, did
+not modify Simscape physical wiring, and did not overwrite the old formal gate.
+It trains only lightweight preview Ridge / LogisticRegression models on the v2
+candidate schema and records duplicate/provenance sensitivity.
+
+Outputs:
+
+- `scripts/gcn_search/train_ieee39_dynamic_aware_reranker_v2_preview.py`
+- `scripts/gcn_search/compare_ieee39_dynamic_aware_v2_preview_runs.py`
+- `results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/include_all_candidates/`
+- `results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/exclude_provenance_required/`
+- `results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/v2_preview_comparison.json`
+- `results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/v2_preview_comparison.md`
+- `docs/ieee39_dynamic_aware_reranker_v2_preview_training.md`
+
+Counts:
+
+- old formal gate remains `35 / 33 / 33`
+- `include_all_candidates`: `40` rows and includes `NF06`
+- `exclude_provenance_required`: `39` rows and excludes `NF06`
+- both versions exclude L12
+- provenance-excluded count = `1`
+
+Preview metrics:
+
+```text
+include_all leave_one_out RMSE = 0.028367
+include_all label_family_holdout RMSE = 0.142731
+exclude_provenance leave_one_out RMSE = 0.028697
+exclude_provenance label_family_holdout RMSE = 0.142087
+rmse_exclude_minus_include = 0.000330
+```
+
+The label-family holdout is the key generalization smoke check because it trains
+on `existing_formal_dynamic` and tests on `non_line_trip`. Its error is much
+larger than leave-one-out error, so this remains a preview-only sensitivity
+check, not a final dynamic performance conclusion. Classification holdout is
+skipped because the non-line-trip test fold contains only one `unstable_flag`
+class.
+
+`NF01`, `NF04`, and `NF06` remain duplicate/provenance warning rows. `NF06` is
+excluded in the sensitivity check. The model remains `phasor_RMS`, not EMT;
+`generator_speed_proxy` is not direct frequency; and the relay proxy is not
+engineering-grade protection. RL mitigation files were not modified.

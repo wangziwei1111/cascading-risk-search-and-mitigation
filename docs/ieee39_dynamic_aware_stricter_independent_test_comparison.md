@@ -118,3 +118,19 @@ for a future v2 preview training run, but it is not a final performance claim.
 The duplicate/provenance report flags `NF01`, `NF04`, and `NF06`. `NF06` needs
 special review because the relay proxy measurements currently match the `0.10 s`
 fault group.
+
+## v2 Preview Training Follow-Up
+
+The v2 candidate schema has now been used in a separate preview training and
+sensitivity check:
+
+- include-all: `40` rows, including `NF06`.
+- exclude-provenance: `39` rows, excluding `NF06`.
+
+The old formal gate is still `35 / 33 / 33`; the v2 candidate schema is not the
+old formal gate. The leave-one-out RMSE values are close
+(`0.028367` versus `0.028697`), but the label-family holdout RMSE is around
+`0.142`, showing that cross-family generalization remains the harder check.
+
+This follow-up does not run Simulink, does not modify `.slx`, does not fix L12,
+and remains preview-only. It is not a final dynamic performance conclusion.

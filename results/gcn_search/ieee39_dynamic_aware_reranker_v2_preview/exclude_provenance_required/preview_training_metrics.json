@@ -1,0 +1,397 @@
+{
+  "preview_only": true,
+  "final_performance_conclusion": false,
+  "mode": "exclude_provenance_required",
+  "num_samples": 39,
+  "contains_nf06": false,
+  "excluded_provenance_required": true,
+  "num_formal_v1_rows": 35,
+  "num_existing_formal_dynamic_rows": 35,
+  "num_handwired_line_trip_rows": 33,
+  "num_non_line_trip_candidate_rows": 4,
+  "num_duplicate_measurement_groups": 1,
+  "provenance_check_required_rows": 0,
+  "num_provenance_check_required_rows": 0,
+  "target_columns": [
+    "dynamic_stress_score",
+    "unstable_flag"
+  ],
+  "feature_columns": [
+    "line_id_numeric",
+    "min_voltage_pu",
+    "max_voltage_pu",
+    "min_frequency_hz",
+    "max_frequency_hz",
+    "max_speed_deviation",
+    "max_rotor_angle_separation_deg",
+    "breaker_opened",
+    "physical_fault_or_breaker_action_executed",
+    "duration_s",
+    "fault_start_s",
+    "fault_clear_s",
+    "formal_line_trip_label",
+    "handwired_line_trip_label",
+    "non_line_trip_label",
+    "provenance_check_required",
+    "label_family_existing_formal_dynamic",
+    "label_family_non_line_trip",
+    "fault_type_basic_relay_proxy",
+    "fault_type_fault_duration_sweep_smoke",
+    "fault_type_pilot_line_trip",
+    "fault_type_three_phase_fault_clear",
+    "fault_type_three_phase_fault_clear_smoke",
+    "trip_implementation_basic_relay_proxy",
+    "trip_implementation_existing_three_phase_fault_block",
+    "trip_implementation_handwired_timed_breaker",
+    "trip_implementation_unknown",
+    "line_id_L01",
+    "line_id_L02",
+    "line_id_L03",
+    "line_id_L04",
+    "line_id_L05",
+    "line_id_L06",
+    "line_id_L07",
+    "line_id_L08",
+    "line_id_L09",
+    "line_id_L10",
+    "line_id_L11",
+    "line_id_L13",
+    "line_id_L14",
+    "line_id_L15",
+    "line_id_L16",
+    "line_id_L17",
+    "line_id_L18",
+    "line_id_L19",
+    "line_id_L20",
+    "line_id_L21",
+    "line_id_L22",
+    "line_id_L23",
+    "line_id_L24",
+    "line_id_L25",
+    "line_id_L26",
+    "line_id_L27",
+    "line_id_L28",
+    "line_id_L29",
+    "line_id_L30",
+    "line_id_L31",
+    "line_id_L32",
+    "line_id_L33",
+    "line_id_L34",
+    "line_id_NO_LINE"
+  ],
+  "random_seed": 42,
+  "metrics_by_split": {
+    "leave_one_out": {
+      "regression": {
+        "mae": 0.020781083548478,
+        "rmse": 0.02869708538223394,
+        "pearson": 0.9858289673714747,
+        "spearman": 0.691163076726534
+      },
+      "classification": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0
+      },
+      "classification_skipped_reason": "",
+      "num_predictions": 39,
+      "num_folds": 39,
+      "folds": [
+        {
+          "fold_id": "loo_0",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_1",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_2",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_3",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_4",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_5",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_6",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_7",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_8",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_9",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_10",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_11",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_12",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_13",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_14",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_15",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_16",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_17",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_18",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_19",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_20",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_21",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_22",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_23",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_24",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_25",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_26",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_27",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_28",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_29",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_30",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_31",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_32",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_33",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_34",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_35",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_36",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_37",
+          "num_train": 38,
+          "num_test": 1
+        },
+        {
+          "fold_id": "loo_38",
+          "num_train": 38,
+          "num_test": 1
+        }
+      ]
+    },
+    "random_kfold_baseline": {
+      "regression": {
+        "mae": 0.020896859554330856,
+        "rmse": 0.029600447704634256,
+        "pearson": 0.9849163719243405,
+        "spearman": 0.6806356953587017
+      },
+      "classification": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0
+      },
+      "classification_skipped_reason": "",
+      "num_predictions": 39,
+      "num_folds": 5,
+      "folds": [
+        {
+          "fold_id": "kfold_0",
+          "num_train": 31,
+          "num_test": 8
+        },
+        {
+          "fold_id": "kfold_1",
+          "num_train": 31,
+          "num_test": 8
+        },
+        {
+          "fold_id": "kfold_2",
+          "num_train": 31,
+          "num_test": 8
+        },
+        {
+          "fold_id": "kfold_3",
+          "num_train": 31,
+          "num_test": 8
+        },
+        {
+          "fold_id": "kfold_4",
+          "num_train": 32,
+          "num_test": 7
+        }
+      ]
+    },
+    "label_family_holdout": {
+      "regression": {
+        "mae": 0.14200115165805172,
+        "rmse": 0.1420873898567332,
+        "pearson": 0.9998657371686579,
+        "spearman": 0.9486832980505139
+      },
+      "classification": {},
+      "classification_skipped_reason": "Test predictions contain only one unstable_flag class.",
+      "num_predictions": 4,
+      "num_folds": 1,
+      "folds": [
+        {
+          "fold_id": "holdout_non_line_trip",
+          "num_train": 35,
+          "num_test": 4
+        }
+      ]
+    }
+  },
+  "regression_metrics": {
+    "mae": 0.020781083548478,
+    "rmse": 0.02869708538223394,
+    "pearson": 0.9858289673714747,
+    "spearman": 0.691163076726534
+  },
+  "classification_metrics": {
+    "accuracy": 1.0,
+    "f1": 1.0,
+    "roc_auc": 1.0
+  },
+  "label_family_holdout_metrics": {
+    "regression": {
+      "mae": 0.14200115165805172,
+      "rmse": 0.1420873898567332,
+      "pearson": 0.9998657371686579,
+      "spearman": 0.9486832980505139
+    },
+    "classification": {},
+    "classification_skipped_reason": "Test predictions contain only one unstable_flag class.",
+    "num_predictions": 4,
+    "num_folds": 1,
+    "folds": [
+      {
+        "fold_id": "holdout_non_line_trip",
+        "num_train": 35,
+        "num_test": 4
+      }
+    ]
+  },
+  "notes": [
+    "preview-only / sanity check",
+    "phasor_RMS, not EMT",
+    "generator_speed_proxy is not direct frequency",
+    "relay proxy is not engineering-grade protection",
+    "duplicate smoke candidates are not necessarily independent physical samples"
+  ]
+}

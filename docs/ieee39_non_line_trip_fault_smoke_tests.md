@@ -84,3 +84,20 @@ because the relay proxy row currently matches the `0.10 s` fault group.
 
 This export still does not retrain the dynamic-aware reranker and is not final
 dynamic performance conclusion.
+
+## v2 Preview Training Follow-Up
+
+The exported candidate rows were later used in a preview-only v2 dynamic-aware
+reranker training check. The include-all version uses all `40` v2 rows and keeps
+`NF06`; the provenance sensitivity version uses `39` rows and excludes `NF06`.
+The old formal gate remains `35 / 33 / 33`.
+
+The label-family holdout result is the main caution: training on existing formal
+line-trip rows and testing on non-line-trip rows gives RMSE around `0.142`,
+which is much higher than the leave-one-out preview RMSE around `0.028`.
+
+No Simulink simulation was run in that training follow-up, no `.slx` file was
+modified, L12 was not fixed, and the result is still preview-only. It is not a
+final dynamic performance conclusion.
+
+This is not a final dynamic performance conclusion.

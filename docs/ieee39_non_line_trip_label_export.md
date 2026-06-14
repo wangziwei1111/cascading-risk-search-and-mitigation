@@ -77,3 +77,26 @@ all duplicate rows as fully independent physical samples without review.
 Review the duplicate/provenance report first, especially `NF06`. After that,
 run a separate v2 preview training round with duplicate/provenance warnings
 carried into the metrics and documentation.
+
+## v2 Preview Training Follow-Up
+
+A separate preview-only training round has now used this v2 candidate schema in
+two modes:
+
+- `include_all_candidates`: `40` rows, including `NF06`.
+- `exclude_provenance_required`: `39` rows, excluding `NF06`.
+
+The old formal gate remains `35 / 33 / 33`; this follow-up does not overwrite
+the formal gate. The key output is:
+
+```text
+results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/
+```
+
+The sensitivity gap is small for leave-one-out RMSE
+(`0.028367` versus `0.028697`), but label-family holdout RMSE is much larger
+(`0.142731` / `0.142087`). That holdout is the important warning because it
+trains on `existing_formal_dynamic` rows and tests on `non_line_trip` rows.
+
+This follow-up does not run Simulink, does not modify `.slx`, does not fix L12,
+and remains preview-only. It is not a final dynamic performance conclusion.

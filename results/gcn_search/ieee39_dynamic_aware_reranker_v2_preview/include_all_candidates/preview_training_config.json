@@ -1,0 +1,8 @@
+{
+  "combined_candidates": "results\\gcn_search\\ieee39_dynamic_fault_type_expansion\\non_line_trip_label_export\\ieee39_dynamic_label_schema_v2_combined_candidates.csv",
+  "v2_quality_summary": "results\\gcn_search\\ieee39_dynamic_fault_type_expansion\\non_line_trip_label_export\\ieee39_dynamic_label_quality_summary_v2_with_non_line_trip_candidates.json",
+  "v2_readiness": "results\\gcn_search\\ieee39_dynamic_fault_type_expansion\\non_line_trip_label_export\\ieee39_dynamic_aware_training_readiness_v2_with_non_line_trip_candidates.json",
+  "duplicate_provenance_report": "results\\gcn_search\\ieee39_dynamic_fault_type_expansion\\non_line_trip_label_export\\ieee39_non_line_trip_duplicate_provenance_report.json",
+  "exclude_provenance_required": false,
+  "random_seed": 42
+}

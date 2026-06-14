@@ -253,3 +253,26 @@ retrain the reranker.
 `NF01`, `NF04`, and `NF06` share identical compact measurements. `NF06` is
 marked `provenance_check_required = true`, so a future v2 preview training run
 must carry this duplicate/provenance warning into the report.
+
+## v2 Preview Training Follow-Up
+
+The v2 preview training follow-up has now been run in a separate directory:
+
+```text
+results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/
+```
+
+It keeps the historical 10-sample preview and the 35-sample expanded preview
+unchanged. It also does not overwrite the old formal label gate
+(`35 / 33 / 33`).
+
+Two sensitivity versions were produced:
+
+- `include_all_candidates`: `40` samples, includes `NF06`, leave-one-out RMSE
+  `0.028367`, label-family-holdout RMSE `0.142731`.
+- `exclude_provenance_required`: `39` samples, excludes `NF06`,
+  leave-one-out RMSE `0.028697`, label-family-holdout RMSE `0.142087`.
+
+The much larger label-family-holdout RMSE is the main warning. The v2 result is
+preview-only, does not run Simulink, does not modify `.slx`, does not fix L12,
+and is not a final dynamic performance conclusion.

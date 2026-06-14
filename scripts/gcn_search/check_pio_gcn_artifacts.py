@@ -104,6 +104,8 @@ REQUIRED_FILES = [
     "scripts/gcn_search/prepare_ieee39_non_line_trip_fault_expansion.py",
     "scripts/gcn_search/run_ieee39_non_line_trip_fault_smoke_tests.py",
     "scripts/gcn_search/export_ieee39_non_line_trip_dynamic_labels.py",
+    "scripts/gcn_search/train_ieee39_dynamic_aware_reranker_v2_preview.py",
+    "scripts/gcn_search/compare_ieee39_dynamic_aware_v2_preview_runs.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trip_isolated.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py",
     "scripts/gcn_search/update_ieee39_line_breaker_map_from_inventory.py",
@@ -242,6 +244,7 @@ REQUIRED_FILES = [
     "docs/ieee39_non_line_trip_fault_type_expansion.md",
     "docs/ieee39_non_line_trip_fault_smoke_tests.md",
     "docs/ieee39_non_line_trip_label_export.md",
+    "docs/ieee39_dynamic_aware_reranker_v2_preview_training.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -279,6 +282,22 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/non_line_trip_label_export/ieee39_dynamic_aware_training_readiness_v2_with_non_line_trip_candidates.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/non_line_trip_label_export/ieee39_non_line_trip_duplicate_provenance_report.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/non_line_trip_label_export/ieee39_non_line_trip_duplicate_provenance_report.md",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/include_all_candidates/preview_training_dataset.csv",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/include_all_candidates/preview_training_config.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/include_all_candidates/preview_training_metrics.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/include_all_candidates/preview_training_predictions.csv",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/include_all_candidates/preview_model_coefficients.csv",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/include_all_candidates/preview_dynamic_aware_reranker_model.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/include_all_candidates/preview_training_readme.md",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/exclude_provenance_required/preview_training_dataset.csv",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/exclude_provenance_required/preview_training_config.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/exclude_provenance_required/preview_training_metrics.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/exclude_provenance_required/preview_training_predictions.csv",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/exclude_provenance_required/preview_model_coefficients.csv",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/exclude_provenance_required/preview_dynamic_aware_reranker_model.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/exclude_provenance_required/preview_training_readme.md",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/v2_preview_comparison.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/v2_preview_comparison.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -2049,6 +2068,120 @@ def main() -> int:
                 failures.append("Stricter comparison must report leakage RMSE gap.")
         except Exception as exc:
             failures.append(f"Failed to read stricter dynamic-aware comparison: {exc}")
+
+    v2_base = ROOT / "results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview"
+    v2_runs = {
+        "include_all_candidates": {
+            "num_samples": 40,
+            "contains_nf06": True,
+            "non_line_trip_rows": 5,
+            "provenance_rows": 1,
+        },
+        "exclude_provenance_required": {
+            "num_samples": 39,
+            "contains_nf06": False,
+            "non_line_trip_rows": 4,
+            "provenance_rows": 0,
+        },
+    }
+    for run_name, expected in v2_runs.items():
+        dataset_path = v2_base / run_name / "preview_training_dataset.csv"
+        metrics_path = v2_base / run_name / "preview_training_metrics.json"
+        predictions_path = v2_base / run_name / "preview_training_predictions.csv"
+        if dataset_path.exists() and metrics_path.exists() and predictions_path.exists():
+            try:
+                import json
+                import pandas as pd
+
+                dataset = pd.read_csv(dataset_path)
+                predictions = pd.read_csv(predictions_path)
+                metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
+                if len(dataset) != expected["num_samples"] or metrics.get("num_samples") != expected["num_samples"]:
+                    failures.append(f"v2 preview {run_name} must contain {expected['num_samples']} samples.")
+                if bool(metrics.get("contains_nf06")) is not expected["contains_nf06"]:
+                    failures.append(f"v2 preview {run_name} has wrong contains_nf06 flag.")
+                has_nf06 = "NF06" in set(dataset.get("scenario_id", pd.Series(dtype=str)).astype(str))
+                pred_has_nf06 = "NF06" in set(predictions.get("scenario_id", pd.Series(dtype=str)).astype(str))
+                if has_nf06 is not expected["contains_nf06"] or pred_has_nf06 is not expected["contains_nf06"]:
+                    failures.append(f"v2 preview {run_name} has inconsistent NF06 inclusion.")
+                if "L12" in set(dataset.get("line_id", pd.Series(dtype=str)).astype(str)):
+                    failures.append(f"v2 preview {run_name} must exclude L12.")
+                if metrics.get("preview_only") is not True:
+                    failures.append(f"v2 preview {run_name} must set preview_only=true.")
+                if metrics.get("final_performance_conclusion") is not False:
+                    failures.append(f"v2 preview {run_name} must set final_performance_conclusion=false.")
+                if metrics.get("num_existing_formal_dynamic_rows") != 35:
+                    failures.append(f"v2 preview {run_name} must record 35 formal v1 rows.")
+                if metrics.get("num_handwired_line_trip_rows") != 33:
+                    failures.append(f"v2 preview {run_name} must record 33 handwired rows.")
+                if metrics.get("num_non_line_trip_candidate_rows") != expected["non_line_trip_rows"]:
+                    failures.append(f"v2 preview {run_name} has wrong non-line-trip row count.")
+                if metrics.get("provenance_check_required_rows") != expected["provenance_rows"]:
+                    failures.append(f"v2 preview {run_name} has wrong provenance row count.")
+                holdout = metrics.get("label_family_holdout_metrics", {})
+                if not holdout.get("regression"):
+                    failures.append(f"v2 preview {run_name} missing label_family_holdout regression.")
+                if holdout.get("num_folds") != 1:
+                    failures.append(f"v2 preview {run_name} must record one label_family_holdout fold.")
+            except Exception as exc:
+                failures.append(f"Failed to read v2 preview artifacts for {run_name}: {exc}")
+
+    v2_comparison = v2_base / "v2_preview_comparison.json"
+    if v2_comparison.exists():
+        try:
+            import json
+
+            payload = json.loads(v2_comparison.read_text(encoding="utf-8"))
+            if payload.get("preview_only") is not True:
+                failures.append("v2 preview comparison must set preview_only=true.")
+            if payload.get("final_performance_conclusion") is not False:
+                failures.append("v2 preview comparison must set final_performance_conclusion=false.")
+            expected_counts = {
+                "v1_expanded_num_samples": 35,
+                "v2_include_all_num_samples": 40,
+                "v2_exclude_provenance_num_samples": 39,
+                "non_line_trip_candidate_count": 5,
+                "provenance_excluded_count": 1,
+            }
+            for key, value in expected_counts.items():
+                if payload.get(key) != value:
+                    failures.append(f"v2 preview comparison must record {key}={value}.")
+            if not payload.get("duplicate_measurement_groups"):
+                failures.append("v2 preview comparison must record duplicate_measurement_groups.")
+            holdout = payload.get("label_family_holdout_metrics", {})
+            if not holdout.get("include_all_candidates", {}).get("regression"):
+                failures.append("v2 preview comparison missing include_all label_family_holdout regression.")
+            if not holdout.get("exclude_provenance_required", {}).get("regression"):
+                failures.append("v2 preview comparison missing exclude_provenance label_family_holdout regression.")
+        except Exception as exc:
+            failures.append(f"Failed to read v2 preview comparison: {exc}")
+
+    v2_doc = ROOT / "docs/ieee39_dynamic_aware_reranker_v2_preview_training.md"
+    if v2_doc.exists():
+        text = _read_text("docs/ieee39_dynamic_aware_reranker_v2_preview_training.md").lower()
+        for required in [
+            "does not run simulink",
+            "does not modify `.slx`",
+            "does not fix l12",
+            "does not overwrite the old formal gate",
+            "include_all_candidates",
+            "exclude_provenance_required",
+            "final_performance_conclusion = false",
+            "phasor_rms, not emt",
+            "generator_speed_proxy",
+            "not direct frequency",
+            "not engineering-grade protection",
+        ]:
+            if required not in text:
+                failures.append(f"v2 preview training doc missing: {required}")
+        for bad in [
+            "emt validation completed",
+            "engineering-grade protection completed",
+            "production ready",
+            "is a final dynamic performance conclusion",
+        ]:
+            if bad in text:
+                failures.append(f"v2 preview training doc contains overstatement: {bad}")
 
     preview_doc = ROOT / "docs/ieee39_dynamic_aware_reranker_preview_training.md"
     if preview_doc.exists():
