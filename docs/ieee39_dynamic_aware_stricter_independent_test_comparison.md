@@ -95,3 +95,15 @@ This expansion is important because the stricter comparison showed
 target-feature leakage risk. Non-line-trip faults are a necessary next check for
 generalization reliability, but they are not yet new training-ready labels. It
 is not a final dynamic performance conclusion.
+
+## Smoke-Test Follow-Up
+
+The non-line-trip smoke-test follow-up ran only `NF01`, `NF02`, `NF03`, `NF04`,
+and `NF06`. All five completed as smoke candidates with compact
+`voltage_speed_angle` measurements. This improves feasibility for a later
+non-line-trip label export, but it does not change the formal label gate and it
+does not retrain the dynamic-aware reranker.
+
+The relay proxy remains a basic proxy, not engineering-grade protection.
+`generator_speed_proxy` remains a proxy, not direct frequency, and the model is
+still `phasor_RMS`, not EMT.

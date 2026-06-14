@@ -102,6 +102,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/compare_ieee39_dynamic_aware_preview_runs.py",
     "scripts/gcn_search/run_ieee39_dynamic_aware_stricter_comparison.py",
     "scripts/gcn_search/prepare_ieee39_non_line_trip_fault_expansion.py",
+    "scripts/gcn_search/run_ieee39_non_line_trip_fault_smoke_tests.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trip_isolated.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py",
     "scripts/gcn_search/update_ieee39_line_breaker_map_from_inventory.py",
@@ -195,6 +196,8 @@ REQUIRED_FILES = [
     "tests/test_ieee39_non_line_trip_fault_expansion_manifest.py",
     "tests/test_ieee39_non_line_trip_fault_expansion_docs.py",
     "tests/test_ieee39_non_line_trip_fault_expansion_dry_run.py",
+    "tests/test_ieee39_non_line_trip_fault_smoke_tests.py",
+    "tests/test_ieee39_non_line_trip_fault_smoke_docs.py",
     "tests/test_ieee39_remaining_line_map_full.py",
     "tests/test_ieee39_remaining_clean_breaker_lab_prepare.py",
     "tests/test_ieee39_remaining_clean_breaker_lab_checklist.py",
@@ -233,6 +236,7 @@ REQUIRED_FILES = [
     "docs/ieee39_dynamic_aware_reranker_preview_training.md",
     "docs/ieee39_dynamic_aware_stricter_independent_test_comparison.md",
     "docs/ieee39_non_line_trip_fault_type_expansion.md",
+    "docs/ieee39_non_line_trip_fault_smoke_tests.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -258,6 +262,10 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_feasibility_report.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_feasibility_report.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_dry_run_commands.txt",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_smoke_test_summary.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_smoke_test_summary.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_smoke_test_report.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_smoke_test_report.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -969,6 +977,62 @@ def main() -> int:
         ]:
             if required not in text:
                 failures.append(f"Non-line-trip expansion doc missing: {required}")
+
+    non_line_smoke_summary = non_line_dir / "ieee39_non_line_trip_smoke_test_summary.csv"
+    non_line_smoke_report = non_line_dir / "ieee39_non_line_trip_smoke_test_report.json"
+    if non_line_smoke_summary.exists() and non_line_smoke_report.exists():
+        try:
+            import json
+            import pandas as pd
+
+            table = pd.read_csv(non_line_smoke_summary)
+            report = json.loads(non_line_smoke_report.read_text(encoding="utf-8"))
+            expected_ids = {"NF01", "NF02", "NF03", "NF04", "NF06"}
+            if set(table.get("scenario_id", pd.Series(dtype=str)).astype(str)) != expected_ids:
+                failures.append("Non-line-trip smoke summary must contain exactly NF01/NF02/NF03/NF04/NF06.")
+            if set(report.get("scenario_ids_requested", [])) != expected_ids:
+                failures.append("Non-line-trip smoke report must request exactly NF01/NF02/NF03/NF04/NF06.")
+            joined = table.to_json().lower()
+            for forbidden in ["l12", "handwired_timed_breaker", "single_line_trip"]:
+                if forbidden in joined:
+                    failures.append(f"Non-line-trip smoke summary must not contain {forbidden}.")
+            successful = table[table.get("training_ready_candidate_smoke", pd.Series(dtype=bool)).astype(bool)]
+            if not successful.empty:
+                if not successful["measurement_extraction_status"].astype(str).eq("voltage_speed_angle").all():
+                    failures.append("Successful non-line-trip smoke rows must have voltage_speed_angle measurements.")
+                if not successful["signal_source_summary"].astype(str).str.contains("frequency=generator_speed_proxy", regex=False).all():
+                    failures.append("Successful non-line-trip smoke rows must use generator_speed_proxy frequency.")
+            if report.get("whether_formal_label_gate_changed") is not False:
+                failures.append("Non-line-trip smoke report must preserve formal label gate.")
+            if report.get("whether_reranker_retrained") is not False:
+                failures.append("Non-line-trip smoke report must not retrain reranker.")
+            if report.get("whether_slx_modified") is not False:
+                failures.append("Non-line-trip smoke report must record slx_modified=false.")
+            if report.get("whether_l12_touched") is not False:
+                failures.append("Non-line-trip smoke report must record L12 untouched.")
+        except Exception as exc:
+            failures.append(f"Failed to read non-line-trip smoke artifacts: {exc}")
+
+    non_line_smoke_doc = ROOT / "docs/ieee39_non_line_trip_fault_smoke_tests.md"
+    if non_line_smoke_doc.exists():
+        text = _read_text("docs/ieee39_non_line_trip_fault_smoke_tests.md").lower()
+        for required in [
+            "nf01",
+            "nf02",
+            "nf03",
+            "nf04",
+            "nf06",
+            "did not modify `.slx`",
+            "did not fix l12",
+            "did not update the formal training-ready label count",
+            "did not retrain the dynamic-aware reranker",
+            "smoke-test success is not a formal merge into training-ready dynamic labels",
+            "phasor_rms, not emt",
+            "generator_speed_proxy` is not direct frequency",
+            "relay proxy is not engineering-grade protection",
+        ]:
+            if required not in text:
+                failures.append(f"Non-line-trip smoke doc missing: {required}")
 
     relay_doc = ROOT / "docs/ieee39_fault_breaker_relay_wrapper.md"
     if relay_doc.exists():

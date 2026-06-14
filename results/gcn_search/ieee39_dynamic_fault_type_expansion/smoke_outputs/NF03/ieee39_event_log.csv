@@ -1,0 +1,2 @@
+test_case,event_time_s,event_type,physical_executed,event_note
+NF03_fault_duration_sweep,0.5,fault_duration_sweep,1,duration-aware smoke run on existing Fault (Three-Phase) block

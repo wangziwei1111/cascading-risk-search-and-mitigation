@@ -1,0 +1,2 @@
+test_case,event_time_s,event_type,physical_executed,event_note
+relay_trip_test,0.5,basic_relay_proxy,1,pilot controlled switch or breaker-like trip executed

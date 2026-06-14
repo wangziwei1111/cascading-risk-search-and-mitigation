@@ -84,3 +84,14 @@ the ranking logic captures broader physical behavior rather than only
 memorizing line-trip-specific signatures.
 
 This is scenario expansion preparation and feasibility audit only. It is not a new dynamic stability conclusion and not a final dynamic performance conclusion.
+
+## Smoke-Test Follow-Up
+
+A small smoke-test round has now run `NF01`, `NF02`, `NF03`, `NF04`, and `NF06`.
+All five produced compact `voltage_speed_angle` measurements and are recorded
+only as smoke candidates. The formal dynamic label gate remains unchanged, L12
+remains excluded, and the dynamic-aware reranker was not retrained.
+
+Details are in:
+
+`docs/ieee39_non_line_trip_fault_smoke_tests.md`

@@ -2342,3 +2342,42 @@ Boundaries:
 - Handwired breaker validation remains pilot breaker-like, not
   engineering-grade protection.
 - RL mitigation files were not modified.
+
+## Round 43: IEEE39 Non-Line-Trip Fault Smoke Tests
+
+This round ran a small Simulink smoke test for selected non-line-trip scenarios:
+
+- `NF01`: existing three-phase fault-clear baseline
+- `NF02`: fault duration sweep, 0.05 s
+- `NF03`: fault duration sweep, 0.08 s
+- `NF04`: fault duration sweep, 0.10 s
+- `NF06`: basic relay proxy
+
+Result:
+
+- `scenario_ids_successful = NF01, NF02, NF03, NF04, NF06`
+- `scenario_ids_failed = none`
+- `scenario_ids_timeout = none`
+- `num_successful_smoke_candidates = 5`
+
+Outputs:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_smoke_test_summary.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_smoke_test_summary.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_smoke_test_report.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/ieee39_non_line_trip_smoke_test_report.md`
+- `docs/ieee39_non_line_trip_fault_smoke_tests.md`
+
+Boundaries:
+
+- Only small Simulink smoke tests were run.
+- No `.slx` was modified or committed.
+- No Simscape physical wiring was modified.
+- L12 was not fixed and remains excluded.
+- The formal label gate remains `35 / 33 / 33`.
+- No dynamic-aware reranker retraining was run.
+- Smoke candidates are not yet formal training-ready dynamic labels.
+- The model remains `phasor_RMS`, not EMT.
+- `generator_speed_proxy` is not direct frequency.
+- The relay proxy is not engineering-grade protection.
+- RL mitigation files were not modified.

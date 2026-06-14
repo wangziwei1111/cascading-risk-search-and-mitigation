@@ -224,3 +224,14 @@ The existing supported non-line-trip candidates are the baseline
 sweep, and the basic relay proxy case. Different-bus faults, load steps,
 generator trips / mechanical-power steps, and bus-voltage-reference events are
 manual/future items until verified.
+
+## Non-line-trip smoke-test measurement update
+
+The small smoke-test round ran `NF01`, `NF02`, `NF03`, `NF04`, and `NF06`.
+All five produced `measurement_extraction_status = voltage_speed_angle`, and
+their `signal_source_summary` records `frequency=generator_speed_proxy`.
+
+These rows are smoke candidates only. They are not merged into the formal
+dynamic-label gate, L12 remains excluded, and the dynamic-aware reranker was not
+retrained. The model remains `phasor_RMS`, not EMT, and the relay proxy is not
+engineering-grade protection.

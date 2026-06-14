@@ -1,0 +1,31 @@
+{
+  "scenario_ids_requested": [
+    "NF01",
+    "NF02",
+    "NF03",
+    "NF04",
+    "NF06"
+  ],
+  "scenario_ids_completed": [
+    "NF01",
+    "NF02",
+    "NF03",
+    "NF04",
+    "NF06"
+  ],
+  "scenario_ids_successful": [
+    "NF01",
+    "NF02",
+    "NF03",
+    "NF04",
+    "NF06"
+  ],
+  "scenario_ids_failed": [],
+  "scenario_ids_timeout": [],
+  "num_successful_smoke_candidates": 5,
+  "whether_formal_label_gate_changed": false,
+  "whether_reranker_retrained": false,
+  "whether_slx_modified": false,
+  "whether_l12_touched": false,
+  "recommended_next_step": "Create a separate merge/export round for non-line-trip candidate labels, keeping them separate from handwired line-trip labels."
+}
