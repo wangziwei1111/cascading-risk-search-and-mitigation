@@ -2184,3 +2184,40 @@ Boundaries:
   protection.
 - These are single-line dynamic labels, not simultaneous or sequential
   multi-line trip experiments.
+
+## Round 39: L12 Islanding / Timeout Diagnosis
+
+This round handles `L12` separately and does not force it into the standard
+training-ready single-line label set.
+
+Diagnosis command:
+
+```text
+python scripts/gcn_search/diagnose_ieee39_l12_islanding_case.py
+```
+
+Key result:
+
+- `L12` line block path:
+  `IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B19 to B16`
+- structure validation passed: `validation_passed = true`
+- compact simulation status: `measurement_extraction_status = simulation_timeout`
+- `training_ready_candidate = false`
+- `should_merge_as_training_ready = false`
+- `should_retrain_reranker = false`
+- suspected islanding: opening `B19-B16` leaves the B19-side simplified
+  component as `B19`
+
+Outputs:
+
+- `results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_l12_islanding_diagnosis.json`
+- `results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_l12_islanding_diagnosis.md`
+- `docs/ieee39_l12_islanding_timeout_case.md`
+
+The L12 timeout is not a verified stable or unstable dynamic conclusion. It is
+a suspected islanding / timeout special case. The formal label gate remains
+`35 / 33 / 33`, and no dynamic-aware reranker retraining was run. The model
+remains `phasor_RMS`, not EMT; `generator_speed_proxy` is not direct frequency;
+the handwired breaker remains pilot breaker-like validation, not
+engineering-grade protection; and `.slx`, `.slxc`, `slprj`, `.mat`, raw
+trajectories, and full timeseries are not committed.

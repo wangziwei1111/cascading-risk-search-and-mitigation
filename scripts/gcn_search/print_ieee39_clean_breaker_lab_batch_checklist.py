@@ -21,6 +21,10 @@ MERGE_PATH = ROOT / (
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/"
     "ieee39_clean_breaker_lab_l11_to_l34_merge_summary.json"
 )
+L12_DIAGNOSIS_PATH = ROOT / (
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/"
+    "ieee39_l12_islanding_diagnosis.json"
+)
 OUT_DIR = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation"
 OUT_PATH = OUT_DIR / "clean_breaker_lab_batch_checklist.txt"
 
@@ -74,10 +78,36 @@ def _simulation_section(trips: pd.DataFrame) -> str:
     return "\n".join(rows)
 
 
+def _l12_repair_section(diagnosis: dict) -> str:
+    checks = diagnosis.get("recommended_manual_checks") or [
+        "Check L12_HandwiredTimedBreaker series wiring.",
+        "Check whether the original B19-B16 connection is opened.",
+        "Check bypass paths, short circuits, TripCommand target, Step direction, and breaker control port direction.",
+    ]
+    checks_text = "\n".join(f"- {item}" for item in checks)
+    component = ", ".join(diagnosis.get("b19_component_after_l12_open", [])) or "unknown"
+    removed_edge = diagnosis.get("removed_edge", ["B19", "B16"])
+    return f"""L12 repair section:
+- validation_passed = {str(diagnosis.get("validation_passed", "unknown")).lower()}
+- simulation_status = simulation_timeout
+- training_ready_candidate = false
+- merged_as_training_ready = false
+- suspected islanding: L12 = Grid/B19 to B16
+- removed_edge = {removed_edge[0]}-{removed_edge[1]}
+- opening L12 may separate the Bus19-side component from the main grid
+- B19-side component after L12 open = {component}
+- natural islanding case rule: if L12 is a natural islanding branch, keep it as a special-case timeout label and do not force it into ordinary training-ready line-trip labels.
+
+Manual checks:
+{checks_text}
+"""
+
+
 def build_checklist() -> str:
     quality = _read_json(QUALITY_PATH)
     readiness = _read_json(READINESS_PATH)
     merge = _read_json(MERGE_PATH)
+    l12_diagnosis = _read_json(L12_DIAGNOSIS_PATH)
     validation = _read_csv(VALIDATION_PATH)
     trips = _read_csv(TRIP_PATH)
     validation_passed = validation.loc[
@@ -110,6 +140,8 @@ Validation details:
 
 Simulation details:
 {_simulation_section(trips)}
+
+{_l12_repair_section(l12_diagnosis)}
 
 Latest formal fault summary:
 - results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05_l06_l07_l08_l09_l10_l11_to_l34.csv

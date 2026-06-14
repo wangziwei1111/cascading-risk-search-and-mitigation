@@ -65,6 +65,28 @@ Simulation details:
 - L33: simulation_success=1, measurement_extraction_status=voltage_speed_angle, training_ready_candidate=True, breaker_opened=1, source_model=clean_breaker_lab_L33, breaker name=L33_HandwiredTimedBreaker, trip command name=L33_TripCommand
 - L34: simulation_success=1, measurement_extraction_status=voltage_speed_angle, training_ready_candidate=True, breaker_opened=1, source_model=clean_breaker_lab_L34, breaker name=L34_HandwiredTimedBreaker, trip command name=L34_TripCommand
 
+L12 repair section:
+- validation_passed = true
+- simulation_status = simulation_timeout
+- training_ready_candidate = false
+- merged_as_training_ready = false
+- suspected islanding: L12 = Grid/B19 to B16
+- removed_edge = B19-B16
+- opening L12 may separate the Bus19-side component from the main grid
+- B19-side component after L12 open = B19
+- natural islanding case rule: if L12 is a natural islanding branch, keep it as a special-case timeout label and do not force it into ordinary training-ready line-trip labels.
+
+Manual checks:
+- Check whether L12_HandwiredTimedBreaker is truly in series with Grid/B19 to B16.
+- Check whether the original B19-B16 connection is actually opened when the breaker trips.
+- Check whether any bypass path remains around the L12 breaker.
+- Check whether L12_TripCommand controls only the L12 breaker.
+- Check whether the Step command direction is 0 -> 1.
+- Check whether the breaker control port is connected to the intended control input.
+- Check whether opening B19-B16 creates an abnormal B19-side Simscape island.
+- If this is a natural islanding branch, keep L12 as an islanding special case rather than a standard training-ready single-line label.
+
+
 Latest formal fault summary:
 - results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05_l06_l07_l08_l09_l10_l11_to_l34.csv
 

@@ -188,3 +188,10 @@ These measurements remain phasor_RMS compact dynamic validation results.
 `generator_speed_proxy` is still a proxy, not direct frequency, and the
 handwired breaker remains pilot breaker-like validation, not engineering-grade
 protection.
+
+`L12` is deliberately excluded from the training-ready measurement set. Its
+structure validation passed, but the compact run ended with
+`measurement_extraction_status = simulation_timeout`. The dedicated diagnosis
+marks it as a suspected islanding / timeout case for `Grid/B19 to B16`, not a
+verified stable or unstable dynamic conclusion. It should not be used to retrain
+the dynamic-aware reranker unless the user manually repairs and revalidates it.

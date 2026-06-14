@@ -181,3 +181,11 @@ Structure validation passed for every line. Compact simulation succeeded for
 - `allowed_for_dynamic_aware_training = true`
 
 No dynamic-aware reranker training was run in this round.
+
+`L12` remains outside this training-ready set. It passed structure validation,
+but compact simulation timed out. The dedicated L12 diagnosis treats
+`Grid/B19 to B16` as a suspected islanding / timeout special case: opening
+`B19-B16` leaves the simplified B19-side component as `B19`. Do not merge L12 as
+a standard training-ready line-trip label unless it is manually repaired and
+passes the same compact measurement gate. It is not a stable or unstable
+dynamic conclusion.

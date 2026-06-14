@@ -179,3 +179,10 @@ The latest formal label gate is:
 
 The `L12` timeout is not training-ready and is not merged into the formal fault
 summary. No dynamic-aware reranker training was run in this round.
+
+`L12` maps to `IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B19 to B16`.
+The dedicated L12 diagnosis removes the simplified graph edge `B19-B16` and
+finds that the B19-side component is `B19`, which makes L12 a suspected
+islanding / timeout special case. This should be treated as a topology and
+manual-wiring inspection target, not as a standard training-ready label. It is
+not a stable or unstable dynamic conclusion.

@@ -97,6 +97,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/print_ieee39_clean_breaker_lab_checklist.py",
     "scripts/gcn_search/print_ieee39_clean_breaker_lab_per_line_checklist.py",
     "scripts/gcn_search/print_ieee39_clean_breaker_lab_batch_checklist.py",
+    "scripts/gcn_search/diagnose_ieee39_l12_islanding_case.py",
     "scripts/gcn_search/train_ieee39_dynamic_aware_reranker_preview.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trip_isolated.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py",
@@ -191,6 +192,8 @@ REQUIRED_FILES = [
     "tests/test_ieee39_all_remaining_clean_breaker_lab_merge.py",
     "tests/test_ieee39_all_remaining_label_gate.py",
     "tests/test_ieee39_all_remaining_docs.py",
+    "tests/test_ieee39_l12_islanding_diagnosis.py",
+    "tests/test_ieee39_l12_islanding_docs.py",
     "docs/pio_gcn_simulink_dynamic_validation_plan.md",
     "docs/pio_gcn_simulink_real_topk_validation.md",
     "docs/pio_gcn_simulink_real_topk_event_driven_validation.md",
@@ -216,6 +219,7 @@ REQUIRED_FILES = [
     "docs/ieee39_per_line_clean_breaker_lab_workflow.md",
     "docs/ieee39_batch_per_line_clean_breaker_lab_workflow.md",
     "docs/ieee39_line_map_extension_workflow.md",
+    "docs/ieee39_l12_islanding_timeout_case.md",
     "docs/ieee39_dynamic_aware_reranker_preview_training.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
@@ -277,6 +281,8 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/clean_breaker_lab_checklist.txt",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/clean_breaker_lab_per_line_checklist.txt",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/clean_breaker_lab_batch_checklist.txt",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_l12_islanding_diagnosis.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_l12_islanding_diagnosis.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_validation_summary.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_validation_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_block_inventory.csv",
@@ -1443,6 +1449,76 @@ def main() -> int:
                     failures.append("Batch clean lab L12 timeout must not be training-ready.")
         except Exception as exc:
             failures.append(f"Failed to read batch clean lab compact summary: {exc}")
+
+    l12_diagnosis = ROOT / (
+        "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/"
+        "ieee39_l12_islanding_diagnosis.json"
+    )
+    if l12_diagnosis.exists():
+        try:
+            import json
+
+            payload = json.loads(l12_diagnosis.read_text(encoding="utf-8"))
+            expected = {
+                "line_id": "L12",
+                "line_block_path": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B19 to B16",
+                "measurement_extraction_status": "simulation_timeout",
+            }
+            for key, value in expected.items():
+                if payload.get(key) != value:
+                    failures.append(f"L12 diagnosis must have {key}={value}.")
+            for key in ["validation_passed", "breaker_block_found", "trip_command_found", "breaker_near_line", "islanding_candidate"]:
+                if payload.get(key) is not True:
+                    failures.append(f"L12 diagnosis must set {key}=true.")
+            for key in [
+                "simulation_success",
+                "training_ready_candidate",
+                "should_merge_as_training_ready",
+                "should_retrain_reranker",
+                "component_contains_reference_or_main_grid",
+            ]:
+                if payload.get(key) is not False:
+                    failures.append(f"L12 diagnosis must set {key}=false.")
+            if payload.get("removed_edge") != ["B19", "B16"]:
+                failures.append("L12 diagnosis must remove edge B19-B16.")
+            component = set(payload.get("b19_component_after_l12_open", []))
+            if "B19" not in component:
+                failures.append("L12 diagnosis B19 component must contain B19.")
+            if not payload.get("recommended_manual_checks"):
+                failures.append("L12 diagnosis must include recommended manual checks.")
+            if "special-case timeout label" not in payload.get("recommended_next_action", ""):
+                failures.append("L12 diagnosis must recommend keeping L12 as a special-case timeout label.")
+            caveats = "\n".join(payload.get("caveats", [])).lower()
+            for required in [
+                "phasor_rms, not emt",
+                "generator_speed_proxy, not direct frequency",
+                "pilot breaker-like validation, not engineering-grade protection",
+                "not a verified stable or unstable conclusion",
+            ]:
+                if required not in caveats:
+                    failures.append(f"L12 diagnosis caveats missing: {required}")
+        except Exception as exc:
+            failures.append(f"Failed to read L12 islanding diagnosis: {exc}")
+
+    l12_doc = ROOT / "docs/ieee39_l12_islanding_timeout_case.md"
+    if l12_doc.exists():
+        text = _read_text("docs/ieee39_l12_islanding_timeout_case.md").lower()
+        for required in [
+            "suspected islanding / timeout",
+            "training_ready_candidate: `false`",
+            "should_merge_as_training_ready: `false`",
+            "should_retrain_reranker: `false`",
+            "does not prove that l12 is dynamically stable or unstable",
+            "phasor_rms",
+            "not emt",
+            "generator_speed_proxy",
+            "not direct frequency",
+            "pilot breaker-like",
+            "not engineering-grade",
+            "do not commit `.slx`",
+        ]:
+            if required not in text:
+                failures.append(f"L12 islanding doc missing: {required}")
 
     remaining_prepare = ROOT / (
         "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/"

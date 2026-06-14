@@ -214,3 +214,23 @@ Boundaries remain unchanged: phasor_RMS, not EMT; `generator_speed_proxy` is not
 direct frequency; the handwired breaker is pilot breaker-like validation, not
 engineering-grade protection; `.slx`, `.slxc`, `slprj`, `.mat`, raw trajectories,
 and full timeseries must not be committed.
+
+## L12 islanding / timeout special case
+
+`L12` is now documented separately as a suspected islanding / timeout case. Its
+structure validation passed, but compact simulation timed out, so it is not
+training-ready and is not merged into the formal fault summary.
+
+- L12 line block path: `IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B19 to B16`
+- L12 `training_ready_candidate = false`
+- removed edge in the simplified diagnosis graph: `B19-B16`
+- B19-side component after opening L12: `B19`
+- suspected reason: opening L12 may separate the Bus19 side from the main grid
+- next action: manually inspect and optionally rewire L12; if it is a natural
+  islanding case, keep it as a special-case timeout label
+
+Manual checks should focus on L12 breaker series placement, original connection
+opening, bypass paths, short circuits, `L12_TripCommand` target, Step `0 -> 1`,
+breaker control port direction, and the Bus19-side island. This is not a stable
+or unstable dynamic conclusion and it does not trigger dynamic-aware reranker
+retraining.

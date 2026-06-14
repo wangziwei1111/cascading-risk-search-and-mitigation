@@ -162,3 +162,12 @@ Current gate:
 
 Do not mix simultaneous or sequential multi-line trips into this single-line
 label set. No dynamic-aware reranker training was run in this round.
+
+`L12` is the exception in the expanded set. It passed structure validation but
+timed out during compact isolated simulation. The current diagnosis identifies
+`Grid/B19 to B16` as a suspected islanding / timeout case because removing
+`B19-B16` leaves the simplified B19-side component as `B19`. Keep L12 as a
+special-case timeout label with `training_ready_candidate = false` unless a
+later manual repair makes it pass compact simulation with
+`measurement_extraction_status = voltage_speed_angle`. It is not a stable or
+unstable dynamic conclusion.
