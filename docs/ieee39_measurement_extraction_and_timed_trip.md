@@ -203,3 +203,10 @@ compact dynamic labels only. It excludes L12, preserves the historical
 not rerun Simulink. The result is still preview-only; `dynamic_stress_score` is
 a synthetic proxy target derived from compact dynamic measurements, so metrics
 may be optimistic.
+
+The stricter comparison has now been run without rerunning Simulink. It compares
+dynamic-measurement features against no-dynamic-measurement and topology-only
+features. The no-leakage / topology-only results are more realistic preview
+signals, while the dynamic-measurement feature result is an optimistic upper
+bound because `dynamic_stress_score` is derived from compact measurements. It
+is not a final dynamic performance conclusion.

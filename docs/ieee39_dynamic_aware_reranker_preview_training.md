@@ -211,3 +211,22 @@ derived from compact dynamic measurements, and the feature set also includes
 compact dynamic measurement quantities, so the metrics may be optimistic. A more
 credible conclusion needs an independent test set, more fault types, leakage
 checks, and stricter comparison.
+
+## Stricter leakage comparison follow-up
+
+A stricter comparison has now been added:
+
+```text
+results/gcn_search/ieee39_dynamic_aware_reranker_stricter_comparison/
+```
+
+It compares `leaky_dynamic_measurement_features`,
+`no_dynamic_measurement_features`, and `topology_only_features` under several
+split strategies. The main finding is that no-leakage / topology-only metrics
+drop compared with the leaky measurement-feature preview. This is expected and
+should be treated as a useful warning about target-feature leakage, not as a
+failure.
+
+The stricter comparison did not run Simulink, did not modify `.slx`, did not
+fix L12, and did not modify Simscape physical wiring. It is still preview-only
+and not a final dynamic performance conclusion.

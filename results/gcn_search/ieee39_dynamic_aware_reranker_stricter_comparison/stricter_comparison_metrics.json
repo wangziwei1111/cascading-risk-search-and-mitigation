@@ -1,0 +1,777 @@
+{
+  "preview_only": true,
+  "final_performance_conclusion": false,
+  "num_samples": 35,
+  "excluded_line_ids": [
+    "L12"
+  ],
+  "target_columns": [
+    "dynamic_stress_score",
+    "unstable_flag"
+  ],
+  "feature_sets": {
+    "leaky_dynamic_measurement_features": [
+      "min_voltage_pu",
+      "max_voltage_pu",
+      "min_frequency_hz",
+      "max_frequency_hz",
+      "max_speed_deviation",
+      "max_rotor_angle_separation_deg",
+      "breaker_opened",
+      "physical_fault_or_breaker_action_executed",
+      "fault_type",
+      "trip_implementation",
+      "line_id"
+    ],
+    "no_dynamic_measurement_features": [
+      "fault_type",
+      "trip_implementation",
+      "line_id",
+      "line_id_numeric",
+      "from_bus_numeric",
+      "to_bus_numeric",
+      "min_bus",
+      "max_bus",
+      "bus_distance_abs",
+      "line_map_inventory_order",
+      "endpoint_degree_from",
+      "endpoint_degree_to",
+      "islanding_candidate",
+      "component_size_after_line_removed",
+      "component_contains_reference_or_main_grid",
+      "source_model"
+    ],
+    "topology_only_features": [
+      "from_bus_numeric",
+      "to_bus_numeric",
+      "min_bus",
+      "max_bus",
+      "bus_distance_abs",
+      "endpoint_degree_from",
+      "endpoint_degree_to",
+      "component_size_after_line_removed",
+      "largest_component_size_after_line_removed",
+      "component_contains_reference_or_main_grid",
+      "islanding_candidate",
+      "fault_type",
+      "trip_implementation"
+    ]
+  },
+  "split_strategies": {
+    "leave_one_out": [
+      {
+        "fold_id": "0",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L01"
+        ]
+      },
+      {
+        "fold_id": "1",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L02"
+        ]
+      },
+      {
+        "fold_id": "2",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L03"
+        ]
+      },
+      {
+        "fold_id": "3",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L04"
+        ]
+      },
+      {
+        "fold_id": "4",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L05"
+        ]
+      },
+      {
+        "fold_id": "5",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L07"
+        ]
+      },
+      {
+        "fold_id": "6",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L06"
+        ]
+      },
+      {
+        "fold_id": "7",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L08"
+        ]
+      },
+      {
+        "fold_id": "8",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L09"
+        ]
+      },
+      {
+        "fold_id": "9",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L10"
+        ]
+      },
+      {
+        "fold_id": "10",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L17"
+        ]
+      },
+      {
+        "fold_id": "11",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L15"
+        ]
+      },
+      {
+        "fold_id": "12",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L14"
+        ]
+      },
+      {
+        "fold_id": "13",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L13"
+        ]
+      },
+      {
+        "fold_id": "14",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L11"
+        ]
+      },
+      {
+        "fold_id": "15",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L18"
+        ]
+      },
+      {
+        "fold_id": "16",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L16"
+        ]
+      },
+      {
+        "fold_id": "17",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L24"
+        ]
+      },
+      {
+        "fold_id": "18",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L23"
+        ]
+      },
+      {
+        "fold_id": "19",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L22"
+        ]
+      },
+      {
+        "fold_id": "20",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L21"
+        ]
+      },
+      {
+        "fold_id": "21",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L20"
+        ]
+      },
+      {
+        "fold_id": "22",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L19"
+        ]
+      },
+      {
+        "fold_id": "23",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L27"
+        ]
+      },
+      {
+        "fold_id": "24",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L28"
+        ]
+      },
+      {
+        "fold_id": "25",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L29"
+        ]
+      },
+      {
+        "fold_id": "26",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L30"
+        ]
+      },
+      {
+        "fold_id": "27",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L31"
+        ]
+      },
+      {
+        "fold_id": "28",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L32"
+        ]
+      },
+      {
+        "fold_id": "29",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L25"
+        ]
+      },
+      {
+        "fold_id": "30",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L26"
+        ]
+      },
+      {
+        "fold_id": "31",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L33"
+        ]
+      },
+      {
+        "fold_id": "32",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L34"
+        ]
+      },
+      {
+        "fold_id": "33",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "L01"
+        ]
+      },
+      {
+        "fold_id": "34",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "NO_LINE"
+        ]
+      }
+    ],
+    "grouped_line_range_holdout": [
+      {
+        "fold_id": "L01-L10",
+        "num_train": 24,
+        "num_test": 11,
+        "test_line_ids": [
+          "L01",
+          "L02",
+          "L03",
+          "L04",
+          "L05",
+          "L06",
+          "L07",
+          "L08",
+          "L09",
+          "L10"
+        ]
+      },
+      {
+        "fold_id": "L11-L20",
+        "num_train": 26,
+        "num_test": 9,
+        "test_line_ids": [
+          "L11",
+          "L13",
+          "L14",
+          "L15",
+          "L16",
+          "L17",
+          "L18",
+          "L19",
+          "L20"
+        ]
+      },
+      {
+        "fold_id": "L21-L34",
+        "num_train": 21,
+        "num_test": 14,
+        "test_line_ids": [
+          "L21",
+          "L22",
+          "L23",
+          "L24",
+          "L25",
+          "L26",
+          "L27",
+          "L28",
+          "L29",
+          "L30",
+          "L31",
+          "L32",
+          "L33",
+          "L34"
+        ]
+      },
+      {
+        "fold_id": "non_line_aux",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "NO_LINE"
+        ]
+      }
+    ],
+    "endpoint_bus_region_holdout": [
+      {
+        "fold_id": "low_bus_region",
+        "num_train": 23,
+        "num_test": 12,
+        "test_line_ids": [
+          "L01",
+          "L04",
+          "L24",
+          "L26",
+          "L27",
+          "L28",
+          "L29",
+          "L30",
+          "L31",
+          "L32",
+          "L34"
+        ]
+      },
+      {
+        "fold_id": "mid_bus_region",
+        "num_train": 18,
+        "num_test": 17,
+        "test_line_ids": [
+          "L02",
+          "L03",
+          "L05",
+          "L06",
+          "L07",
+          "L08",
+          "L09",
+          "L10",
+          "L11",
+          "L13",
+          "L14",
+          "L15",
+          "L16",
+          "L17",
+          "L23",
+          "L25",
+          "L33"
+        ]
+      },
+      {
+        "fold_id": "high_bus_region",
+        "num_train": 30,
+        "num_test": 5,
+        "test_line_ids": [
+          "L18",
+          "L19",
+          "L20",
+          "L21",
+          "L22"
+        ]
+      },
+      {
+        "fold_id": "non_line_aux",
+        "num_train": 34,
+        "num_test": 1,
+        "test_line_ids": [
+          "NO_LINE"
+        ]
+      }
+    ],
+    "random_kfold_baseline": [
+      {
+        "fold_id": "0",
+        "num_train": 28,
+        "num_test": 7,
+        "test_line_ids": [
+          "L07",
+          "L16",
+          "L21",
+          "L26",
+          "L28",
+          "L29",
+          "NO_LINE"
+        ]
+      },
+      {
+        "fold_id": "1",
+        "num_train": 28,
+        "num_test": 7,
+        "test_line_ids": [
+          "L08",
+          "L17",
+          "L22",
+          "L23",
+          "L25",
+          "L27",
+          "L33"
+        ]
+      },
+      {
+        "fold_id": "2",
+        "num_train": 28,
+        "num_test": 7,
+        "test_line_ids": [
+          "L01",
+          "L04",
+          "L06",
+          "L10",
+          "L19",
+          "L30",
+          "L31"
+        ]
+      },
+      {
+        "fold_id": "3",
+        "num_train": 28,
+        "num_test": 7,
+        "test_line_ids": [
+          "L11",
+          "L14",
+          "L15",
+          "L18",
+          "L20",
+          "L24",
+          "L32"
+        ]
+      },
+      {
+        "fold_id": "4",
+        "num_train": 28,
+        "num_test": 7,
+        "test_line_ids": [
+          "L01",
+          "L02",
+          "L03",
+          "L05",
+          "L09",
+          "L13",
+          "L34"
+        ]
+      }
+    ]
+  },
+  "random_seed": 42,
+  "per_feature_set_per_split_metrics": {
+    "leaky_dynamic_measurement_features": {
+      "leave_one_out": {
+        "regression": {
+          "mae": 0.022818969656612245,
+          "rmse": 0.03047560401051512,
+          "pearson": 0.9694314135794336,
+          "spearman": 0.5539603627283234
+        },
+        "classification": {
+          "accuracy": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "num_predictions": 35,
+        "num_folds": 35
+      },
+      "grouped_line_range_holdout": {
+        "regression": {
+          "mae": 0.023241067026953246,
+          "rmse": 0.03077585705719504,
+          "pearson": 0.9678574224432569,
+          "spearman": 0.5514391777652109
+        },
+        "classification": {
+          "accuracy": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "num_predictions": 35,
+        "num_folds": 4
+      },
+      "endpoint_bus_region_holdout": {
+        "regression": {
+          "mae": 0.02300104131557092,
+          "rmse": 0.03045480664099702,
+          "pearson": 0.9692262529875167,
+          "spearman": 0.5365921996491041
+        },
+        "classification": {
+          "accuracy": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "num_predictions": 35,
+        "num_folds": 4
+      },
+      "random_kfold_baseline": {
+        "regression": {
+          "mae": 0.023816522411311672,
+          "rmse": 0.03109663689449052,
+          "pearson": 0.9674560352735282,
+          "spearman": 0.5433153595507374
+        },
+        "classification": {
+          "accuracy": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "num_predictions": 35,
+        "num_folds": 5
+      }
+    },
+    "no_dynamic_measurement_features": {
+      "leave_one_out": {
+        "regression": {
+          "mae": 0.056396799112444274,
+          "rmse": 0.10785453926718819,
+          "pearson": 0.48632944580809595,
+          "spearman": 0.10701029510099597
+        },
+        "classification": {
+          "accuracy": 0.9714285714285714,
+          "f1": 0.6666666666666666,
+          "roc_auc": 0.9848484848484849
+        },
+        "num_predictions": 35,
+        "num_folds": 35
+      },
+      "grouped_line_range_holdout": {
+        "regression": {
+          "mae": 0.15698704493993354,
+          "rmse": 0.2146197351969895,
+          "pearson": -0.0815130758063323,
+          "spearman": -0.4603963874305939
+        },
+        "classification": {
+          "accuracy": 0.9714285714285714,
+          "f1": 0.6666666666666666,
+          "roc_auc": 1.0
+        },
+        "num_predictions": 35,
+        "num_folds": 4
+      },
+      "endpoint_bus_region_holdout": {
+        "regression": {
+          "mae": 0.06975444605077316,
+          "rmse": 0.12354812842645108,
+          "pearson": 0.336470110502658,
+          "spearman": 0.12241753654223884
+        },
+        "classification": {
+          "accuracy": 0.9714285714285714,
+          "f1": 0.6666666666666666,
+          "roc_auc": 1.0
+        },
+        "num_predictions": 35,
+        "num_folds": 4
+      },
+      "random_kfold_baseline": {
+        "regression": {
+          "mae": 0.05932163926754403,
+          "rmse": 0.1093762136653181,
+          "pearson": 0.4536746113937117,
+          "spearman": 0.12255760237352287
+        },
+        "classification": {
+          "accuracy": 0.9714285714285714,
+          "f1": 0.6666666666666666,
+          "roc_auc": 0.9848484848484849
+        },
+        "num_predictions": 35,
+        "num_folds": 5
+      }
+    },
+    "topology_only_features": {
+      "leave_one_out": {
+        "regression": {
+          "mae": 0.055798103299013926,
+          "rmse": 0.10792785653132472,
+          "pearson": 0.5361573826805696,
+          "spearman": -0.14566846453538718
+        },
+        "classification": {
+          "accuracy": 0.9714285714285714,
+          "f1": 0.6666666666666666,
+          "roc_auc": 1.0
+        },
+        "num_predictions": 35,
+        "num_folds": 35
+      },
+      "grouped_line_range_holdout": {
+        "regression": {
+          "mae": 0.060788034166330614,
+          "rmse": 0.11064531061813906,
+          "pearson": 0.4468442385550551,
+          "spearman": -0.4574550049736294
+        },
+        "classification": {
+          "accuracy": 0.9714285714285714,
+          "f1": 0.6666666666666666,
+          "roc_auc": 1.0
+        },
+        "num_predictions": 35,
+        "num_folds": 4
+      },
+      "endpoint_bus_region_holdout": {
+        "regression": {
+          "mae": 0.06217683882985053,
+          "rmse": 0.11113355504581299,
+          "pearson": 0.4589304430253866,
+          "spearman": 0.01862875556077548
+        },
+        "classification": {
+          "accuracy": 0.9714285714285714,
+          "f1": 0.6666666666666666,
+          "roc_auc": 1.0
+        },
+        "num_predictions": 35,
+        "num_folds": 4
+      },
+      "random_kfold_baseline": {
+        "regression": {
+          "mae": 0.05476903995727535,
+          "rmse": 0.10815413870349432,
+          "pearson": 0.5111342912689933,
+          "spearman": -0.06415015072808397
+        },
+        "classification": {
+          "accuracy": 0.9714285714285714,
+          "f1": 0.6666666666666666,
+          "roc_auc": 1.0
+        },
+        "num_predictions": 35,
+        "num_folds": 5
+      }
+    }
+  },
+  "best_no_leakage_result": {
+    "feature_set": "no_dynamic_measurement_features",
+    "split_strategy": "leave_one_out",
+    "regression": {
+      "mae": 0.056396799112444274,
+      "rmse": 0.10785453926718819,
+      "pearson": 0.48632944580809595,
+      "spearman": 0.10701029510099597
+    },
+    "classification": {
+      "accuracy": 0.9714285714285714,
+      "f1": 0.6666666666666666,
+      "roc_auc": 0.9848484848484849
+    }
+  },
+  "best_leaky_result": {
+    "feature_set": "leaky_dynamic_measurement_features",
+    "split_strategy": "endpoint_bus_region_holdout",
+    "regression": {
+      "mae": 0.02300104131557092,
+      "rmse": 0.03045480664099702,
+      "pearson": 0.9692262529875167,
+      "spearman": 0.5365921996491041
+    },
+    "classification": {
+      "accuracy": 1.0,
+      "f1": 1.0,
+      "roc_auc": 1.0
+    }
+  },
+  "leakage_gap_summary": {
+    "best_leaky_rmse": 0.03045480664099702,
+    "best_no_leakage_rmse": 0.10785453926718819,
+    "rmse_gap_no_leak_minus_leaky": 0.07739973262619117,
+    "interpretation": "A positive gap indicates that removing dynamic measurement features makes the task harder, which is expected and important."
+  },
+  "classification_skipped_reasons": {},
+  "caveats": [
+    "preview / sanity check only",
+    "phasor_RMS, not EMT",
+    "generator_speed_proxy is not direct frequency",
+    "handwired breaker is pilot breaker-like validation, not engineering-grade protection",
+    "L12 excluded because it is simulation_timeout / suspected islanding"
+  ]
+}

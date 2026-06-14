@@ -2263,3 +2263,31 @@ is derived from compact dynamic measurements and some input features also come
 from compact dynamic measurements. The model remains `phasor_RMS`, not EMT;
 `generator_speed_proxy` is not direct frequency; and the handwired breaker is
 pilot breaker-like validation, not engineering-grade protection.
+
+## Round 41: Stricter dynamic-aware leakage comparison
+
+This round does not run Simulink, does not modify `.slx`, does not fix L12, and
+does not modify Simscape physical wiring. It only reuses the existing 35-sample
+expanded compact label dataset to compare feature leakage levels.
+
+Output:
+
+- `results/gcn_search/ieee39_dynamic_aware_reranker_stricter_comparison/stricter_comparison_dataset.csv`
+- `results/gcn_search/ieee39_dynamic_aware_reranker_stricter_comparison/stricter_comparison_metrics.json`
+- `results/gcn_search/ieee39_dynamic_aware_reranker_stricter_comparison/stricter_comparison_predictions.csv`
+- `results/gcn_search/ieee39_dynamic_aware_reranker_stricter_comparison/stricter_comparison_summary.md`
+- `results/gcn_search/ieee39_dynamic_aware_reranker_stricter_comparison/stricter_comparison_leakage_notes.md`
+
+Main finding:
+
+```text
+best leaky RMSE = 0.030455
+best no-leakage RMSE = 0.107855
+gap = 0.077400
+```
+
+This gap shows that removing compact dynamic measurement features makes the task
+harder. That is expected and important because `dynamic_stress_score` is a
+synthetic proxy target derived from compact dynamic measurements. The result is
+still preview-only and not a final dynamic performance conclusion. L12 remains
+excluded because it is `simulation_timeout / suspected islanding`.

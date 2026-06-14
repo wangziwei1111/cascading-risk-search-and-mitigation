@@ -100,6 +100,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/diagnose_ieee39_l12_islanding_case.py",
     "scripts/gcn_search/train_ieee39_dynamic_aware_reranker_preview.py",
     "scripts/gcn_search/compare_ieee39_dynamic_aware_preview_runs.py",
+    "scripts/gcn_search/run_ieee39_dynamic_aware_stricter_comparison.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trip_isolated.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py",
     "scripts/gcn_search/update_ieee39_line_breaker_map_from_inventory.py",
@@ -188,6 +189,8 @@ REQUIRED_FILES = [
     "tests/test_ieee39_dynamic_aware_reranker_preview_training.py",
     "tests/test_ieee39_dynamic_aware_reranker_preview_expanded.py",
     "tests/test_ieee39_dynamic_aware_preview_comparison.py",
+    "tests/test_ieee39_dynamic_aware_stricter_comparison.py",
+    "tests/test_ieee39_dynamic_aware_stricter_comparison_docs.py",
     "tests/test_ieee39_remaining_line_map_full.py",
     "tests/test_ieee39_remaining_clean_breaker_lab_prepare.py",
     "tests/test_ieee39_remaining_clean_breaker_lab_checklist.py",
@@ -224,6 +227,7 @@ REQUIRED_FILES = [
     "docs/ieee39_line_map_extension_workflow.md",
     "docs/ieee39_l12_islanding_timeout_case.md",
     "docs/ieee39_dynamic_aware_reranker_preview_training.md",
+    "docs/ieee39_dynamic_aware_stricter_independent_test_comparison.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -324,6 +328,13 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_readme.md",
     "results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_comparison.json",
     "results/gcn_search/ieee39_dynamic_aware_reranker_preview_expanded/preview_training_comparison.md",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_stricter_comparison/stricter_comparison_dataset.csv",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_stricter_comparison/stricter_comparison_config.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_stricter_comparison/stricter_comparison_metrics.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_stricter_comparison/stricter_comparison_predictions.csv",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_stricter_comparison/stricter_comparison_feature_sets.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_stricter_comparison/stricter_comparison_summary.md",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_stricter_comparison/stricter_comparison_leakage_notes.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_multi_handwired_line_trip_summary.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_multi_handwired.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_multi_handwired_merge_summary.json",
@@ -1747,6 +1758,51 @@ def main() -> int:
                     failures.append(f"Expanded preview comparison missing caveat: {required}")
         except Exception as exc:
             failures.append(f"Failed to read expanded preview comparison: {exc}")
+
+    stricter_metrics = ROOT / "results/gcn_search/ieee39_dynamic_aware_reranker_stricter_comparison/stricter_comparison_metrics.json"
+    stricter_dataset = ROOT / "results/gcn_search/ieee39_dynamic_aware_reranker_stricter_comparison/stricter_comparison_dataset.csv"
+    if stricter_metrics.exists() and stricter_dataset.exists():
+        try:
+            import json
+            import pandas as pd
+
+            metrics = json.loads(stricter_metrics.read_text(encoding="utf-8"))
+            dataset = pd.read_csv(stricter_dataset)
+            if metrics.get("preview_only") is not True:
+                failures.append("Stricter comparison metrics must set preview_only=true.")
+            if metrics.get("final_performance_conclusion") is not False:
+                failures.append("Stricter comparison metrics must set final_performance_conclusion=false.")
+            if metrics.get("num_samples") != 35 or len(dataset) != 35:
+                failures.append("Stricter comparison must contain 35 samples.")
+            if "L12" in set(dataset.get("line_id", pd.Series(dtype=str)).astype(str)):
+                failures.append("Stricter comparison dataset must exclude L12.")
+            feature_sets = metrics.get("feature_sets", {})
+            for required in [
+                "leaky_dynamic_measurement_features",
+                "no_dynamic_measurement_features",
+                "topology_only_features",
+            ]:
+                if required not in feature_sets:
+                    failures.append(f"Stricter comparison missing feature set: {required}")
+            forbidden_measurements = {
+                "min_voltage_pu",
+                "max_voltage_pu",
+                "min_frequency_hz",
+                "max_frequency_hz",
+                "max_speed_deviation",
+                "max_rotor_angle_separation_deg",
+            }
+            topology_features = set(feature_sets.get("topology_only_features", []))
+            if forbidden_measurements & topology_features:
+                failures.append("Topology-only stricter features must not contain compact dynamic measurements.")
+            for required in ["leave_one_out", "grouped_line_range_holdout", "endpoint_bus_region_holdout", "random_kfold_baseline"]:
+                if required not in metrics.get("split_strategies", {}):
+                    failures.append(f"Stricter comparison missing split strategy: {required}")
+            gap = metrics.get("leakage_gap_summary", {})
+            if gap.get("rmse_gap_no_leak_minus_leaky") is None:
+                failures.append("Stricter comparison must report leakage RMSE gap.")
+        except Exception as exc:
+            failures.append(f"Failed to read stricter dynamic-aware comparison: {exc}")
 
     preview_doc = ROOT / "docs/ieee39_dynamic_aware_reranker_preview_training.md"
     if preview_doc.exists():

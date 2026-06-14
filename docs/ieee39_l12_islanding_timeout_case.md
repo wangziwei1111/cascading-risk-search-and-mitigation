@@ -87,3 +87,7 @@ The later expanded-label preview training still excludes L12. That rerun uses
 the 35 training-ready compact dynamic labels, keeps L12 as
 `simulation_timeout / suspected islanding`, and does not fix or merge L12. No
 `.slx` file is modified for the expanded preview run.
+
+The stricter dynamic-aware comparison also excludes L12. L12 remains excluded.
+It does not fix L12, does not run Simulink, and does not modify Simscape
+physical wiring. It is not a final dynamic performance conclusion.
