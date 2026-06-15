@@ -173,6 +173,13 @@ and `Grid/Bus26_2`. Update Diagram passed. However, the required named block
 `Grid/Fault_B26_TEMP` was not found, so B26 remains unverified and is not safe
 to run smoke in this round.
 
+After the user renamed the temporary fault block, B26 was rechecked. The
+temporary copy now contains `Grid/Fault_B26_TEMP`, connected in parallel to
+`Grid/B25 to B26`, `Grid/Bus26_1`, and `Grid/Bus26_2`. Update Diagram passed.
+B26 now has a human-verified injection point and can proceed to a separate
+readiness gate in the next round. This is still not smoke success and not a
+candidate label.
+
 Artifacts:
 
 - `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/b26_manual_connection_evidence.json`

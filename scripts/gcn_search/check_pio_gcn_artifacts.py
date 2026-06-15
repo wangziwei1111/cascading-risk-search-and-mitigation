@@ -584,6 +584,8 @@ def main() -> int:
             failures.append("Validation log does not contain the Round 25 record.")
         if "Round 57" not in log_text:
             failures.append("Validation log does not contain the Round 57 record.")
+        if "Round 58" not in log_text:
+            failures.append("Validation log does not contain the Round 58 record.")
 
     plan_path = ROOT / "docs/pio_gcn_simulink_dynamic_validation_plan.md"
     if plan_path.exists():
@@ -1831,7 +1833,7 @@ def main() -> int:
             payload = json.loads(b26_template.read_text(encoding="utf-8"))
             for required in [
                 "b26 is the next priority bus-fault sample",
-                "b26 remains unverified",
+                "b26 has a human-verified injection point",
                 "b26 is not smoke success",
                 "b26 is not a candidate label",
                 "grid/bus26_1",
@@ -1844,18 +1846,20 @@ def main() -> int:
             ]:
                 if required not in plan_text:
                     failures.append(f"B26 manual plan doc missing: {required}")
-            if payload.get("human_verified_injection_point") is not False:
-                failures.append("B26 template must keep human_verified_injection_point=false.")
-            if payload.get("safe_to_run_smoke_recommendation") is not False:
-                failures.append("B26 template must keep safe_to_run_smoke_recommendation=false.")
+            if payload.get("human_verified_injection_point") is not True:
+                failures.append("B26 template must record human_verified_injection_point=true after rename recheck.")
+            if payload.get("safe_to_run_smoke_recommendation") is not True:
+                failures.append("B26 template must record safe_to_run_smoke_recommendation=true after rename recheck.")
             if payload.get("update_diagram_attempted") is not True:
                 failures.append("B26 template must record update_diagram_attempted=true after manual evidence collection.")
             if payload.get("update_diagram_success") is not True:
                 failures.append("B26 template must record update_diagram_success=true for the compile-only check.")
-            if payload.get("expected_fault_block_found") is not False:
-                failures.append("B26 template must record expected_fault_block_found=false until Grid/Fault_B26_TEMP exists.")
-            if payload.get("human_verified") is not False:
-                failures.append("B26 template must keep human_verified=false.")
+            if payload.get("expected_fault_block_found") is not True:
+                failures.append("B26 template must record expected_fault_block_found=true after Grid/Fault_B26_TEMP exists.")
+            if payload.get("human_verified") is not True:
+                failures.append("B26 template must record human_verified=true after rename recheck.")
+            if payload.get("selected_fault_block_path") != "Grid/Fault_B26_TEMP":
+                failures.append("B26 template must select Grid/Fault_B26_TEMP.")
             if payload.get("suggested_fault_block_name") != "Grid/Fault_B26_TEMP":
                 failures.append("B26 template must include suggested_fault_block_name=Grid/Fault_B26_TEMP.")
             if payload.get("suggested_fault_start_s") != 0.5 or payload.get("suggested_duration_s") != 0.08:
@@ -2043,11 +2047,19 @@ def main() -> int:
                     for key in [
                         "human_verified_injection_point",
                         "safe_to_run_smoke_recommendation",
-                        "source_model_saved",
-                        "temporary_model_committed",
+                        "fault_block_connected_in_parallel",
+                        "original_network_connection_preserved",
+                        "no_unintended_bypass",
+                        "no_floating_ports",
+                        "no_unintended_islanding",
+                        "update_diagram_attempted",
+                        "update_diagram_success",
+                        "measurement_signals_expected_available",
                     ]:
-                        if template.get(key) is not False:
-                            failures.append(f"Manual bus-fault template {target_bus} must default {key}=false.")
+                        if template.get(key) is not True:
+                            failures.append(f"Manual bus-fault template {target_bus} must record {key}=true after rename recheck.")
+                    if template.get("selected_fault_block_path") != "Grid/Fault_B26_TEMP":
+                        failures.append("Manual bus-fault template B26 must select Grid/Fault_B26_TEMP.")
                     next_action = str(template.get("next_action", "")).lower()
                     if "before any temporary smoke" not in next_action:
                         failures.append(f"Manual bus-fault template {target_bus} must keep conservative next_action.")

@@ -1,18 +1,19 @@
 # B26 Manual Review Consolidation Summary
 
 - target bus: `B26`
-- recommendation: `do_not_run_smoke`
-- `human_verified_injection_point = false`
-- `safe_to_run_smoke_recommendation = false`
+- recommendation: `manual_review_supports_next_round_inventory_update`
+- `human_verified_injection_point = true`
+- `safe_to_run_smoke_recommendation = true`
+- failed checks: none
 
-## Failed Checks
+## Consolidated Evidence
 
-- Expected block `Grid/Fault_B26_TEMP` was not found in the checked temporary
-  model.
-- The observed B26 parallel fault block is `Grid/Fault (Three-Phase)1`, so the
-  required B26 template name is not satisfied.
-- Evidence was collected from the temporary disk copy after the unsaved GUI
-  window was no longer visible to Computer Use.
+The renamed temporary fault block `Grid/Fault_B26_TEMP` exists and is connected
+in parallel to the B26 physical node shared by `Grid/B25 to B26`,
+`Grid/Bus26_1`, and `Grid/Bus26_2`. Update Diagram passed.
+
+The old `Grid/Fault (Three-Phase)` remains near B16 and connects to
+`Grid/Bus16_1` and `Grid/B16 to B17`.
 
 ## Boundary Record
 
@@ -27,5 +28,5 @@
 - old formal gate: `35 / 33 / 33`
 - v2-plus-B39 count: `41`
 
-Next action: fix or confirm B26 GUI block naming as `Grid/Fault_B26_TEMP`, then
-perform a separate B26 readiness review before any temporary smoke.
+Next action: update B26 readiness in a separate round before any temporary
+smoke.

@@ -1,10 +1,11 @@
 # IEEE39 B26 Manual Bus-Fault Review Result
 
-This round records B26 manual GUI review evidence only.
+This round re-collects B26 manual evidence after the temporary fault block was
+renamed to `Grid/Fault_B26_TEMP` in the ignored local copy.
 
-Plain wording: we checked whether the temporary B26 three-phase fault connection
-is ready to become the next readiness item. We did not run a Simulink smoke
-simulation and did not turn B26 into a label.
+Plain wording: we checked whether the renamed B26 temporary fault block is now
+connected to the right B26 physical bus node. We did not run a Simulink smoke
+simulation and did not turn B26 into a candidate label.
 
 ## Scope
 
@@ -23,12 +24,17 @@ The checked temporary copy is:
 
 `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/local_lab_copies/IEEE39BusSystem_dynamic_experiment_wrapper_bus_fault_B26_TEMP_LOCAL_ONLY.slx`
 
-The structure check found:
+The structure recheck found:
 
-- `Grid/Bus26_1` and `Grid/Bus26_2` are `SimscapeBlock` busbars.
-- `Grid/Fault (Three-Phase)1` is connected in parallel to the B26 physical node
-  involving `Grid/B25 to B26`, `Grid/Bus26_1`, and `Grid/Bus26_2`.
-- `Grid/Fault (Three-Phase)1` has `fault_start_time = 0.5 s` and
+- `Grid/Fault_B26_TEMP` exists.
+- `Grid/Fault_B26_TEMP` is a `SimscapeBlock` with mask type
+  `Fault (Three-Phase)`.
+- `Grid/Fault_B26_TEMP` connects in parallel to `Grid/B25 to B26`,
+  `Grid/Bus26_1`, and `Grid/Bus26_2`.
+- `Grid/Bus26_1` keeps its original connections to `Grid/B27 to B26`,
+  `Grid/B26 to B28`, and `Grid/B26 to B29`.
+- `Grid/Bus26_2` keeps its original connection to `Grid/Load26 BusLabel`.
+- `Grid/Fault_B26_TEMP` has `fault_start_time = 0.5 s` and
   `fault_duration = 0.08 s`.
 - Update Diagram passed.
 - The old `Grid/Fault (Three-Phase)` remains near B16 and connects to
@@ -36,21 +42,17 @@ The structure check found:
 
 ## Review Decision
 
-B26 is not human verified in this round.
-
-Reason: the required named block `Grid/Fault_B26_TEMP` was not found in the
-checked temporary model. The observed B26 fault block is
-`Grid/Fault (Three-Phase)1`. This is useful wiring evidence, but it does not
-satisfy the explicit B26 template condition.
+B26 is accepted as a human-verified injection point for the next readiness gate.
 
 Therefore:
 
-- `human_verified_injection_point = false`
-- `safe_to_run_smoke_recommendation = false`
+- `human_verified_injection_point = true`
+- `safe_to_run_smoke_recommendation = true`
 - `selected_injection_block_path = Grid/Bus26_1 and Grid/Bus26_2 shared physical B26 node`
-- `selected_fault_block_path` remains empty because `Grid/Fault_B26_TEMP` was
-  not found.
+- `selected_fault_block_path = Grid/Fault_B26_TEMP`
 - `update_diagram_success = true`
+
+This still does not mean B26 smoke success.
 
 ## Boundary Notes
 
@@ -76,6 +78,5 @@ Therefore:
 
 ## Next Step
 
-Fix or confirm B26 GUI block naming as `Grid/Fault_B26_TEMP`, then perform a
-separate B26 readiness review before any temporary smoke. If the expected block
-is still absent, do not run smoke.
+Prepare B26 readiness in a separate round before any temporary smoke. Do not
+jump directly from this evidence file to smoke execution.

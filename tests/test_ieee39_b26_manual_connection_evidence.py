@@ -26,18 +26,20 @@ def test_b26_manual_evidence_artifacts_exist():
         assert path.stat().st_size > 0, path
 
 
-def test_b26_evidence_failure_branch_is_consistent():
+def test_b26_evidence_verified_branch_is_consistent():
     evidence = _load(EVIDENCE_JSON)
     summary = _load(SUMMARY_JSON)
     template = _load(TEMPLATE)
 
     assert evidence["target_bus"] == "B26"
-    assert evidence["fault_b26_temp_found"] is False
+    assert evidence["fault_b26_temp_found"] is True
+    assert evidence["fault_b26_temp_connected_in_parallel"] is True
+    assert evidence["selected_fault_block_path"] == "Grid/Fault_B26_TEMP"
     assert evidence["observed_parallel_fault_connected_to_b26"] is True
     assert evidence["update_diagram_attempted"] is True
     assert evidence["update_diagram_success"] is True
-    assert evidence["human_verified_injection_point"] is False
-    assert evidence["safe_to_run_smoke_recommendation"] is False
+    assert evidence["human_verified_injection_point"] is True
+    assert evidence["safe_to_run_smoke_recommendation"] is True
     assert evidence["simulink_smoke_run"] is False
     assert evidence["smoke_success"] is False
     assert evidence["labels_exported"] is False
@@ -45,18 +47,23 @@ def test_b26_evidence_failure_branch_is_consistent():
     assert evidence["reranker_retrained"] is False
     assert evidence["old_formal_gate"] == "35 / 33 / 33"
     assert evidence["v2_plus_b39_count"] == 41
-    assert evidence["failed_checks"]
+    assert evidence["failed_checks"] == []
 
-    assert summary["recommendation"] == "do_not_run_smoke"
-    assert summary["failed_checks"]
-    assert summary["human_verified_injection_point"] is False
-    assert summary["safe_to_run_smoke_recommendation"] is False
+    assert summary["recommendation"] == "manual_review_supports_next_round_inventory_update"
+    assert summary["failed_checks"] == []
+    assert summary["human_verified_injection_point"] is True
+    assert summary["safe_to_run_smoke_recommendation"] is True
+    assert summary["simulink_run"] is False
+    assert summary["smoke_success"] is False
+    assert summary["labels_exported"] is False
+    assert summary["gcn_trained"] is False
+    assert summary["reranker_retrained"] is False
 
-    assert template["human_verified_injection_point"] is False
-    assert template["safe_to_run_smoke_recommendation"] is False
-    assert template["human_verified"] is False
+    assert template["human_verified_injection_point"] is True
+    assert template["safe_to_run_smoke_recommendation"] is True
+    assert template["human_verified"] is True
     assert template["update_diagram_success"] is True
-    assert template["selected_fault_block_path"] == ""
+    assert template["selected_fault_block_path"] == "Grid/Fault_B26_TEMP"
 
 
 def test_b26_verified_branch_requirements_are_guarded_if_status_changes():

@@ -16,11 +16,11 @@ labels back to the main GCN/reranker workflow.
 ## Current B26 Status
 
 - B26 is the next priority bus-fault sample.
-- B26 remains unverified.
+- B26 has a human-verified injection point after the rename recheck.
 - B26 is not smoke success.
 - B26 is not a candidate label.
-- `human_verified_injection_point = false`
-- `safe_to_run_smoke_recommendation = false`
+- `human_verified_injection_point = true`
+- `safe_to_run_smoke_recommendation = true`
 
 ## Manual Review Evidence Result
 
@@ -42,6 +42,21 @@ checked temporary model. Therefore B26 remains unverified:
 
 The review result is recorded in
 `docs/ieee39_b26_manual_bus_fault_review_result.md`.
+
+Round 58 re-collected the evidence after the user renamed the temporary block.
+The checked temporary copy now contains `Grid/Fault_B26_TEMP`, connected in
+parallel to `Grid/B25 to B26`, `Grid/Bus26_1`, and `Grid/Bus26_2`. Update
+Diagram passed again. Therefore B26 now has a human-verified injection point
+and may proceed to a separate readiness gate in the next round.
+
+- `human_verified_injection_point = true`
+- `safe_to_run_smoke_recommendation = true`
+- `selected_fault_block_path = Grid/Fault_B26_TEMP`
+- B26 is still not smoke success.
+- B26 is still not a candidate label.
+- no labels were exported.
+- no GCN was trained.
+- no reranker was retrained.
 
 ## Candidate Blocks To Inspect
 

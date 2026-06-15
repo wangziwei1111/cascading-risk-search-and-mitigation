@@ -2959,6 +2959,48 @@ Artifacts:
 The model remains `phasor_RMS`, not EMT. `generator_speed_proxy` is not direct
 frequency. Temporary bus-fault injection is not engineering-grade protection.
 
+## Round 58: B26 Manual Bus-Fault Rename Recheck
+
+This round re-collects B26 manual evidence after the user renamed the temporary
+fault block to `Grid/Fault_B26_TEMP` in the ignored temporary local copy. It
+does not run Simulink smoke, does not submit `.slx`, does not modify source
+`.slx`, does not export labels, does not train GCN, and does not retrain the
+reranker.
+
+Checked B26 result:
+
+```text
+target_bus = B26
+Grid/Fault_B26_TEMP found = true
+selected_fault_block_path = Grid/Fault_B26_TEMP
+selected_injection_block_path = Grid/Bus26_1 and Grid/Bus26_2 shared physical B26 node
+update_diagram_attempted = true
+update_diagram_success = true
+human_verified_injection_point = true
+safe_to_run_smoke_recommendation = true
+B26 smoke success = false
+B26 candidate label exported = false
+old formal gate = 35 / 33 / 33
+v2-plus-B39 count = 41
+```
+
+Interpretation: `Grid/Fault_B26_TEMP` is now present and connected in parallel
+to the B26 physical node shared by `Grid/B25 to B26`, `Grid/Bus26_1`, and
+`Grid/Bus26_2`. The old `Grid/Fault (Three-Phase)` remains near B16. B26 can
+proceed to a separate readiness gate in the next round, but it is still not
+smoke success and is not a candidate label.
+
+Artifacts:
+
+- `docs/ieee39_b26_manual_bus_fault_review_result.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/b26_manual_connection_evidence.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/b26_manual_connection_evidence.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary_B26.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary_B26.md`
+
+The model remains `phasor_RMS`, not EMT. `generator_speed_proxy` is not direct
+frequency. Temporary bus-fault injection is not engineering-grade protection.
+
 ## Round 57: B26 Manual Bus-Fault Review Evidence
 
 This round only records B26 manual GUI review evidence. It does not run

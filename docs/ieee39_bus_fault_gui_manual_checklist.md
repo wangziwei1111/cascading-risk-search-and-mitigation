@@ -109,7 +109,9 @@ run. This checklist itself is not smoke success.
 - The v2-plus-B39 count remains `41`.
 - B39 has a human-verified injection point.
 - B39 is not smoke success.
-- B26 remains unverified.
+- B26 has a human-verified injection point after the rename recheck.
+- B26 is not smoke success.
+- B26 is not a candidate label.
 - The model remains phasor_RMS, not EMT.
 - `generator_speed_proxy` is not direct frequency.
 - Relay proxy / handwired breaker behavior is not engineering-grade protection.
@@ -131,11 +133,10 @@ The B26-specific plan is in
 
 ## B26 Manual Review Evidence Result
 
-B26 manual review evidence has been recorded, but B26 still remains
-unverified. Update Diagram passed for the checked temporary copy, and an
-observed B26 parallel fault block `Grid/Fault (Three-Phase)1` was connected to
-the B26 physical node. The required named block `Grid/Fault_B26_TEMP` was not
-found, so the checklist does not support smoke yet.
+B26 manual review evidence has been re-collected after the temporary fault
+block was renamed. Update Diagram passed for the checked temporary copy, and
+`Grid/Fault_B26_TEMP` is connected in parallel to the B26 physical node shared
+by `Grid/B25 to B26`, `Grid/Bus26_1`, and `Grid/Bus26_2`.
 
 - B26 is not smoke success.
 - B26 candidate label has not been exported.
@@ -144,4 +145,5 @@ found, so the checklist does not support smoke yet.
 - The model remains `phasor_RMS`, not EMT.
 - `generator_speed_proxy` is not direct frequency.
 
-See `docs/ieee39_b26_manual_bus_fault_review_result.md`.
+The next step is a separate B26 readiness gate before any temporary smoke. See
+`docs/ieee39_b26_manual_bus_fault_review_result.md`.

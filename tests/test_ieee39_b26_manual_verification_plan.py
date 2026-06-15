@@ -19,10 +19,10 @@ def test_b26_manual_plan_doc_exists_and_keeps_b26_unverified():
     text = PLAN_DOC.read_text(encoding="utf-8").lower()
     assert PLAN_DOC.exists()
     assert "b26 is the next priority bus-fault sample" in text
-    assert "b26 remains unverified" in text
+    assert "b26 has a human-verified injection point" in text
     assert "b26 is not smoke success" in text
     assert "b26 is not a candidate label" in text
-    assert "grid/fault_b26_temp` was not found" in text
+    assert "grid/fault_b26_temp" in text
     assert "update diagram passed" in text
     for required in [
         "grid/bus26_1",
@@ -43,19 +43,19 @@ def test_b26_manual_plan_doc_exists_and_keeps_b26_unverified():
 def test_b26_review_template_remains_unverified():
     payload = json.loads(TEMPLATE.read_text(encoding="utf-8"))
     assert payload["target_bus"] == "B26"
-    assert payload["human_verified_injection_point"] is False
-    assert payload["safe_to_run_smoke_recommendation"] is False
+    assert payload["human_verified_injection_point"] is True
+    assert payload["safe_to_run_smoke_recommendation"] is True
     assert payload["update_diagram_success"] is True
-    assert payload["human_verified"] is False
+    assert payload["human_verified"] is True
     assert payload["suggested_fault_block_name"] == "Grid/Fault_B26_TEMP"
     assert payload["suggested_fault_start_s"] == 0.5
     assert payload["suggested_duration_s"] == 0.08
     assert "Grid/Bus26_1" in payload["candidate_busbar_paths"]
     assert "Grid/Bus26_2" in payload["candidate_busbar_paths"]
-    assert payload["expected_fault_block_found"] is False
+    assert payload["expected_fault_block_found"] is True
     assert payload["observed_parallel_fault_connected_to_b26"] is True
-    assert payload["observed_parallel_fault_block_path"] == "Grid/Fault (Three-Phase)1"
-    assert "Grid/Fault_B26_TEMP" in payload["next_action"]
+    assert payload["observed_parallel_fault_block_path"] == "Grid/Fault_B26_TEMP"
+    assert "readiness" in payload["next_action"].lower()
 
 
 def test_b26_manual_commands_exist_and_do_not_run_simulation():
