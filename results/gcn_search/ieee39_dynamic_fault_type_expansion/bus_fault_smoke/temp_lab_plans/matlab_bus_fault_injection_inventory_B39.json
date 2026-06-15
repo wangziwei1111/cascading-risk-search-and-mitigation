@@ -1,0 +1,36 @@
+{
+  "target_bus": "B39",
+  "temp_model_path": "C:/Users/24186/Documents/New project 7/simulink-dynamic-validation-worktree/results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/local_lab_copies/IEEE39BusSystem_dynamic_experiment_wrapper_bus_fault_B39_TEMP_LOCAL_ONLY.slx",
+  "source_model_modified": false,
+  "injection_point_found": false,
+  "candidate_block_paths": [
+    "IEEE39BusSystem_dynamic_experiment_wrapper_bus_fault_B39_TEMP_LOCAL_ONLY/Generators/Gen1@Bus39",
+    "IEEE39BusSystem_dynamic_experiment_wrapper_bus_fault_B39_TEMP_LOCAL_ONLY/Grid/B39 to B1",
+    "IEEE39BusSystem_dynamic_experiment_wrapper_bus_fault_B39_TEMP_LOCAL_ONLY/Grid/B9 to B39",
+    "IEEE39BusSystem_dynamic_experiment_wrapper_bus_fault_B39_TEMP_LOCAL_ONLY/Grid/Bus39",
+    "IEEE39BusSystem_dynamic_experiment_wrapper_bus_fault_B39_TEMP_LOCAL_ONLY/Grid/GB39B1F",
+    "IEEE39BusSystem_dynamic_experiment_wrapper_bus_fault_B39_TEMP_LOCAL_ONLY/Grid/GB39B1T",
+    "IEEE39BusSystem_dynamic_experiment_wrapper_bus_fault_B39_TEMP_LOCAL_ONLY/Grid/GB9B39F",
+    "IEEE39BusSystem_dynamic_experiment_wrapper_bus_fault_B39_TEMP_LOCAL_ONLY/Grid/GB9B39T"
+  ],
+  "candidate_line_paths_or_handles": [
+    "IEEE39BusSystem_dynamic_experiment_wrapper_bus_fault_B39_TEMP_LOCAL_ONLY/Generators/Gen1@Bus39",
+    "IEEE39BusSystem_dynamic_experiment_wrapper_bus_fault_B39_TEMP_LOCAL_ONLY/Grid/B39 to B1",
+    "IEEE39BusSystem_dynamic_experiment_wrapper_bus_fault_B39_TEMP_LOCAL_ONLY/Grid/B9 to B39",
+    "IEEE39BusSystem_dynamic_experiment_wrapper_bus_fault_B39_TEMP_LOCAL_ONLY/Grid/Bus39",
+    "IEEE39BusSystem_dynamic_experiment_wrapper_bus_fault_B39_TEMP_LOCAL_ONLY/Grid/GB39B1F",
+    "IEEE39BusSystem_dynamic_experiment_wrapper_bus_fault_B39_TEMP_LOCAL_ONLY/Grid/GB39B1T",
+    "IEEE39BusSystem_dynamic_experiment_wrapper_bus_fault_B39_TEMP_LOCAL_ONLY/Grid/GB9B39F",
+    "IEEE39BusSystem_dynamic_experiment_wrapper_bus_fault_B39_TEMP_LOCAL_ONLY/Grid/GB9B39T"
+  ],
+  "proposed_fault_block_path": "IEEE39BusSystem_dynamic_experiment_wrapper_bus_fault_B39_TEMP_LOCAL_ONLY/Grid/Fault (Three-Phase)",
+  "fault_block_added_to_temp_copy": false,
+  "fault_timing_configured": false,
+  "compile_or_update_diagram_success": true,
+  "error_or_warning": "Candidate blocks were inventoried, but no safe automatic physical bus terminal wiring rule is verified.",
+  "manual_review_required": true,
+  "safe_to_run_smoke": false,
+  "fault_start_s": 0.5,
+  "fault_clear_s": 0.58,
+  "duration_s": 0.07999999999999996
+}

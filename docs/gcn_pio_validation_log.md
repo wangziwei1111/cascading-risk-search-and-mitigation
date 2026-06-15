@@ -2492,3 +2492,58 @@ scenario_ids_timeout = none
 The audit found that the current scripts can configure timing on the existing `Fault (Three-Phase)` block, but do not expose a safe target-bus selector for B16, B39, B21, or B26. Therefore the runner did not force a Simulink execution. No source `.slx` was modified or committed. L12 remains excluded.
 
 The old formal gate remains `35 / 33 / 33`, the v2 candidate count remains `40`, no labels were exported, no GCN was trained, and the reranker was not retrained. The model remains `phasor_RMS`, not EMT; `generator_speed_proxy` is not direct frequency; relay proxy / handwired breaker is not engineering-grade protection. RL mitigation files were not modified.
+
+## Round 47: IEEE39 Bus-Fault Temporary Lab Injection
+
+This round prepares a temporary-lab injection workflow for different-bus
+three-phase faults. It prioritizes `B39` and uses `B26` as the fallback target.
+The goal is to find a safe physical bus injection point on an ignored local copy
+before any smoke simulation is allowed.
+
+Generated artifacts:
+
+- `scripts/gcn_search/prepare_ieee39_bus_fault_temp_lab.py`
+- `scripts/gcn_search/run_ieee39_bus_fault_temp_lab_smoke.py`
+- `matlab/simulink_ieee39/prepare_ieee39_bus_fault_temp_lab_copy.m`
+- `docs/ieee39_bus_fault_temp_lab_injection.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_temp_lab_B39_plan.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/matlab_bus_fault_injection_inventory_B39.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_temp_lab_B26_plan.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/matlab_bus_fault_injection_inventory_B26.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_temp_lab_feasibility_summary.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_bus_fault_temp_lab_smoke_report.json`
+
+Result:
+
+```text
+B39 injection_point_found = false
+B39 safe_to_run_smoke = false
+B26 injection_point_found = false
+B26 safe_to_run_smoke = false
+B39 smoke_executed = false
+smoke_not_run_reason = safe_to_run_smoke=false; refusing execution
+```
+
+The MATLAB helper loaded and updated only the temporary local copies, then
+closed them without saving. It inventoried nearby target-bus candidate blocks
+but did not add or wire a three-phase fault block.
+
+Boundaries:
+
+- No source `.slx` was modified or committed.
+- No temporary `.slx` was committed.
+- No full Simulink smoke simulation was executed.
+- L12 was not touched or fixed.
+- No labels were exported.
+- No GCN was trained.
+- The dynamic-aware reranker was not retrained.
+- The old formal gate remains `35 / 33 / 33`.
+- The v2 candidate count remains `40`.
+- The model remains `phasor_RMS`, not EMT.
+- `generator_speed_proxy` is not direct frequency.
+- Relay proxy / handwired breaker behavior is not engineering-grade protection.
+- RL mitigation files were not modified.
+
+Next step: manually identify a safe physical bus injection point for B39 or
+B26. If a later temporary lab smoke succeeds, export bus-fault candidate labels
+in a separate round; otherwise continue injection-point work and do not train.

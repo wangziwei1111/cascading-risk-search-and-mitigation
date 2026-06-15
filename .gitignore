@@ -16,6 +16,14 @@ results/gcn_search/**/*.slx
 results/gcn_search/**/*.slxc
 results/gcn_search/**/*.mat
 results/gcn_search/**/*.mdl
+results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/local_lab_copies/
+results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_slx/
+results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/slprj/
+results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/**/*.slx
+results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/**/*.slxc
+results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/**/*.mat
+results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/**/raw_trajectories/
+results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/**/full_timeseries/
 results/gcn_search/**/scenario_checkpoints/
 results/gcn_search/**/*order.csv
 results/gcn_search/**/*curve.csv

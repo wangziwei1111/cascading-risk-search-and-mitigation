@@ -1,0 +1,16 @@
+{
+  "preview_only": true,
+  "target_bus": "B39",
+  "safe_to_run_smoke": false,
+  "smoke_executed": false,
+  "smoke_not_run_reason": "safe_to_run_smoke=false; refusing execution",
+  "source_slx_modified": false,
+  "temporary_slx_committed": false,
+  "formal_label_gate_changed": false,
+  "v2_candidate_count_changed": false,
+  "reranker_retrained": false,
+  "gcn_trained": false,
+  "labels_exported": false,
+  "l12_touched": false,
+  "summary_csv": "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_bus_fault_temp_lab_smoke_summary.csv"
+}

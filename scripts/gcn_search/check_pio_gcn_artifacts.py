@@ -79,6 +79,7 @@ REQUIRED_FILES = [
     "matlab/simulink_ieee39/inventory_ieee39_simlog_tree.m",
     "matlab/simulink_ieee39/extract_ieee39_signal_summary.m",
     "matlab/simulink_ieee39/run_ieee39_fault_test_suite.m",
+    "matlab/simulink_ieee39/prepare_ieee39_bus_fault_temp_lab_copy.m",
     "src/gcn_search/legacy_rts79/prepare_real_topk_for_simulink_dynamic.py",
     "src/gcn_search/legacy_rts79/prepare_dynamic_method_comparison_topk.py",
     "src/gcn_search/legacy_rts79/export_path_reranker_per_path_ranking.py",
@@ -108,6 +109,8 @@ REQUIRED_FILES = [
     "scripts/gcn_search/compare_ieee39_dynamic_aware_v2_preview_runs.py",
     "scripts/gcn_search/audit_ieee39_bus_fault_injection_points.py",
     "scripts/gcn_search/run_ieee39_bus_fault_smoke_tests.py",
+    "scripts/gcn_search/prepare_ieee39_bus_fault_temp_lab.py",
+    "scripts/gcn_search/run_ieee39_bus_fault_temp_lab_smoke.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trip_isolated.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py",
     "scripts/gcn_search/update_ieee39_line_breaker_map_from_inventory.py",
@@ -248,6 +251,7 @@ REQUIRED_FILES = [
     "docs/ieee39_non_line_trip_label_export.md",
     "docs/ieee39_dynamic_aware_reranker_v2_preview_training.md",
     "docs/ieee39_bus_fault_smoke_tests.md",
+    "docs/ieee39_bus_fault_temp_lab_injection.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -309,6 +313,19 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/ieee39_bus_fault_smoke_test_summary.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/ieee39_bus_fault_smoke_test_report.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/ieee39_bus_fault_smoke_test_report.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_temp_lab_B39_plan.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_temp_lab_B39_plan.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/matlab_bus_fault_injection_inventory_B39.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/matlab_bus_fault_injection_inventory_B39.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_temp_lab_B26_plan.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_temp_lab_B26_plan.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/matlab_bus_fault_injection_inventory_B26.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/matlab_bus_fault_injection_inventory_B26.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_temp_lab_feasibility_summary.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_temp_lab_feasibility_summary.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_bus_fault_temp_lab_smoke_summary.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_bus_fault_temp_lab_smoke_report.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_bus_fault_temp_lab_smoke_report.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -1158,6 +1175,150 @@ def main() -> int:
         ]:
             if required not in text:
                 failures.append(f"Bus-fault smoke doc missing: {required}")
+
+    temp_lab_dir = bus_fault_dir / "temp_lab_plans"
+    temp_lab_smoke_dir = bus_fault_dir / "temp_lab_smoke_outputs"
+    temp_summary = temp_lab_dir / "ieee39_bus_fault_temp_lab_feasibility_summary.json"
+    temp_smoke_report = temp_lab_smoke_dir / "ieee39_bus_fault_temp_lab_smoke_report.json"
+    if temp_summary.exists():
+        try:
+            import json
+
+            summary = json.loads(temp_summary.read_text(encoding="utf-8"))
+            if summary.get("preview_only") is not True:
+                failures.append("Bus-fault temp-lab summary must set preview_only=true.")
+            if summary.get("target_buses_attempted") != ["B26", "B39"]:
+                failures.append("Bus-fault temp-lab summary must record B26/B39 attempts.")
+            for key in [
+                "target_buses_with_injection_point_found",
+                "target_buses_safe_to_run_smoke",
+                "target_buses_smoke_successful",
+                "target_buses_smoke_failed",
+            ]:
+                if summary.get(key) != []:
+                    failures.append(f"Bus-fault temp-lab summary must keep {key} empty.")
+            for key in [
+                "source_slx_modified",
+                "source_slx_committed",
+                "temporary_slx_committed",
+                "formal_label_gate_changed",
+                "v2_candidate_count_changed",
+                "reranker_retrained",
+                "gcn_trained",
+                "labels_exported",
+                "l12_touched",
+            ]:
+                if summary.get(key) is not False:
+                    failures.append(f"Bus-fault temp-lab summary must record {key}=false.")
+            if summary.get("old_formal_gate") != "35 / 33 / 33":
+                failures.append("Bus-fault temp-lab summary must preserve old formal gate 35 / 33 / 33.")
+            if summary.get("v2_candidate_count") != 40:
+                failures.append("Bus-fault temp-lab summary must preserve v2 candidate count 40.")
+
+            for target_bus in ["B39", "B26"]:
+                plan_path = temp_lab_dir / f"ieee39_bus_fault_temp_lab_{target_bus}_plan.json"
+                inventory_path = temp_lab_dir / f"matlab_bus_fault_injection_inventory_{target_bus}.json"
+                if not plan_path.exists() or not inventory_path.exists():
+                    failures.append(f"Bus-fault temp-lab missing plan/inventory for {target_bus}.")
+                    continue
+                plan = json.loads(plan_path.read_text(encoding="utf-8"))
+                inventory = json.loads(inventory_path.read_text(encoding="utf-8"))
+                if plan.get("target_bus") != target_bus or inventory.get("target_bus") != target_bus:
+                    failures.append(f"Bus-fault temp-lab target bus mismatch for {target_bus}.")
+                for key in [
+                    "source_slx_modified",
+                    "source_slx_committed",
+                    "temporary_slx_committed",
+                    "reranker_retrained",
+                    "gcn_trained",
+                    "labels_exported",
+                    "l12_touched",
+                ]:
+                    if plan.get(key) is not False:
+                        failures.append(f"Bus-fault temp-lab plan {target_bus} must record {key}=false.")
+                if plan.get("temporary_model_is_ignored") is not True:
+                    failures.append(f"Bus-fault temp-lab plan {target_bus} must use ignored temporary model.")
+                if plan.get("formal_label_gate") != "35 / 33 / 33":
+                    failures.append(f"Bus-fault temp-lab plan {target_bus} must preserve old formal gate.")
+                if plan.get("v2_candidate_count") != 40:
+                    failures.append(f"Bus-fault temp-lab plan {target_bus} must preserve v2 candidate count.")
+                if inventory.get("source_model_modified") is not False:
+                    failures.append(f"Bus-fault temp-lab inventory {target_bus} must keep source model unchanged.")
+                if inventory.get("injection_point_found") is not False:
+                    failures.append(f"Bus-fault temp-lab inventory {target_bus} must not claim injection point found.")
+                if inventory.get("fault_block_added_to_temp_copy") is not False:
+                    failures.append(f"Bus-fault temp-lab inventory {target_bus} must not add fault block.")
+                if inventory.get("safe_to_run_smoke") is not False:
+                    failures.append(f"Bus-fault temp-lab inventory {target_bus} must not allow smoke yet.")
+                if inventory.get("manual_review_required") is not True:
+                    failures.append(f"Bus-fault temp-lab inventory {target_bus} must require manual review.")
+                if not inventory.get("candidate_block_paths"):
+                    failures.append(f"Bus-fault temp-lab inventory {target_bus} must include candidate blocks.")
+        except Exception as exc:
+            failures.append(f"Failed to read bus-fault temp-lab artifacts: {exc}")
+
+    if temp_smoke_report.exists():
+        try:
+            import json
+
+            report = json.loads(temp_smoke_report.read_text(encoding="utf-8"))
+            if report.get("preview_only") is not True:
+                failures.append("Bus-fault temp-lab smoke report must set preview_only=true.")
+            if report.get("target_bus") != "B39":
+                failures.append("Bus-fault temp-lab smoke report must be the B39 dry-run report.")
+            if report.get("safe_to_run_smoke") is not False:
+                failures.append("Bus-fault temp-lab smoke report must record safe_to_run_smoke=false.")
+            if report.get("smoke_executed") is not False:
+                failures.append("Bus-fault temp-lab smoke report must refuse execution.")
+            if "safe_to_run_smoke=false" not in str(report.get("smoke_not_run_reason", "")):
+                failures.append("Bus-fault temp-lab smoke report must explain safe_to_run_smoke=false.")
+            for key in [
+                "source_slx_modified",
+                "temporary_slx_committed",
+                "formal_label_gate_changed",
+                "v2_candidate_count_changed",
+                "reranker_retrained",
+                "gcn_trained",
+                "labels_exported",
+                "l12_touched",
+            ]:
+                if report.get(key) is not False:
+                    failures.append(f"Bus-fault temp-lab smoke report must record {key}=false.")
+        except Exception as exc:
+            failures.append(f"Failed to read bus-fault temp-lab smoke report: {exc}")
+
+    temp_lab_doc = ROOT / "docs/ieee39_bus_fault_temp_lab_injection.md"
+    if temp_lab_doc.exists():
+        text = _read_text("docs/ieee39_bus_fault_temp_lab_injection.md").lower()
+        for required in [
+            "temporary lab",
+            "b39",
+            "b26",
+            "injection point found",
+            "safe to run smoke",
+            "no gcn was trained",
+            "reranker was not retrained",
+            "no labels were exported",
+            "old formal label gate remains `35 / 33 / 33`",
+            "v2 candidate count remains `40`",
+            "phasor_rms, not emt",
+            "generator_speed_proxy",
+            "not direct frequency",
+            "not engineering-grade protection",
+        ]:
+            if required not in text:
+                failures.append(f"Bus-fault temp-lab doc missing: {required}")
+        for bad in [
+            "returned to the full gcn pipeline",
+            "trained gcn",
+            "reranker was retrained",
+            "updated the formal label gate",
+            "exported bus-fault labels",
+            "emt validation completed",
+            "engineering-grade protection completed",
+        ]:
+            if bad in text:
+                failures.append(f"Bus-fault temp-lab doc contains overstatement: {bad}")
 
     non_line_export_dir = non_line_dir / "non_line_trip_label_export"
     non_line_candidates = non_line_export_dir / "ieee39_non_line_trip_dynamic_label_candidates.csv"

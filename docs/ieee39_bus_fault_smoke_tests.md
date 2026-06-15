@@ -65,3 +65,21 @@ smoke case then succeeds with `measurement_extraction_status =
 voltage_speed_angle` and `frequency=generator_speed_proxy`, export bus-fault
 candidate labels in a separate round. If it does not succeed, do not force
 training.
+
+## Temporary Lab Follow-Up
+
+A follow-up temporary-lab workflow now prioritizes `B39` and uses `B26` as the
+fallback target. The workflow copies the source `.slx` only into an ignored
+local lab directory, inventories nearby target-bus blocks, and refuses smoke
+simulation unless a verified safe physical bus terminal wiring rule is found.
+
+Current result:
+
+- `B39`: candidate blocks were inventoried, but no safe injection point was
+  verified; `safe_to_run_smoke = false`.
+- `B26`: candidate blocks were inventoried, but no safe injection point was
+  verified; `safe_to_run_smoke = false`.
+
+No source `.slx` was modified or committed, no temporary `.slx` was committed,
+no labels were exported, no GCN was trained, and the dynamic-aware reranker was
+not retrained.
