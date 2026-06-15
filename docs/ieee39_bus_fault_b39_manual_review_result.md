@@ -101,3 +101,14 @@ The dry-run status is `ready_for_next_round_temp_smoke`. This means B39 may
 enter the next separate temporary smoke round. It does not export labels, does
 not train GCN, does not retrain the reranker, and still does not change the
 formal label gate or v2 candidate count.
+
+## Temporary Smoke Follow-Up
+
+The actual B39 temporary smoke was later run from the ignored local temporary
+copy. It produced `simulation_success = true` and
+`measurement_extraction_status = voltage_speed_angle`, with
+`frequency=generator_speed_proxy` in the signal source summary.
+
+This is only a temporary smoke candidate. It is not a formal label export, not
+GCN training, not reranker retraining, not an update to the old formal gate, and
+not an update to the v2 candidate count.

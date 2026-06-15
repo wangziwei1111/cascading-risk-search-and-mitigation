@@ -122,3 +122,22 @@ The dry-run result is `ready_for_next_round_temp_smoke`, with
 `labels_exported = false`, `gcn_trained = false`, and
 `reranker_retrained = false`. The old formal gate remains `35 / 33 / 33`, and
 the v2 candidate count remains `40`.
+
+## Actual B39 Temporary Smoke
+
+The actual B39 temporary smoke was run after the readiness gate. It used only
+the ignored local temporary copy and wrote:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_bus_fault_temp_lab_smoke_summary.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_bus_fault_temp_lab_smoke_report.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_bus_fault_temp_lab_smoke_report.md`
+
+The smoke result is `simulation_success = true`,
+`measurement_extraction_status = voltage_speed_angle`, and
+`training_ready_candidate_smoke = true`. The signal source summary includes
+`frequency=generator_speed_proxy`.
+
+This remains a temporary smoke candidate only. `labels_exported = false`,
+`gcn_trained = false`, `reranker_retrained = false`, the source `.slx` was not
+modified, L12 was not touched, the old formal gate remains `35 / 33 / 33`, and the v2
+candidate count remains `40`.

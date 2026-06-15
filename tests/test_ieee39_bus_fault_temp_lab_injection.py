@@ -99,13 +99,15 @@ def test_temp_lab_feasibility_summary_records_no_training_or_gate_change() -> No
     assert payload["l12_touched"] is False
 
 
-def test_temp_lab_smoke_refuses_when_not_safe() -> None:
+def test_temp_lab_smoke_preserves_boundaries() -> None:
     payload = _load_json(SMOKE / "ieee39_bus_fault_temp_lab_smoke_report.json")
     assert payload["preview_only"] is True
     assert payload["target_bus"] == "B39"
     assert payload["safe_to_run_smoke"] is False
-    assert payload["smoke_executed"] is False
-    if payload.get("human_readiness_used"):
+    if payload.get("smoke_executed"):
+        assert payload["human_readiness_ready"] is True
+        assert payload["scenario_ids_requested"] == ["BF_B39_TEMP_SMOKE"]
+    elif payload.get("human_readiness_used"):
         assert payload["human_readiness_ready"] is True
         assert payload["smoke_not_run_reason"] == "ready_for_next_round_temp_smoke"
     else:

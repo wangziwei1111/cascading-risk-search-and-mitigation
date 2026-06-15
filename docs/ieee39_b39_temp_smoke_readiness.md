@@ -67,3 +67,19 @@ The dry-run status is:
 
 Recommended next step: run the actual B39 temporary smoke in a separate round,
 still without exporting labels or training until the smoke output is reviewed.
+
+## Actual Smoke Follow-Up
+
+The actual B39 temporary smoke was run in the follow-up round using only the
+ignored local temporary `.slx` copy. The run succeeded as a temporary smoke
+candidate:
+
+- scenario_id: `BF_B39_TEMP_SMOKE`
+- simulation_success: `true`
+- measurement_extraction_status: `voltage_speed_angle`
+- training_ready_candidate_smoke: `true`
+- signal_source_summary includes `frequency=generator_speed_proxy`
+
+This still does not export labels, train GCN, retrain the reranker, update the
+formal label gate, or update the v2 candidate count. See
+`docs/ieee39_b39_temporary_bus_fault_smoke.md`.

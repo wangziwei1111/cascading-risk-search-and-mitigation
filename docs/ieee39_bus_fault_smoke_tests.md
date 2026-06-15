@@ -109,3 +109,10 @@ smoke success, not a formal label export, not GCN training, and not reranker
 retraining. `phasor_RMS` is not EMT, `generator_speed_proxy` is not direct
 frequency, and the temporary bus-fault injection is not engineering-grade
 protection.
+
+The actual B39 temporary smoke was then run from the ignored local temporary
+copy. It produced `simulation_success = true`,
+`measurement_extraction_status = voltage_speed_angle`, and
+`training_ready_candidate_smoke = true`, with
+`frequency=generator_speed_proxy` in the signal source summary. This is still
+only a temporary smoke candidate and is not yet merged into formal labels.

@@ -6,6 +6,7 @@ import argparse
 import csv
 import json
 import math
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -70,9 +71,13 @@ def _write_outputs(out_dir: Path, row: dict[str, Any], report: dict[str, Any]) -
         "This report is preview-only and not a final dynamic performance conclusion.",
         "",
         f"- target_bus: `{row['target_bus']}`",
+        f"- smoke_executed: `{report['smoke_executed']}`",
         f"- simulation_success: `{row['simulation_success']}`",
+        f"- measurement_extraction_status: `{row['measurement_extraction_status']}`",
+        f"- training_ready_candidate_smoke: `{row['training_ready_candidate_smoke']}`",
         f"- safe_to_run_smoke: `{report['safe_to_run_smoke']}`",
         f"- smoke_not_run_reason: `{report.get('smoke_not_run_reason', '')}`",
+        f"- recommended_next_step: `{report.get('recommended_next_step', '')}`",
         "- no labels exported",
         "- no training run",
     ]
@@ -105,6 +110,127 @@ def _write_b39_readiness_outputs(out_dir: Path, report: dict[str, Any]) -> None:
         "but B39 is still not smoke success.",
     ]
     (out_dir / "ieee39_b39_temp_smoke_dry_run_readiness.md").write_text("\n".join(md) + "\n", encoding="utf-8")
+
+
+def _matlab_path(path: Path) -> str:
+    return path.resolve().as_posix().replace("'", "''")
+
+
+def _boolish(value: Any) -> bool:
+    return str(value).strip().lower() in {"1", "true", "yes"}
+
+
+def _float_or_nan(value: Any) -> float:
+    try:
+        if value is None or str(value).strip() == "":
+            return math.nan
+        return float(value)
+    except (TypeError, ValueError):
+        return math.nan
+
+
+def _write_actual_matlab_script(
+    out_dir: Path,
+    temp_model: Path,
+    fault_start_s: float,
+    duration_s: float,
+    simulation_stop_time: float,
+) -> Path:
+    script_path = out_dir / "run_BF_B39_TEMP_SMOKE.m"
+    matlab_dir = ROOT / "matlab/simulink_ieee39"
+    model_text = _matlab_path(temp_model)
+    out_text = _matlab_path(out_dir)
+    script = f"""
+cd('{_matlab_path(matlab_dir)}');
+addpath('{_matlab_path(matlab_dir)}');
+configure_ieee39_short_filegen_paths();
+if ~exist('{out_text}', "dir")
+    mkdir('{out_text}');
+end
+success = false;
+physicalExecuted = false;
+note = "";
+simOut = [];
+try
+    load_system('{model_text}');
+    [~, modelName, ~] = fileparts('{model_text}');
+    faultBlock = string(modelName) + "/Grid/Fault_B39_TEMP";
+    set_param(faultBlock, "enable_temporal_fault", "1");
+    set_param(faultBlock, "fault_start_time", "{fault_start_s:.6f}");
+    set_param(faultBlock, "fault_duration", "{duration_s:.6f}");
+    simOut = sim(modelName, "StopTime", "{simulation_stop_time:.6f}");
+    success = true;
+    physicalExecuted = true;
+    note = "B39 temporary local-copy bus-fault smoke executed";
+    close_system(modelName, 0);
+catch ME
+    note = "simulation failed: " + string(ME.message);
+    try
+        [~, modelName, ~] = fileparts('{model_text}');
+        close_system(modelName, 0);
+    catch
+    end
+end
+if success
+    signalSummary = extract_ieee39_signal_summary(simOut, "BF_B39_TEMP_SMOKE", '{out_text}');
+else
+    signalSummary = struct();
+    signalSummary.min_voltage_pu = NaN;
+    signalSummary.max_voltage_pu = NaN;
+    signalSummary.min_frequency_hz = NaN;
+    signalSummary.max_frequency_hz = NaN;
+    signalSummary.max_speed_deviation = NaN;
+    signalSummary.max_rotor_angle_separation_deg = NaN;
+    signalSummary.measurement_extraction_status = "simulation_failed";
+    signalSummary.signal_source_summary = "";
+end
+unstable = signalSummary.min_frequency_hz < 49.0 || signalSummary.min_voltage_pu < 0.8 || signalSummary.max_rotor_angle_separation_deg > 180.0;
+summaryTable = table( ...
+    string("BF_B39_TEMP_SMOKE"), string("B39"), {fault_start_s:.6f}, {fault_start_s + duration_s:.6f}, {duration_s:.6f}, ...
+    success, physicalExecuted, string(signalSummary.measurement_extraction_status), ...
+    success && physicalExecuted && string(signalSummary.measurement_extraction_status) == "voltage_speed_angle", string(ternary(~success, note, "")), ...
+    signalSummary.min_voltage_pu, signalSummary.max_voltage_pu, signalSummary.min_frequency_hz, signalSummary.max_frequency_hz, ...
+    signalSummary.max_speed_deviation, signalSummary.max_rotor_angle_separation_deg, unstable, string(signalSummary.signal_source_summary), string(note), ...
+    'VariableNames', {{'scenario_id','target_bus','fault_start_s','fault_clear_s','duration_s','simulation_success','physical_fault_or_breaker_action_executed','measurement_extraction_status','training_ready_candidate_smoke','timeout_or_error_message','min_voltage_pu','max_voltage_pu','min_frequency_hz','max_frequency_hz','max_speed_deviation','max_rotor_angle_separation_deg','unstable_flag','signal_source_summary','note'}} ...
+);
+writetable(summaryTable, fullfile('{out_text}', "ieee39_b39_temp_smoke_matlab_summary.csv"));
+
+function value = ternary(condition, trueValue, falseValue)
+if condition
+    value = trueValue;
+else
+    value = falseValue;
+end
+end
+"""
+    script_path.write_text(script.strip() + "\n", encoding="utf-8")
+    return script_path
+
+
+def _run_matlab(script_path: Path, timeout_seconds: int) -> tuple[str, bool, str]:
+    command = ["matlab", "-batch", f"run('{_matlab_path(script_path)}')"]
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            timeout=timeout_seconds,
+        )
+        return completed.stdout or "", False, "" if completed.returncode == 0 else f"MATLAB exited with code {completed.returncode}"
+    except subprocess.TimeoutExpired as exc:
+        return exc.stdout or "", True, f"MATLAB run timed out after {timeout_seconds} seconds"
+    except FileNotFoundError:
+        return "", False, "MATLAB executable not found on PATH"
+
+
+def _read_matlab_summary(path: Path) -> dict[str, str] | None:
+    if not path.exists():
+        return None
+    with path.open(encoding="utf-8-sig", newline="") as f:
+        rows = list(csv.DictReader(f))
+    return rows[0] if rows else None
 
 
 def _human_readiness_ready(readiness: dict[str, Any]) -> tuple[bool, str]:
@@ -157,6 +283,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     if human_readiness:
         human_ready, reason = _human_readiness_ready(human_readiness)
         safe = human_ready
+    actual_run_allowed = False
     if target_bus not in {"B39", "B26"}:
         reason = "target_bus is not allowed in this round"
         safe = False
@@ -180,11 +307,53 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     elif args.dry_run:
         reason = "ready_for_next_round_temp_smoke" if human_readiness else "dry-run only"
     else:
-        reason = "actual Simulink execution is intentionally disabled in this readiness round"
-        safe = False
+        if human_readiness and human_ready and safe and target_bus == "B39":
+            actual_run_allowed = True
+            reason = ""
+        else:
+            reason = "actual Simulink execution requires B39 human readiness"
+            safe = False
+
+    matlab_summary: dict[str, str] | None = None
+    matlab_stdout = ""
+    matlab_timed_out = False
+    matlab_error = ""
+    if actual_run_allowed:
+        temp_model_path = ROOT / temp_model if not Path(temp_model).is_absolute() else Path(temp_model)
+        script_path = _write_actual_matlab_script(
+            out_dir,
+            temp_model_path,
+            float(human_readiness.get("fault_start_s", plan["fault_start_s"])),
+            float(human_readiness.get("duration_s", plan["duration_s"])),
+            float(args.simulation_stop_time),
+        )
+        matlab_stdout, matlab_timed_out, matlab_error = _run_matlab(script_path, args.timeout_seconds)
+        (out_dir / "matlab_stdout.log").write_text(matlab_stdout, encoding="utf-8", errors="ignore")
+        matlab_summary = _read_matlab_summary(out_dir / "ieee39_b39_temp_smoke_matlab_summary.csv")
+        if matlab_timed_out:
+            reason = matlab_error
+        elif matlab_error:
+            reason = matlab_error
+        elif matlab_summary is None:
+            reason = "MATLAB completed but no B39 smoke summary CSV was written"
+        else:
+            reason = str(matlab_summary.get("timeout_or_error_message", ""))
+
+    simulation_success = bool(matlab_summary and _boolish(matlab_summary.get("simulation_success")))
+    measurement_status = (
+        str(matlab_summary.get("measurement_extraction_status", "")) if matlab_summary else
+        ("simulation_timeout" if matlab_timed_out else ("simulation_failed" if actual_run_allowed else "smoke_not_run"))
+    )
+    signal_source_summary = str(matlab_summary.get("signal_source_summary", "")) if matlab_summary else ""
+    training_ready = bool(
+        simulation_success
+        and measurement_status == "voltage_speed_angle"
+        and "frequency=generator_speed_proxy" in signal_source_summary
+    )
+    scenario_id = "BF_B39_TEMP_SMOKE" if actual_run_allowed else f"TEMP_{target_bus}"
 
     row = {
-        "scenario_id": f"TEMP_{target_bus}",
+        "scenario_id": scenario_id,
         "target_bus": target_bus,
         "fault_start_s": float(plan["fault_start_s"]),
         "fault_clear_s": float(plan["fault_clear_s"]),
@@ -192,29 +361,52 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "temp_model_used": temp_model,
         "source_slx_modified": False,
         "temporary_slx_committed": False,
-        "simulation_success": False,
-        "physical_fault_or_breaker_action_executed": False,
-        "measurement_extraction_status": "smoke_not_run",
-        "training_ready_candidate_smoke": False,
-        "timeout_or_error_message": reason,
-        "min_voltage_pu": math.nan,
-        "max_voltage_pu": math.nan,
-        "min_frequency_hz": math.nan,
-        "max_frequency_hz": math.nan,
-        "max_speed_deviation": math.nan,
-        "max_rotor_angle_separation_deg": math.nan,
-        "unstable_flag": False,
-        "signal_source_summary": "",
-        "note": "temporary lab smoke not run; no labels exported and no training run",
+        "simulation_success": simulation_success,
+        "physical_fault_or_breaker_action_executed": bool(
+            matlab_summary and _boolish(matlab_summary.get("physical_fault_or_breaker_action_executed"))
+        ),
+        "measurement_extraction_status": measurement_status,
+        "training_ready_candidate_smoke": training_ready,
+        "timeout_or_error_message": "" if simulation_success else reason,
+        "min_voltage_pu": _float_or_nan(matlab_summary.get("min_voltage_pu")) if matlab_summary else math.nan,
+        "max_voltage_pu": _float_or_nan(matlab_summary.get("max_voltage_pu")) if matlab_summary else math.nan,
+        "min_frequency_hz": _float_or_nan(matlab_summary.get("min_frequency_hz")) if matlab_summary else math.nan,
+        "max_frequency_hz": _float_or_nan(matlab_summary.get("max_frequency_hz")) if matlab_summary else math.nan,
+        "max_speed_deviation": _float_or_nan(matlab_summary.get("max_speed_deviation")) if matlab_summary else math.nan,
+        "max_rotor_angle_separation_deg": _float_or_nan(matlab_summary.get("max_rotor_angle_separation_deg")) if matlab_summary else math.nan,
+        "unstable_flag": bool(matlab_summary and _boolish(matlab_summary.get("unstable_flag"))),
+        "signal_source_summary": signal_source_summary,
+        "note": (
+            "B39 temporary smoke candidate only; no labels exported and no training run"
+            if actual_run_allowed
+            else "temporary lab smoke not run; no labels exported and no training run"
+        ),
     }
+    requested = [scenario_id]
+    successful = [scenario_id] if training_ready else []
+    timeout = [scenario_id] if measurement_status == "simulation_timeout" else []
+    failed = [] if training_ready else [scenario_id]
     report = {
         "preview_only": True,
         "target_bus": target_bus,
         "safe_to_run_smoke": bool(inventory.get("safe_to_run_smoke", False)),
         "human_readiness_used": bool(human_readiness),
         "human_readiness_ready": bool(human_ready),
-        "smoke_executed": False,
+        "smoke_executed": bool(actual_run_allowed),
+        "simulation_success": simulation_success,
+        "scenario_ids_requested": requested,
+        "scenario_ids_successful": successful,
+        "scenario_ids_failed": failed,
+        "scenario_ids_timeout": timeout,
         "smoke_not_run_reason": reason,
+        "whether_source_slx_modified": False,
+        "whether_temporary_slx_committed": False,
+        "whether_formal_label_gate_changed": False,
+        "whether_v2_candidate_count_changed": False,
+        "whether_labels_exported": False,
+        "whether_gcn_trained": False,
+        "whether_reranker_retrained": False,
+        "whether_l12_touched": False,
         "source_slx_modified": False,
         "temporary_slx_committed": False,
         "formal_label_gate_changed": False,
@@ -223,10 +415,17 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "gcn_trained": False,
         "labels_exported": False,
         "l12_touched": False,
+        "recommended_next_step": (
+            "review B39 smoke output, then export B39 bus-fault candidate label in separate round"
+            if training_ready
+            else "inspect temporary B39 injection / MATLAB error"
+            if actual_run_allowed
+            else "run actual B39 temporary smoke in a separate round"
+        ),
         "summary_csv": _rel(out_dir / "ieee39_bus_fault_temp_lab_smoke_summary.csv"),
     }
     _write_outputs(out_dir, row, report)
-    if human_readiness:
+    if human_readiness and args.dry_run:
         readiness_report = {
             "target_bus": target_bus,
             "dry_run": bool(args.dry_run),

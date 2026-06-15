@@ -2673,3 +2673,49 @@ B39 can enter the next separate actual temporary smoke round. B39 is still not
 smoke success. B26 remains unverified. `phasor_RMS` is not EMT,
 `generator_speed_proxy` is not direct frequency, and the temporary bus-fault
 injection is not engineering-grade protection.
+
+## Round 51: IEEE39 B39 Temporary Bus-Fault Smoke
+
+This round runs one actual B39 temporary smoke from the ignored local temporary
+copy only:
+
+`results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/local_lab_copies/IEEE39BusSystem_dynamic_experiment_wrapper_bus_fault_B39_TEMP_LOCAL_ONLY.slx`
+
+Command:
+
+```bash
+python scripts/gcn_search/run_ieee39_bus_fault_temp_lab_smoke.py --temp-lab-plan results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_temp_lab_B39_plan.json --manual-review-summary results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary.json --human-readiness-json results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_b39_human_verified_readiness.json --target-bus B39 --timeout-seconds 240 --simulation-stop-time 0.8 --output-dir results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs
+```
+
+Result:
+
+```text
+scenario_id = BF_B39_TEMP_SMOKE
+simulation_success = true
+physical_fault_or_breaker_action_executed = true
+measurement_extraction_status = voltage_speed_angle
+training_ready_candidate_smoke = true
+min_voltage_pu = 0.000160777190390721
+max_voltage_pu = 1.0635
+min_frequency_hz = 49.7327386072042
+max_frequency_hz = 50.1408910900975
+max_speed_deviation = 0.00534522785591696
+max_rotor_angle_separation_deg = 73.905967084859
+unstable_flag = true
+signal_source_summary = voltage=generator_terminal_voltage_pu;speed=generator_rotor_velocity_pu;frequency=generator_speed_proxy;rotor_angle=generator_rotor_electrical_angle
+```
+
+Artifacts:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_bus_fault_temp_lab_smoke_summary.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_bus_fault_temp_lab_smoke_report.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_bus_fault_temp_lab_smoke_report.md`
+- `docs/ieee39_b39_temporary_bus_fault_smoke.md`
+
+Boundaries: no `.slx` was submitted, the source `.slx` was not modified, L12
+was not touched, labels were not exported, GCN was not trained, the reranker was
+not retrained, the old formal gate remains `35 / 33 / 33`, and the v2 candidate
+count remains `40`. This is a temporary smoke candidate only, not a final
+dynamic performance conclusion. `phasor_RMS` is not EMT,
+`generator_speed_proxy` is not direct frequency, and the temporary bus-fault
+injection is not engineering-grade protection.

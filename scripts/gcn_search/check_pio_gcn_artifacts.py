@@ -256,6 +256,7 @@ REQUIRED_FILES = [
     "docs/ieee39_bus_fault_gui_manual_checklist.md",
     "docs/ieee39_bus_fault_b39_manual_review_result.md",
     "docs/ieee39_b39_temp_smoke_readiness.md",
+    "docs/ieee39_b39_temporary_bus_fault_smoke.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -1282,15 +1283,35 @@ def main() -> int:
                 failures.append("Bus-fault temp-lab smoke report must be the B39 dry-run report.")
             if report.get("safe_to_run_smoke") is not False:
                 failures.append("Bus-fault temp-lab smoke report must record safe_to_run_smoke=false.")
-            if report.get("smoke_executed") is not False:
-                failures.append("Bus-fault temp-lab smoke report must refuse execution.")
-            if report.get("human_readiness_used") is True:
+            if report.get("smoke_executed") is True:
+                if report.get("human_readiness_ready") is not True:
+                    failures.append("Executed B39 temp-lab smoke must require human_readiness_ready=true.")
+                if report.get("scenario_ids_requested") != ["BF_B39_TEMP_SMOKE"]:
+                    failures.append("Executed B39 temp-lab smoke must request BF_B39_TEMP_SMOKE only.")
+                if report.get("simulation_success") is True:
+                    if report.get("scenario_ids_successful") != ["BF_B39_TEMP_SMOKE"]:
+                        failures.append("Successful B39 temp-lab smoke must record BF_B39_TEMP_SMOKE as successful.")
+                elif not report.get("smoke_not_run_reason"):
+                    failures.append("Failed B39 temp-lab smoke must record a non-empty error reason.")
+            elif report.get("human_readiness_used") is True:
                 if report.get("human_readiness_ready") is not True:
                     failures.append("Bus-fault temp-lab smoke report must record human_readiness_ready=true.")
                 if report.get("smoke_not_run_reason") != "ready_for_next_round_temp_smoke":
                     failures.append("Bus-fault temp-lab smoke report must record ready_for_next_round_temp_smoke.")
             elif "safe_to_run_smoke=false" not in str(report.get("smoke_not_run_reason", "")):
                 failures.append("Bus-fault temp-lab smoke report must explain safe_to_run_smoke=false.")
+            for key in [
+                "whether_source_slx_modified",
+                "whether_temporary_slx_committed",
+                "whether_formal_label_gate_changed",
+                "whether_v2_candidate_count_changed",
+                "whether_labels_exported",
+                "whether_gcn_trained",
+                "whether_reranker_retrained",
+                "whether_l12_touched",
+            ]:
+                if report.get(key) is not False:
+                    failures.append(f"Bus-fault temp-lab smoke report must record {key}=false.")
             for key in [
                 "source_slx_modified",
                 "temporary_slx_committed",
