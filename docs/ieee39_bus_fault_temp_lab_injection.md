@@ -98,3 +98,27 @@ The B39 manual evidence is recorded in
 recommendation is `manual_review_supports_next_round_inventory_update`, which
 means the next round may prepare temporary B39 smoke. It does not mean this
 round ran smoke or exported labels.
+
+## B39 Human Readiness Gate
+
+The next inventory/readiness step adds a separate human-readiness layer for
+B39:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_b39_human_verified_readiness.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_b39_human_verified_readiness.md`
+
+This layer is based on the human GUI review and does not overwrite the
+conservative MATLAB automatic inventory. The MATLAB inventory may still keep
+`safe_to_run_smoke = false` because automatic physical wiring was not proven.
+
+The temp-lab smoke runner was called only in dry-run readiness mode with this
+human-readiness file. It wrote:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b39_temp_smoke_dry_run_readiness.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b39_temp_smoke_dry_run_readiness.md`
+
+The dry-run result is `ready_for_next_round_temp_smoke`, with
+`actual_simulink_run = false`, `smoke_success = false`,
+`labels_exported = false`, `gcn_trained = false`, and
+`reranker_retrained = false`. The old formal gate remains `35 / 33 / 33`, and
+the v2 candidate count remains `40`.

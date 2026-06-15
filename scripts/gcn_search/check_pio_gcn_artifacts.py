@@ -255,6 +255,7 @@ REQUIRED_FILES = [
     "docs/ieee39_bus_fault_temp_lab_injection.md",
     "docs/ieee39_bus_fault_gui_manual_checklist.md",
     "docs/ieee39_bus_fault_b39_manual_review_result.md",
+    "docs/ieee39_b39_temp_smoke_readiness.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -335,6 +336,10 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_bus_fault_injection_review_template_B26.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_b39_human_verified_readiness.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_b39_human_verified_readiness.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b39_temp_smoke_dry_run_readiness.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b39_temp_smoke_dry_run_readiness.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -1279,7 +1284,12 @@ def main() -> int:
                 failures.append("Bus-fault temp-lab smoke report must record safe_to_run_smoke=false.")
             if report.get("smoke_executed") is not False:
                 failures.append("Bus-fault temp-lab smoke report must refuse execution.")
-            if "safe_to_run_smoke=false" not in str(report.get("smoke_not_run_reason", "")):
+            if report.get("human_readiness_used") is True:
+                if report.get("human_readiness_ready") is not True:
+                    failures.append("Bus-fault temp-lab smoke report must record human_readiness_ready=true.")
+                if report.get("smoke_not_run_reason") != "ready_for_next_round_temp_smoke":
+                    failures.append("Bus-fault temp-lab smoke report must record ready_for_next_round_temp_smoke.")
+            elif "safe_to_run_smoke=false" not in str(report.get("smoke_not_run_reason", "")):
                 failures.append("Bus-fault temp-lab smoke report must explain safe_to_run_smoke=false.")
             for key in [
                 "source_slx_modified",
@@ -1295,6 +1305,82 @@ def main() -> int:
                     failures.append(f"Bus-fault temp-lab smoke report must record {key}=false.")
         except Exception as exc:
             failures.append(f"Failed to read bus-fault temp-lab smoke report: {exc}")
+
+    b39_human_readiness = temp_lab_dir / "ieee39_bus_fault_b39_human_verified_readiness.json"
+    b39_dry_run_readiness = temp_lab_smoke_dir / "ieee39_b39_temp_smoke_dry_run_readiness.json"
+    if b39_human_readiness.exists():
+        try:
+            import json
+
+            readiness = json.loads(b39_human_readiness.read_text(encoding="utf-8"))
+            expected = {
+                "target_bus": "B39",
+                "manual_review_recommendation": "manual_review_supports_next_round_inventory_update",
+                "selected_injection_block_path": "Grid/Bus39",
+                "selected_fault_block_path": "Grid/Fault_B39_TEMP",
+                "formal_label_gate": "35 / 33 / 33",
+                "v2_candidate_count": 40,
+                "b26_status": "unverified",
+                "recommended_next_step": "run B39 temporary smoke in a separate round",
+            }
+            for key, value in expected.items():
+                if readiness.get(key) != value:
+                    failures.append(f"B39 human readiness must record {key}={value!r}.")
+            for key in ["human_verified_injection_point", "safe_to_run_smoke_recommendation", "update_diagram_success"]:
+                if readiness.get(key) is not True:
+                    failures.append(f"B39 human readiness must record {key}=true.")
+            for key in [
+                "source_model_saved",
+                "temporary_model_committed",
+                "source_slx_modified",
+                "temporary_slx_committed",
+                "simulink_smoke_run",
+                "smoke_success",
+                "labels_exported",
+                "gcn_trained",
+                "reranker_retrained",
+                "l12_touched",
+            ]:
+                if readiness.get(key) is not False:
+                    failures.append(f"B39 human readiness must record {key}=false.")
+        except Exception as exc:
+            failures.append(f"Failed to read B39 human readiness: {exc}")
+
+    if b39_dry_run_readiness.exists():
+        try:
+            import json
+
+            dry = json.loads(b39_dry_run_readiness.read_text(encoding="utf-8"))
+            expected = {
+                "target_bus": "B39",
+                "readiness_status": "ready_for_next_round_temp_smoke",
+                "selected_injection_block_path": "Grid/Bus39",
+                "selected_fault_block_path": "Grid/Fault_B39_TEMP",
+                "formal_label_gate": "35 / 33 / 33",
+                "v2_candidate_count": 40,
+            }
+            for key, value in expected.items():
+                if dry.get(key) != value:
+                    failures.append(f"B39 dry-run readiness must record {key}={value!r}.")
+            for key in ["dry_run", "would_run_smoke_next_round"]:
+                if dry.get(key) is not True:
+                    failures.append(f"B39 dry-run readiness must record {key}=true.")
+            for key in [
+                "actual_simulink_run",
+                "source_slx_modified",
+                "temporary_slx_committed",
+                "labels_exported",
+                "gcn_trained",
+                "reranker_retrained",
+                "simulink_smoke_run",
+                "smoke_success",
+                "source_model_saved",
+                "temporary_model_committed",
+            ]:
+                if dry.get(key) is not False:
+                    failures.append(f"B39 dry-run readiness must record {key}=false.")
+        except Exception as exc:
+            failures.append(f"Failed to read B39 dry-run readiness: {exc}")
 
     temp_lab_doc = ROOT / "docs/ieee39_bus_fault_temp_lab_injection.md"
     if temp_lab_doc.exists():

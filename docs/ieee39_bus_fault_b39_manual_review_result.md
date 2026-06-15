@@ -82,3 +82,22 @@ remains `35 / 33 / 33` and the v2 candidate count remains `40`.
 - `generator_speed_proxy` is not direct frequency.
 - Relay proxy / handwired breaker / temporary bus fault injection behavior is
   not engineering-grade protection.
+
+## Readiness Update
+
+The follow-up readiness / inventory update records this human review as a
+separate readiness gate:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_b39_human_verified_readiness.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_b39_human_verified_readiness.md`
+
+The temp-lab runner was then executed only as a dry-run readiness check, not as
+a Simulink smoke run:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b39_temp_smoke_dry_run_readiness.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b39_temp_smoke_dry_run_readiness.md`
+
+The dry-run status is `ready_for_next_round_temp_smoke`. This means B39 may
+enter the next separate temporary smoke round. It does not export labels, does
+not train GCN, does not retrain the reranker, and still does not change the
+formal label gate or v2 candidate count.

@@ -2629,3 +2629,47 @@ model remains phasor_RMS, not EMT, `generator_speed_proxy` is not direct
 frequency, and relay proxy / handwired breaker / temporary bus fault injection
 behavior is not engineering-grade protection. RL mitigation files were not
 modified.
+
+## Round 50: IEEE39 B39 Temporary Smoke Readiness Gate
+
+This round updates only the B39 readiness / inventory artifacts after the
+human-verified manual review. It does not run Simulink smoke, does not run a
+full simulation, does not submit `.slx`, does not modify the source `.slx`,
+does not export labels, does not train GCN, and does not retrain the reranker.
+
+New readiness artifacts:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_b39_human_verified_readiness.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_b39_human_verified_readiness.md`
+- `docs/ieee39_b39_temp_smoke_readiness.md`
+
+Dry-run readiness command:
+
+```bash
+python scripts/gcn_search/run_ieee39_bus_fault_temp_lab_smoke.py --temp-lab-plan results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_temp_lab_B39_plan.json --manual-review-summary results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary.json --human-readiness-json results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_b39_human_verified_readiness.json --target-bus B39 --timeout-seconds 240 --simulation-stop-time 0.8 --output-dir results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs --dry-run
+```
+
+Dry-run output:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b39_temp_smoke_dry_run_readiness.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b39_temp_smoke_dry_run_readiness.md`
+
+Dry-run result:
+
+```text
+target_bus = B39
+readiness_status = ready_for_next_round_temp_smoke
+would_run_smoke_next_round = true
+actual_simulink_run = false
+smoke_success = false
+labels_exported = false
+gcn_trained = false
+reranker_retrained = false
+formal_label_gate = 35 / 33 / 33
+v2_candidate_count = 40
+```
+
+B39 can enter the next separate actual temporary smoke round. B39 is still not
+smoke success. B26 remains unverified. `phasor_RMS` is not EMT,
+`generator_speed_proxy` is not direct frequency, and the temporary bus-fault
+injection is not engineering-grade protection.

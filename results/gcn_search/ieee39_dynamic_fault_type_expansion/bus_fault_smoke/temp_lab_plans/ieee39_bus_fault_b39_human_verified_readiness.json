@@ -1,0 +1,33 @@
+{
+  "target_bus": "B39",
+  "human_verified_injection_point": true,
+  "safe_to_run_smoke_recommendation": true,
+  "manual_review_recommendation": "manual_review_supports_next_round_inventory_update",
+  "selected_injection_block_path": "Grid/Bus39",
+  "selected_fault_block_path": "Grid/Fault_B39_TEMP",
+  "selected_injection_port_description": "Fault_B39_TEMP is connected in parallel on the Bus39 physical node shared with B9 to B39. Original Bus39 connections to B9 to B39, Gen1 BusLabel, B39 to B1, and Load39 BusLabel remain present.",
+  "fault_start_s": 0.5,
+  "fault_clear_s": 0.58,
+  "duration_s": 0.08,
+  "update_diagram_success": true,
+  "source_model_saved": false,
+  "temporary_model_committed": false,
+  "source_slx_modified": false,
+  "temporary_slx_committed": false,
+  "simulink_smoke_run": false,
+  "smoke_success": false,
+  "labels_exported": false,
+  "gcn_trained": false,
+  "reranker_retrained": false,
+  "formal_label_gate": "35 / 33 / 33",
+  "v2_candidate_count": 40,
+  "b26_status": "unverified",
+  "l12_touched": false,
+  "recommended_next_step": "run B39 temporary smoke in a separate round",
+  "source_documents": [
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_bus_fault_injection_review_template_B39.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary.json",
+    "docs/ieee39_bus_fault_b39_manual_review_result.md"
+  ],
+  "note": "Human-verified readiness only. This does not overwrite the conservative MATLAB automatic inventory and is not smoke success."
+}

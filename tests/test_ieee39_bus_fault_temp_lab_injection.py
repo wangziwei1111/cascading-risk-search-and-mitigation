@@ -105,7 +105,11 @@ def test_temp_lab_smoke_refuses_when_not_safe() -> None:
     assert payload["target_bus"] == "B39"
     assert payload["safe_to_run_smoke"] is False
     assert payload["smoke_executed"] is False
-    assert "safe_to_run_smoke=false" in payload["smoke_not_run_reason"]
+    if payload.get("human_readiness_used"):
+        assert payload["human_readiness_ready"] is True
+        assert payload["smoke_not_run_reason"] == "ready_for_next_round_temp_smoke"
+    else:
+        assert "safe_to_run_smoke=false" in payload["smoke_not_run_reason"]
     assert payload["source_slx_modified"] is False
     assert payload["temporary_slx_committed"] is False
     assert payload["formal_label_gate_changed"] is False

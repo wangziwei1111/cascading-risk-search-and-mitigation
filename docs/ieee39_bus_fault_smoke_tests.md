@@ -97,3 +97,15 @@ may prepare a temporary B39 smoke run. No `.slx` was modified, no temporary
 `.slx` was committed, no labels were exported, no GCN was trained, and the
 dynamic-aware reranker was not retrained. The old formal gate remains `35 / 33
 / 33`, and the v2 candidate count remains `40`.
+
+The follow-up readiness / inventory update adds a B39 human-readiness artifact
+and a dry-run readiness report:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_b39_human_verified_readiness.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b39_temp_smoke_dry_run_readiness.json`
+
+The dry-run status is `ready_for_next_round_temp_smoke`. This is still not a
+smoke success, not a formal label export, not GCN training, and not reranker
+retraining. `phasor_RMS` is not EMT, `generator_speed_proxy` is not direct
+frequency, and the temporary bus-fault injection is not engineering-grade
+protection.
