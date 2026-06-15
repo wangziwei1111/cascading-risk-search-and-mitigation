@@ -110,3 +110,11 @@ relay proxy measurements currently match the `0.10 s` fault group.
 Details are in:
 
 `docs/ieee39_non_line_trip_label_export.md`
+
+## Bus-Fault Smoke Feasibility Follow-Up
+
+A follow-up bus-fault smoke feasibility round now audits truly independent different-bus three-phase fault candidates. It prioritizes B16 and B39, with B21 and B26 as fallback buses.
+
+The current result is conservative: the existing scripts can configure timing on the existing `Fault (Three-Phase)` block, but no safe target-bus selector was found. Therefore `BF01-BF04` are recorded as not runnable yet, no Simulink execution was forced, and no new labels were exported.
+
+This follow-up does not return to the full GCN pipeline, does not train GCN, does not retrain the reranker, does not update the label gate, and does not modify or commit source `.slx`. L12 remains excluded. The model remains phasor_RMS, not EMT; `generator_speed_proxy` is not direct frequency; relay proxy / handwired breaker is not engineering-grade protection.

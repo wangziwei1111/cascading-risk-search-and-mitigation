@@ -1,0 +1,77 @@
+{
+  "preview_only": true,
+  "simulink_was_run": false,
+  "source_slx_modified": false,
+  "formal_label_gate_changed": false,
+  "reranker_retrained": false,
+  "gcn_trained": false,
+  "l12_touched": false,
+  "old_formal_gate": "35 / 33 / 33",
+  "v2_candidate_count_unchanged": 40,
+  "capabilities": {
+    "three_phase_config_script_exists": true,
+    "fault_suite_script_exists": true,
+    "existing_fault_block_timing_supported": true,
+    "existing_fault_suite_case_supported": true,
+    "target_bus_selector_supported": false,
+    "fault_point_inventory_exists": true,
+    "line_map_exists": true
+  },
+  "candidate_buses": [
+    {
+      "target_bus": "B16",
+      "feasibility_classification": "requires_temporary_lab_copy",
+      "priority_reason": "NF07 requested bus; connected to B15/B17/B24 and near previous L12 exclusion edge, so it needs extra care.",
+      "runnable_now": false,
+      "requires_source_slx_modification": false,
+      "uses_temporary_lab_copy": true,
+      "risk": "no safe script-level target-bus selector found; needs temporary lab copy or manual injection-point wiring."
+    },
+    {
+      "target_bus": "B39",
+      "feasibility_classification": "requires_temporary_lab_copy",
+      "priority_reason": "NF08 requested bus; high-number/reference-area bus and useful independent bus-fault candidate.",
+      "runnable_now": false,
+      "requires_source_slx_modification": false,
+      "uses_temporary_lab_copy": true,
+      "risk": "no safe script-level target-bus selector found; needs temporary lab copy or manual injection-point wiring."
+    },
+    {
+      "target_bus": "B21",
+      "feasibility_classification": "requires_temporary_lab_copy",
+      "priority_reason": "Alternative candidate connected to B16/B22; useful if B16 is unsafe.",
+      "runnable_now": false,
+      "requires_source_slx_modification": false,
+      "uses_temporary_lab_copy": true,
+      "risk": "no safe script-level target-bus selector found; needs temporary lab copy or manual injection-point wiring."
+    },
+    {
+      "target_bus": "B26",
+      "feasibility_classification": "requires_temporary_lab_copy",
+      "priority_reason": "Alternative mid/high-number bus connected to B25/B27/B28/B29.",
+      "runnable_now": false,
+      "requires_source_slx_modification": false,
+      "uses_temporary_lab_copy": true,
+      "risk": "no safe script-level target-bus selector found; needs temporary lab copy or manual injection-point wiring."
+    },
+    {
+      "target_bus": "B29",
+      "feasibility_classification": "requires_temporary_lab_copy",
+      "priority_reason": "Alternative high-number load-area bus connected to B26/B28.",
+      "runnable_now": false,
+      "requires_source_slx_modification": false,
+      "uses_temporary_lab_copy": true,
+      "risk": "no safe script-level target-bus selector found; needs temporary lab copy or manual injection-point wiring."
+    }
+  ],
+  "priority_bus_fault_smoke_candidates": [],
+  "requires_temporary_lab_copy": true,
+  "source_slx_modification_required": false,
+  "highest_risks": [
+    "The existing script can configure timing on the existing Fault (Three-Phase) block, but not select a different target bus.",
+    "Bus-specific injection likely needs a temporary lab copy or manual Simulink wiring review.",
+    "B16 is close to the known L12 excluded area; do not touch L12 or infer L12 labels.",
+    "Do not commit source `.slx`, temporary lab `.slx`, Simulink cache, `.mat`, raw trajectories, or full timeseries."
+  ],
+  "recommended_action": "Do not run bus-fault smoke until a safe target-bus injection point is verified."
+}

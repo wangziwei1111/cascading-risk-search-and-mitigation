@@ -1,0 +1,33 @@
+{
+  "preview_only": true,
+  "scenario_ids_requested": [
+    "BF01",
+    "BF02",
+    "BF03",
+    "BF04"
+  ],
+  "scenario_ids_runnable": [],
+  "scenario_ids_completed": [
+    "BF01",
+    "BF02",
+    "BF03",
+    "BF04"
+  ],
+  "scenario_ids_successful": [],
+  "scenario_ids_failed": [
+    "BF01",
+    "BF02",
+    "BF03",
+    "BF04"
+  ],
+  "scenario_ids_timeout": [],
+  "num_successful_bus_fault_smoke_candidates": 0,
+  "whether_source_slx_modified": false,
+  "whether_formal_label_gate_changed": false,
+  "whether_reranker_retrained": false,
+  "whether_gcn_trained": false,
+  "whether_l12_touched": false,
+  "old_formal_gate": "35 / 33 / 33",
+  "v2_candidate_count_unchanged": 40,
+  "recommended_next_step": "Verify a safe bus-fault injection point on a temporary lab copy before running bus-specific smoke tests."
+}

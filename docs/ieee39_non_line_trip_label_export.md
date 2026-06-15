@@ -100,3 +100,9 @@ trains on `existing_formal_dynamic` rows and tests on `non_line_trip` rows.
 
 This follow-up does not run Simulink, does not modify `.slx`, does not fix L12,
 and remains preview-only. It is not a final dynamic performance conclusion.
+
+## Bus-Fault Smoke Feasibility Follow-Up
+
+A later bus-fault feasibility round audits `BF01-BF04` as different-bus three-phase fault smoke candidates. It does not modify this export directory, does not change the v2 candidate count, and does not merge bus-fault rows into formal labels.
+
+The result is that no current bus-fault scenario is safely runnable because the existing scripts do not expose a target-bus selector. Bus-fault candidates therefore remain smoke feasibility rows only. No GCN training or reranker retraining was run.

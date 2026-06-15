@@ -79,3 +79,9 @@ Duplicate smoke candidates are not necessarily independent physical samples.
 - The relay proxy is not engineering-grade protection.
 - More genuinely independent non-line-trip fault types are still needed,
   especially different-bus three-phase faults, load step, and generator trip.
+
+## Bus-Fault Smoke Feasibility Follow-Up
+
+A follow-up now audits different-bus three-phase fault smoke candidates: `BF01/B16`, `BF02/B39`, `BF03/B21`, and `BF04/B26`. This is meant to address the need for more independent non-line-trip fault types.
+
+The current bus-fault audit found no safe target-bus selector, so no bus-fault Simulink smoke execution was forced. The old formal gate remains `35 / 33 / 33` and the v2 candidate count remains `40`. This follow-up does not retrain the reranker, does not train GCN, does not export labels, and does not modify source `.slx`.

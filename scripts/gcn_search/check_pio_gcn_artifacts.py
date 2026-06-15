@@ -106,6 +106,8 @@ REQUIRED_FILES = [
     "scripts/gcn_search/export_ieee39_non_line_trip_dynamic_labels.py",
     "scripts/gcn_search/train_ieee39_dynamic_aware_reranker_v2_preview.py",
     "scripts/gcn_search/compare_ieee39_dynamic_aware_v2_preview_runs.py",
+    "scripts/gcn_search/audit_ieee39_bus_fault_injection_points.py",
+    "scripts/gcn_search/run_ieee39_bus_fault_smoke_tests.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trip_isolated.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py",
     "scripts/gcn_search/update_ieee39_line_breaker_map_from_inventory.py",
@@ -245,6 +247,7 @@ REQUIRED_FILES = [
     "docs/ieee39_non_line_trip_fault_smoke_tests.md",
     "docs/ieee39_non_line_trip_label_export.md",
     "docs/ieee39_dynamic_aware_reranker_v2_preview_training.md",
+    "docs/ieee39_bus_fault_smoke_tests.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -298,6 +301,14 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/exclude_provenance_required/preview_training_readme.md",
     "results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/v2_preview_comparison.json",
     "results/gcn_search/ieee39_dynamic_aware_reranker_v2_preview/v2_preview_comparison.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/ieee39_bus_fault_injection_feasibility.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/ieee39_bus_fault_injection_feasibility.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/ieee39_bus_fault_smoke_scenario_manifest.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/ieee39_bus_fault_smoke_scenario_manifest.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/ieee39_bus_fault_smoke_test_summary.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/ieee39_bus_fault_smoke_test_summary.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/ieee39_bus_fault_smoke_test_report.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/ieee39_bus_fault_smoke_test_report.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -1065,6 +1076,88 @@ def main() -> int:
         ]:
             if required not in text:
                 failures.append(f"Non-line-trip smoke doc missing: {required}")
+
+    bus_fault_dir = non_line_dir / "bus_fault_smoke"
+    bus_feasibility = bus_fault_dir / "ieee39_bus_fault_injection_feasibility.json"
+    bus_manifest = bus_fault_dir / "ieee39_bus_fault_smoke_scenario_manifest.csv"
+    bus_summary = bus_fault_dir / "ieee39_bus_fault_smoke_test_summary.csv"
+    bus_report = bus_fault_dir / "ieee39_bus_fault_smoke_test_report.json"
+    if bus_feasibility.exists() and bus_manifest.exists() and bus_summary.exists() and bus_report.exists():
+        try:
+            import json
+            import pandas as pd
+
+            feasibility = json.loads(bus_feasibility.read_text(encoding="utf-8"))
+            manifest = pd.read_csv(bus_manifest)
+            summary = pd.read_csv(bus_summary)
+            report = json.loads(bus_report.read_text(encoding="utf-8"))
+            expected_ids = {"BF01", "BF02", "BF03", "BF04"}
+            if set(manifest.get("scenario_id", pd.Series(dtype=str)).astype(str)) != expected_ids:
+                failures.append("Bus-fault manifest must contain exactly BF01/BF02/BF03/BF04.")
+            if set(summary.get("scenario_id", pd.Series(dtype=str)).astype(str)) != expected_ids:
+                failures.append("Bus-fault summary must contain exactly BF01/BF02/BF03/BF04.")
+            if len(manifest.get("scenario_id", pd.Series(dtype=str))) != len(set(manifest.get("scenario_id", pd.Series(dtype=str)).astype(str))):
+                failures.append("Bus-fault manifest scenario_id values must be unique.")
+            joined = manifest.to_json().lower() + summary.to_json().lower()
+            for forbidden in ["l12", "handwired", "single_line_trip"]:
+                if forbidden in joined:
+                    failures.append(f"Bus-fault artifacts must not contain {forbidden}.")
+            if manifest.get("requires_source_slx_modification", pd.Series(dtype=bool)).astype(bool).any():
+                failures.append("Bus-fault manifest must require no source .slx modification.")
+            if "source_slx_modified" in summary.columns and summary["source_slx_modified"].astype(bool).any():
+                failures.append("Bus-fault summary must record source_slx_modified=false for all rows.")
+            successful = summary[summary.get("training_ready_candidate_smoke", pd.Series(dtype=bool)).astype(bool)]
+            if not successful.empty:
+                if not successful["measurement_extraction_status"].astype(str).eq("voltage_speed_angle").all():
+                    failures.append("Successful bus-fault smoke rows must have voltage_speed_angle measurements.")
+                if not successful["signal_source_summary"].astype(str).str.contains("frequency=generator_speed_proxy", regex=False).all():
+                    failures.append("Successful bus-fault smoke rows must use generator_speed_proxy frequency.")
+            if feasibility.get("source_slx_modified") is not False:
+                failures.append("Bus-fault feasibility must record source_slx_modified=false.")
+            if feasibility.get("formal_label_gate_changed") is not False:
+                failures.append("Bus-fault feasibility must preserve the formal label gate.")
+            if feasibility.get("reranker_retrained") is not False:
+                failures.append("Bus-fault feasibility must not retrain reranker.")
+            if feasibility.get("gcn_trained") is not False:
+                failures.append("Bus-fault feasibility must not train GCN.")
+            if feasibility.get("l12_touched") is not False:
+                failures.append("Bus-fault feasibility must keep L12 untouched.")
+            if feasibility.get("old_formal_gate") != "35 / 33 / 33":
+                failures.append("Bus-fault feasibility must preserve old formal gate 35 / 33 / 33.")
+            if feasibility.get("v2_candidate_count_unchanged") != 40:
+                failures.append("Bus-fault feasibility must preserve v2 candidate count 40.")
+            if report.get("whether_source_slx_modified") is not False:
+                failures.append("Bus-fault report must record source .slx unchanged.")
+            if report.get("whether_formal_label_gate_changed") is not False:
+                failures.append("Bus-fault report must preserve formal label gate.")
+            if report.get("whether_reranker_retrained") is not False:
+                failures.append("Bus-fault report must not retrain reranker.")
+            if report.get("whether_gcn_trained") is not False:
+                failures.append("Bus-fault report must not train GCN.")
+            if report.get("whether_l12_touched") is not False:
+                failures.append("Bus-fault report must keep L12 untouched.")
+        except Exception as exc:
+            failures.append(f"Failed to read bus-fault smoke artifacts: {exc}")
+
+    bus_fault_doc = ROOT / "docs/ieee39_bus_fault_smoke_tests.md"
+    if bus_fault_doc.exists():
+        text = _read_text("docs/ieee39_bus_fault_smoke_tests.md").lower()
+        for required in [
+            "different-bus three-phase fault",
+            "bf01",
+            "bf02",
+            "does not train gcn",
+            "does not retrain",
+            "does not update the label gate",
+            "does not export",
+            "l12 remains excluded",
+            "phasor_rms, not emt",
+            "generator_speed_proxy",
+            "not direct frequency",
+            "not engineering-grade protection",
+        ]:
+            if required not in text:
+                failures.append(f"Bus-fault smoke doc missing: {required}")
 
     non_line_export_dir = non_line_dir / "non_line_trip_label_export"
     non_line_candidates = non_line_export_dir / "ieee39_non_line_trip_dynamic_label_candidates.csv"

@@ -2462,3 +2462,33 @@ class.
 excluded in the sensitivity check. The model remains `phasor_RMS`, not EMT;
 `generator_speed_proxy` is not direct frequency; and the relay proxy is not
 engineering-grade protection. RL mitigation files were not modified.
+
+## Round 46: IEEE39 Independent Bus-Fault Smoke Feasibility
+
+This round is the first step toward truly independent non-line-trip fault types. It focuses on different-bus three-phase fault smoke candidates, not load steps, not generator trips, and not the full GCN pipeline.
+
+Generated artifacts:
+
+- `scripts/gcn_search/audit_ieee39_bus_fault_injection_points.py`
+- `scripts/gcn_search/run_ieee39_bus_fault_smoke_tests.py`
+- `docs/ieee39_bus_fault_smoke_tests.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/ieee39_bus_fault_injection_feasibility.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/ieee39_bus_fault_injection_feasibility.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/ieee39_bus_fault_smoke_scenario_manifest.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/ieee39_bus_fault_smoke_scenario_manifest.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/ieee39_bus_fault_smoke_test_summary.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/ieee39_bus_fault_smoke_test_report.json`
+
+Result:
+
+```text
+scenario_ids_requested = BF01, BF02, BF03, BF04
+scenario_ids_runnable = none
+scenario_ids_successful = none
+scenario_ids_failed = BF01, BF02, BF03, BF04
+scenario_ids_timeout = none
+```
+
+The audit found that the current scripts can configure timing on the existing `Fault (Three-Phase)` block, but do not expose a safe target-bus selector for B16, B39, B21, or B26. Therefore the runner did not force a Simulink execution. No source `.slx` was modified or committed. L12 remains excluded.
+
+The old formal gate remains `35 / 33 / 33`, the v2 candidate count remains `40`, no labels were exported, no GCN was trained, and the reranker was not retrained. The model remains `phasor_RMS`, not EMT; `generator_speed_proxy` is not direct frequency; relay proxy / handwired breaker is not engineering-grade protection. RL mitigation files were not modified.

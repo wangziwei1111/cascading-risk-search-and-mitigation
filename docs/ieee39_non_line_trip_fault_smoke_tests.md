@@ -101,3 +101,11 @@ modified, L12 was not fixed, and the result is still preview-only. It is not a
 final dynamic performance conclusion.
 
 This is not a final dynamic performance conclusion.
+
+## Independent Bus-Fault Follow-Up
+
+The next follow-up audits different-bus three-phase fault candidates: `BF01/B16`, `BF02/B39`, `BF03/B21`, and `BF04/B26`. These are intended to move beyond duration variants of the same existing fault block.
+
+The audit found no safe target-bus selector in the current scripts, so the runner did not force a Simulink execution. All four bus-fault rows are skipped smoke candidates until a safe temporary-lab-copy injection point is verified.
+
+This follow-up does not train GCN, does not retrain the reranker, does not update the formal label gate, does not export new labels, and does not modify source `.slx`.
