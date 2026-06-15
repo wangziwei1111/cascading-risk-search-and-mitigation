@@ -3153,6 +3153,61 @@ Recommended next step: export the B26 bus-fault candidate label in a separate
 round, without training. That later export should still include composition
 review and no-leakage preview before any model training.
 
+## Round 62: B26 Bus-Fault Candidate Label Export
+
+This round exports only one B26 temporary bus-fault candidate label from the
+quality-reviewed B26 smoke result. It does not run Simulink, does not submit
+`.slx`, does not modify source `.slx`, does not train GCN, does not retrain the
+reranker, does not run a GCN usefulness audit, does not update the old formal
+gate, and does not touch L12.
+
+Plain wording: the B26 smoke evidence passed quality review, so this round
+places it into a candidate-label table. It is a candidate sample for later
+review, not a formal label and not training data used in this round.
+
+```text
+scenario_id = BF_B26_TEMP_SMOKE
+target_bus = B26
+target_bus_or_component = B26
+line_id = NO_LINE
+fault_type = three_phase_bus_fault_temp_smoke
+label_family = non_line_trip
+dynamic_stress_score = 0.5314759474846006
+unstable_flag = true
+candidate_not_formal_label = true
+quality_review_passed_for_candidate_export = true
+labels_exported_this_round = candidate_only
+gcn_trained = false
+reranker_retrained = false
+should_train_now = false
+previous_v2_plus_b39_count = 41
+num_new_b26_bus_fault_candidates = 1
+num_v2_plus_b39_b26_candidate_labels = 42
+old formal gate = 35 / 33 / 33
+B39 status = candidate_label_not_formal
+L12 excluded = true
+NF06 provenance warning preserved = true
+```
+
+New artifacts:
+
+- `docs/ieee39_b26_bus_fault_candidate_label_export.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/ieee39_b26_bus_fault_dynamic_label_candidate.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/ieee39_b26_bus_fault_dynamic_label_candidate.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/ieee39_dynamic_label_schema_v2_plus_b39_b26_candidate.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/ieee39_b26_bus_fault_candidate_export_summary.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/ieee39_b26_bus_fault_candidate_export_summary.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/ieee39_v2_plus_b39_b26_training_readiness.json`
+
+Boundary status: B26 is a candidate label, not a formal label. B39 is still a
+candidate label, not a formal label. The old formal gate remains
+`35 / 33 / 33`. `phasor_RMS` is not EMT, `generator_speed_proxy` is not direct
+frequency, and temporary bus-fault injection is not engineering-grade
+protection.
+
+Recommended next step: run v2-plus-B39+B26 no-training composition review
+before any training.
+
 ## Round 57: B26 Manual Bus-Fault Review Evidence
 
 This round only records B26 manual GUI review evidence. It does not run

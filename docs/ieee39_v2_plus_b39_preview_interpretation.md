@@ -53,3 +53,19 @@ injection point.
 - The model remains `phasor_RMS`, not EMT.
 - `generator_speed_proxy` is not direct frequency.
 - Temporary bus-fault injection is not engineering-grade protection.
+
+## B26 Candidate Export Follow-Up
+
+The next bus-fault candidate was added in a later export-only round: B26 was
+exported as one candidate label after its temporary smoke quality review passed.
+This does not retrain the preview model and does not change the old formal
+gate.
+
+- previous v2-plus-B39 count: `41`
+- new v2-plus-B39+B26 count: `42`
+- B26 dynamic_stress_score: `0.5314759474846006`
+- B26 status: candidate label, not formal label
+- B39 status: candidate label, not formal label
+
+The next step remains no-training composition review. Do not train GCN or
+retrain the reranker from the expanded table until that review is complete.

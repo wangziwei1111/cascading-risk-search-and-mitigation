@@ -95,3 +95,19 @@ Quality review artifacts:
 - `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_temp_smoke_quality_review.json`
 - `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_temp_smoke_quality_review.md`
 - `docs/ieee39_b26_temp_smoke_quality_review.md`
+
+## Candidate Export Follow-Up
+
+The B26 quality-reviewed smoke result was later exported as one candidate-only
+label. This export did not run Simulink, did not submit `.slx`, did not modify
+source `.slx`, did not train GCN, and did not retrain the reranker.
+
+- B26 candidate label: `candidate_only`
+- formal label status for B26: `false`
+- dynamic_stress_score: `0.5314759474846006`
+- previous v2-plus-B39 count: `41`
+- v2-plus-B39+B26 candidate count: `42`
+- old formal gate remains `35 / 33 / 33`
+
+B26 is a candidate label, not a formal label. The next step is no-training
+composition review, not training.

@@ -1,0 +1,23 @@
+{
+  "export_scope": "candidate_only",
+  "target_bus": "B26",
+  "scenario_id": "BF_B26_TEMP_SMOKE",
+  "previous_v2_plus_b39_count": 41,
+  "num_new_b26_bus_fault_candidates": 1,
+  "num_v2_plus_b39_b26_candidate_labels": 42,
+  "old_formal_gate": "35 / 33 / 33",
+  "formal_label_gate_changed": false,
+  "b26_quality_review_passed": true,
+  "b26_training_ready_candidate": true,
+  "b26_formal_label": false,
+  "b26_candidate_not_formal_label": true,
+  "b39_status": "candidate_label_not_formal",
+  "l12_excluded": true,
+  "nf06_provenance_warning_preserved": true,
+  "labels_exported_this_round": "candidate_only",
+  "gcn_trained": false,
+  "reranker_retrained": false,
+  "should_train_now": false,
+  "dynamic_stress_score": 0.5314759474846006,
+  "recommended_next_step": "run v2-plus-B39+B26 no-training composition review before any training"
+}

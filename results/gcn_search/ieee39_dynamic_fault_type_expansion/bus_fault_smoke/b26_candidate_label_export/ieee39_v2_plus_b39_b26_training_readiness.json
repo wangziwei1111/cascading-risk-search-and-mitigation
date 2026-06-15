@@ -1,0 +1,21 @@
+{
+  "ready_for_future_preview_training": true,
+  "should_train_now": false,
+  "reason": "export-only round; run no-training composition review first",
+  "candidate_count": 42,
+  "num_bus_fault_candidates": 2,
+  "b39_candidate_present": true,
+  "b26_candidate_present": true,
+  "previous_v2_plus_b39_count": 41,
+  "old_formal_gate": "35 / 33 / 33",
+  "gcn_trained": false,
+  "reranker_retrained": false,
+  "caveats": [
+    "B39 and B26 are temporary smoke candidates, not formal labels",
+    "phasor_RMS not EMT",
+    "generator_speed_proxy not direct frequency",
+    "temporary bus-fault injection not engineering-grade protection",
+    "target-feature leakage risk remains if compact dynamic measurements are used as input features",
+    "label-family holdout and bus-fault holdout are required before model claims"
+  ]
+}

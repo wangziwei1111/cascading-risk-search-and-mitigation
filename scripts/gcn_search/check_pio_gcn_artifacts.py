@@ -385,6 +385,13 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_temp_smoke_quality_review.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_temp_smoke_quality_review.md",
     "docs/ieee39_b26_temp_smoke_quality_review.md",
+    "docs/ieee39_b26_bus_fault_candidate_label_export.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/ieee39_b26_bus_fault_dynamic_label_candidate.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/ieee39_b26_bus_fault_dynamic_label_candidate.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/ieee39_dynamic_label_schema_v2_plus_b39_b26_candidate.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/ieee39_b26_bus_fault_candidate_export_summary.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/ieee39_b26_bus_fault_candidate_export_summary.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/ieee39_v2_plus_b39_b26_training_readiness.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -1861,6 +1868,140 @@ def main() -> int:
                     failures.append(f"B39 provenance report missing: {required}")
         except Exception as exc:
             failures.append(f"Failed to read B39 candidate export artifacts: {exc}")
+
+    b26_export_dir = ROOT / "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export"
+    b26_candidate_json = b26_export_dir / "ieee39_b26_bus_fault_dynamic_label_candidate.json"
+    b26_combined_csv = b26_export_dir / "ieee39_dynamic_label_schema_v2_plus_b39_b26_candidate.csv"
+    b26_export_summary = b26_export_dir / "ieee39_b26_bus_fault_candidate_export_summary.json"
+    b26_readiness = b26_export_dir / "ieee39_v2_plus_b39_b26_training_readiness.json"
+    if b26_candidate_json.exists() and b26_combined_csv.exists() and b26_export_summary.exists() and b26_readiness.exists():
+        try:
+            import json
+            import pandas as pd
+
+            candidate = json.loads(b26_candidate_json.read_text(encoding="utf-8"))
+            combined = pd.read_csv(b26_combined_csv)
+            summary = json.loads(b26_export_summary.read_text(encoding="utf-8"))
+            readiness = json.loads(b26_readiness.read_text(encoding="utf-8"))
+
+            expected_candidate = {
+                "scenario_id": "BF_B26_TEMP_SMOKE",
+                "target_bus": "B26",
+                "target_bus_or_component": "B26",
+                "fault_type": "three_phase_bus_fault_temp_smoke",
+                "line_id": "NO_LINE",
+                "measurement_extraction_status": "voltage_speed_angle",
+                "schema_version": "ieee39_dynamic_label_schema_v2_plus_b39_b26_candidate",
+                "export_status": "candidate_only",
+                "labels_exported_this_round": "candidate_only",
+                "old_formal_gate": "35 / 33 / 33",
+                "b39_status": "candidate_label_not_formal",
+            }
+            for key, value in expected_candidate.items():
+                if candidate.get(key) != value:
+                    failures.append(f"B26 candidate export must record {key}={value!r}.")
+            if "frequency=generator_speed_proxy" not in str(candidate.get("signal_source_summary", "")):
+                failures.append("B26 candidate export must preserve frequency=generator_speed_proxy.")
+            try:
+                score = float(candidate.get("dynamic_stress_score"))
+                if not math.isfinite(score) or abs(score - 0.5314759474846006) > 1e-12:
+                    failures.append("B26 candidate export must record the expected dynamic_stress_score.")
+            except (TypeError, ValueError):
+                failures.append("B26 candidate export must record numeric dynamic_stress_score.")
+            expected_false = [
+                "source_slx_modified",
+                "temporary_slx_committed",
+                "formal_line_trip_label",
+                "handwired_line_trip_label",
+                "gcn_trained",
+                "reranker_retrained",
+            ]
+            for key in expected_false:
+                if _truthy(candidate.get(key)) is not False:
+                    failures.append(f"B26 candidate export must record {key}=false.")
+            expected_true = [
+                "simulation_success",
+                "physical_fault_or_breaker_action_executed",
+                "quality_review_passed_for_candidate_export",
+                "training_ready_label_candidate",
+                "training_ready_label_v2",
+                "non_line_trip_label",
+                "bus_fault_label",
+                "temporary_smoke_candidate",
+                "candidate_not_formal_label",
+                "phasor_rms_not_emt",
+                "generator_speed_proxy_not_direct_frequency",
+                "temporary_bus_fault_not_engineering_grade_protection",
+                "l12_excluded",
+                "nf06_provenance_warning_preserved",
+            ]
+            for key in expected_true:
+                if _truthy(candidate.get(key)) is not True:
+                    failures.append(f"B26 candidate export must record {key}=true.")
+            if len(combined) != 42:
+                failures.append("v2-plus-B39+B26 combined candidate schema must contain 42 rows.")
+            for scenario_id, bus in [("BF_B39_TEMP_SMOKE", "B39"), ("BF_B26_TEMP_SMOKE", "B26")]:
+                mask = combined.get("scenario_id", pd.Series(dtype=str)).astype(str) == scenario_id
+                if mask.sum() != 1:
+                    failures.append(f"v2-plus-B39+B26 combined candidate schema must contain exactly one {scenario_id} row.")
+                    continue
+                row = combined.loc[mask].iloc[0]
+                if row.get("target_bus") != bus:
+                    failures.append(f"v2-plus-B39+B26 {scenario_id} row must record target_bus={bus}.")
+                if row.get("target_bus_or_component") != bus:
+                    failures.append(f"v2-plus-B39+B26 {scenario_id} row must record target_bus_or_component={bus}.")
+                if row.get("line_id") != "NO_LINE":
+                    failures.append(f"v2-plus-B39+B26 {scenario_id} row must record line_id=NO_LINE.")
+                if row.get("fault_type") != "three_phase_bus_fault_temp_smoke":
+                    failures.append(f"v2-plus-B39+B26 {scenario_id} row must preserve the bus-fault fault_type.")
+                if not _truthy(row.get("bus_fault_label")):
+                    failures.append(f"v2-plus-B39+B26 {scenario_id} row must record bus_fault_label=true.")
+                if not _truthy(row.get("candidate_not_formal_label")):
+                    failures.append(f"v2-plus-B39+B26 {scenario_id} row must record candidate_not_formal_label=true.")
+
+            expected_summary = {
+                "export_scope": "candidate_only",
+                "target_bus": "B26",
+                "scenario_id": "BF_B26_TEMP_SMOKE",
+                "previous_v2_plus_b39_count": 41,
+                "num_new_b26_bus_fault_candidates": 1,
+                "num_v2_plus_b39_b26_candidate_labels": 42,
+                "old_formal_gate": "35 / 33 / 33",
+                "labels_exported_this_round": "candidate_only",
+                "recommended_next_step": "run v2-plus-B39+B26 no-training composition review before any training",
+            }
+            for key, value in expected_summary.items():
+                if summary.get(key) != value:
+                    failures.append(f"B26 export summary must record {key}={value!r}.")
+            for key in [
+                "formal_label_gate_changed",
+                "b26_formal_label",
+                "gcn_trained",
+                "reranker_retrained",
+                "should_train_now",
+            ]:
+                if summary.get(key) is not False:
+                    failures.append(f"B26 export summary must record {key}=false.")
+            for key in [
+                "b26_quality_review_passed",
+                "b26_training_ready_candidate",
+                "b26_candidate_not_formal_label",
+                "l12_excluded",
+                "nf06_provenance_warning_preserved",
+            ]:
+                if summary.get(key) is not True:
+                    failures.append(f"B26 export summary must record {key}=true.")
+            if readiness.get("candidate_count") != 42:
+                failures.append("B26 readiness must record candidate_count=42.")
+            if readiness.get("num_bus_fault_candidates") != 2:
+                failures.append("B26 readiness must record two bus-fault candidates.")
+            for key in ["ready_for_future_preview_training", "b39_candidate_present", "b26_candidate_present"]:
+                if readiness.get(key) is not True:
+                    failures.append(f"B26 readiness must record {key}=true.")
+            if readiness.get("should_train_now") is not False:
+                failures.append("B26 readiness must record should_train_now=false.")
+        except Exception as exc:
+            failures.append(f"Failed to read B26 candidate export artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

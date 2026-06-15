@@ -78,3 +78,21 @@ is not GCN training and remains preview-only. The follow-up reports
 include-all, exclude-provenance, no-dynamic-measurement, label-family holdout,
 and B39 bus-fault holdout metrics. The B39 holdout is a one-sample sanity check,
 not a final performance conclusion.
+
+## B26 Candidate Export Follow-Up
+
+A later export-only round added one B26 temporary bus-fault candidate label to
+the existing v2-plus-B39 candidate table. The original v2-plus-B39 composition
+review is not overwritten.
+
+- previous v2-plus-B39 count: `41`
+- new v2-plus-B39+B26 candidate count: `42`
+- B26 status: candidate label, not formal label
+- B39 status: candidate label, not formal label
+- old formal gate remains `35 / 33 / 33`
+- L12 remains excluded
+- NF06 provenance warning is preserved
+
+The next required step is a separate v2-plus-B39+B26 no-training composition
+review before any training. This follow-up does not train GCN and does not
+retrain the reranker.

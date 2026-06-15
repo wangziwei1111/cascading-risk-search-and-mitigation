@@ -46,6 +46,22 @@ This does not mean the B26 candidate label was exported in this round. A later
 export round should still perform composition review and no-leakage preview
 before any model training.
 
+## Candidate Export Follow-Up
+
+A later export-only round created one B26 candidate label from this reviewed
+smoke output. That export did not run Simulink, did not submit `.slx`, did not
+modify source `.slx`, did not train GCN, did not retrain the reranker, and did
+not run a GCN usefulness audit.
+
+- labels_exported_this_round: `candidate_only`
+- dynamic_stress_score: `0.5314759474846006`
+- previous v2-plus-B39 count: `41`
+- v2-plus-B39+B26 candidate count: `42`
+- should_train_now: `false`
+
+B26 is now a candidate label, not a formal label. The next step is a
+v2-plus-B39+B26 no-training composition review before any training.
+
 ## Boundary Conditions
 
 - labels_exported: `false`
