@@ -116,3 +116,9 @@ copy. It produced `simulation_success = true`,
 `training_ready_candidate_smoke = true`, with
 `frequency=generator_speed_proxy` in the signal source summary. This is still
 only a temporary smoke candidate and is not yet merged into formal labels.
+
+The follow-up B39 quality review passes for a separate candidate-label export
+round. It does not run Simulink again and does not export labels in this round.
+The near-zero `min_voltage_pu` is treated as expected for a close-in B39
+three-phase bus-fault candidate, while `unstable_flag = true` remains a
+candidate record rather than a final stability conclusion.

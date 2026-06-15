@@ -83,3 +83,10 @@ candidate:
 This still does not export labels, train GCN, retrain the reranker, update the
 formal label gate, or update the v2 candidate count. See
 `docs/ieee39_b39_temporary_bus_fault_smoke.md`.
+
+## Quality Review Follow-Up
+
+The subsequent quality review does not run Simulink. It confirms that the B39
+temporary smoke has complete dynamic measurements and passes the pre-export
+candidate quality gate. The next step is a separate candidate-label export
+round, still without training.

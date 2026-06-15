@@ -257,6 +257,7 @@ REQUIRED_FILES = [
     "docs/ieee39_bus_fault_b39_manual_review_result.md",
     "docs/ieee39_b39_temp_smoke_readiness.md",
     "docs/ieee39_b39_temporary_bus_fault_smoke.md",
+    "docs/ieee39_b39_temp_smoke_quality_review.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -341,6 +342,8 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_b39_human_verified_readiness.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b39_temp_smoke_dry_run_readiness.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b39_temp_smoke_dry_run_readiness.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b39_temp_smoke_quality_review.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b39_temp_smoke_quality_review.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -1402,6 +1405,60 @@ def main() -> int:
                     failures.append(f"B39 dry-run readiness must record {key}=false.")
         except Exception as exc:
             failures.append(f"Failed to read B39 dry-run readiness: {exc}")
+
+    b39_quality_review = temp_lab_smoke_dir / "ieee39_b39_temp_smoke_quality_review.json"
+    if b39_quality_review.exists():
+        try:
+            import json
+
+            quality = json.loads(b39_quality_review.read_text(encoding="utf-8"))
+            expected = {
+                "target_bus": "B39",
+                "scenario_id": "BF_B39_TEMP_SMOKE",
+                "measurement_extraction_status": "voltage_speed_angle",
+                "old_formal_gate": "35 / 33 / 33",
+                "v2_candidate_count": 40,
+                "recommended_next_step": "export B39 bus-fault candidate label in a separate round, without training",
+            }
+            for key, value in expected.items():
+                if quality.get(key) != value:
+                    failures.append(f"B39 quality review must record {key}={value!r}.")
+            for key in [
+                "simulation_success",
+                "physical_fault_or_breaker_action_executed",
+                "training_ready_candidate_smoke",
+                "signal_source_has_frequency_proxy",
+                "min_voltage_near_zero",
+                "unstable_flag",
+                "dynamic_measurement_available",
+                "old_formal_gate_preserved",
+                "v2_candidate_count_preserved",
+                "quality_review_passed_for_candidate_export",
+            ]:
+                if quality.get(key) is not True:
+                    failures.append(f"B39 quality review must record {key}=true.")
+            for key in [
+                "labels_exported",
+                "gcn_trained",
+                "reranker_retrained",
+                "source_slx_modified",
+                "temporary_slx_committed",
+                "l12_touched",
+            ]:
+                if quality.get(key) is not False:
+                    failures.append(f"B39 quality review must record {key}=false.")
+            for key in [
+                "min_voltage_pu",
+                "max_voltage_pu",
+                "min_frequency_hz",
+                "max_frequency_hz",
+                "max_speed_deviation",
+                "max_rotor_angle_separation_deg",
+            ]:
+                if quality.get(key) is None:
+                    failures.append(f"B39 quality review missing numeric field {key}.")
+        except Exception as exc:
+            failures.append(f"Failed to read B39 quality review: {exc}")
 
     temp_lab_doc = ROOT / "docs/ieee39_bus_fault_temp_lab_injection.md"
     if temp_lab_doc.exists():

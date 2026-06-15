@@ -59,3 +59,25 @@ quality first, then export a B39 bus-fault candidate label in a separate round.
 The model remains `phasor_RMS`, not EMT. `generator_speed_proxy` is not direct
 frequency. The temporary bus-fault injection is not engineering-grade
 protection.
+
+## Quality Review Follow-Up
+
+A follow-up quality review was completed without running Simulink again. It
+checks whether the previous B39 temporary smoke has enough measurement quality
+for a separate candidate-label export round.
+
+- quality_review_passed_for_candidate_export: `true`
+- min_voltage_near_zero: `true`
+- min_voltage interpretation: expected for a close-in three-phase B39 bus-fault
+  candidate, still requiring separate review before export
+- unstable_flag interpretation: plausible for severe B39 temporary smoke, not a
+  final stability conclusion
+- labels_exported: `false`
+- gcn_trained: `false`
+- reranker_retrained: `false`
+
+Quality review artifacts:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b39_temp_smoke_quality_review.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b39_temp_smoke_quality_review.md`
+- `docs/ieee39_b39_temp_smoke_quality_review.md`

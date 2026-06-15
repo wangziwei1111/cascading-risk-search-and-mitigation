@@ -2719,3 +2719,45 @@ count remains `40`. This is a temporary smoke candidate only, not a final
 dynamic performance conclusion. `phasor_RMS` is not EMT,
 `generator_speed_proxy` is not direct frequency, and the temporary bus-fault
 injection is not engineering-grade protection.
+
+## Round 52: IEEE39 B39 Temporary Smoke Quality Review
+
+This round reviews the previous B39 temporary smoke result. It does not run
+Simulink, does not submit `.slx`, does not modify the source `.slx`, does not
+touch L12, does not export labels, does not train GCN, and does not retrain the
+reranker.
+
+Quality review result:
+
+```text
+target_bus = B39
+scenario_id = BF_B39_TEMP_SMOKE
+simulation_success = true
+measurement_extraction_status = voltage_speed_angle
+signal_source_has_frequency_proxy = true
+min_voltage_near_zero = true
+unstable_flag = true
+dynamic_measurement_available = true
+quality_review_passed_for_candidate_export = true
+labels_exported = false
+gcn_trained = false
+reranker_retrained = false
+old_formal_gate = 35 / 33 / 33
+v2_candidate_count = 40
+```
+
+The near-zero minimum voltage is expected for a close-in three-phase B39
+bus-fault candidate and still needs separate export review. The unstable flag is
+plausible for severe B39 temporary smoke, but it is not a final generalized
+stability conclusion. `phasor_RMS` is not EMT, `generator_speed_proxy` is not
+direct frequency, and the temporary bus-fault injection is not
+engineering-grade protection.
+
+Artifacts:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b39_temp_smoke_quality_review.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b39_temp_smoke_quality_review.md`
+- `docs/ieee39_b39_temp_smoke_quality_review.md`
+
+Recommended next step: export the B39 bus-fault candidate label in a separate
+round, without training.
