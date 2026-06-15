@@ -82,3 +82,8 @@ Round 59 prepared B26 readiness in dry-run mode only. The dry-run status is
 `ready_for_next_round_temp_smoke`, so the next separate round can run actual
 B26 temporary smoke. Do not export labels, train GCN, or retrain the reranker
 until the actual smoke output is reviewed.
+
+Round 60 then ran the actual B26 temporary smoke. The result is
+`simulation_success = true` with `measurement_extraction_status =
+voltage_speed_angle`, but B26 is still only a temporary smoke candidate. See
+`docs/ieee39_b26_temporary_bus_fault_smoke.md`.

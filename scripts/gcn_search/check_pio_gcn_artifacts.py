@@ -264,6 +264,7 @@ REQUIRED_FILES = [
     "docs/ieee39_v2_plus_b39_preview_interpretation.md",
     "docs/ieee39_b26_manual_bus_fault_verification_plan.md",
     "docs/ieee39_b26_temp_smoke_readiness.md",
+    "docs/ieee39_b26_temporary_bus_fault_smoke.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -378,6 +379,9 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_b26_human_verified_readiness.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_temp_smoke_dry_run_readiness.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_temp_smoke_dry_run_readiness.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_bus_fault_temp_lab_smoke_summary.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_bus_fault_temp_lab_smoke_report.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_bus_fault_temp_lab_smoke_report.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -1541,6 +1545,91 @@ def main() -> int:
                     failures.append(f"B26 dry-run readiness must record {key}=false.")
         except Exception as exc:
             failures.append(f"Failed to read B26 dry-run readiness: {exc}")
+
+    b26_smoke_report = temp_lab_smoke_dir / "ieee39_b26_bus_fault_temp_lab_smoke_report.json"
+    b26_smoke_summary = temp_lab_smoke_dir / "ieee39_b26_bus_fault_temp_lab_smoke_summary.csv"
+    if b26_smoke_report.exists():
+        try:
+            import json
+            import math
+
+            report = json.loads(b26_smoke_report.read_text(encoding="utf-8"))
+            expected = {
+                "target_bus": "B26",
+                "scenario_id": "BF_B26_TEMP_SMOKE",
+                "selected_fault_block_path": "Grid/Fault_B26_TEMP",
+                "selected_injection_block_path": "Grid/Bus26_1 and Grid/Bus26_2 shared physical B26 node",
+                "old_formal_gate": "35 / 33 / 33",
+                "v2_plus_b39_count": 41,
+                "b39_status": "candidate_label_not_formal",
+            }
+            for key, value in expected.items():
+                if report.get(key) != value:
+                    failures.append(f"B26 smoke report must record {key}={value!r}.")
+            for key in ["actual_simulink_run", "human_readiness_used", "human_readiness_ready"]:
+                if report.get(key) is not True:
+                    failures.append(f"B26 smoke report must record {key}=true.")
+            for key in [
+                "dry_run",
+                "source_slx_modified",
+                "temporary_slx_committed",
+                "labels_exported",
+                "gcn_trained",
+                "reranker_retrained",
+                "formal_label_gate_changed",
+                "v2_plus_b39_count_changed",
+                "l12_touched",
+            ]:
+                if report.get(key) is not False:
+                    failures.append(f"B26 smoke report must record {key}=false.")
+            if report.get("simulation_success") is True:
+                if report.get("physical_fault_or_breaker_action_executed") is not True:
+                    failures.append("B26 successful smoke must record physical_fault_or_breaker_action_executed=true.")
+                if report.get("measurement_extraction_status") != "voltage_speed_angle":
+                    failures.append("B26 successful smoke must record measurement_extraction_status=voltage_speed_angle.")
+                if "frequency=generator_speed_proxy" not in str(report.get("signal_source_summary", "")):
+                    failures.append("B26 successful smoke must record frequency=generator_speed_proxy.")
+                for key in [
+                    "min_voltage_pu",
+                    "max_voltage_pu",
+                    "min_frequency_hz",
+                    "max_frequency_hz",
+                    "max_speed_deviation",
+                    "max_rotor_angle_separation_deg",
+                ]:
+                    try:
+                        if not math.isfinite(float(report.get(key))):
+                            failures.append(f"B26 successful smoke must have finite {key}.")
+                    except (TypeError, ValueError):
+                        failures.append(f"B26 successful smoke must have numeric {key}.")
+                if "review B26 smoke output quality" not in str(report.get("recommended_next_step", "")):
+                    failures.append("B26 successful smoke must recommend quality review before label export.")
+            else:
+                if not report.get("smoke_not_run_reason"):
+                    failures.append("B26 failed smoke must record non-empty failure reason.")
+                if "diagnose" not in str(report.get("recommended_next_step", "")).lower():
+                    failures.append("B26 failed smoke must recommend diagnosis before label export.")
+        except Exception as exc:
+            failures.append(f"Failed to read B26 smoke report: {exc}")
+
+    if b26_smoke_summary.exists():
+        try:
+            import csv
+
+            with b26_smoke_summary.open(encoding="utf-8-sig", newline="") as f:
+                rows = list(csv.DictReader(f))
+            if len(rows) != 1:
+                failures.append("B26 smoke summary must contain exactly one row.")
+            else:
+                row = rows[0]
+                if row.get("scenario_id") != "BF_B26_TEMP_SMOKE":
+                    failures.append("B26 smoke summary must record scenario_id=BF_B26_TEMP_SMOKE.")
+                if row.get("target_bus") != "B26":
+                    failures.append("B26 smoke summary must record target_bus=B26.")
+                if row.get("source_slx_modified") != "False" or row.get("temporary_slx_committed") != "False":
+                    failures.append("B26 smoke summary must preserve source_slx_modified=false and temporary_slx_committed=false.")
+        except Exception as exc:
+            failures.append(f"Failed to read B26 smoke summary: {exc}")
 
     b39_quality_review = temp_lab_smoke_dir / "ieee39_b39_temp_smoke_quality_review.json"
     if b39_quality_review.exists():

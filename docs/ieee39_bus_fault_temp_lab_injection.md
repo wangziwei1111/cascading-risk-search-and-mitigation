@@ -196,6 +196,21 @@ export labels, did not train GCN, and did not retrain the reranker. B26 is still
 not smoke success and is still not a candidate label. B39 remains a candidate
 label, not a formal label.
 
+## Actual B26 Temporary Smoke
+
+After the B26 readiness gate, one actual B26 temporary smoke was run using only
+the ignored local temporary copy. It wrote B26-specific files and did not
+overwrite the B39 smoke artifacts:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_bus_fault_temp_lab_smoke_summary.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_bus_fault_temp_lab_smoke_report.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_bus_fault_temp_lab_smoke_report.md`
+
+The smoke result is `simulation_success = true` and
+`measurement_extraction_status = voltage_speed_angle`, with
+`frequency=generator_speed_proxy` in the signal source summary. B26 is still
+not a formal label and no B26 candidate label was exported in this round.
+
 Artifacts:
 
 - `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/b26_manual_connection_evidence.json`

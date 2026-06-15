@@ -3044,6 +3044,54 @@ injection is not engineering-grade protection.
 Recommended next step: run actual B26 temporary smoke in a separate next round;
 still do not export labels or train models until the smoke output is reviewed.
 
+## Round 60: B26 Actual Temporary Bus-Fault Smoke
+
+This round runs one actual B26 temporary bus-fault smoke using only the ignored
+temporary local copy. It does not submit `.slx`, does not modify source `.slx`,
+does not export labels, does not train GCN, does not retrain the reranker, does
+not update the old formal gate, and does not update the v2-plus-B39 count.
+
+Command:
+
+```bash
+python scripts/gcn_search/run_ieee39_bus_fault_temp_lab_smoke.py --temp-lab-plan results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_temp_lab_B26_plan.json --manual-review-summary results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary_B26.json --human-readiness-json results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_b26_human_verified_readiness.json --target-bus B26 --timeout-seconds 240 --simulation-stop-time 0.8 --output-dir results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs
+```
+
+New B26-specific smoke outputs:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_bus_fault_temp_lab_smoke_summary.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_bus_fault_temp_lab_smoke_report.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_bus_fault_temp_lab_smoke_report.md`
+- `docs/ieee39_b26_temporary_bus_fault_smoke.md`
+
+Key result:
+
+```text
+target_bus = B26
+scenario_id = BF_B26_TEMP_SMOKE
+actual_simulink_run = true
+dry_run = false
+simulation_success = true
+physical_fault_or_breaker_action_executed = true
+measurement_extraction_status = voltage_speed_angle
+training_ready_candidate_smoke = true
+min_voltage_pu = 0.525205016184139
+max_voltage_pu = 1.0635
+min_frequency_hz = 49.9925858325228
+max_frequency_hz = 50.4143232407741
+max_speed_deviation = 0.00828646481548212
+max_rotor_angle_separation_deg = 86.3888369812931
+unstable_flag = true
+signal_source_summary includes frequency=generator_speed_proxy
+```
+
+B26 is still only a temporary smoke candidate, not a formal label. This round
+does not export B26 candidate labels. B39 remains `candidate_label_not_formal`.
+The old formal gate remains `35 / 33 / 33`; the v2-plus-B39 count remains `41`.
+`phasor_RMS` is not EMT, and `generator_speed_proxy` is not direct frequency.
+
+Recommended next step: review B26 smoke output quality before any label export.
+
 The model remains `phasor_RMS`, not EMT. `generator_speed_proxy` is not direct
 frequency. Temporary bus-fault injection is not engineering-grade protection.
 

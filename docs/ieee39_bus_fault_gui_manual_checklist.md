@@ -158,3 +158,10 @@ B26 now has a separate readiness dry-run result:
 
 The status is `ready_for_next_round_temp_smoke`. This is not actual Simulink
 smoke success and is not a candidate label export.
+
+## Actual B26 Temporary Smoke Follow-Up
+
+The actual B26 temporary smoke was later run from the ignored temporary local
+copy. It produced B26-specific smoke outputs and did not overwrite the B39
+smoke artifacts. The smoke succeeded as a temporary smoke candidate, but B26 is
+still not a formal label and no B26 candidate label was exported in that round.

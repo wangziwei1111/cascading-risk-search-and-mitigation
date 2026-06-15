@@ -56,3 +56,12 @@ temporary bus-fault injection is not engineering-grade protection.
 Run actual B26 temporary smoke in a separate next round. That next round should
 still avoid exporting labels or training models until the smoke output is
 reviewed.
+
+## Actual Smoke Follow-Up
+
+The actual B26 temporary smoke was run after this readiness gate. The smoke
+result is recorded in `docs/ieee39_b26_temporary_bus_fault_smoke.md`.
+
+This follow-up still does not export labels, does not train GCN, and does not
+retrain the reranker. B26 remains a temporary smoke candidate until the smoke
+quality review is completed.
