@@ -70,3 +70,11 @@ injection is not engineering-grade protection.
 A later separate round may optionally run v2-plus-B39 preview training, but it
 must include label-family holdout and no-leakage comparison. This round keeps
 `should_train_now = false`.
+
+## Preview Training Follow-Up
+
+A later follow-up runs v2-plus-B39 dynamic-aware reranker preview training. It
+is not GCN training and remains preview-only. The follow-up reports
+include-all, exclude-provenance, no-dynamic-measurement, label-family holdout,
+and B39 bus-fault holdout metrics. The B39 holdout is a one-sample sanity check,
+not a final performance conclusion.

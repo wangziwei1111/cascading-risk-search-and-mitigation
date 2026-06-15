@@ -260,6 +260,7 @@ REQUIRED_FILES = [
     "docs/ieee39_b39_temp_smoke_quality_review.md",
     "docs/ieee39_b39_bus_fault_candidate_label_export.md",
     "docs/ieee39_v2_plus_b39_no_training_composition_review.md",
+    "docs/ieee39_v2_plus_b39_preview_training.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -357,6 +358,13 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_label_family_counts.csv",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_fault_type_counts.csv",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_bus_fault_comparison.csv",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_preview/v2_plus_b39_preview_comparison.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_preview/v2_plus_b39_preview_comparison.md",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_preview/include_all_41_candidates/preview_training_metrics.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_preview/exclude_provenance_required/preview_training_metrics.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_preview/no_dynamic_measurement_features/preview_training_metrics.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_preview/label_family_holdout/preview_training_metrics.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_preview/bus_fault_holdout/preview_training_metrics.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -1009,6 +1017,8 @@ def main() -> int:
         failures.append("Validation log must contain Round 53 B39 candidate export.")
     if validation_log.exists() and "round 54: ieee39 v2-plus-b39 schema fix and no-training composition review" not in _read_text("docs/gcn_pio_validation_log.md").lower():
         failures.append("Validation log must contain Round 54 v2-plus-B39 composition review.")
+    if validation_log.exists() and "round 55: ieee39 v2-plus-b39 dynamic-aware reranker preview training" not in _read_text("docs/gcn_pio_validation_log.md").lower():
+        failures.append("Validation log must contain Round 55 v2-plus-B39 preview training.")
 
     non_line_dir = ROOT / "results/gcn_search/ieee39_dynamic_fault_type_expansion"
     non_line_manifest = non_line_dir / "ieee39_non_line_trip_scenario_manifest.csv"
@@ -1665,6 +1675,107 @@ def main() -> int:
                     failures.append(f"B39 composition review markdown missing {required}.")
         except Exception as exc:
             failures.append(f"Failed to read B39 composition review artifacts: {exc}")
+
+    v2_b39_preview_dir = ROOT / "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_preview"
+    v2_b39_comparison = v2_b39_preview_dir / "v2_plus_b39_preview_comparison.json"
+    if v2_b39_comparison.exists():
+        try:
+            import json
+
+            comparison = json.loads(v2_b39_comparison.read_text(encoding="utf-8"))
+            expected = {
+                "preview_only": True,
+                "final_performance_conclusion": False,
+                "previous_v2_candidate_count": 40,
+                "v2_plus_b39_candidate_count": 41,
+                "b39_candidate_count": 1,
+                "old_formal_gate": "35 / 33 / 33",
+                "l12_excluded": True,
+                "nf06_provenance_warning_preserved": True,
+                "b39_schema_consistency_passed": True,
+            }
+            for key, value in expected.items():
+                if comparison.get(key) != value:
+                    failures.append(f"v2-plus-B39 preview comparison must record {key}={value!r}.")
+            for key in [
+                "include_all_41_metrics",
+                "exclude_provenance_metrics",
+                "no_dynamic_measurement_features_metrics",
+                "label_family_holdout_metrics",
+                "bus_fault_holdout_metrics",
+            ]:
+                if key not in comparison:
+                    failures.append(f"v2-plus-B39 preview comparison missing {key}.")
+            mode_expectations = {
+                "include_all_41_candidates": {"num_samples": 41, "contains_b39": True, "contains_nf06": True},
+                "exclude_provenance_required": {"num_samples": 40, "contains_b39": True, "contains_nf06": False},
+                "no_dynamic_measurement_features": {"num_samples": 41, "leakage_reduced": True},
+                "label_family_holdout": {"num_test_non_line_trip": 6, "num_test_bus_fault": 1},
+                "bus_fault_holdout": {"num_test": 1, "test_scenario_id": "BF_B39_TEMP_SMOKE", "target_bus": "B39"},
+            }
+            for mode, expected_fields in mode_expectations.items():
+                metrics_path = v2_b39_preview_dir / mode / "preview_training_metrics.json"
+                metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
+                if metrics.get("preview_only") is not True:
+                    failures.append(f"{mode} metrics must set preview_only=true.")
+                if metrics.get("final_performance_conclusion") is not False:
+                    failures.append(f"{mode} metrics must set final_performance_conclusion=false.")
+                for key, value in expected_fields.items():
+                    if metrics.get(key) != value:
+                        failures.append(f"{mode} metrics must record {key}={value!r}.")
+                if not metrics.get("regression_metrics"):
+                    failures.append(f"{mode} metrics missing regression_metrics.")
+                if mode == "no_dynamic_measurement_features":
+                    forbidden_features = {
+                        "min_voltage_pu",
+                        "max_voltage_pu",
+                        "min_frequency_hz",
+                        "max_frequency_hz",
+                        "max_speed_deviation",
+                        "max_rotor_angle_separation_deg",
+                        "dynamic_stress_score",
+                        "unstable_flag",
+                    }
+                    if forbidden_features & set(metrics.get("feature_columns", [])):
+                        failures.append("no_dynamic_measurement_features contains forbidden leakage features.")
+                if mode == "bus_fault_holdout":
+                    for key in [
+                        "true_dynamic_stress_score",
+                        "predicted_dynamic_stress_score",
+                        "regression_absolute_error",
+                        "classification_probability_if_available",
+                        "skipped_metrics_reason",
+                    ]:
+                        if metrics.get(key) is None:
+                            failures.append(f"bus_fault_holdout metrics missing {key}.")
+        except Exception as exc:
+            failures.append(f"Failed to read v2-plus-B39 preview training artifacts: {exc}")
+
+    v2_b39_preview_doc = ROOT / "docs/ieee39_v2_plus_b39_preview_training.md"
+    if v2_b39_preview_doc.exists():
+        text = _read_text("docs/ieee39_v2_plus_b39_preview_training.md").lower()
+        for required in [
+            "not gcn training",
+            "does not run simulink",
+            "does not submit `.slx`",
+            "candidate label, not formal label",
+            "v2-plus-b39 candidate count: `41`",
+            "phasor_rms`, not emt",
+            "generator_speed_proxy` is not direct frequency",
+            "not engineering-grade protection",
+            "preview-only",
+        ]:
+            if required not in text:
+                failures.append(f"v2-plus-B39 preview training doc missing: {required}")
+        for bad in [
+            "gcn trained",
+            "is a final performance conclusion",
+            "final performance conclusion = true",
+            "emt validation completed",
+            "generator_speed_proxy is direct frequency",
+        ]:
+            if bad in text:
+                failures.append(f"v2-plus-B39 preview training doc contains overstatement: {bad}")
 
     b39_export_doc = ROOT / "docs/ieee39_b39_bus_fault_candidate_label_export.md"
     if b39_export_doc.exists():

@@ -93,3 +93,9 @@ The no-training composition review has been completed:
 - should_train_now: `false`
 - review path:
   `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/no_training_composition_review/`
+
+## Preview Training Follow-Up
+
+A later separate round runs v2-plus-B39 dynamic-aware reranker preview training.
+This is not GCN training, does not run Simulink, and remains preview-only. B39
+is still a candidate label rather than a formal label.

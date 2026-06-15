@@ -1,0 +1,358 @@
+{
+  "preview_only": true,
+  "final_performance_conclusion": false,
+  "mode": "no_dynamic_measurement_features",
+  "feature_set": "no_dynamic_measurement_features",
+  "split_strategy": "leave_one_out",
+  "model_regression": "Ridge Regression",
+  "model_classification": "Logistic Regression",
+  "random_seed": 42,
+  "num_samples": 41,
+  "contains_b39": true,
+  "contains_nf06": true,
+  "num_bus_fault_candidates": 1,
+  "num_non_line_trip_candidates": 6,
+  "num_formal_v1_rows": 35,
+  "num_handwired_line_trip": 33,
+  "dynamic_stress_score_is_proxy_target": true,
+  "target_feature_leakage_risk": false,
+  "leakage_reduced": true,
+  "feature_columns": [
+    "duration_s",
+    "fault_start_s",
+    "fault_clear_s",
+    "line_id_numeric",
+    "target_bus_numeric",
+    "physical_fault_or_breaker_action_executed",
+    "breaker_opened",
+    "formal_line_trip_label",
+    "handwired_line_trip_label",
+    "non_line_trip_label",
+    "bus_fault_label",
+    "temporary_smoke_candidate",
+    "candidate_not_formal_label",
+    "provenance_check_required",
+    "not_independent_physical_sample_until_verified",
+    "line_id_L01",
+    "line_id_L02",
+    "line_id_L03",
+    "line_id_L04",
+    "line_id_L05",
+    "line_id_L06",
+    "line_id_L07",
+    "line_id_L08",
+    "line_id_L09",
+    "line_id_L10",
+    "line_id_L11",
+    "line_id_L13",
+    "line_id_L14",
+    "line_id_L15",
+    "line_id_L16",
+    "line_id_L17",
+    "line_id_L18",
+    "line_id_L19",
+    "line_id_L20",
+    "line_id_L21",
+    "line_id_L22",
+    "line_id_L23",
+    "line_id_L24",
+    "line_id_L25",
+    "line_id_L26",
+    "line_id_L27",
+    "line_id_L28",
+    "line_id_L29",
+    "line_id_L30",
+    "line_id_L31",
+    "line_id_L32",
+    "line_id_L33",
+    "line_id_L34",
+    "line_id_NO_LINE",
+    "line_id_basic_relay_proxy_on_mapped_L01",
+    "line_id_existing_fault_block_location",
+    "target_bus_B39",
+    "target_bus_unknown",
+    "target_bus_or_component_B39",
+    "target_bus_or_component_L01",
+    "target_bus_or_component_L02",
+    "target_bus_or_component_L03",
+    "target_bus_or_component_L04",
+    "target_bus_or_component_L05",
+    "target_bus_or_component_L06",
+    "target_bus_or_component_L07",
+    "target_bus_or_component_L08",
+    "target_bus_or_component_L09",
+    "target_bus_or_component_L10",
+    "target_bus_or_component_L11",
+    "target_bus_or_component_L13",
+    "target_bus_or_component_L14",
+    "target_bus_or_component_L15",
+    "target_bus_or_component_L16",
+    "target_bus_or_component_L17",
+    "target_bus_or_component_L18",
+    "target_bus_or_component_L19",
+    "target_bus_or_component_L20",
+    "target_bus_or_component_L21",
+    "target_bus_or_component_L22",
+    "target_bus_or_component_L23",
+    "target_bus_or_component_L24",
+    "target_bus_or_component_L25",
+    "target_bus_or_component_L26",
+    "target_bus_or_component_L27",
+    "target_bus_or_component_L28",
+    "target_bus_or_component_L29",
+    "target_bus_or_component_L30",
+    "target_bus_or_component_L31",
+    "target_bus_or_component_L32",
+    "target_bus_or_component_L33",
+    "target_bus_or_component_L34",
+    "target_bus_or_component_basic_relay_proxy_on_mapped_L01",
+    "target_bus_or_component_existing_fault_block_location",
+    "target_bus_or_component_unknown",
+    "fault_type_basic_relay_proxy",
+    "fault_type_fault_duration_sweep_smoke",
+    "fault_type_pilot_line_trip",
+    "fault_type_relay_proxy_fault_smoke",
+    "fault_type_three_phase_bus_fault_temp_smoke",
+    "fault_type_three_phase_fault_clear",
+    "fault_type_three_phase_fault_clear_smoke",
+    "label_family_existing_formal_dynamic",
+    "label_family_non_line_trip",
+    "trip_implementation_basic_relay_proxy",
+    "trip_implementation_existing_three_phase_fault_block",
+    "trip_implementation_handwired_timed_breaker",
+    "trip_implementation_temporary_bus_fault",
+    "trip_implementation_unknown",
+    "source_model_type_unknown",
+    "duplicate_measurement_group_group_1",
+    "duplicate_measurement_group_unknown"
+  ],
+  "regression_metrics": {
+    "mae": 0.04292235502875513,
+    "rmse": 0.06101753319040434,
+    "pearson": 0.9533443761499197,
+    "spearman": 0.6254846587063262
+  },
+  "classification_metrics": {
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "roc_auc": 1.0
+  },
+  "classification_skipped_reason": "",
+  "folds": [
+    {
+      "fold_id": "loo_0",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_1",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_2",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_3",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_4",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_5",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_6",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_7",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_8",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_9",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_10",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_11",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_12",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_13",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_14",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_15",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_16",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_17",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_18",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_19",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_20",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_21",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_22",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_23",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_24",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_25",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_26",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_27",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_28",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_29",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_30",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_31",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_32",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_33",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_34",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_35",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_36",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_37",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_38",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_39",
+      "num_train": 40,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_40",
+      "num_train": 40,
+      "num_test": 1
+    }
+  ],
+  "notes": [
+    "preview-only / sanity check",
+    "not GCN training",
+    "phasor_RMS is not EMT",
+    "generator_speed_proxy is not direct frequency",
+    "temporary bus-fault injection is not engineering-grade protection"
+  ],
+  "cv_strategy": "leave_one_out"
+}

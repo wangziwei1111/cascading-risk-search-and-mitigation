@@ -2868,3 +2868,48 @@ is not EMT, `generator_speed_proxy` is not direct frequency, and the temporary
 bus-fault injection is not engineering-grade protection. A later separate
 v2-plus-B39 preview training round may be considered, but it must include
 label-family holdout and no-leakage comparison.
+
+## Round 55: IEEE39 v2-plus-B39 Dynamic-Aware Reranker Preview Training
+
+This round runs v2-plus-B39 dynamic-aware reranker preview training. It does not
+run Simulink, does not submit `.slx`, does not modify source `.slx`, does not
+train GCN, and does not change the old formal gate. It is preview-only and not
+a final performance conclusion.
+
+Dataset:
+
+```text
+previous_v2_candidate_count = 40
+v2_plus_b39_candidate_count = 41
+B39 candidate count = 1
+old_formal_gate = 35 / 33 / 33
+L12 excluded = true
+NF06 provenance warning preserved = true
+```
+
+Preview metrics:
+
+```text
+include_all_41_candidates RMSE = 0.043432, F1 = 1.0
+exclude_provenance_required RMSE = 0.044357, F1 = 1.0
+no_dynamic_measurement_features RMSE = 0.061018, F1 = 1.0
+label_family_holdout RMSE = 0.179264, classification skipped because test predictions contain one unstable_flag class
+bus_fault_holdout B39 true dynamic_stress_score = 0.605781
+bus_fault_holdout B39 predicted dynamic_stress_score = 0.394178
+bus_fault_holdout B39 absolute error = 0.211603
+bus_fault_holdout B39 predicted unstable probability = 0.966723
+```
+
+Interpretation: include-all metrics are not final performance because the proxy
+target is derived from compact dynamic measurements that can also appear as
+features. The no-dynamic-measurement result is worse, confirming leakage risk.
+The B39 holdout is a one-sample bus-fault sanity check only; it cannot represent
+all bus faults. `phasor_RMS` is not EMT, `generator_speed_proxy` is not direct
+frequency, and the temporary bus-fault injection is not engineering-grade
+protection.
+
+Artifacts:
+
+- `docs/ieee39_v2_plus_b39_preview_training.md`
+- `results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_preview/v2_plus_b39_preview_comparison.json`
+- `results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_preview/v2_plus_b39_preview_comparison.md`

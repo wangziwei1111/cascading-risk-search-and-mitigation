@@ -157,3 +157,16 @@ reranker, and does not overwrite this existing v2 preview training result.
 
 A future v2-plus-B39 preview training round may be considered separately, but
 it must include label-family holdout and no-leakage comparison.
+
+## v2-plus-B39 Preview Training Follow-Up
+
+A separate v2-plus-B39 dynamic-aware reranker preview training run has now been
+completed in:
+
+`results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_preview/`
+
+It is not GCN training and is not a final performance conclusion. It keeps the
+old formal gate at `35 / 33 / 33`, uses `41` v2-plus-B39 candidate rows, keeps
+L12 excluded, and preserves the NF06 provenance warning. It reports
+include-all, exclude-provenance, no-dynamic-measurement, label-family holdout,
+and B39 bus-fault holdout metrics.

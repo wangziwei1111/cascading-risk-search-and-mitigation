@@ -117,7 +117,8 @@ def test_v2_plus_b39_docs_do_not_overstate_boundaries():
     for forbidden in [
         "gcn trained: `true`",
         "reranker retrained: `true`",
-        "final performance conclusion",
+        "is a final performance conclusion",
+        "final performance conclusion = true",
         "emt validation completed",
         "generator_speed_proxy is direct frequency",
     ]:
