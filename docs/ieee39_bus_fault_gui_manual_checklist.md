@@ -113,3 +113,18 @@ run. This checklist itself is not smoke success.
 - The model remains phasor_RMS, not EMT.
 - `generator_speed_proxy` is not direct frequency.
 - Relay proxy / handwired breaker behavior is not engineering-grade protection.
+
+## B26 Priority Follow-Up
+
+After the v2-plus-B39 preview interpretation, B26 becomes the next priority
+manual GUI target because B39 holdout showed weak bus-fault / fault-family
+generalization. This is preparation only:
+
+- B26 remains unverified.
+- B26 is not smoke success.
+- B26 candidate label has not been exported.
+- Codex should not run Simulink in this preparation round.
+- Codex should not train GCN or retrain the reranker in this preparation round.
+
+The B26-specific plan is in
+`docs/ieee39_b26_manual_bus_fault_verification_plan.md`.

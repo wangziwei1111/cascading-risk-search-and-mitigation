@@ -261,6 +261,8 @@ REQUIRED_FILES = [
     "docs/ieee39_b39_bus_fault_candidate_label_export.md",
     "docs/ieee39_v2_plus_b39_no_training_composition_review.md",
     "docs/ieee39_v2_plus_b39_preview_training.md",
+    "docs/ieee39_v2_plus_b39_preview_interpretation.md",
+    "docs/ieee39_b26_manual_bus_fault_verification_plan.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -365,6 +367,7 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_preview/no_dynamic_measurement_features/preview_training_metrics.json",
     "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_preview/label_family_holdout/preview_training_metrics.json",
     "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_preview/bus_fault_holdout/preview_training_metrics.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/b26_manual_gui_check_commands.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -1019,6 +1022,8 @@ def main() -> int:
         failures.append("Validation log must contain Round 54 v2-plus-B39 composition review.")
     if validation_log.exists() and "round 55: ieee39 v2-plus-b39 dynamic-aware reranker preview training" not in _read_text("docs/gcn_pio_validation_log.md").lower():
         failures.append("Validation log must contain Round 55 v2-plus-B39 preview training.")
+    if validation_log.exists() and "round 56: b39 preview interpretation and b26 manual verification prep" not in _read_text("docs/gcn_pio_validation_log.md").lower():
+        failures.append("Validation log must contain Round 56 B26 manual verification prep.")
 
     non_line_dir = ROOT / "results/gcn_search/ieee39_dynamic_fault_type_expansion"
     non_line_manifest = non_line_dir / "ieee39_non_line_trip_scenario_manifest.csv"
@@ -1777,6 +1782,84 @@ def main() -> int:
             if bad in text:
                 failures.append(f"v2-plus-B39 preview training doc contains overstatement: {bad}")
 
+    b39_interpretation_doc = ROOT / "docs/ieee39_v2_plus_b39_preview_interpretation.md"
+    if b39_interpretation_doc.exists():
+        text = _read_text("docs/ieee39_v2_plus_b39_preview_interpretation.md").lower()
+        for required in [
+            "does not train gcn",
+            "does not retrain the reranker",
+            "no_dynamic_measurement_features rmse",
+            "worse",
+            "b39 holdout absolute error",
+            "underestimates the dynamic_stress_score",
+            "collect more independent bus-fault samples",
+            "b26",
+            "b26 is not smoke success",
+            "phasor_rms`, not emt",
+            "generator_speed_proxy` is not direct frequency",
+            "not engineering-grade protection",
+        ]:
+            if required not in text:
+                failures.append(f"B39 preview interpretation doc missing: {required}")
+        for bad in [
+            "gcn trained",
+            "reranker retrained",
+            "b26 smoke success",
+            "b26 candidate label has been exported",
+            "emt validation completed",
+            "generator_speed_proxy is direct frequency",
+        ]:
+            if bad in text:
+                failures.append(f"B39 preview interpretation doc contains overstatement: {bad}")
+
+    b26_plan_doc = ROOT / "docs/ieee39_b26_manual_bus_fault_verification_plan.md"
+    b26_template = ROOT / "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_bus_fault_injection_review_template_B26.json"
+    b26_commands = ROOT / "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/b26_manual_gui_check_commands.md"
+    if b26_plan_doc.exists() and b26_template.exists() and b26_commands.exists():
+        try:
+            import json
+
+            plan_text = _read_text("docs/ieee39_b26_manual_bus_fault_verification_plan.md").lower()
+            command_text = b26_commands.read_text(encoding="utf-8", errors="ignore").lower()
+            payload = json.loads(b26_template.read_text(encoding="utf-8"))
+            for required in [
+                "b26 is the next priority bus-fault sample",
+                "b26 remains unverified",
+                "b26 is not smoke success",
+                "b26 is not a candidate label",
+                "grid/bus26_1",
+                "grid/bus26_2",
+                "update diagram only",
+                "does not run simulink",
+                "does not submit `.slx`",
+                "does not train gcn",
+                "does not retrain the reranker",
+            ]:
+                if required not in plan_text:
+                    failures.append(f"B26 manual plan doc missing: {required}")
+            if payload.get("human_verified_injection_point") is not False:
+                failures.append("B26 template must keep human_verified_injection_point=false.")
+            if payload.get("safe_to_run_smoke_recommendation") is not False:
+                failures.append("B26 template must keep safe_to_run_smoke_recommendation=false.")
+            if payload.get("update_diagram_success") is not False:
+                failures.append("B26 template must keep update_diagram_success=false.")
+            if payload.get("human_verified") is not False:
+                failures.append("B26 template must keep human_verified=false.")
+            if payload.get("suggested_fault_block_name") != "Grid/Fault_B26_TEMP":
+                failures.append("B26 template must include suggested_fault_block_name=Grid/Fault_B26_TEMP.")
+            if payload.get("suggested_fault_start_s") != 0.5 or payload.get("suggested_duration_s") != 0.08:
+                failures.append("B26 template must include suggested timing 0.5s / 0.08s.")
+            busbars = set(payload.get("candidate_busbar_paths", []))
+            if not {"Grid/Bus26_1", "Grid/Bus26_2"}.issubset(busbars):
+                failures.append("B26 template must include Grid/Bus26_1 and Grid/Bus26_2.")
+            for required in ["grid/bus26_1", "grid/bus26_2", "get_param", "portconnectivity", "fault_b26_temp", "simulationcommand', 'update", "do not run simulation"]:
+                if required not in command_text:
+                    failures.append(f"B26 manual command snippets missing: {required}")
+            if "simulationcommand', 'start" in command_text:
+                failures.append("B26 manual command snippets must not start simulation.")
+        except Exception as exc:
+            failures.append(f"Failed to read B26 manual verification artifacts: {exc}")
+
     b39_export_doc = ROOT / "docs/ieee39_b39_bus_fault_candidate_label_export.md"
     if b39_export_doc.exists():
         text = _read_text("docs/ieee39_b39_bus_fault_candidate_label_export.md").lower()
@@ -1954,7 +2037,8 @@ def main() -> int:
                     ]:
                         if template.get(key) is not False:
                             failures.append(f"Manual bus-fault template {target_bus} must default {key}=false.")
-                    if template.get("next_action") != "manual review required before smoke":
+                    next_action = str(template.get("next_action", "")).lower()
+                    if "manual review required before" not in next_action:
                         failures.append(f"Manual bus-fault template {target_bus} must keep conservative next_action.")
                 for key in ["source_model_saved", "temporary_model_committed"]:
                     if template.get(key) is not False:

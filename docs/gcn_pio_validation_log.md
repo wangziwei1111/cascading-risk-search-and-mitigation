@@ -2913,3 +2913,48 @@ Artifacts:
 - `docs/ieee39_v2_plus_b39_preview_training.md`
 - `results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_preview/v2_plus_b39_preview_comparison.json`
 - `results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_preview/v2_plus_b39_preview_comparison.md`
+
+## Round 56: B39 Preview Interpretation and B26 Manual Verification Prep
+
+This round does not run Simulink, does not submit `.slx`, does not modify source
+`.slx`, does not train GCN, does not retrain the reranker, and does not export
+labels. It interprets the B39 holdout result and prepares the B26 manual GUI
+verification workflow.
+
+Interpretation:
+
+```text
+include_all_41 RMSE = 0.043432407857356255
+no_dynamic_measurement_features RMSE = 0.06101753319040434
+label_family_holdout RMSE = 0.17926382339205915
+B39 holdout true dynamic_stress_score = 0.6057813745060507
+B39 holdout predicted dynamic_stress_score = 0.3941782648518122
+B39 holdout absolute error = 0.2116031096542385
+B39 holdout unstable probability = 0.9667234869320884
+```
+
+The no-dynamic-measurement result is worse, so leakage risk remains. The B39
+holdout underestimates dynamic_stress_score, so bus-fault / fault-family
+generalization is still weak. The next priority is another independent
+bus-fault sample: `B26`.
+
+B26 status:
+
+```text
+B26 verified = false
+B26 smoke success = false
+B26 candidate label exported = false
+human_verified_injection_point = false
+safe_to_run_smoke_recommendation = false
+old formal gate = 35 / 33 / 33
+v2-plus-B39 count = 41
+```
+
+Artifacts:
+
+- `docs/ieee39_v2_plus_b39_preview_interpretation.md`
+- `docs/ieee39_b26_manual_bus_fault_verification_plan.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/b26_manual_gui_check_commands.md`
+
+The model remains `phasor_RMS`, not EMT. `generator_speed_proxy` is not direct
+frequency. Temporary bus-fault injection is not engineering-grade protection.

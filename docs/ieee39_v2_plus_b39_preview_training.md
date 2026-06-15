@@ -78,3 +78,11 @@ engineering-grade protection and not a final performance conclusion.
 Use the B39 holdout and no-leakage comparison to decide whether to collect more
 bus-fault labels first, or whether to connect dynamic labels back to the main
 GCN/reranker workflow.
+
+## Interpretation Follow-Up
+
+A follow-up interpretation concludes that the next priority is to collect more
+independent bus-fault evidence before returning dynamic labels to the main
+GCN/reranker workflow. B26 is the next manual GUI target. This follow-up does
+not run Simulink, does not train GCN, does not retrain the reranker, and does
+not export labels.

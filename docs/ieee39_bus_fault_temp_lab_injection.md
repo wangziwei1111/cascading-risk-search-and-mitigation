@@ -141,3 +141,21 @@ This remains a temporary smoke candidate only. `labels_exported = false`,
 `gcn_trained = false`, `reranker_retrained = false`, the source `.slx` was not
 modified, L12 was not touched, the old formal gate remains `35 / 33 / 33`, and the v2
 candidate count remains `40`.
+
+## B26 Manual Verification Preparation Follow-Up
+
+After the B39 v2-plus-B39 preview interpretation, B26 is prepared as the next
+manual GUI target. This round does not run Simulink, does not submit `.slx`,
+does not train GCN, does not retrain the reranker, and does not export labels.
+
+- B26 remains unverified.
+- B26 is not smoke success.
+- B26 candidate label has not been exported.
+- `human_verified_injection_point = false`
+- `safe_to_run_smoke_recommendation = false`
+- old formal gate remains `35 / 33 / 33`
+- v2-plus-B39 count remains `41`
+
+Manual commands are available at:
+
+`results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/b26_manual_gui_check_commands.md`

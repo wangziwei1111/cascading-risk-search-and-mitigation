@@ -37,10 +37,18 @@
   "fault_start_s": 0.5,
   "fault_clear_s": 0.58,
   "duration_s": 0.08,
+  "suggested_fault_block_name": "Grid/Fault_B26_TEMP",
+  "suggested_fault_start_s": 0.5,
+  "suggested_duration_s": 0.08,
+  "candidate_busbar_paths": [
+    "Grid/Bus26_1",
+    "Grid/Bus26_2"
+  ],
   "measurement_signals_expected_available": false,
   "human_verified_injection_point": false,
   "safe_to_run_smoke_recommendation": false,
-  "reviewer_notes": "",
+  "human_verified": false,
+  "reviewer_notes": "B26 is next manual GUI target after B39 holdout showed weak bus-fault generalization. Manual review required before any temporary smoke.",
   "screenshots_or_manual_evidence_paths": [],
-  "next_action": "manual review required before smoke"
+  "next_action": "B26 is next manual GUI target after B39 holdout showed weak bus-fault generalization. Manual review required before any temporary smoke."
 }
