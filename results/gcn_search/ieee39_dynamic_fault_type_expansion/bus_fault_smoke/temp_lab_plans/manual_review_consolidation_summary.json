@@ -2,26 +2,10 @@
   "preview_only": true,
   "review_json": "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_bus_fault_injection_review_template_B39.json",
   "target_bus": "B39",
-  "recommendation": "do_not_run_smoke",
-  "failed_checks": [
-    "source_model_opened_read_only=not_true",
-    "fault_block_connected_in_parallel=not_true",
-    "original_network_connection_preserved=not_true",
-    "no_unintended_bypass=not_true",
-    "no_floating_ports=not_true",
-    "no_unintended_islanding=not_true",
-    "update_diagram_attempted=not_true",
-    "update_diagram_success=not_true",
-    "measurement_signals_expected_available=not_true",
-    "human_verified_injection_point=not_true",
-    "safe_to_run_smoke_recommendation=not_true",
-    "selected_injection_block_path=empty",
-    "selected_injection_port_description=empty",
-    "selected_fault_block_path=empty",
-    "screenshots_or_manual_evidence_paths=empty"
-  ],
-  "human_verified_injection_point": false,
-  "safe_to_run_smoke_recommendation": false,
+  "recommendation": "manual_review_supports_next_round_inventory_update",
+  "failed_checks": [],
+  "human_verified_injection_point": true,
+  "safe_to_run_smoke_recommendation": true,
   "source_model_saved": false,
   "temporary_model_committed": false,
   "inventory_modified": false,
@@ -31,5 +15,5 @@
   "reranker_retrained": false,
   "formal_label_gate": "35 / 33 / 33",
   "v2_candidate_count": 40,
-  "next_action": "manual review required before smoke"
+  "next_action": "update inventory in a separate round before any temporary smoke"
 }

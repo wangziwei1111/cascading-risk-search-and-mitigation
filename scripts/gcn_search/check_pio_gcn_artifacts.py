@@ -254,6 +254,7 @@ REQUIRED_FILES = [
     "docs/ieee39_bus_fault_smoke_tests.md",
     "docs/ieee39_bus_fault_temp_lab_injection.md",
     "docs/ieee39_bus_fault_gui_manual_checklist.md",
+    "docs/ieee39_bus_fault_b39_manual_review_result.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -1376,11 +1377,17 @@ def main() -> int:
                 failures.append("Manual bus-fault review summary must set preview_only=true.")
             if summary.get("target_bus") != "B39":
                 failures.append("Manual bus-fault review summary must be based on the default B39 template.")
-            if summary.get("recommendation") != "do_not_run_smoke":
-                failures.append("Manual bus-fault review summary must default to do_not_run_smoke.")
+            if summary.get("recommendation") == "do_not_run_smoke":
+                failures.append("Manual bus-fault review summary must no longer default to do_not_run_smoke after B39 verification.")
+            if summary.get("recommendation") != "manual_review_supports_next_round_inventory_update":
+                failures.append("Manual bus-fault review summary must support next-round B39 inventory update.")
             for key in [
                 "human_verified_injection_point",
                 "safe_to_run_smoke_recommendation",
+            ]:
+                if summary.get(key) is not True:
+                    failures.append(f"Manual bus-fault review summary must record {key}=true for B39.")
+            for key in [
                 "source_model_saved",
                 "temporary_model_committed",
                 "inventory_modified",
@@ -1407,20 +1414,81 @@ def main() -> int:
                 template = json.loads(template_path.read_text(encoding="utf-8"))
                 if template.get("target_bus") != target_bus:
                     failures.append(f"Manual bus-fault template {target_bus} has wrong target_bus.")
-                for key in [
-                    "human_verified_injection_point",
-                    "safe_to_run_smoke_recommendation",
-                    "source_model_saved",
-                    "temporary_model_committed",
-                ]:
+                if target_bus == "B39":
+                    for key in [
+                        "human_verified_injection_point",
+                        "safe_to_run_smoke_recommendation",
+                        "fault_block_connected_in_parallel",
+                        "original_network_connection_preserved",
+                        "no_unintended_bypass",
+                        "no_floating_ports",
+                        "no_unintended_islanding",
+                        "update_diagram_attempted",
+                        "update_diagram_success",
+                        "measurement_signals_expected_available",
+                    ]:
+                        if template.get(key) is not True:
+                            failures.append(f"Manual bus-fault template B39 must record {key}=true.")
+                    if template.get("selected_fault_block_path") != "Grid/Fault_B39_TEMP":
+                        failures.append("Manual bus-fault template B39 must select Grid/Fault_B39_TEMP.")
+                    if template.get("next_action") != "prepare temporary B39 smoke in next round":
+                        failures.append("Manual bus-fault template B39 must point to next-round temporary smoke preparation.")
+                else:
+                    for key in [
+                        "human_verified_injection_point",
+                        "safe_to_run_smoke_recommendation",
+                        "source_model_saved",
+                        "temporary_model_committed",
+                    ]:
+                        if template.get(key) is not False:
+                            failures.append(f"Manual bus-fault template {target_bus} must default {key}=false.")
+                    if template.get("next_action") != "manual review required before smoke":
+                        failures.append(f"Manual bus-fault template {target_bus} must keep conservative next_action.")
+                for key in ["source_model_saved", "temporary_model_committed"]:
                     if template.get(key) is not False:
-                        failures.append(f"Manual bus-fault template {target_bus} must default {key}=false.")
-                if template.get("next_action") != "manual review required before smoke":
-                    failures.append(f"Manual bus-fault template {target_bus} must keep conservative next_action.")
+                        failures.append(f"Manual bus-fault template {target_bus} must record {key}=false.")
                 if not template.get("candidate_blocks_reviewed"):
                     failures.append(f"Manual bus-fault template {target_bus} must list candidate blocks.")
             except Exception as exc:
                 failures.append(f"Failed to read manual bus-fault template {target_bus}: {exc}")
+
+    b39_evidence_doc = ROOT / "docs/ieee39_bus_fault_b39_manual_review_result.md"
+    if b39_evidence_doc.exists():
+        text = _read_text("docs/ieee39_bus_fault_b39_manual_review_result.md").lower()
+        for required in [
+            "human simulink gui review",
+            "simscapeblock",
+            "busbar",
+            "grid/fault_b39_temp",
+            "bus39 port 1",
+            "b9 to b39",
+            "old fault",
+            "bus16_1",
+            "b16 to b17",
+            "update diagram passed",
+            "fault_start_time = 0.5 s",
+            "fault_duration = 0.08 s",
+            "not smoke success",
+            "35 / 33 / 33",
+            "v2 candidate count remains `40`",
+            "phasor_rms, not emt",
+            "not direct frequency",
+            "not engineering-grade protection",
+        ]:
+            if required not in text:
+                failures.append(f"B39 manual evidence doc missing: {required}")
+        for bad in [
+            "b39 smoke success",
+            "smoke success completed",
+            "exported bus-fault labels",
+            "trained gcn model",
+            "reranker was retrained",
+            "emt validation completed",
+            "generator_speed_proxy is direct frequency",
+            "engineering-grade protection completed",
+        ]:
+            if bad in text:
+                failures.append(f"B39 manual evidence doc contains overstatement: {bad}")
 
     non_line_export_dir = non_line_dir / "non_line_trip_label_export"
     non_line_candidates = non_line_export_dir / "ieee39_non_line_trip_dynamic_label_candidates.csv"

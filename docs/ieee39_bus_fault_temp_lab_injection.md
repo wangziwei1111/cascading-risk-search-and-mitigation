@@ -84,8 +84,17 @@ A follow-up adds only manual GUI review material:
 
 This follow-up does not run Simulink, does not modify `.slx`, does not commit
 temporary `.slx`, does not fix L12, does not train GCN, does not retrain the
-reranker, and does not export labels. The default manual review consolidation
-uses the B39 template and returns `do_not_run_smoke`.
+reranker, and does not export labels. The first default template consolidation
+was conservative; after human GUI review, B39 now records
+`human_verified_injection_point = true` and
+`safe_to_run_smoke_recommendation = true`.
 
-B39 and B26 are still not smoke success. The old formal gate remains
-`35 / 33 / 33`, and the v2 candidate count remains `40`.
+B39 now has a human-verified temporary injection point, but B39 is still not
+smoke success. B26 remains unverified. The old formal gate remains `35 / 33 /
+33`, and the v2 candidate count remains `40`.
+
+The B39 manual evidence is recorded in
+`docs/ieee39_bus_fault_b39_manual_review_result.md`. The consolidation
+recommendation is `manual_review_supports_next_round_inventory_update`, which
+means the next round may prepare temporary B39 smoke. It does not mean this
+round ran smoke or exported labels.

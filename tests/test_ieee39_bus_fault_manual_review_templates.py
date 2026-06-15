@@ -56,30 +56,43 @@ def test_manual_review_templates_and_script_exist() -> None:
             assert path.stat().st_size > 0
 
 
-def test_manual_review_template_defaults_are_conservative() -> None:
-    for bus in ["B39", "B26"]:
-        payload = _load_template(bus)
-        assert set(payload) >= REQUIRED_FIELDS
-        assert payload["target_bus"] == bus
-        assert payload["human_verified_injection_point"] is False
-        assert payload["safe_to_run_smoke_recommendation"] is False
-        assert payload["source_model_saved"] is False
-        assert payload["temporary_model_committed"] is False
-        assert payload["next_action"] == "manual review required before smoke"
-        assert payload["fault_start_s"] == 0.5
-        assert payload["fault_clear_s"] == 0.58
-        assert payload["duration_s"] == 0.08
-        assert payload["candidate_blocks_reviewed"]
+def test_manual_review_template_boundaries() -> None:
+    b39 = _load_template("B39")
+    assert set(b39) >= REQUIRED_FIELDS
+    assert b39["target_bus"] == "B39"
+    assert b39["human_verified_injection_point"] is True
+    assert b39["safe_to_run_smoke_recommendation"] is True
+    assert b39["selected_fault_block_path"] == "Grid/Fault_B39_TEMP"
+    assert b39["source_model_saved"] is False
+    assert b39["temporary_model_committed"] is False
+    assert b39["next_action"] == "prepare temporary B39 smoke in next round"
+    assert b39["fault_start_s"] == 0.5
+    assert b39["fault_clear_s"] == 0.58
+    assert b39["duration_s"] == 0.08
+    assert b39["candidate_blocks_reviewed"]
+
+    b26 = _load_template("B26")
+    assert set(b26) >= REQUIRED_FIELDS
+    assert b26["target_bus"] == "B26"
+    assert b26["human_verified_injection_point"] is False
+    assert b26["safe_to_run_smoke_recommendation"] is False
+    assert b26["source_model_saved"] is False
+    assert b26["temporary_model_committed"] is False
+    assert b26["next_action"] == "manual review required before smoke"
+    assert b26["fault_start_s"] == 0.5
+    assert b26["fault_clear_s"] == 0.58
+    assert b26["duration_s"] == 0.08
+    assert b26["candidate_blocks_reviewed"]
 
 
-def test_manual_review_consolidation_default_is_do_not_run_smoke() -> None:
+def test_manual_review_consolidation_records_b39_verified_without_running_smoke() -> None:
     summary_path = PLAN_DIR / "manual_review_consolidation_summary.json"
     payload = json.loads(summary_path.read_text(encoding="utf-8"))
     assert payload["preview_only"] is True
     assert payload["target_bus"] == "B39"
-    assert payload["recommendation"] == "do_not_run_smoke"
-    assert payload["human_verified_injection_point"] is False
-    assert payload["safe_to_run_smoke_recommendation"] is False
+    assert payload["recommendation"] == "manual_review_supports_next_round_inventory_update"
+    assert payload["human_verified_injection_point"] is True
+    assert payload["safe_to_run_smoke_recommendation"] is True
     assert payload["inventory_modified"] is False
     assert payload["simulink_run"] is False
     assert payload["labels_exported"] is False

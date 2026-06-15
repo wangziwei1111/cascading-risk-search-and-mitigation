@@ -111,6 +111,8 @@ B39/B26 bus-fault injection. It does not run Simulink, does not modify `.slx`,
 does not commit temporary `.slx`, does not fix L12, does not train GCN, does not
 retrain the dynamic-aware reranker, and does not export labels.
 
-The default consolidation recommendation is `do_not_run_smoke`. B39/B26 remain
-manual-review candidates, not smoke success. The old formal gate remains
-`35 / 33 / 33`, and the v2 candidate count remains `40`.
+B39 now has a human-verified temporary injection point, but it is not smoke
+success. B26 remains unverified. The current consolidation recommendation is
+`manual_review_supports_next_round_inventory_update`, so the next round may
+prepare temporary B39 smoke. The old formal gate remains `35 / 33 / 33`, and
+the v2 candidate count remains `40`.

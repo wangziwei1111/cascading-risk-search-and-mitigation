@@ -90,8 +90,10 @@ The next step is a human GUI review checklist, not a Simulink run. The checklist
 records B39/B26 candidate blocks and requires a human reviewer to fill the
 manual review template before any later temporary smoke attempt.
 
-The default consolidation result is `do_not_run_smoke`. B39/B26 are not smoke
-success, no `.slx` was modified, no temporary `.slx` was committed, no labels
-were exported, no GCN was trained, and the dynamic-aware reranker was not
-retrained. The old formal gate remains `35 / 33 / 33`, and the v2 candidate
-count remains `40`.
+B39 now has a human-verified temporary injection point, and B26 remains
+unverified. B39 is not smoke success. The updated consolidation recommendation
+is `manual_review_supports_next_round_inventory_update`, meaning the next round
+may prepare a temporary B39 smoke run. No `.slx` was modified, no temporary
+`.slx` was committed, no labels were exported, no GCN was trained, and the
+dynamic-aware reranker was not retrained. The old formal gate remains `35 / 33
+/ 33`, and the v2 candidate count remains `40`.

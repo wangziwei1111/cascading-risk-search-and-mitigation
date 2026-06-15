@@ -2566,7 +2566,7 @@ Generated artifacts:
 - `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary.json`
 - `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary.md`
 
-Default consolidation result:
+Initial default consolidation result before B39 human evidence:
 
 ```text
 target_bus = B39
@@ -2575,8 +2575,57 @@ human_verified_injection_point = false
 safe_to_run_smoke_recommendation = false
 ```
 
-B39/B26 are still not smoke success. The old formal gate remains
-`35 / 33 / 33`, the v2 candidate count remains `40`, the model remains
-phasor_RMS, not EMT, `generator_speed_proxy` is not direct frequency, and relay
-proxy / handwired breaker behavior is not engineering-grade protection. RL
-mitigation files were not modified.
+B39/B26 were still not smoke success at that point. The old formal gate
+remained `35 / 33 / 33`, the v2 candidate count remained `40`, the model
+remained phasor_RMS, not EMT, `generator_speed_proxy` was not direct frequency,
+and relay proxy / handwired breaker behavior was not engineering-grade
+protection. RL mitigation files were not modified.
+
+## Round 49: IEEE39 B39 Manual Bus-Fault Injection Review
+
+This round records human Simulink GUI review evidence for the temporary B39
+bus-fault injection point. It does not run Simulink smoke, does not run a full
+simulation, does not modify source `.slx`, does not commit temporary `.slx`,
+does not fix L12, does not export labels, does not train GCN, and does not
+retrain the dynamic-aware reranker.
+
+Manual evidence:
+
+- B39 block path:
+  `IEEE39BusSystem_dynamic_experiment_wrapper_bus_fault_B39_TEMP_LOCAL_ONLY/Grid/Bus39`
+- `BlockType = SimscapeBlock`
+- `MaskType = Busbar`
+- Bus39 original connections remain present: `B9 to B39`, `Gen1 BusLabel`,
+  `B39 to B1`, and `Load39 BusLabel`.
+- The old `Fault (Three-Phase)` remains near `Bus16_1 / B16 to B17` and is not
+  treated as the B39 fault.
+- `Grid/Fault_B39_TEMP` is manually connected in parallel at Bus39 Port 1 /
+  `B9 to B39`.
+- Update Diagram passed without error.
+- `Fault_B39_TEMP` uses `R_pn_fault = 1e-3 Ohm`, `R_ng_fault = 1e-3 Ohm`,
+  `fault_start_time = 0.5 s`, and `fault_duration = 0.08 s`.
+
+Updated artifacts:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_bus_fault_injection_review_template_B39.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary.json`
+- `docs/ieee39_bus_fault_b39_manual_review_result.md`
+
+Consolidation result:
+
+```text
+human_verified_injection_point = true
+safe_to_run_smoke_recommendation = true
+recommendation = manual_review_supports_next_round_inventory_update
+simulink_run = false
+labels_exported = false
+gcn_trained = false
+reranker_retrained = false
+```
+
+B39 is human verified but is not smoke success. B26 remains unverified. The old
+formal gate remains `35 / 33 / 33`, the v2 candidate count remains `40`, the
+model remains phasor_RMS, not EMT, `generator_speed_proxy` is not direct
+frequency, and relay proxy / handwired breaker / temporary bus fault injection
+behavior is not engineering-grade protection. RL mitigation files were not
+modified.

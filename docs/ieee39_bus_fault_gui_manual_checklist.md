@@ -6,7 +6,8 @@ This checklist guides a human Simulink GUI review for IEEE39 different-bus
 three-phase fault injection. The priority target is `B39`; the fallback target
 is `B26`.
 
-Plain wording: this document is a manual inspection checklist only. It does not
+Plain wording: this document is a manual inspection checklist only. B39 now has
+a human-verified injection point, while B26 remains unverified. This does not
 mean B39 or B26 has passed smoke, does not train GCN, does not retrain the
 reranker, and does not export labels.
 
@@ -106,7 +107,9 @@ run. This checklist itself is not smoke success.
 
 - The old formal gate remains `35 / 33 / 33`.
 - The v2 candidate count remains `40`.
-- B39/B26 are not smoke success.
+- B39 has a human-verified injection point.
+- B39 is not smoke success.
+- B26 remains unverified.
 - The model remains phasor_RMS, not EMT.
 - `generator_speed_proxy` is not direct frequency.
 - Relay proxy / handwired breaker behavior is not engineering-grade protection.

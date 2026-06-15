@@ -50,8 +50,9 @@ def test_gui_manual_docs_record_boundaries() -> None:
     for required in [
         "gui manual",
         "temporary `.slx`",
-        "do_not_run_smoke",
-        "b39/b26 are not smoke success",
+        "human-verified injection point",
+        "b39 is not smoke success",
+        "b26 remains unverified",
         "does not run simulink",
         "does not modify `.slx`",
         "does not train gcn",
