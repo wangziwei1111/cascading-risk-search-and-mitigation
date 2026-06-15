@@ -83,3 +83,15 @@ Current result:
 No source `.slx` was modified or committed, no temporary `.slx` was committed,
 no labels were exported, no GCN was trained, and the dynamic-aware reranker was
 not retrained.
+
+## GUI Manual Checklist Follow-Up
+
+The next step is a human GUI review checklist, not a Simulink run. The checklist
+records B39/B26 candidate blocks and requires a human reviewer to fill the
+manual review template before any later temporary smoke attempt.
+
+The default consolidation result is `do_not_run_smoke`. B39/B26 are not smoke
+success, no `.slx` was modified, no temporary `.slx` was committed, no labels
+were exported, no GCN was trained, and the dynamic-aware reranker was not
+retrained. The old formal gate remains `35 / 33 / 33`, and the v2 candidate
+count remains `40`.

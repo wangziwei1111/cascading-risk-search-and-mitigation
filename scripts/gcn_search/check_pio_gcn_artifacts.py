@@ -111,6 +111,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/run_ieee39_bus_fault_smoke_tests.py",
     "scripts/gcn_search/prepare_ieee39_bus_fault_temp_lab.py",
     "scripts/gcn_search/run_ieee39_bus_fault_temp_lab_smoke.py",
+    "scripts/gcn_search/collect_ieee39_bus_fault_manual_review.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trip_isolated.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py",
     "scripts/gcn_search/update_ieee39_line_breaker_map_from_inventory.py",
@@ -252,6 +253,7 @@ REQUIRED_FILES = [
     "docs/ieee39_dynamic_aware_reranker_v2_preview_training.md",
     "docs/ieee39_bus_fault_smoke_tests.md",
     "docs/ieee39_bus_fault_temp_lab_injection.md",
+    "docs/ieee39_bus_fault_gui_manual_checklist.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -326,6 +328,12 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_bus_fault_temp_lab_smoke_summary.csv",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_bus_fault_temp_lab_smoke_report.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_bus_fault_temp_lab_smoke_report.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_bus_fault_injection_review_template_B39.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_bus_fault_injection_review_template_B39.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_bus_fault_injection_review_template_B26.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_bus_fault_injection_review_template_B26.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -1319,6 +1327,100 @@ def main() -> int:
         ]:
             if bad in text:
                 failures.append(f"Bus-fault temp-lab doc contains overstatement: {bad}")
+
+    manual_doc = ROOT / "docs/ieee39_bus_fault_gui_manual_checklist.md"
+    if manual_doc.exists():
+        text = _read_text("docs/ieee39_bus_fault_gui_manual_checklist.md").lower()
+        for required in [
+            "gui manual",
+            "b39",
+            "b26",
+            "grid/bus39",
+            "grid/bus26_1",
+            "fault (three-phase)",
+            "only if every item",
+            "do not train gcn",
+            "do not retrain",
+            "do not export labels",
+            "old formal gate remains `35 / 33 / 33`",
+            "v2 candidate count remains `40`",
+            "phasor_rms, not emt",
+            "generator_speed_proxy",
+            "not direct frequency",
+            "not engineering-grade protection",
+        ]:
+            if required not in text:
+                failures.append(f"Bus-fault GUI manual checklist missing: {required}")
+        for bad in [
+            "b39 smoke success",
+            "b26 smoke success",
+            "smoke success completed",
+            "trained gcn model",
+            "reranker was retrained",
+            "exported bus-fault labels",
+            "final dynamic performance conclusion",
+            "emt validation completed",
+            "generator_speed_proxy is direct frequency",
+            "engineering-grade protection completed",
+        ]:
+            if bad in text:
+                failures.append(f"Bus-fault GUI manual checklist contains overstatement: {bad}")
+
+    manual_summary = temp_lab_dir / "manual_review_consolidation_summary.json"
+    if manual_summary.exists():
+        try:
+            import json
+
+            summary = json.loads(manual_summary.read_text(encoding="utf-8"))
+            if summary.get("preview_only") is not True:
+                failures.append("Manual bus-fault review summary must set preview_only=true.")
+            if summary.get("target_bus") != "B39":
+                failures.append("Manual bus-fault review summary must be based on the default B39 template.")
+            if summary.get("recommendation") != "do_not_run_smoke":
+                failures.append("Manual bus-fault review summary must default to do_not_run_smoke.")
+            for key in [
+                "human_verified_injection_point",
+                "safe_to_run_smoke_recommendation",
+                "source_model_saved",
+                "temporary_model_committed",
+                "inventory_modified",
+                "simulink_run",
+                "labels_exported",
+                "gcn_trained",
+                "reranker_retrained",
+            ]:
+                if summary.get(key) is not False:
+                    failures.append(f"Manual bus-fault review summary must record {key}=false.")
+            if summary.get("formal_label_gate") != "35 / 33 / 33":
+                failures.append("Manual bus-fault review summary must preserve formal gate 35 / 33 / 33.")
+            if summary.get("v2_candidate_count") != 40:
+                failures.append("Manual bus-fault review summary must preserve v2 candidate count 40.")
+        except Exception as exc:
+            failures.append(f"Failed to read manual bus-fault review summary: {exc}")
+
+    for target_bus in ["B39", "B26"]:
+        template_path = temp_lab_dir / f"manual_bus_fault_injection_review_template_{target_bus}.json"
+        if template_path.exists():
+            try:
+                import json
+
+                template = json.loads(template_path.read_text(encoding="utf-8"))
+                if template.get("target_bus") != target_bus:
+                    failures.append(f"Manual bus-fault template {target_bus} has wrong target_bus.")
+                for key in [
+                    "human_verified_injection_point",
+                    "safe_to_run_smoke_recommendation",
+                    "source_model_saved",
+                    "temporary_model_committed",
+                ]:
+                    if template.get(key) is not False:
+                        failures.append(f"Manual bus-fault template {target_bus} must default {key}=false.")
+                if template.get("next_action") != "manual review required before smoke":
+                    failures.append(f"Manual bus-fault template {target_bus} must keep conservative next_action.")
+                if not template.get("candidate_blocks_reviewed"):
+                    failures.append(f"Manual bus-fault template {target_bus} must list candidate blocks.")
+            except Exception as exc:
+                failures.append(f"Failed to read manual bus-fault template {target_bus}: {exc}")
 
     non_line_export_dir = non_line_dir / "non_line_trip_label_export"
     non_line_candidates = non_line_export_dir / "ieee39_non_line_trip_dynamic_label_candidates.csv"

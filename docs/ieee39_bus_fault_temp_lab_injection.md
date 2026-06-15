@@ -72,3 +72,20 @@ point for B39 or B26. If a later temporary lab smoke succeeds with voltage,
 speed, and angle extraction, bus-fault candidate labels can be exported in a
 separate round. Until then, do not train GCN or the dynamic-aware reranker from
 these bus-fault candidates.
+
+## GUI Manual Checklist Follow-Up
+
+A follow-up adds only manual GUI review material:
+
+- `docs/ieee39_bus_fault_gui_manual_checklist.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_bus_fault_injection_review_template_B39.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_bus_fault_injection_review_template_B26.json`
+- `scripts/gcn_search/collect_ieee39_bus_fault_manual_review.py`
+
+This follow-up does not run Simulink, does not modify `.slx`, does not commit
+temporary `.slx`, does not fix L12, does not train GCN, does not retrain the
+reranker, and does not export labels. The default manual review consolidation
+uses the B39 template and returns `do_not_run_smoke`.
+
+B39 and B26 are still not smoke success. The old formal gate remains
+`35 / 33 / 33`, and the v2 candidate count remains `40`.

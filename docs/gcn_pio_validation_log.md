@@ -2547,3 +2547,36 @@ Boundaries:
 Next step: manually identify a safe physical bus injection point for B39 or
 B26. If a later temporary lab smoke succeeds, export bus-fault candidate labels
 in a separate round; otherwise continue injection-point work and do not train.
+
+## Round 48: IEEE39 Bus-Fault GUI Manual Checklist
+
+This round adds only human GUI review material for B39/B26 bus-fault injection.
+It does not run Simulink, does not modify `.slx`, does not commit temporary
+`.slx`, does not fix L12, does not train GCN, does not retrain the reranker, and
+does not export labels.
+
+Generated artifacts:
+
+- `docs/ieee39_bus_fault_gui_manual_checklist.md`
+- `scripts/gcn_search/collect_ieee39_bus_fault_manual_review.py`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_bus_fault_injection_review_template_B39.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_bus_fault_injection_review_template_B39.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_bus_fault_injection_review_template_B26.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_bus_fault_injection_review_template_B26.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary.md`
+
+Default consolidation result:
+
+```text
+target_bus = B39
+recommendation = do_not_run_smoke
+human_verified_injection_point = false
+safe_to_run_smoke_recommendation = false
+```
+
+B39/B26 are still not smoke success. The old formal gate remains
+`35 / 33 / 33`, the v2 candidate count remains `40`, the model remains
+phasor_RMS, not EMT, `generator_speed_proxy` is not direct frequency, and relay
+proxy / handwired breaker behavior is not engineering-grade protection. RL
+mitigation files were not modified.

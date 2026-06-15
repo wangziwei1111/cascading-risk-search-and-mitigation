@@ -103,3 +103,14 @@ execution because `safe_to_run_smoke = false`. The source `.slx` remains
 unmodified and uncommitted, temporary `.slx` copies remain local-only and
 ignored, L12 remains excluded, the old formal gate remains `35 / 33 / 33`, and
 the v2 candidate count remains `40`.
+
+## GUI Manual Checklist Follow-Up
+
+The current follow-up adds only a GUI manual checklist and review templates for
+B39/B26 bus-fault injection. It does not run Simulink, does not modify `.slx`,
+does not commit temporary `.slx`, does not fix L12, does not train GCN, does not
+retrain the dynamic-aware reranker, and does not export labels.
+
+The default consolidation recommendation is `do_not_run_smoke`. B39/B26 remain
+manual-review candidates, not smoke success. The old formal gate remains
+`35 / 33 / 33`, and the v2 candidate count remains `40`.
