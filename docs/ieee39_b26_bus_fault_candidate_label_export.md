@@ -76,3 +76,20 @@ is not engineering-grade protection.
 Run a v2-plus-B39+B26 no-training composition review before any training. That
 review should check mixed label-family composition, no-leakage risk, and
 bus-fault holdout requirements.
+
+## No-Training Composition Review Follow-Up
+
+The v2-plus-B39+B26 no-training composition review has been completed:
+
+- v2-plus-B39+B26 candidate count: `42`
+- num_bus_fault_candidates: `2`
+- bus-fault targets: `B39`, `B26`
+- b39_b26_schema_consistency_passed: `true`
+- count_consistency_passed: `true`
+- export_boundary_passed: `true`
+- leakage_risk_reviewed: `true`
+- should_train_now: `false`
+
+The review records that post-fault compact dynamic measurements have
+target-feature leakage risk if used as model input features. The next step is a
+separate preview/no-leakage comparison, not training.

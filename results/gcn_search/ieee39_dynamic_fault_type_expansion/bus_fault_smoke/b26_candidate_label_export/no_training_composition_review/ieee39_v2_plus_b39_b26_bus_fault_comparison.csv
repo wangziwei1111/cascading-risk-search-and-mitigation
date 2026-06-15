@@ -1,0 +1,3 @@
+scenario_id,target_bus,target_bus_or_component,line_id,fault_type,label_id_v2,dynamic_stress_score,unstable_flag,candidate_not_formal_label,exact_duplicate,duplicate_measurement_group,provenance_risk
+BF_B39_TEMP_SMOKE,B39,B39,NO_LINE,three_phase_bus_fault_temp_smoke,b39_bus_fault_candidate_001,0.6057813745060507,True,True,False,,False
+BF_B26_TEMP_SMOKE,B26,B26,NO_LINE,three_phase_bus_fault_temp_smoke,b26_bus_fault_candidate_001,0.5314759474846006,True,True,False,,False

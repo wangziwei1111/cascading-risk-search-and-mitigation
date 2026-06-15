@@ -69,3 +69,15 @@ gate.
 
 The next step remains no-training composition review. Do not train GCN or
 retrain the reranker from the expanded table until that review is complete.
+
+## v2-plus-B39+B26 Composition Review Follow-Up
+
+The v2-plus-B39+B26 no-training composition review has been completed. It
+confirms that the expanded table contains 42 candidate rows, including B39 and
+B26 as the two bus-fault candidates. Both remain candidate labels, not formal
+labels.
+
+The review also records that post-fault compact dynamic measurements have
+target-feature leakage risk if used directly as model input features. Any later
+preview should include label-family holdout, bus-fault holdout, B39 holdout,
+B26 holdout, and no-dynamic-measurement feature comparison.

@@ -3208,6 +3208,60 @@ protection.
 Recommended next step: run v2-plus-B39+B26 no-training composition review
 before any training.
 
+## Round 63: v2-plus-B39+B26 No-Training Composition Review
+
+This round reviews the already exported 42-row v2-plus-B39+B26 candidate table.
+It does not run Simulink, does not export new labels, does not train GCN, does
+not retrain the reranker, does not run preview training, and does not run a GCN
+usefulness audit.
+
+Plain wording: B39 and B26 are now both in the candidate-label table. This
+round checks whether the table is internally consistent and whether the leakage
+risk is documented before any later model experiment.
+
+```text
+review_scope = no_training_composition_comparison
+v2_plus_b39_b26_candidate_count = 42
+previous_v2_plus_b39_count = 41
+num_bus_fault_candidates = 2
+bus_fault_targets = B39, B26
+b39_candidate_present = true
+b26_candidate_present = true
+b39_status = candidate_label_not_formal
+b26_status = candidate_label_not_formal
+bus_fault_target_bus_complete = true
+bus_fault_target_bus_or_component_complete = true
+bus_fault_line_id_no_line = true
+b39_b26_schema_consistency_passed = true
+count_consistency_passed = true
+export_boundary_passed = true
+leakage_risk_reviewed = true
+target_feature_leakage_risk_if_used_as_inputs = true
+should_train_now = false
+old formal gate = 35 / 33 / 33
+L12 excluded = true
+NF06 provenance warning preserved = true
+```
+
+New artifacts:
+
+- `docs/ieee39_v2_plus_b39_b26_no_training_composition_review.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_composition_review.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_composition_review.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_label_family_counts.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_fault_type_counts.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_bus_fault_comparison.csv`
+
+Leakage note: `min_voltage_pu`, `max_voltage_pu`, `min_frequency_hz`,
+`max_frequency_hz`, `max_speed_deviation`, and
+`max_rotor_angle_separation_deg` are post-fault compact dynamic measurements.
+They can support target construction and quality review, but they create
+target-feature leakage risk if used directly as model input features. Any later
+preview or audit must include no-dynamic-measurement and no-leakage comparison.
+
+Recommended next step: run v2-plus-B39+B26 preview/no-leakage comparison in a
+separate round, still not GCN usefulness audit.
+
 ## Round 57: B26 Manual Bus-Fault Review Evidence
 
 This round only records B26 manual GUI review evidence. It does not run

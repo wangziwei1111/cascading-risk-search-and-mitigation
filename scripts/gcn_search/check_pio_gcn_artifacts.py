@@ -392,6 +392,12 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/ieee39_b26_bus_fault_candidate_export_summary.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/ieee39_b26_bus_fault_candidate_export_summary.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/ieee39_v2_plus_b39_b26_training_readiness.json",
+    "docs/ieee39_v2_plus_b39_b26_no_training_composition_review.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_composition_review.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_composition_review.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_label_family_counts.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_fault_type_counts.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_bus_fault_comparison.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -2002,6 +2008,94 @@ def main() -> int:
                 failures.append("B26 readiness must record should_train_now=false.")
         except Exception as exc:
             failures.append(f"Failed to read B26 candidate export artifacts: {exc}")
+
+    b26_review_dir = b26_export_dir / "no_training_composition_review"
+    b26_review_json = b26_review_dir / "ieee39_v2_plus_b39_b26_composition_review.json"
+    b26_family_counts = b26_review_dir / "ieee39_v2_plus_b39_b26_label_family_counts.csv"
+    b26_fault_counts = b26_review_dir / "ieee39_v2_plus_b39_b26_fault_type_counts.csv"
+    b26_bus_fault_comparison = b26_review_dir / "ieee39_v2_plus_b39_b26_bus_fault_comparison.csv"
+    if b26_review_json.exists() and b26_family_counts.exists() and b26_fault_counts.exists() and b26_bus_fault_comparison.exists():
+        try:
+            import json
+            import pandas as pd
+
+            review = json.loads(b26_review_json.read_text(encoding="utf-8"))
+            family = pd.read_csv(b26_family_counts)
+            fault = pd.read_csv(b26_fault_counts)
+            comparison = pd.read_csv(b26_bus_fault_comparison)
+            expected_review = {
+                "review_scope": "no_training_composition_comparison",
+                "previous_v2_plus_b39_count": 41,
+                "v2_plus_b39_b26_candidate_count": 42,
+                "num_new_b26_bus_fault_candidates": 1,
+                "old_formal_gate": "35 / 33 / 33",
+                "num_formal_v1_existing": 35,
+                "num_handwired_line_trip": 33,
+                "num_non_line_trip_candidates": 7,
+                "num_bus_fault_candidates": 2,
+                "b39_status": "candidate_label_not_formal",
+                "b26_status": "candidate_label_not_formal",
+                "recommended_next_step": "run v2-plus-B39+B26 preview/no-leakage comparison in a separate round, still not GCN usefulness audit",
+            }
+            for key, value in expected_review.items():
+                if review.get(key) != value:
+                    failures.append(f"B26 composition review must record {key}={value!r}.")
+            for key in [
+                "simulink_run",
+                "labels_exported",
+                "slx_submitted",
+                "source_slx_modified",
+                "gcn_trained",
+                "reranker_retrained",
+                "preview_training_run",
+                "gcn_usefulness_audit_run",
+                "should_train_now",
+                "b39_exact_duplicate",
+                "b26_exact_duplicate",
+                "b39_b26_duplicate_measurement_group",
+            ]:
+                if review.get(key) is not False:
+                    failures.append(f"B26 composition review must record {key}=false.")
+            for key in [
+                "b39_candidate_present",
+                "b26_candidate_present",
+                "l12_excluded",
+                "nf06_provenance_warning_preserved",
+                "bus_fault_target_bus_complete",
+                "bus_fault_target_bus_or_component_complete",
+                "bus_fault_line_id_no_line",
+                "b39_b26_schema_consistency_passed",
+                "count_consistency_passed",
+                "export_boundary_passed",
+                "leakage_risk_reviewed",
+                "compact_dynamic_measurement_features_are_post_fault",
+                "target_feature_leakage_risk_if_used_as_inputs",
+                "all_no_training_composition_checks_passed",
+            ]:
+                if review.get(key) is not True:
+                    failures.append(f"B26 composition review must record {key}=true.")
+            if set(review.get("bus_fault_targets", [])) != {"B39", "B26"}:
+                failures.append("B26 composition review must record bus_fault_targets B39 and B26.")
+            if review.get("scenario_id_duplicates") != [] or review.get("label_id_v2_duplicates") != []:
+                failures.append("B26 composition review must record no scenario_id / label_id duplicates.")
+
+            family_counts = dict(zip(family["label_family"], family["count"]))
+            fault_counts = dict(zip(fault["fault_type"], fault["count"]))
+            if family_counts.get("existing_formal_dynamic") != 35 or family_counts.get("non_line_trip") != 7:
+                failures.append("B26 composition review family counts must record 35 formal and 7 non_line_trip rows.")
+            if fault_counts.get("three_phase_bus_fault_temp_smoke") != 2:
+                failures.append("B26 composition review fault counts must record two bus-fault candidates.")
+            if len(comparison) != 2 or set(comparison.get("scenario_id", pd.Series(dtype=str)).astype(str)) != {"BF_B39_TEMP_SMOKE", "BF_B26_TEMP_SMOKE"}:
+                failures.append("B26 composition review bus-fault comparison must contain B39 and B26.")
+            for _, row in comparison.iterrows():
+                if row.get("target_bus") not in {"B39", "B26"}:
+                    failures.append("B26 composition review comparison rows must target B39 or B26.")
+                if row.get("target_bus_or_component") != row.get("target_bus"):
+                    failures.append("B26 composition review comparison rows must keep target_bus_or_component complete.")
+                if row.get("line_id") != "NO_LINE":
+                    failures.append("B26 composition review comparison rows must use line_id=NO_LINE.")
+        except Exception as exc:
+            failures.append(f"Failed to read B26 composition review artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

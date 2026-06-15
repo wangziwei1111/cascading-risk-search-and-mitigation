@@ -96,3 +96,20 @@ review is not overwritten.
 The next required step is a separate v2-plus-B39+B26 no-training composition
 review before any training. This follow-up does not train GCN and does not
 retrain the reranker.
+
+## v2-plus-B39+B26 Review Follow-Up
+
+The separate v2-plus-B39+B26 no-training composition review has now been
+completed. It keeps the original v2-plus-B39 review intact and checks the
+expanded 42-row table:
+
+- v2-plus-B39+B26 candidate count: `42`
+- bus-fault candidates: `B39`, `B26`
+- B39 and B26 are candidate labels, not formal labels
+- L12 remains excluded
+- NF06 provenance warning remains preserved
+- should_train_now: `false`
+
+The follow-up documents target-feature leakage risk for post-fault compact
+dynamic measurements and requires no-dynamic-measurement comparison before any
+later model claim.
