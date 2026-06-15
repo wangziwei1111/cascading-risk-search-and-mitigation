@@ -65,3 +65,21 @@ result is recorded in `docs/ieee39_b26_temporary_bus_fault_smoke.md`.
 This follow-up still does not export labels, does not train GCN, and does not
 retrain the reranker. B26 remains a temporary smoke candidate until the smoke
 quality review is completed.
+
+## Quality Review Follow-Up
+
+The later B26 smoke quality review passed for a separate candidate-label export
+round. The review itself did not run Simulink, did not submit `.slx`, did not
+modify source `.slx`, did not export labels, did not train GCN, and did not
+retrain the reranker.
+
+The review records `quality_review_passed_for_candidate_export = true`, while
+keeping `labels_exported = false`, `gcn_trained = false`, and
+`reranker_retrained = false`. B26 is still not a formal label. B39 remains a
+candidate label, not a formal label. The old formal gate remains
+`35 / 33 / 33`, and the v2-plus-B39 count remains `41`.
+
+`phasor_RMS` is not EMT, `generator_speed_proxy` is not direct frequency, and
+temporary bus-fault injection is not engineering-grade protection.
+
+See `docs/ieee39_b26_temp_smoke_quality_review.md`.

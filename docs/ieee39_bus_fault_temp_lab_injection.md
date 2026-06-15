@@ -211,6 +211,31 @@ The smoke result is `simulation_success = true` and
 `frequency=generator_speed_proxy` in the signal source summary. B26 is still
 not a formal label and no B26 candidate label was exported in this round.
 
+## B26 Smoke Quality Review
+
+The already completed B26 temporary smoke was then reviewed in a quality-only
+round. This review did not run Simulink, did not submit `.slx`, did not modify
+source `.slx`, did not export labels, did not train GCN, and did not retrain
+the reranker.
+
+The B26 quality review records:
+
+- `quality_review_passed_for_candidate_export = true`
+- `simulation_success = true`
+- `measurement_extraction_status = voltage_speed_angle`
+- `signal_source_has_frequency_proxy = true`
+- `labels_exported = false`
+- `gcn_trained = false`
+- `reranker_retrained = false`
+- old formal gate remains `35 / 33 / 33`
+- v2-plus-B39 count remains `41`
+
+B26 remains temporary bus-fault evidence, not a formal label. B26 candidate
+label export is left to a separate later round. B39 remains
+`candidate_label_not_formal`. `phasor_RMS` is not EMT,
+`generator_speed_proxy` is not direct frequency, and temporary bus-fault
+injection is not engineering-grade protection.
+
 Artifacts:
 
 - `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/b26_manual_connection_evidence.json`

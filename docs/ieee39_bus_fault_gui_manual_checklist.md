@@ -165,3 +165,24 @@ The actual B26 temporary smoke was later run from the ignored temporary local
 copy. It produced B26-specific smoke outputs and did not overwrite the B39
 smoke artifacts. The smoke succeeded as a temporary smoke candidate, but B26 is
 still not a formal label and no B26 candidate label was exported in that round.
+
+## B26 Smoke Quality Review Follow-Up
+
+The B26 temporary smoke output was later reviewed without running Simulink
+again. The review did not submit `.slx`, did not modify source `.slx`, did not
+export labels, did not train GCN, and did not retrain the reranker.
+
+- quality_review_passed_for_candidate_export: `true`
+- measurement_extraction_status: `voltage_speed_angle`
+- signal_source_has_frequency_proxy: `true`
+- labels_exported: `false`
+- gcn_trained: `false`
+- reranker_retrained: `false`
+- old formal gate remains `35 / 33 / 33`
+- v2-plus-B39 count remains `41`
+- B39 remains `candidate_label_not_formal`
+
+B26 is still not a formal label, and B26 candidate label export remains a
+separate next-round task. The model remains `phasor_RMS`, not EMT.
+`generator_speed_proxy` is not direct frequency. Temporary bus-fault injection
+is not engineering-grade protection.

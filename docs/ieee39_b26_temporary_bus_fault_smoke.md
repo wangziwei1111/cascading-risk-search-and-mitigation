@@ -67,3 +67,31 @@ temporary bus-fault injection is not engineering-grade protection.
 
 Review B26 smoke output quality before any label export. Do not immediately
 export labels or train GCN / reranker from this smoke output.
+
+## Quality Review Follow-Up
+
+The B26 smoke output was reviewed in a later quality-only round. That review did
+not run Simulink, did not submit `.slx`, did not modify source `.slx`, did not
+export labels, did not train GCN, and did not retrain the reranker.
+
+Quality review result:
+
+- quality_review_passed_for_candidate_export: `true`
+- signal_source_has_frequency_proxy: `true`
+- metrics_all_finite: `true`
+- labels_exported: `false`
+- gcn_trained: `false`
+- reranker_retrained: `false`
+- old formal gate remains `35 / 33 / 33`
+- v2-plus-B39 count remains `41`
+
+The quality review keeps the interpretation conservative: B26 remains temporary
+smoke evidence, not a formal label. B26 candidate label export should happen
+only in a separate later round, without training, and should still be followed
+by composition review and no-leakage preview before any training use.
+
+Quality review artifacts:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_temp_smoke_quality_review.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_temp_smoke_quality_review.md`
+- `docs/ieee39_b26_temp_smoke_quality_review.md`

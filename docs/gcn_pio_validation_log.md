@@ -3095,6 +3095,64 @@ Recommended next step: review B26 smoke output quality before any label export.
 The model remains `phasor_RMS`, not EMT. `generator_speed_proxy` is not direct
 frequency. Temporary bus-fault injection is not engineering-grade protection.
 
+## Round 61: B26 Temporary Smoke Quality Review
+
+This round reviews the B26 temporary bus-fault smoke output that was already
+generated in Round 60. It does not run Simulink, does not submit `.slx`, does
+not modify source `.slx`, does not export labels, does not train GCN, does not
+retrain the reranker, does not update the old formal gate, and does not update
+the v2-plus-B39 count.
+
+Plain wording: Round 60 proved that the temporary B26 fault case can run and
+produce voltage, speed, and rotor-angle measurements. Round 61 only checks
+whether that evidence is complete and conservative enough to support a later
+candidate-label export round.
+
+Reviewed B26 result:
+
+```text
+target_bus = B26
+scenario_id = BF_B26_TEMP_SMOKE
+simulation_success = true
+physical_fault_or_breaker_action_executed = true
+measurement_extraction_status = voltage_speed_angle
+training_ready_candidate_smoke = true
+signal_source_has_frequency_proxy = true
+min_voltage_pu = 0.525205016184139
+max_frequency_hz = 50.4143232407741
+max_rotor_angle_separation_deg = 86.3888369812931
+unstable_flag = true
+quality_review_passed_for_candidate_export = true
+labels_exported = false
+gcn_trained = false
+reranker_retrained = false
+source_slx_modified = false
+temporary_slx_committed = false
+```
+
+Interpretation: B26 `min_voltage_pu` is about `0.525`, so it is not near zero
+like the B39 close-in severe case, but it is still a clear voltage sag. The
+rotor-angle separation is about `86.39` degrees, so the compact phasor_RMS
+smoke output shows a strong dynamic disturbance. The `unstable_flag = true`
+value is a compact smoke threshold flag, not a final stability conclusion.
+
+New quality-review artifacts:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_temp_smoke_quality_review.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_temp_smoke_quality_review.md`
+- `docs/ieee39_b26_temp_smoke_quality_review.md`
+
+Boundary status: B26 is still temporary smoke evidence, not a formal label.
+B26 candidate label export remains false in this round. B39 remains
+`candidate_label_not_formal`. The old formal gate remains `35 / 33 / 33`, and
+the v2-plus-B39 count remains `41`. `phasor_RMS` is not EMT,
+`generator_speed_proxy` is not direct frequency, and temporary bus-fault
+injection is not engineering-grade protection.
+
+Recommended next step: export the B26 bus-fault candidate label in a separate
+round, without training. That later export should still include composition
+review and no-leakage preview before any model training.
+
 ## Round 57: B26 Manual Bus-Fault Review Evidence
 
 This round only records B26 manual GUI review evidence. It does not run
