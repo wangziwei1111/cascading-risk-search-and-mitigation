@@ -2815,3 +2815,56 @@ Interpretation: B39 is a temporary local-lab smoke candidate only. `phasor_RMS`
 is not EMT, `generator_speed_proxy` is not direct frequency, and the temporary
 bus-fault injection is not engineering-grade protection. The next step should
 be a no-training composition/comparison review, not immediate training.
+
+## Round 54: IEEE39 v2-plus-B39 Schema Fix and No-Training Composition Review
+
+This round fixes the B39 candidate label schema and performs a no-training
+composition/comparison review. It does not run Simulink, does not submit `.slx`,
+does not modify source `.slx`, does not touch L12, does not train GCN, does not
+retrain the dynamic-aware reranker, and does not update the old formal gate or
+existing v2 preview training results.
+
+Schema fix:
+
+```text
+B39 target_bus = B39
+B39 target_bus_or_component = B39
+B39 line_id = NO_LINE
+B39 fault_type = three_phase_bus_fault_temp_smoke
+B39 bus_fault_label = true
+B39 candidate_not_formal_label = true
+B39 formal_line_trip_label = false
+B39 handwired_line_trip_label = false
+B39 non_line_trip_label = true
+```
+
+No-training review result:
+
+```text
+previous_v2_candidate_count = 40
+v2_plus_b39_candidate_count = 41
+old_formal_gate = 35 / 33 / 33
+L12 excluded = true
+NF06 provenance warning preserved = true
+B39 exact duplicate = false
+B39 provenance risk = false
+b39_schema_consistency_passed = true
+count_consistency_passed = true
+export_boundary_passed = true
+should_train_now = false
+```
+
+Artifacts:
+
+- `docs/ieee39_v2_plus_b39_no_training_composition_review.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_composition_review.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_composition_review.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_label_family_counts.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_fault_type_counts.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_bus_fault_comparison.csv`
+
+Interpretation: B39 remains a candidate label, not a formal label. `phasor_RMS`
+is not EMT, `generator_speed_proxy` is not direct frequency, and the temporary
+bus-fault injection is not engineering-grade protection. A later separate
+v2-plus-B39 preview training round may be considered, but it must include
+label-family holdout and no-leakage comparison.

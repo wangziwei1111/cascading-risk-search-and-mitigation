@@ -137,3 +137,23 @@ this export.
 
 The recommended next step is a no-training composition/comparison review before
 any future v2-plus-B39 preview training.
+
+## v2-plus-B39 No-Training Composition Review Follow-Up
+
+The B39 `target_bus` schema field is fixed to `B39`, and a no-training
+composition/comparison review has been generated. This follow-up still does not
+run Simulink, does not submit `.slx`, does not train GCN, does not retrain the
+reranker, and does not overwrite this existing v2 preview training result.
+
+- previous v2 candidate count: `40`
+- v2-plus-B39 candidate count: `41`
+- old formal gate: `35 / 33 / 33`
+- B39 target_bus: `B39`
+- B39 target_bus_or_component: `B39`
+- b39_schema_consistency_passed: `true`
+- count_consistency_passed: `true`
+- export_boundary_passed: `true`
+- should_train_now: `false`
+
+A future v2-plus-B39 preview training round may be considered separately, but
+it must include label-family holdout and no-leakage comparison.

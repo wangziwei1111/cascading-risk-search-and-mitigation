@@ -55,5 +55,6 @@
   "bus_fault_label": true,
   "temporary_smoke_candidate": true,
   "candidate_not_formal_label": true,
-  "notes": "B39 temporary bus-fault smoke candidate only; not formal label; not GCN training; not reranker retraining."
+  "notes": "B39 temporary bus-fault smoke candidate only; not formal label; not GCN training; not reranker retraining.",
+  "target_bus": "B39"
 }

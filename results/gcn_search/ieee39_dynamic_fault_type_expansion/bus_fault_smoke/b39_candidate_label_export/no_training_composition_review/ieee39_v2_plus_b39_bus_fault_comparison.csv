@@ -1,0 +1,2 @@
+scenario_id,target_bus,target_bus_or_component,fault_type,line_id,bus_fault_label,candidate_not_formal_label,formal_line_trip_label,handwired_line_trip_label,non_line_trip_label,exact_duplicate,provenance_risk
+BF_B39_TEMP_SMOKE,B39,B39,three_phase_bus_fault_temp_smoke,NO_LINE,True,True,False,False,True,False,False

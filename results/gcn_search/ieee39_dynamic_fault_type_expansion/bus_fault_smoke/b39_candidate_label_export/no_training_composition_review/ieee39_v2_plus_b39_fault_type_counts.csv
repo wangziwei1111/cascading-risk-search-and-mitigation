@@ -1,0 +1,8 @@
+fault_type,count
+basic_relay_proxy,1
+fault_duration_sweep_smoke,3
+pilot_line_trip,33
+relay_proxy_fault_smoke,1
+three_phase_bus_fault_temp_smoke,1
+three_phase_fault_clear,1
+three_phase_fault_clear_smoke,1

@@ -54,6 +54,16 @@ GCN, and does not retrain the dynamic-aware reranker.
 The candidate export is documented in
 `docs/ieee39_b39_bus_fault_candidate_label_export.md`.
 
+## Schema Fix and No-Training Review Follow-Up
+
+A later follow-up fixes the B39 `target_bus` field to `B39` while preserving
+`target_bus_or_component = B39`. It also completes a no-training composition
+review. No Simulink run, `.slx` submission, GCN training, or reranker retraining
+is performed. B39 remains a candidate label, not a formal label. The previous
+v2 candidate count remains `40`, the v2-plus-B39 candidate count remains `41`,
+the old formal gate remains `35 / 33 / 33`, L12 remains excluded, NF06
+provenance warning remains preserved, and `should_train_now = false`.
+
 ## Boundary Conditions
 
 - labels_exported: `false`

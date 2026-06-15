@@ -40,6 +40,7 @@ def test_b39_candidate_files_exist():
 def test_b39_candidate_identity_and_measurement_fields():
     payload = _candidate_payload()
     assert payload["scenario_id"] == "BF_B39_TEMP_SMOKE"
+    assert payload["target_bus"] == "B39"
     assert payload["target_bus_or_component"] == "B39"
     assert payload["fault_type"] == "three_phase_bus_fault_temp_smoke"
     assert payload["line_id"] == "NO_LINE"
@@ -73,6 +74,13 @@ def test_b39_plus_v2_counts_and_quality_gate_are_preserved():
     )
     assert len(combined) == 41
     assert int((combined["scenario_id"].astype(str) == "BF_B39_TEMP_SMOKE").sum()) == 1
+    b39 = combined.loc[combined["scenario_id"].astype(str) == "BF_B39_TEMP_SMOKE"].iloc[0]
+    assert b39["target_bus"] == "B39"
+    assert b39["target_bus_or_component"] == "B39"
+    assert b39["line_id"] == "NO_LINE"
+    assert b39["fault_type"] == "three_phase_bus_fault_temp_smoke"
+    assert _as_bool(b39["bus_fault_label"])
+    assert _as_bool(b39["candidate_not_formal_label"])
     assert quality["previous_v2_candidate_count"] == 40
     assert quality["num_v2_plus_b39_candidate_labels"] == 41
     assert quality["original_num_training_ready_labels"] == 35

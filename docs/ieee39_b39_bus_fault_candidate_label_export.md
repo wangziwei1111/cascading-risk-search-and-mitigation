@@ -33,6 +33,10 @@ is not used for training in this round.
 - bus_fault_label: `true`
 - candidate_not_formal_label: `true`
 
+The `target_bus` schema field has been fixed to `B39` in the single-candidate
+CSV, the single-candidate JSON, and the v2-plus-B39 combined schema. The
+separate `target_bus_or_component` field remains `B39`.
+
 ## Counts
 
 - previous v2 candidate count: `40`
@@ -78,3 +82,14 @@ protection. In short, this candidate is not engineering-grade protection.
 Run a no-training composition and comparison review first. Only after reviewing
 the mixed line-trip / non-line-trip / bus-fault label composition should a
 future v2-plus-B39 preview training round be considered.
+
+## No-Training Composition Review Follow-Up
+
+The no-training composition review has been completed:
+
+- b39_schema_consistency_passed: `true`
+- count_consistency_passed: `true`
+- export_boundary_passed: `true`
+- should_train_now: `false`
+- review path:
+  `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/no_training_composition_review/`

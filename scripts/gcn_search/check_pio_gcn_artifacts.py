@@ -259,6 +259,7 @@ REQUIRED_FILES = [
     "docs/ieee39_b39_temporary_bus_fault_smoke.md",
     "docs/ieee39_b39_temp_smoke_quality_review.md",
     "docs/ieee39_b39_bus_fault_candidate_label_export.md",
+    "docs/ieee39_v2_plus_b39_no_training_composition_review.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -351,6 +352,11 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/ieee39_dynamic_label_quality_summary_v2_plus_b39_candidate.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/ieee39_dynamic_aware_training_readiness_v2_plus_b39_candidate.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/ieee39_b39_candidate_duplicate_provenance_report.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_composition_review.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_composition_review.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_label_family_counts.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_fault_type_counts.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_bus_fault_comparison.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -1001,6 +1007,8 @@ def main() -> int:
         failures.append("Validation log must contain Round 42.")
     if validation_log.exists() and "round 53: ieee39 b39 candidate label export" not in _read_text("docs/gcn_pio_validation_log.md").lower():
         failures.append("Validation log must contain Round 53 B39 candidate export.")
+    if validation_log.exists() and "round 54: ieee39 v2-plus-b39 schema fix and no-training composition review" not in _read_text("docs/gcn_pio_validation_log.md").lower():
+        failures.append("Validation log must contain Round 54 v2-plus-B39 composition review.")
 
     non_line_dir = ROOT / "results/gcn_search/ieee39_dynamic_fault_type_expansion"
     non_line_manifest = non_line_dir / "ieee39_non_line_trip_scenario_manifest.csv"
@@ -1493,6 +1501,7 @@ def main() -> int:
 
             expected_candidate = {
                 "scenario_id": "BF_B39_TEMP_SMOKE",
+                "target_bus": "B39",
                 "target_bus_or_component": "B39",
                 "fault_type": "three_phase_bus_fault_temp_smoke",
                 "line_id": "NO_LINE",
@@ -1529,8 +1538,23 @@ def main() -> int:
                     failures.append(f"B39 candidate export must record {key}=true.")
             if len(combined) != 41:
                 failures.append("v2-plus-B39 combined candidate schema must contain 41 rows.")
-            if (combined.get("scenario_id", pd.Series(dtype=str)).astype(str) == "BF_B39_TEMP_SMOKE").sum() != 1:
+            b39_mask = combined.get("scenario_id", pd.Series(dtype=str)).astype(str) == "BF_B39_TEMP_SMOKE"
+            if b39_mask.sum() != 1:
                 failures.append("v2-plus-B39 combined candidate schema must contain exactly one B39 row.")
+            else:
+                b39_row = combined.loc[b39_mask].iloc[0]
+                if b39_row.get("target_bus") != "B39":
+                    failures.append("v2-plus-B39 B39 row must record target_bus=B39.")
+                if b39_row.get("target_bus_or_component") != "B39":
+                    failures.append("v2-plus-B39 B39 row must record target_bus_or_component=B39.")
+                if b39_row.get("line_id") != "NO_LINE":
+                    failures.append("v2-plus-B39 B39 row must record line_id=NO_LINE.")
+                if b39_row.get("fault_type") != "three_phase_bus_fault_temp_smoke":
+                    failures.append("v2-plus-B39 B39 row must preserve the bus-fault fault_type.")
+                if not _truthy(b39_row.get("bus_fault_label")):
+                    failures.append("v2-plus-B39 B39 row must record bus_fault_label=true.")
+                if not _truthy(b39_row.get("candidate_not_formal_label")):
+                    failures.append("v2-plus-B39 B39 row must record candidate_not_formal_label=true.")
 
             expected_quality = {
                 "original_num_training_ready_labels": 35,
@@ -1575,6 +1599,72 @@ def main() -> int:
                     failures.append(f"B39 provenance report missing: {required}")
         except Exception as exc:
             failures.append(f"Failed to read B39 candidate export artifacts: {exc}")
+
+    b39_review_dir = b39_export_dir / "no_training_composition_review"
+    b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"
+    b39_review_md = b39_review_dir / "ieee39_v2_plus_b39_composition_review.md"
+    b39_family_counts = b39_review_dir / "ieee39_v2_plus_b39_label_family_counts.csv"
+    b39_fault_counts = b39_review_dir / "ieee39_v2_plus_b39_fault_type_counts.csv"
+    b39_comparison = b39_review_dir / "ieee39_v2_plus_b39_bus_fault_comparison.csv"
+    if b39_review_json.exists() and b39_family_counts.exists() and b39_fault_counts.exists() and b39_comparison.exists():
+        try:
+            import json
+            import pandas as pd
+
+            review = json.loads(b39_review_json.read_text(encoding="utf-8"))
+            family = pd.read_csv(b39_family_counts)
+            fault = pd.read_csv(b39_fault_counts)
+            comparison = pd.read_csv(b39_comparison)
+            expected_review = {
+                "previous_v2_candidate_count": 40,
+                "v2_plus_b39_candidate_count": 41,
+                "num_new_b39_bus_fault_candidates": 1,
+                "old_formal_gate": "35 / 33 / 33",
+                "num_formal_v1_existing": 35,
+                "num_handwired_line_trip": 33,
+                "num_non_line_trip_candidates": 6,
+                "num_bus_fault_candidates": 1,
+                "num_temporary_smoke_candidates": 1,
+                "num_candidate_not_formal_label": 1,
+                "num_training_ready_label_candidate": 41,
+            }
+            for key, value in expected_review.items():
+                if review.get(key) != value:
+                    failures.append(f"B39 composition review must record {key}={value!r}.")
+            for key in [
+                "l12_excluded",
+                "nf06_provenance_warning_preserved",
+                "b39_target_bus_complete",
+                "b39_target_bus_or_component_complete",
+                "b39_schema_consistency_passed",
+                "count_consistency_passed",
+                "export_boundary_passed",
+            ]:
+                if review.get(key) is not True:
+                    failures.append(f"B39 composition review must record {key}=true.")
+            for key in ["b39_exact_duplicate", "b39_provenance_risk", "should_train_now"]:
+                if review.get(key) is not False:
+                    failures.append(f"B39 composition review must record {key}=false.")
+            family_counts = dict(zip(family["label_family"], family["count"]))
+            fault_counts = dict(zip(fault["fault_type"], fault["count"]))
+            if family_counts.get("existing_formal_dynamic") != 35:
+                failures.append("B39 composition review family counts must record 35 formal dynamic rows.")
+            if family_counts.get("non_line_trip") != 6:
+                failures.append("B39 composition review family counts must record 6 non-line-trip rows.")
+            if fault_counts.get("three_phase_bus_fault_temp_smoke") != 1:
+                failures.append("B39 composition review fault counts must record one B39 bus fault.")
+            if len(comparison) != 1:
+                failures.append("B39 bus-fault comparison must contain one row.")
+            else:
+                row = comparison.iloc[0]
+                if row.get("target_bus") != "B39" or row.get("target_bus_or_component") != "B39":
+                    failures.append("B39 bus-fault comparison must preserve both target bus fields.")
+            review_text = b39_review_md.read_text(encoding="utf-8", errors="ignore").lower()
+            for required in ["b39_schema_consistency_passed", "count_consistency_passed", "export_boundary_passed", "should_train_now"]:
+                if required not in review_text:
+                    failures.append(f"B39 composition review markdown missing {required}.")
+        except Exception as exc:
+            failures.append(f"Failed to read B39 composition review artifacts: {exc}")
 
     b39_export_doc = ROOT / "docs/ieee39_b39_bus_fault_candidate_label_export.md"
     if b39_export_doc.exists():
