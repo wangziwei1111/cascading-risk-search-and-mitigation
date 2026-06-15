@@ -81,3 +81,20 @@ Quality review artifacts:
 - `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b39_temp_smoke_quality_review.json`
 - `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b39_temp_smoke_quality_review.md`
 - `docs/ieee39_b39_temp_smoke_quality_review.md`
+
+## Candidate Export Follow-Up
+
+After the quality review, the B39 temporary smoke result was exported only as a
+separate candidate label:
+
+- candidate scenario: `BF_B39_TEMP_SMOKE`
+- candidate scope: `candidate_only`
+- formal label: `false`
+- previous v2 candidate count: `40`
+- v2-plus-B39 candidate count: `41`
+- old formal gate remains `35 / 33 / 33`
+- GCN trained: `false`
+- reranker retrained: `false`
+
+This does not change the original smoke interpretation. The B39 result remains
+a temporary local-lab candidate, not a final dynamic performance conclusion.

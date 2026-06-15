@@ -258,6 +258,7 @@ REQUIRED_FILES = [
     "docs/ieee39_b39_temp_smoke_readiness.md",
     "docs/ieee39_b39_temporary_bus_fault_smoke.md",
     "docs/ieee39_b39_temp_smoke_quality_review.md",
+    "docs/ieee39_b39_bus_fault_candidate_label_export.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -344,6 +345,12 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b39_temp_smoke_dry_run_readiness.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b39_temp_smoke_quality_review.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b39_temp_smoke_quality_review.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/ieee39_b39_bus_fault_dynamic_label_candidate.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/ieee39_b39_bus_fault_dynamic_label_candidate.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/ieee39_dynamic_label_schema_v2_plus_b39_candidate.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/ieee39_dynamic_label_quality_summary_v2_plus_b39_candidate.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/ieee39_dynamic_aware_training_readiness_v2_plus_b39_candidate.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/ieee39_b39_candidate_duplicate_provenance_report.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -500,6 +507,12 @@ def _git_changed_files_against_main() -> list[str]:
 
 def _read_text(rel_path: str) -> str:
     return (ROOT / rel_path).read_text(encoding="utf-8", errors="ignore")
+
+
+def _truthy(value: object) -> bool:
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() == "true"
 
 
 def main() -> int:
@@ -986,6 +999,8 @@ def main() -> int:
         failures.append("Validation log must contain Round 32.")
     if validation_log.exists() and "round 42" not in _read_text("docs/gcn_pio_validation_log.md").lower():
         failures.append("Validation log must contain Round 42.")
+    if validation_log.exists() and "round 53: ieee39 b39 candidate label export" not in _read_text("docs/gcn_pio_validation_log.md").lower():
+        failures.append("Validation log must contain Round 53 B39 candidate export.")
 
     non_line_dir = ROOT / "results/gcn_search/ieee39_dynamic_fault_type_expansion"
     non_line_manifest = non_line_dir / "ieee39_non_line_trip_scenario_manifest.csv"
@@ -1459,6 +1474,138 @@ def main() -> int:
                     failures.append(f"B39 quality review missing numeric field {key}.")
         except Exception as exc:
             failures.append(f"Failed to read B39 quality review: {exc}")
+
+    b39_export_dir = ROOT / "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export"
+    b39_candidate_json = b39_export_dir / "ieee39_b39_bus_fault_dynamic_label_candidate.json"
+    b39_combined_csv = b39_export_dir / "ieee39_dynamic_label_schema_v2_plus_b39_candidate.csv"
+    b39_quality_summary = b39_export_dir / "ieee39_dynamic_label_quality_summary_v2_plus_b39_candidate.json"
+    b39_readiness = b39_export_dir / "ieee39_dynamic_aware_training_readiness_v2_plus_b39_candidate.json"
+    b39_provenance = b39_export_dir / "ieee39_b39_candidate_duplicate_provenance_report.md"
+    if b39_candidate_json.exists() and b39_combined_csv.exists() and b39_quality_summary.exists() and b39_readiness.exists():
+        try:
+            import json
+            import pandas as pd
+
+            candidate = json.loads(b39_candidate_json.read_text(encoding="utf-8"))
+            combined = pd.read_csv(b39_combined_csv)
+            quality = json.loads(b39_quality_summary.read_text(encoding="utf-8"))
+            readiness = json.loads(b39_readiness.read_text(encoding="utf-8"))
+
+            expected_candidate = {
+                "scenario_id": "BF_B39_TEMP_SMOKE",
+                "target_bus_or_component": "B39",
+                "fault_type": "three_phase_bus_fault_temp_smoke",
+                "line_id": "NO_LINE",
+                "measurement_extraction_status": "voltage_speed_angle",
+                "schema_version": "ieee39_dynamic_label_schema_v2_plus_b39_candidate",
+                "export_status": "candidate_only",
+            }
+            for key, value in expected_candidate.items():
+                if candidate.get(key) != value:
+                    failures.append(f"B39 candidate export must record {key}={value!r}.")
+            if "frequency=generator_speed_proxy" not in str(candidate.get("signal_source_summary", "")):
+                failures.append("B39 candidate export must preserve frequency=generator_speed_proxy.")
+            expected_false = [
+                "source_slx_modified",
+                "temporary_slx_committed",
+                "formal_line_trip_label",
+                "handwired_line_trip_label",
+            ]
+            for key in expected_false:
+                if _truthy(candidate.get(key)) is not False:
+                    failures.append(f"B39 candidate export must record {key}=false.")
+            expected_true = [
+                "simulation_success",
+                "physical_fault_or_breaker_action_executed",
+                "human_verified_injection_point",
+                "quality_review_passed_for_candidate_export",
+                "training_ready_label_candidate",
+                "non_line_trip_label",
+                "bus_fault_label",
+                "candidate_not_formal_label",
+            ]
+            for key in expected_true:
+                if _truthy(candidate.get(key)) is not True:
+                    failures.append(f"B39 candidate export must record {key}=true.")
+            if len(combined) != 41:
+                failures.append("v2-plus-B39 combined candidate schema must contain 41 rows.")
+            if (combined.get("scenario_id", pd.Series(dtype=str)).astype(str) == "BF_B39_TEMP_SMOKE").sum() != 1:
+                failures.append("v2-plus-B39 combined candidate schema must contain exactly one B39 row.")
+
+            expected_quality = {
+                "original_num_training_ready_labels": 35,
+                "original_num_training_ready_handwired_line_trip_labels": 33,
+                "original_num_unique_handwired_line_ids": 33,
+                "previous_v2_candidate_count": 40,
+                "num_new_b39_bus_fault_candidates": 1,
+                "num_v2_plus_b39_candidate_labels": 41,
+            }
+            for key, value in expected_quality.items():
+                if quality.get(key) != value:
+                    failures.append(f"B39 quality summary must record {key}={value}.")
+            for key in [
+                "original_formal_gate_preserved",
+                "b39_quality_review_passed",
+                "b39_training_ready_candidate",
+                "l12_excluded",
+                "nf06_provenance_warning_preserved",
+                "allowed_for_future_v2_plus_b39_preview",
+            ]:
+                if quality.get(key) is not True:
+                    failures.append(f"B39 quality summary must record {key}=true.")
+            for key in [
+                "b39_formal_label",
+                "gcn_trained",
+                "reranker_retrained",
+                "formal_label_gate_changed",
+                "v2_preview_training_changed",
+                "should_train_now",
+            ]:
+                if quality.get(key) is not False:
+                    failures.append(f"B39 quality summary must record {key}=false.")
+            if readiness.get("should_train_now") is not False:
+                failures.append("B39 readiness must record should_train_now=false.")
+            if readiness.get("num_v2_plus_b39_candidate_labels") != 41:
+                failures.append("B39 readiness must record 41 v2-plus-B39 candidates.")
+            if readiness.get("previous_v2_candidate_count") != 40:
+                failures.append("B39 readiness must preserve previous_v2_candidate_count=40.")
+            provenance_text = b39_provenance.read_text(encoding="utf-8", errors="ignore").lower()
+            for required in ["no exact duplicate", "nf06 warning preserved", "l12 excluded"]:
+                if required not in provenance_text:
+                    failures.append(f"B39 provenance report missing: {required}")
+        except Exception as exc:
+            failures.append(f"Failed to read B39 candidate export artifacts: {exc}")
+
+    b39_export_doc = ROOT / "docs/ieee39_b39_bus_fault_candidate_label_export.md"
+    if b39_export_doc.exists():
+        text = _read_text("docs/ieee39_b39_bus_fault_candidate_label_export.md").lower()
+        for required in [
+            "does not run simulink",
+            "does not submit `.slx`",
+            "does not modify source `.slx`",
+            "does not train gcn",
+            "does not retrain",
+            "candidate_not_formal_label",
+            "previous v2 candidate count: `40`",
+            "new v2-plus-b39 candidate count: `41`",
+            "old formal gate remains: `35 / 33 / 33`",
+            "nf06 duplicate/provenance warning preserved",
+            "phasor_rms`, not emt",
+            "generator_speed_proxy` is not direct frequency",
+            "not engineering-grade protection",
+            "should_train_now: `false`",
+        ]:
+            if required not in text:
+                failures.append(f"B39 candidate export doc missing: {required}")
+        for bad in [
+            "gcn trained: `true`",
+            "reranker retrained: `true`",
+            "final dynamic performance conclusion",
+            "emt validation completed",
+            "engineering-grade protection completed",
+        ]:
+            if bad in text:
+                failures.append(f"B39 candidate export doc contains overstatement: {bad}")
 
     temp_lab_doc = ROOT / "docs/ieee39_bus_fault_temp_lab_injection.md"
     if temp_lab_doc.exists():

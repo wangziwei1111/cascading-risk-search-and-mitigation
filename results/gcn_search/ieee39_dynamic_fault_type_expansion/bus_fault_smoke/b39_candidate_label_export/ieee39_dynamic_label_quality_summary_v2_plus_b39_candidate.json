@@ -1,0 +1,23 @@
+{
+  "schema_version": "ieee39_dynamic_label_schema_v2_plus_b39_candidate",
+  "original_formal_gate_preserved": true,
+  "original_num_training_ready_labels": 35,
+  "original_num_training_ready_handwired_line_trip_labels": 33,
+  "original_num_unique_handwired_line_ids": 33,
+  "previous_v2_candidate_count": 40,
+  "num_new_b39_bus_fault_candidates": 1,
+  "num_v2_plus_b39_candidate_labels": 41,
+  "b39_quality_review_passed": true,
+  "b39_training_ready_candidate": true,
+  "b39_formal_label": false,
+  "l12_excluded": true,
+  "nf06_provenance_warning_preserved": true,
+  "labels_exported_this_round": "candidate_only",
+  "gcn_trained": false,
+  "reranker_retrained": false,
+  "formal_label_gate_changed": false,
+  "v2_preview_training_changed": false,
+  "allowed_for_future_v2_plus_b39_preview": true,
+  "should_train_now": false,
+  "recommended_next_step": "run no-training comparison / decide whether to rerun preview later, but do not train in this export round"
+}

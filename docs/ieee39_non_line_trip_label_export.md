@@ -106,3 +106,23 @@ and remains preview-only. It is not a final dynamic performance conclusion.
 A later bus-fault feasibility round audits `BF01-BF04` as different-bus three-phase fault smoke candidates. It does not modify this export directory, does not change the v2 candidate count, and does not merge bus-fault rows into formal labels.
 
 The result is that no current bus-fault scenario is safely runnable because the existing scripts do not expose a target-bus selector. Bus-fault candidates therefore remain smoke feasibility rows only. No GCN training or reranker retraining was run.
+
+## B39 Candidate Export Follow-Up
+
+A later B39 temporary bus-fault smoke result passed quality review and was
+exported into a separate v2-plus-B39 candidate file set. This follow-up does
+not overwrite the original v2 files in this directory.
+
+- original v2 candidate count in this directory: `40`
+- v2-plus-B39 candidate count in the separate export directory: `41`
+- old formal gate remains `35 / 33 / 33`
+- B39 candidate is not a formal label
+- L12 remains excluded
+- NF06 duplicate/provenance warning is preserved
+- no GCN training
+- no reranker retraining
+- no v2 preview training update
+
+Separate export directory:
+
+`results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/`

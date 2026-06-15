@@ -1,0 +1,19 @@
+{
+  "ready_for_future_preview_training": true,
+  "should_train_now": false,
+  "reason": "B39 candidate exported, but this round is export-only; review mixed fault-family composition before retraining.",
+  "caveats": [
+    "B39 is temporary local lab smoke candidate, not formal label",
+    "phasor_RMS not EMT",
+    "generator_speed_proxy not direct frequency",
+    "temporary bus-fault injection not engineering-grade protection",
+    "previous duplicate/provenance warning for NF06 preserved",
+    "label-family holdout remains important"
+  ],
+  "previous_v2_candidate_count": 40,
+  "num_v2_plus_b39_candidate_labels": 41,
+  "old_formal_gate": "35 / 33 / 33",
+  "gcn_trained": false,
+  "reranker_retrained": false,
+  "v2_preview_training_changed": false
+}

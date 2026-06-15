@@ -116,3 +116,24 @@ success. B26 remains unverified. The current consolidation recommendation is
 `manual_review_supports_next_round_inventory_update`, so the next round may
 prepare temporary B39 smoke. The old formal gate remains `35 / 33 / 33`, and
 the v2 candidate count remains `40`.
+
+## B39 Candidate Export Follow-Up
+
+After the B39 temporary smoke and quality-review rounds, one B39 bus-fault
+candidate label was exported to a separate v2-plus-B39 candidate set. The
+existing v2 preview training results above are not overwritten or updated by
+this export.
+
+- original v2 preview candidate count: `40`
+- v2-plus-B39 candidate count: `41`
+- B39 status: candidate label only, not formal label
+- old formal gate remains `35 / 33 / 33`
+- L12 remains excluded
+- NF06 duplicate/provenance warning is preserved
+- GCN trained: `false`
+- reranker retrained: `false`
+- v2 preview training changed: `false`
+- should_train_now: `false`
+
+The recommended next step is a no-training composition/comparison review before
+any future v2-plus-B39 preview training.

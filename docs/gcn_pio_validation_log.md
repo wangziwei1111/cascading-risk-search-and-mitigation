@@ -2761,3 +2761,57 @@ Artifacts:
 
 Recommended next step: export the B39 bus-fault candidate label in a separate
 round, without training.
+
+## Round 53: IEEE39 B39 Candidate Label Export
+
+This round exports the quality-reviewed B39 temporary bus-fault smoke result as
+one separate candidate label. It does not run Simulink, does not submit `.slx`,
+does not modify source `.slx`, does not touch L12, does not train GCN, does not
+retrain the dynamic-aware reranker, and does not update the old v2 preview
+training results.
+
+Result:
+
+```text
+scenario_id = BF_B39_TEMP_SMOKE
+target_bus = B39
+fault_type = three_phase_bus_fault_temp_smoke
+line_id = NO_LINE
+simulation_success = true
+measurement_extraction_status = voltage_speed_angle
+signal_source_summary includes frequency=generator_speed_proxy
+training_ready_label_candidate = true
+formal_line_trip_label = false
+handwired_line_trip_label = false
+non_line_trip_label = true
+bus_fault_label = true
+candidate_not_formal_label = true
+```
+
+Counts and boundaries:
+
+```text
+previous_v2_candidate_count = 40
+num_v2_plus_b39_candidate_labels = 41
+old_formal_gate = 35 / 33 / 33
+l12_excluded = true
+nf06_provenance_warning_preserved = true
+gcn_trained = false
+reranker_retrained = false
+should_train_now = false
+```
+
+Artifacts:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/ieee39_b39_bus_fault_dynamic_label_candidate.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/ieee39_b39_bus_fault_dynamic_label_candidate.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/ieee39_dynamic_label_schema_v2_plus_b39_candidate.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/ieee39_dynamic_label_quality_summary_v2_plus_b39_candidate.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/ieee39_dynamic_aware_training_readiness_v2_plus_b39_candidate.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b39_candidate_label_export/ieee39_b39_candidate_duplicate_provenance_report.md`
+- `docs/ieee39_b39_bus_fault_candidate_label_export.md`
+
+Interpretation: B39 is a temporary local-lab smoke candidate only. `phasor_RMS`
+is not EMT, `generator_speed_proxy` is not direct frequency, and the temporary
+bus-fault injection is not engineering-grade protection. The next step should
+be a no-training composition/comparison review, not immediate training.

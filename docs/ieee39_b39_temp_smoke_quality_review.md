@@ -36,6 +36,24 @@ The quality review passes for separate candidate export:
 
 This does not mean labels were exported in this round.
 
+## Candidate Export Follow-Up
+
+A later export-only round records the reviewed `BF_B39_TEMP_SMOKE` result as one
+separate B39 bus-fault candidate label. That follow-up still does not run
+Simulink, does not submit `.slx`, does not modify source `.slx`, does not train
+GCN, and does not retrain the dynamic-aware reranker.
+
+- exported label scope: `candidate_only`
+- previous v2 candidate count: `40`
+- v2-plus-B39 candidate count: `41`
+- old formal gate remains `35 / 33 / 33`
+- B39 is not a formal label
+- L12 remains excluded
+- NF06 duplicate/provenance warning is preserved
+
+The candidate export is documented in
+`docs/ieee39_b39_bus_fault_candidate_label_export.md`.
+
 ## Boundary Conditions
 
 - labels_exported: `false`
