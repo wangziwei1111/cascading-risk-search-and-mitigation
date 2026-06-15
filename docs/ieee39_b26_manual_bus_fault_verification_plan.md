@@ -22,6 +22,27 @@ labels back to the main GCN/reranker workflow.
 - `human_verified_injection_point = false`
 - `safe_to_run_smoke_recommendation = false`
 
+## Manual Review Evidence Result
+
+Round 57 recorded B26 manual connection evidence from the temporary local copy.
+Update Diagram passed, and the checked model contains an observed B26 parallel
+fault block, `Grid/Fault (Three-Phase)1`, connected to the B26 physical node
+shared by `Grid/B25 to B26`, `Grid/Bus26_1`, and `Grid/Bus26_2`.
+
+However, the required named block `Grid/Fault_B26_TEMP` was not found in the
+checked temporary model. Therefore B26 remains unverified:
+
+- `human_verified_injection_point = false`
+- `safe_to_run_smoke_recommendation = false`
+- B26 is not smoke success.
+- B26 is not a candidate label.
+- no labels were exported.
+- no GCN was trained.
+- no reranker was retrained.
+
+The review result is recorded in
+`docs/ieee39_b26_manual_bus_fault_review_result.md`.
+
 ## Candidate Blocks To Inspect
 
 - `Grid/Bus26_1`

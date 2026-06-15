@@ -2958,3 +2958,43 @@ Artifacts:
 
 The model remains `phasor_RMS`, not EMT. `generator_speed_proxy` is not direct
 frequency. Temporary bus-fault injection is not engineering-grade protection.
+
+## Round 57: B26 Manual Bus-Fault Review Evidence
+
+This round only records B26 manual GUI review evidence. It does not run
+Simulink smoke, does not submit `.slx`, does not modify source `.slx`, does not
+export labels, does not train GCN, and does not retrain the reranker.
+
+Checked B26 result:
+
+```text
+target_bus = B26
+update_diagram_attempted = true
+update_diagram_success = true
+observed_parallel_fault_block_path = Grid/Fault (Three-Phase)1
+expected_fault_block_path = Grid/Fault_B26_TEMP
+expected_fault_block_found = false
+human_verified_injection_point = false
+safe_to_run_smoke_recommendation = false
+B26 smoke success = false
+B26 candidate label exported = false
+old formal gate = 35 / 33 / 33
+v2-plus-B39 count = 41
+```
+
+Interpretation: the temporary disk copy contains a B26 parallel fault connection
+through `Grid/Fault (Three-Phase)1`, and Update Diagram passed. However,
+`Grid/Fault_B26_TEMP` was not found, so the explicit B26 manual verification
+condition is not satisfied. B26 should not proceed to smoke until the GUI block
+name is fixed or confirmed and a separate readiness review is completed.
+
+Artifacts:
+
+- `docs/ieee39_b26_manual_bus_fault_review_result.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/b26_manual_connection_evidence.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/b26_manual_connection_evidence.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary_B26.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary_B26.md`
+
+The model remains `phasor_RMS`, not EMT. `generator_speed_proxy` is not direct
+frequency. Temporary bus-fault injection is not engineering-grade protection.

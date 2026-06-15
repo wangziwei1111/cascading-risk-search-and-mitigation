@@ -22,6 +22,8 @@ def test_b26_manual_plan_doc_exists_and_keeps_b26_unverified():
     assert "b26 remains unverified" in text
     assert "b26 is not smoke success" in text
     assert "b26 is not a candidate label" in text
+    assert "grid/fault_b26_temp` was not found" in text
+    assert "update diagram passed" in text
     for required in [
         "grid/bus26_1",
         "grid/bus26_2",
@@ -43,14 +45,17 @@ def test_b26_review_template_remains_unverified():
     assert payload["target_bus"] == "B26"
     assert payload["human_verified_injection_point"] is False
     assert payload["safe_to_run_smoke_recommendation"] is False
-    assert payload["update_diagram_success"] is False
+    assert payload["update_diagram_success"] is True
     assert payload["human_verified"] is False
     assert payload["suggested_fault_block_name"] == "Grid/Fault_B26_TEMP"
     assert payload["suggested_fault_start_s"] == 0.5
     assert payload["suggested_duration_s"] == 0.08
     assert "Grid/Bus26_1" in payload["candidate_busbar_paths"]
     assert "Grid/Bus26_2" in payload["candidate_busbar_paths"]
-    assert "B26 is next manual GUI target" in payload["next_action"]
+    assert payload["expected_fault_block_found"] is False
+    assert payload["observed_parallel_fault_connected_to_b26"] is True
+    assert payload["observed_parallel_fault_block_path"] == "Grid/Fault (Three-Phase)1"
+    assert "Grid/Fault_B26_TEMP" in payload["next_action"]
 
 
 def test_b26_manual_commands_exist_and_do_not_run_simulation():

@@ -57,7 +57,7 @@ because `safe_to_run_smoke = false`.
 - The dynamic-aware reranker was not retrained.
 - No labels were exported.
 - The old formal label gate remains `35 / 33 / 33`.
-- The v2 candidate count remains `40`.
+- The v2-plus-B39 count remains `41`.
 - This does not return to the full GCN pipeline.
 - The model remains phasor_RMS, not EMT.
 - `generator_speed_proxy` is not direct frequency.
@@ -91,7 +91,7 @@ was conservative; after human GUI review, B39 now records
 
 B39 now has a human-verified temporary injection point, but B39 is still not
 smoke success. B26 remains unverified. The old formal gate remains `35 / 33 /
-33`, and the v2 candidate count remains `40`.
+33`, and the v2-plus-B39 count remains `41`.
 
 The B39 manual evidence is recorded in
 `docs/ieee39_bus_fault_b39_manual_review_result.md`. The consolidation
@@ -159,3 +159,23 @@ does not train GCN, does not retrain the reranker, and does not export labels.
 Manual commands are available at:
 
 `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/b26_manual_gui_check_commands.md`
+
+## B26 Manual Review Evidence Result
+
+B26 manual review evidence was collected from the temporary local copy. This
+round only performed structure inspection and Update Diagram; it did not run
+smoke, did not export labels, did not train GCN, and did not retrain the
+reranker.
+
+The checked model contains an observed B26 parallel fault block,
+`Grid/Fault (Three-Phase)1`, connected to `Grid/B25 to B26`, `Grid/Bus26_1`,
+and `Grid/Bus26_2`. Update Diagram passed. However, the required named block
+`Grid/Fault_B26_TEMP` was not found, so B26 remains unverified and is not safe
+to run smoke in this round.
+
+Artifacts:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/b26_manual_connection_evidence.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/b26_manual_connection_evidence.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary_B26.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary_B26.md`

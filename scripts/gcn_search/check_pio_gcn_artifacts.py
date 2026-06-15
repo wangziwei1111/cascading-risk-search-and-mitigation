@@ -368,6 +368,11 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_preview/label_family_holdout/preview_training_metrics.json",
     "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_preview/bus_fault_holdout/preview_training_metrics.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/b26_manual_gui_check_commands.md",
+    "docs/ieee39_b26_manual_bus_fault_review_result.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/b26_manual_connection_evidence.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/b26_manual_connection_evidence.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary_B26.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary_B26.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -577,6 +582,8 @@ def main() -> int:
             failures.append("Validation log does not contain the Round 24 record.")
         if "Round 25" not in log_text:
             failures.append("Validation log does not contain the Round 25 record.")
+        if "Round 57" not in log_text:
+            failures.append("Validation log does not contain the Round 57 record.")
 
     plan_path = ROOT / "docs/pio_gcn_simulink_dynamic_validation_plan.md"
     if plan_path.exists():
@@ -1841,8 +1848,12 @@ def main() -> int:
                 failures.append("B26 template must keep human_verified_injection_point=false.")
             if payload.get("safe_to_run_smoke_recommendation") is not False:
                 failures.append("B26 template must keep safe_to_run_smoke_recommendation=false.")
-            if payload.get("update_diagram_success") is not False:
-                failures.append("B26 template must keep update_diagram_success=false.")
+            if payload.get("update_diagram_attempted") is not True:
+                failures.append("B26 template must record update_diagram_attempted=true after manual evidence collection.")
+            if payload.get("update_diagram_success") is not True:
+                failures.append("B26 template must record update_diagram_success=true for the compile-only check.")
+            if payload.get("expected_fault_block_found") is not False:
+                failures.append("B26 template must record expected_fault_block_found=false until Grid/Fault_B26_TEMP exists.")
             if payload.get("human_verified") is not False:
                 failures.append("B26 template must keep human_verified=false.")
             if payload.get("suggested_fault_block_name") != "Grid/Fault_B26_TEMP":
@@ -1904,7 +1915,7 @@ def main() -> int:
             "reranker was not retrained",
             "no labels were exported",
             "old formal label gate remains `35 / 33 / 33`",
-            "v2 candidate count remains `40`",
+            "v2-plus-b39 count remains `41`",
             "phasor_rms, not emt",
             "generator_speed_proxy",
             "not direct frequency",
@@ -1939,7 +1950,7 @@ def main() -> int:
             "do not retrain",
             "do not export labels",
             "old formal gate remains `35 / 33 / 33`",
-            "v2 candidate count remains `40`",
+            "v2-plus-b39 count remains `41`",
             "phasor_rms, not emt",
             "generator_speed_proxy",
             "not direct frequency",
@@ -2038,7 +2049,7 @@ def main() -> int:
                         if template.get(key) is not False:
                             failures.append(f"Manual bus-fault template {target_bus} must default {key}=false.")
                     next_action = str(template.get("next_action", "")).lower()
-                    if "manual review required before" not in next_action:
+                    if "before any temporary smoke" not in next_action:
                         failures.append(f"Manual bus-fault template {target_bus} must keep conservative next_action.")
                 for key in ["source_model_saved", "temporary_model_committed"]:
                     if template.get(key) is not False:

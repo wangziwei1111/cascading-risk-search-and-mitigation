@@ -106,7 +106,7 @@ run. This checklist itself is not smoke success.
 ## Current Boundary Notes
 
 - The old formal gate remains `35 / 33 / 33`.
-- The v2 candidate count remains `40`.
+- The v2-plus-B39 count remains `41`.
 - B39 has a human-verified injection point.
 - B39 is not smoke success.
 - B26 remains unverified.
@@ -128,3 +128,20 @@ generalization. This is preparation only:
 
 The B26-specific plan is in
 `docs/ieee39_b26_manual_bus_fault_verification_plan.md`.
+
+## B26 Manual Review Evidence Result
+
+B26 manual review evidence has been recorded, but B26 still remains
+unverified. Update Diagram passed for the checked temporary copy, and an
+observed B26 parallel fault block `Grid/Fault (Three-Phase)1` was connected to
+the B26 physical node. The required named block `Grid/Fault_B26_TEMP` was not
+found, so the checklist does not support smoke yet.
+
+- B26 is not smoke success.
+- B26 candidate label has not been exported.
+- GCN was not trained.
+- The reranker was not retrained.
+- The model remains `phasor_RMS`, not EMT.
+- `generator_speed_proxy` is not direct frequency.
+
+See `docs/ieee39_b26_manual_bus_fault_review_result.md`.

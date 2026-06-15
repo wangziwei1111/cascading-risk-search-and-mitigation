@@ -1,0 +1,72 @@
+{
+  "target_bus": "B26",
+  "temp_model_path": "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/local_lab_copies/IEEE39BusSystem_dynamic_experiment_wrapper_bus_fault_B26_TEMP_LOCAL_ONLY.slx",
+  "fault_block_path": "Grid/Fault_B26_TEMP",
+  "candidate_busbar_paths": [
+    "Grid/Bus26_1",
+    "Grid/Bus26_2"
+  ],
+  "selected_injection_block_path": "Grid/Bus26_1 and Grid/Bus26_2 shared physical B26 node",
+  "selected_injection_port_description": "Disk-based structure check found Grid/Fault (Three-Phase)1 connected in parallel to the B26 physical node shared by Grid/B25 to B26, Grid/Bus26_1, and Grid/Bus26_2. The expected named block Grid/Fault_B26_TEMP was not found, so this is not accepted as a completed human-verified injection point.",
+  "bus26_1_block_type": "SimscapeBlock",
+  "bus26_1_mask_type": "Busbar",
+  "bus26_1_port_connectivity_summary": [
+    "LConn1 -> Grid/B25 to B26, Grid/Fault (Three-Phase)1, Grid/Bus26_2",
+    "LConn2 -> Grid/B27 to B26",
+    "RConn1 -> Grid/B26 to B28",
+    "RConn2 -> Grid/B26 to B29"
+  ],
+  "bus26_2_block_type": "SimscapeBlock",
+  "bus26_2_mask_type": "Busbar",
+  "bus26_2_port_connectivity_summary": [
+    "LConn1 -> Grid/B25 to B26, Grid/Fault (Three-Phase)1, Grid/Bus26_1",
+    "RConn1 -> Grid/Load26 BusLabel"
+  ],
+  "fault_b26_temp_found": false,
+  "fault_b26_temp_port_connectivity_summary": [],
+  "observed_parallel_fault_block_path": "Grid/Fault (Three-Phase)1",
+  "observed_parallel_fault_block_type": "SimscapeBlock",
+  "observed_parallel_fault_mask_type": "Fault (Three-Phase)",
+  "observed_parallel_fault_port_connectivity_summary": [
+    "LConn1 -> Grid/B25 to B26, Grid/Bus26_1, Grid/Bus26_2"
+  ],
+  "fault_b26_temp_connected_in_parallel": false,
+  "observed_parallel_fault_connected_to_b26": true,
+  "original_network_connection_preserved": true,
+  "old_fault_still_near_b16": true,
+  "old_fault_not_moved": true,
+  "old_fault_port_connectivity_summary": [
+    "Grid/Fault (Three-Phase) LConn1 -> Grid/Bus16_1, Grid/B16 to B17"
+  ],
+  "no_unintended_bypass": true,
+  "no_floating_ports": true,
+  "no_unintended_islanding": true,
+  "update_diagram_attempted": true,
+  "update_diagram_success": true,
+  "update_diagram_error": "",
+  "fault_start_s": 0.5,
+  "fault_clear_s": 0.58,
+  "duration_s": 0.08,
+  "R_pn_fault": "1e-3 Ohm",
+  "R_ng_fault": "1e-3 Ohm",
+  "enable_temporal_fault": true,
+  "source_model_saved": false,
+  "temporary_model_committed": false,
+  "source_slx_modified": false,
+  "temporary_slx_committed": false,
+  "simulink_smoke_run": false,
+  "smoke_success": false,
+  "labels_exported": false,
+  "gcn_trained": false,
+  "reranker_retrained": false,
+  "old_formal_gate": "35 / 33 / 33",
+  "v2_plus_b39_count": 41,
+  "human_verified_injection_point": false,
+  "safe_to_run_smoke_recommendation": false,
+  "failed_checks": [
+    "Expected block Grid/Fault_B26_TEMP was not found in the checked temporary model.",
+    "The observed B26 parallel fault block is Grid/Fault (Three-Phase)1, so the template naming condition is not satisfied.",
+    "The current evidence was collected from the temporary disk copy after Computer Use could no longer see the unsaved GUI window."
+  ],
+  "next_action": "Rename or confirm the B26 temporary fault block as Grid/Fault_B26_TEMP in the GUI, save only the ignored temporary copy if intended, then rerun manual evidence collection before any smoke."
+}
