@@ -93,3 +93,20 @@ The v2-plus-B39+B26 no-training composition review has been completed:
 The review records that post-fault compact dynamic measurements have
 target-feature leakage risk if used as model input features. The next step is a
 separate preview/no-leakage comparison, not training.
+
+## Preview/No-Leakage Comparison Follow-Up
+
+The v2-plus-B39+B26 preview/no-leakage comparison has been completed without
+running Simulink, exporting labels, training GCN, running a GCN usefulness
+audit, or retraining the formal reranker.
+
+Key B26 result:
+
+- B26 true dynamic_stress_score: `0.5314759474846003`
+- B26 predicted dynamic_stress_score in B26 holdout: `0.667249711719703`
+- B26 holdout absolute error: `0.1357737642351028`
+- B26 unstable probability: `0.9927567600955874`
+
+Together with the B39 holdout result, this suggests that bus-fault
+generalization is still a small-sample problem. The recommended next step is
+to collect more bus-fault candidates before GCN usefulness audit.

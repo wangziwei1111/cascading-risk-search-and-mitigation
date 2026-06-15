@@ -81,3 +81,23 @@ Temporary bus-fault injection is not engineering-grade protection.
 
 Run v2-plus-B39+B26 preview/no-leakage comparison in a separate round, still
 not GCN usefulness audit.
+
+## Preview/No-Leakage Comparison Follow-Up
+
+The separate v2-plus-B39+B26 preview/no-leakage comparison has now been run.
+It used only preview Ridge/Logistic models and did not run Simulink, did not
+export labels, did not train GCN, did not run a GCN usefulness audit, and did
+not retrain the formal reranker.
+
+Key results:
+
+- include_all_42 RMSE: `0.046807699921347506`
+- no_dynamic_measurement RMSE: `0.061163642668586794`
+- label_family_holdout RMSE: `0.16895513293724`
+- bus_fault_holdout RMSE: `0.14967340256432293`
+- B39 holdout absolute error: `0.20370360540758992`
+- B26 holdout absolute error: `0.1357737642351028`
+
+The comparison confirms that include-all is only a leaky upper-bound. The
+recommended next step is to collect more bus-fault candidates before GCN
+usefulness audit.

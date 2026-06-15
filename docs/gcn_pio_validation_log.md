@@ -3262,6 +3262,55 @@ preview or audit must include no-dynamic-measurement and no-leakage comparison.
 Recommended next step: run v2-plus-B39+B26 preview/no-leakage comparison in a
 separate round, still not GCN usefulness audit.
 
+## Round 64: v2-plus-B39+B26 Preview/No-Leakage Comparison
+
+This round runs a preview/no-leakage comparison on the 42-row
+v2-plus-B39+B26 candidate table. It does not run Simulink, does not export new
+labels, does not train GCN, does not run a GCN usefulness audit, and does not
+retrain the formal reranker.
+
+Plain wording: B39 and B26 are both temporary bus-fault candidate labels. This
+round uses small Ridge/Logistic preview models to check leakage risk and
+holdout difficulty before any later GCN audit.
+
+```text
+preview_only = true
+final_performance_conclusion = false
+simulink_run = false
+labels_exported = false
+gcn_trained = false
+gcn_usefulness_audit_run = false
+formal_reranker_retrained = false
+old formal gate = 35 / 33 / 33
+candidate count = 42
+num_bus_fault_candidates = 2
+include_all_42 RMSE = 0.046807699921347506
+no_dynamic_measurement RMSE = 0.061163642668586794
+label_family_holdout RMSE = 0.16895513293724
+bus_fault_holdout RMSE = 0.14967340256432293
+B39 holdout absolute error = 0.20370360540758992
+B26 holdout absolute error = 0.1357737642351028
+B39 unstable probability = 0.9913769399660165
+B26 unstable probability = 0.9927567600955874
+recommended_next_step = collect more bus-fault candidates before GCN usefulness audit
+```
+
+Interpretation: include_all_42 is a leaky upper-bound because compact
+post-fault dynamic measurements are used as input while also defining the proxy
+target. The no_dynamic_measurement and holdout modes are more important. The
+holdout errors remain nontrivial, so this round does not directly validate GCN.
+
+New artifacts:
+
+- `docs/ieee39_v2_plus_b39_b26_preview_no_leakage_comparison.md`
+- `results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_b26_preview/v2_plus_b39_b26_preview_comparison.json`
+- `results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_b26_preview/v2_plus_b39_b26_preview_comparison.md`
+- `results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_b26_preview/*/preview_training_metrics.json`
+
+B39 and B26 remain candidate labels, not formal labels. The model remains
+`phasor_RMS`, not EMT. `generator_speed_proxy` is not direct frequency.
+Temporary bus-fault injection is not engineering-grade protection.
+
 ## Round 57: B26 Manual Bus-Fault Review Evidence
 
 This round only records B26 manual GUI review evidence. It does not run

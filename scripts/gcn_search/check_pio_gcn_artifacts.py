@@ -393,11 +393,23 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/ieee39_b26_bus_fault_candidate_export_summary.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/ieee39_v2_plus_b39_b26_training_readiness.json",
     "docs/ieee39_v2_plus_b39_b26_no_training_composition_review.md",
+    "docs/ieee39_v2_plus_b39_b26_preview_no_leakage_comparison.md",
+    "scripts/gcn_search/train_ieee39_dynamic_aware_reranker_v2_plus_b39_b26_preview.py",
+    "tests/test_ieee39_v2_plus_b39_b26_preview_no_leakage.py",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_composition_review.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_composition_review.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_label_family_counts.csv",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_fault_type_counts.csv",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_bus_fault_comparison.csv",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_b26_preview/v2_plus_b39_b26_preview_comparison.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_b26_preview/v2_plus_b39_b26_preview_comparison.md",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_b26_preview/include_all_42_candidates/preview_training_metrics.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_b26_preview/exclude_provenance_required/preview_training_metrics.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_b26_preview/no_dynamic_measurement_features/preview_training_metrics.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_b26_preview/label_family_holdout/preview_training_metrics.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_b26_preview/bus_fault_holdout/preview_training_metrics.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_b26_preview/b39_holdout/preview_training_metrics.json",
+    "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_b26_preview/b26_holdout/preview_training_metrics.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -2096,6 +2108,130 @@ def main() -> int:
                     failures.append("B26 composition review comparison rows must use line_id=NO_LINE.")
         except Exception as exc:
             failures.append(f"Failed to read B26 composition review artifacts: {exc}")
+
+    b26_preview_dir = ROOT / "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_b26_preview"
+    b26_preview_json = b26_preview_dir / "v2_plus_b39_b26_preview_comparison.json"
+    b26_preview_md = b26_preview_dir / "v2_plus_b39_b26_preview_comparison.md"
+    b26_preview_doc = ROOT / "docs/ieee39_v2_plus_b39_b26_preview_no_leakage_comparison.md"
+    if b26_preview_json.exists() and b26_preview_md.exists() and b26_preview_doc.exists():
+        try:
+            import json
+
+            comparison = json.loads(b26_preview_json.read_text(encoding="utf-8"))
+            expected_values = {
+                "preview_only": True,
+                "final_performance_conclusion": False,
+                "gcn_trained": False,
+                "gcn_usefulness_audit_run": False,
+                "formal_reranker_retrained": False,
+                "simulink_run": False,
+                "labels_exported": False,
+                "old_formal_gate": "35 / 33 / 33",
+                "v2_plus_b39_b26_candidate_count": 42,
+                "previous_v2_plus_b39_count": 41,
+                "num_bus_fault_candidates": 2,
+                "b39_status": "candidate_label_not_formal",
+                "b26_status": "candidate_label_not_formal",
+                "l12_excluded": True,
+                "nf06_provenance_warning_preserved": True,
+                "leakage_risk_reviewed": True,
+                "target_feature_leakage_risk_if_dynamic_measurements_used": True,
+                "can_directly_validate_gcn": False,
+            }
+            for key, value in expected_values.items():
+                if comparison.get(key) != value:
+                    failures.append(f"v2-plus-B39+B26 preview comparison must record {key}={value!r}.")
+            required_numeric = [
+                "include_all_42_rmse",
+                "exclude_provenance_required_rmse",
+                "no_dynamic_measurement_rmse",
+                "label_family_holdout_rmse",
+                "bus_fault_holdout_rmse",
+                "b39_holdout_absolute_error",
+                "b26_holdout_absolute_error",
+                "b39_true_dynamic_stress_score",
+                "b39_predicted_dynamic_stress_score",
+                "b26_true_dynamic_stress_score",
+                "b26_predicted_dynamic_stress_score",
+                "b39_unstable_probability",
+                "b26_unstable_probability",
+            ]
+            for key in required_numeric:
+                value = comparison.get(key)
+                if not isinstance(value, (int, float)) or value < 0:
+                    failures.append(f"v2-plus-B39+B26 preview comparison missing nonnegative numeric {key}.")
+            if comparison.get("recommended_next_step") != "collect more bus-fault candidates before GCN usefulness audit":
+                failures.append("v2-plus-B39+B26 preview comparison must recommend collecting more bus-fault candidates.")
+            for mode in [
+                "include_all_42_candidates",
+                "exclude_provenance_required",
+                "no_dynamic_measurement_features",
+                "label_family_holdout",
+                "bus_fault_holdout",
+                "b39_holdout",
+                "b26_holdout",
+            ]:
+                metrics_path = b26_preview_dir / mode / "preview_training_metrics.json"
+                metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
+                for key in [
+                    "preview_only",
+                    "dynamic_stress_score_is_proxy_target",
+                ]:
+                    if metrics.get(key) is not True:
+                        failures.append(f"{mode} preview metrics must record {key}=true.")
+                for key in [
+                    "final_performance_conclusion",
+                    "simulink_run",
+                    "labels_exported",
+                    "gcn_trained",
+                    "gcn_usefulness_audit_run",
+                    "formal_reranker_retrained",
+                ]:
+                    if metrics.get(key) is not False:
+                        failures.append(f"{mode} preview metrics must record {key}=false.")
+                if not metrics.get("regression_metrics"):
+                    failures.append(f"{mode} preview metrics missing regression_metrics.")
+                if mode == "no_dynamic_measurement_features":
+                    forbidden = {
+                        "min_voltage_pu",
+                        "max_voltage_pu",
+                        "min_frequency_hz",
+                        "max_frequency_hz",
+                        "max_speed_deviation",
+                        "max_rotor_angle_separation_deg",
+                        "dynamic_stress_score",
+                        "unstable_flag",
+                    }
+                    if forbidden & set(metrics.get("feature_columns", [])):
+                        failures.append("B39+B26 no_dynamic_measurement features contain leakage columns.")
+            doc_text = "\n".join(
+                [
+                    b26_preview_md.read_text(encoding="utf-8", errors="ignore"),
+                    b26_preview_doc.read_text(encoding="utf-8", errors="ignore"),
+                ]
+            ).lower()
+            for required in [
+                "preview/no-leakage comparison",
+                "does not train gcn",
+                "does not run a gcn usefulness audit",
+                "candidate labels, not formal labels",
+                "phasor_rms`, not emt",
+                "generator_speed_proxy` is not direct frequency",
+                "not engineering-grade protection",
+            ]:
+                if required not in doc_text:
+                    failures.append(f"v2-plus-B39+B26 preview docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is not useful",
+                "emt validation completed",
+                "formal reranker has been retrained",
+                "b39 and b26 are formal labels",
+            ]:
+                if bad in doc_text:
+                    failures.append(f"v2-plus-B39+B26 preview docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read v2-plus-B39+B26 preview artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

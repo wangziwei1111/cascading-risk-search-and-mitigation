@@ -81,3 +81,23 @@ The review also records that post-fault compact dynamic measurements have
 target-feature leakage risk if used directly as model input features. Any later
 preview should include label-family holdout, bus-fault holdout, B39 holdout,
 B26 holdout, and no-dynamic-measurement feature comparison.
+
+## v2-plus-B39+B26 Preview/No-Leakage Follow-Up
+
+The requested v2-plus-B39+B26 preview/no-leakage comparison has been run as a
+separate preview-only step. It still does not train GCN, does not run a GCN
+usefulness audit, does not run Simulink, does not export labels, and does not
+retrain the formal reranker.
+
+Results:
+
+- include_all_42 RMSE: `0.046807699921347506`
+- no_dynamic_measurement_features RMSE: `0.061163642668586794`
+- label_family_holdout RMSE: `0.16895513293724`
+- bus_fault_holdout RMSE: `0.14967340256432293`
+- B39 holdout absolute error: `0.20370360540758992`
+- B26 holdout absolute error: `0.1357737642351028`
+
+The no_dynamic_measurement and holdout results remain more important than the
+include-all result. The current recommendation is to collect more bus-fault
+candidates before any GCN usefulness audit.
