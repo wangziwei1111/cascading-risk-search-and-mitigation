@@ -2998,6 +2998,52 @@ Artifacts:
 - `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary_B26.json`
 - `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary_B26.md`
 
+## Round 59: B26 Temporary Smoke Readiness Dry-Run
+
+This round updates only the B26 readiness / dry-run readiness artifacts after
+the B26 injection point was human verified. It does not run actual Simulink
+smoke, does not submit `.slx`, does not modify source `.slx`, does not export
+labels, does not train GCN, and does not retrain the reranker.
+
+New readiness artifacts:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_b26_human_verified_readiness.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_b26_human_verified_readiness.md`
+- `docs/ieee39_b26_temp_smoke_readiness.md`
+
+Dry-run readiness command:
+
+```bash
+python scripts/gcn_search/run_ieee39_bus_fault_temp_lab_smoke.py --temp-lab-plan results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_temp_lab_B26_plan.json --manual-review-summary results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary_B26.json --human-readiness-json results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_b26_human_verified_readiness.json --target-bus B26 --timeout-seconds 240 --simulation-stop-time 0.8 --output-dir results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs --dry-run
+```
+
+Dry-run readiness outputs:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_temp_smoke_dry_run_readiness.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_temp_smoke_dry_run_readiness.md`
+
+Key result:
+
+```text
+target_bus = B26
+dry_run = true
+actual_simulink_run = false
+readiness_status = ready_for_next_round_temp_smoke
+would_run_smoke_next_round = true
+selected_fault_block_path = Grid/Fault_B26_TEMP
+selected_injection_block_path = Grid/Bus26_1 and Grid/Bus26_2 shared physical B26 node
+B26 smoke success = false
+B26 candidate label exported = false
+```
+
+The old formal gate remains `35 / 33 / 33`; the v2-plus-B39 count remains `41`.
+B39 remains a candidate label, not a formal label. `phasor_RMS` is not EMT,
+`generator_speed_proxy` is not direct frequency, and temporary bus-fault
+injection is not engineering-grade protection.
+
+Recommended next step: run actual B26 temporary smoke in a separate next round;
+still do not export labels or train models until the smoke output is reviewed.
+
 The model remains `phasor_RMS`, not EMT. `generator_speed_proxy` is not direct
 frequency. Temporary bus-fault injection is not engineering-grade protection.
 

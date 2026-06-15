@@ -7,7 +7,8 @@ three-phase fault injection. The priority target is `B39`; the fallback target
 is `B26`.
 
 Plain wording: this document is a manual inspection checklist only. B39 now has
-a human-verified injection point, while B26 remains unverified. This does not
+a human-verified injection point, and B26 now has a human-verified injection
+point after the rename recheck. This does not
 mean B39 or B26 has passed smoke, does not train GCN, does not retrain the
 reranker, and does not export labels.
 
@@ -122,7 +123,7 @@ After the v2-plus-B39 preview interpretation, B26 becomes the next priority
 manual GUI target because B39 holdout showed weak bus-fault / fault-family
 generalization. This is preparation only:
 
-- B26 remains unverified.
+- B26 was still unverified before the later rename recheck.
 - B26 is not smoke success.
 - B26 candidate label has not been exported.
 - Codex should not run Simulink in this preparation round.
@@ -147,3 +148,13 @@ by `Grid/B25 to B26`, `Grid/Bus26_1`, and `Grid/Bus26_2`.
 
 The next step is a separate B26 readiness gate before any temporary smoke. See
 `docs/ieee39_b26_manual_bus_fault_review_result.md`.
+
+## B26 Readiness Dry-Run
+
+B26 now has a separate readiness dry-run result:
+
+- `docs/ieee39_b26_temp_smoke_readiness.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_temp_smoke_dry_run_readiness.json`
+
+The status is `ready_for_next_round_temp_smoke`. This is not actual Simulink
+smoke success and is not a candidate label export.

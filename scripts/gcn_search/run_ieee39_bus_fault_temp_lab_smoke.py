@@ -84,12 +84,13 @@ def _write_outputs(out_dir: Path, row: dict[str, Any], report: dict[str, Any]) -
     (out_dir / "ieee39_bus_fault_temp_lab_smoke_report.md").write_text("\n".join(md) + "\n", encoding="utf-8")
 
 
-def _write_b39_readiness_outputs(out_dir: Path, report: dict[str, Any]) -> None:
+def _write_bus_readiness_outputs(out_dir: Path, report: dict[str, Any]) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
-    json_path = out_dir / "ieee39_b39_temp_smoke_dry_run_readiness.json"
+    bus_lower = str(report["target_bus"]).lower()
+    json_path = out_dir / f"ieee39_{bus_lower}_temp_smoke_dry_run_readiness.json"
     json_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     md = [
-        "# IEEE39 B39 Temp Smoke Dry-Run Readiness",
+        f"# IEEE39 {report['target_bus']} Temp Smoke Dry-Run Readiness",
         "",
         "This is a dry-run readiness report only. It does not run Simulink smoke,",
         "does not modify or commit any `.slx`, does not export labels, does not",
@@ -105,11 +106,14 @@ def _write_b39_readiness_outputs(out_dir: Path, report: dict[str, Any]) -> None:
         f"- fault window: `{report['fault_start_s']}` s to `{report['fault_clear_s']}` s",
         f"- formal_label_gate: `{report['formal_label_gate']}`",
         f"- v2_candidate_count: `{report['v2_candidate_count']}`",
+        f"- v2_plus_b39_count: `{report.get('v2_plus_b39_count', '')}`",
         "",
-        "Boundary: B39 is ready for a separate next-round temporary smoke attempt,",
-        "but B39 is still not smoke success.",
+        f"Boundary: {report['target_bus']} is ready for a separate next-round temporary smoke attempt,",
+        f"but {report['target_bus']} is still not smoke success and is not a new candidate label.",
     ]
-    (out_dir / "ieee39_b39_temp_smoke_dry_run_readiness.md").write_text("\n".join(md) + "\n", encoding="utf-8")
+    (out_dir / f"ieee39_{bus_lower}_temp_smoke_dry_run_readiness.md").write_text(
+        "\n".join(md) + "\n", encoding="utf-8"
+    )
 
 
 def _matlab_path(path: Path) -> str:
@@ -234,14 +238,28 @@ def _read_matlab_summary(path: Path) -> dict[str, str] | None:
 
 
 def _human_readiness_ready(readiness: dict[str, Any]) -> tuple[bool, str]:
-    required_exact = {
-        "target_bus": "B39",
-        "selected_injection_block_path": "Grid/Bus39",
-        "selected_fault_block_path": "Grid/Fault_B39_TEMP",
-        "formal_label_gate": "35 / 33 / 33",
-        "v2_candidate_count": 40,
-        "b26_status": "unverified",
-    }
+    target_bus = str(readiness.get("target_bus", ""))
+    if target_bus == "B39":
+        required_exact = {
+            "target_bus": "B39",
+            "selected_injection_block_path": "Grid/Bus39",
+            "selected_fault_block_path": "Grid/Fault_B39_TEMP",
+            "formal_label_gate": "35 / 33 / 33",
+            "v2_candidate_count": 40,
+            "b26_status": "unverified",
+        }
+    elif target_bus == "B26":
+        required_exact = {
+            "target_bus": "B26",
+            "selected_injection_block_path": "Grid/Bus26_1 and Grid/Bus26_2 shared physical B26 node",
+            "selected_fault_block_path": "Grid/Fault_B26_TEMP",
+            "formal_label_gate": "35 / 33 / 33",
+            "v2_plus_b39_count": 41,
+            "b39_status": "candidate_label_not_formal",
+            "recommended_next_step": "run B26 temporary smoke in a separate round",
+        }
+    else:
+        return False, f"human readiness target_bus={target_bus!r} is not supported"
     for key, expected in required_exact.items():
         if readiness.get(key) != expected:
             return False, f"human readiness {key}={readiness.get(key)!r}, expected {expected!r}"
@@ -290,8 +308,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     elif target_bus != str(plan["target_bus"]):
         reason = "target_bus does not match temp lab plan"
         safe = False
-    elif human_readiness and target_bus != "B39":
-        reason = "human readiness dry-run is only allowed for B39"
+    elif human_readiness and str(human_readiness.get("target_bus")) != target_bus:
+        reason = "human readiness target_bus does not match requested target_bus"
         safe = False
     elif human_readiness and manual_summary.get("recommendation") != "manual_review_supports_next_round_inventory_update":
         reason = "manual review summary does not support next-round inventory update"
@@ -311,7 +329,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             actual_run_allowed = True
             reason = ""
         else:
-            reason = "actual Simulink execution requires B39 human readiness"
+            reason = "actual Simulink execution requires B39 human readiness; B26 is dry-run only in this round"
             safe = False
 
     matlab_summary: dict[str, str] | None = None
@@ -389,7 +407,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     report = {
         "preview_only": True,
         "target_bus": target_bus,
-        "safe_to_run_smoke": bool(inventory.get("safe_to_run_smoke", False)),
+        "safe_to_run_smoke": bool(safe),
         "human_readiness_used": bool(human_readiness),
         "human_readiness_ready": bool(human_ready),
         "smoke_executed": bool(actual_run_allowed),
@@ -420,11 +438,12 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             if training_ready
             else "inspect temporary B39 injection / MATLAB error"
             if actual_run_allowed
-            else "run actual B39 temporary smoke in a separate round"
+            else f"run actual {target_bus} temporary smoke in a separate round"
         ),
         "summary_csv": _rel(out_dir / "ieee39_bus_fault_temp_lab_smoke_summary.csv"),
     }
-    _write_outputs(out_dir, row, report)
+    if not (human_readiness and args.dry_run):
+        _write_outputs(out_dir, row, report)
     if human_readiness and args.dry_run:
         readiness_report = {
             "target_bus": target_bus,
@@ -438,6 +457,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "reranker_retrained": False,
             "formal_label_gate": human_readiness.get("formal_label_gate", "35 / 33 / 33"),
             "v2_candidate_count": human_readiness.get("v2_candidate_count", 40),
+            "v2_plus_b39_count": human_readiness.get("v2_plus_b39_count", human_readiness.get("v2_candidate_count", 40)),
+            "b39_status": human_readiness.get("b39_status", ""),
             "selected_fault_block_path": human_readiness.get("selected_fault_block_path", ""),
             "selected_injection_block_path": human_readiness.get("selected_injection_block_path", ""),
             "fault_start_s": human_readiness.get("fault_start_s"),
@@ -446,7 +467,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "readiness_status": "ready_for_next_round_temp_smoke"
             if args.dry_run and human_ready and safe
             else "not_ready_for_next_round_temp_smoke",
-            "recommended_next_step": "run actual B39 temporary smoke in a separate round"
+            "recommended_next_step": f"run actual {target_bus} temporary smoke in a separate round"
             if args.dry_run and human_ready and safe
             else "fix readiness inputs before smoke",
             "manual_review_recommendation": manual_summary.get("recommendation", ""),
@@ -458,7 +479,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "temporary_model_path": temp_model,
             "note": "dry-run readiness only; no Simulink execution in this round",
         }
-        _write_b39_readiness_outputs(out_dir, readiness_report)
+        _write_bus_readiness_outputs(out_dir, readiness_report)
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return report
 

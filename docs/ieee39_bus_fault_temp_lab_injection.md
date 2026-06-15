@@ -43,7 +43,7 @@ three-phase fault block and does not wire physical ports automatically.
 | target bus | injection point found | safe to run smoke | smoke executed | reason |
 | --- | ---: | ---: | ---: | --- |
 | B39 | false | false | false | candidate blocks inventoried, but no verified safe physical bus terminal wiring rule |
-| B26 | false | false | false | candidate blocks inventoried, but no verified safe physical bus terminal wiring rule |
+| B26 | true | false | false | human-verified temporary injection point; dry-run readiness only, not smoke success |
 
 The smoke runner was called only in dry-run mode for B39. It refused execution
 because `safe_to_run_smoke = false`.
@@ -90,8 +90,9 @@ was conservative; after human GUI review, B39 now records
 `safe_to_run_smoke_recommendation = true`.
 
 B39 now has a human-verified temporary injection point, but B39 is still not
-smoke success. B26 remains unverified. The old formal gate remains `35 / 33 /
-33`, and the v2-plus-B39 count remains `41`.
+smoke success. B26 was later rechecked and now has a human-verified injection
+point, but B26 is still not smoke success. The old formal gate remains `35 /
+33 / 33`, and the v2-plus-B39 count remains `41`.
 
 The B39 manual evidence is recorded in
 `docs/ieee39_bus_fault_b39_manual_review_result.md`. The consolidation
@@ -148,7 +149,7 @@ After the B39 v2-plus-B39 preview interpretation, B26 is prepared as the next
 manual GUI target. This round does not run Simulink, does not submit `.slx`,
 does not train GCN, does not retrain the reranker, and does not export labels.
 
-- B26 remains unverified.
+- B26 was still unverified before the later rename recheck.
 - B26 is not smoke success.
 - B26 candidate label has not been exported.
 - `human_verified_injection_point = false`
@@ -179,6 +180,21 @@ temporary copy now contains `Grid/Fault_B26_TEMP`, connected in parallel to
 B26 now has a human-verified injection point and can proceed to a separate
 readiness gate in the next round. This is still not smoke success and not a
 candidate label.
+
+## B26 Human Readiness Dry-Run
+
+B26 readiness was then checked in dry-run mode only. The dry-run wrote:
+
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_b26_human_verified_readiness.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_b26_human_verified_readiness.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_temp_smoke_dry_run_readiness.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_temp_smoke_dry_run_readiness.md`
+
+The dry-run status is `ready_for_next_round_temp_smoke`. It did not run actual
+Simulink smoke, did not submit `.slx`, did not modify source `.slx`, did not
+export labels, did not train GCN, and did not retrain the reranker. B26 is still
+not smoke success and is still not a candidate label. B39 remains a candidate
+label, not a formal label.
 
 Artifacts:
 

@@ -263,6 +263,7 @@ REQUIRED_FILES = [
     "docs/ieee39_v2_plus_b39_preview_training.md",
     "docs/ieee39_v2_plus_b39_preview_interpretation.md",
     "docs/ieee39_b26_manual_bus_fault_verification_plan.md",
+    "docs/ieee39_b26_temp_smoke_readiness.md",
     "docs/pio_gcn_relay_vs_security_constraint.md",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/simulink_dynamic_real_pipeline_summary/real_topk_dynamic_smoke_summary.csv",
@@ -373,6 +374,10 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/b26_manual_connection_evidence.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary_B26.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary_B26.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_b26_human_verified_readiness.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/ieee39_bus_fault_b26_human_verified_readiness.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_temp_smoke_dry_run_readiness.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_smoke_outputs/ieee39_b26_temp_smoke_dry_run_readiness.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -1452,6 +1457,90 @@ def main() -> int:
                     failures.append(f"B39 dry-run readiness must record {key}=false.")
         except Exception as exc:
             failures.append(f"Failed to read B39 dry-run readiness: {exc}")
+
+    b26_human_readiness = temp_lab_dir / "ieee39_bus_fault_b26_human_verified_readiness.json"
+    b26_dry_run_readiness = temp_lab_smoke_dir / "ieee39_b26_temp_smoke_dry_run_readiness.json"
+    if b26_human_readiness.exists():
+        try:
+            import json
+
+            readiness = json.loads(b26_human_readiness.read_text(encoding="utf-8"))
+            expected = {
+                "target_bus": "B26",
+                "manual_review_recommendation": "manual_review_supports_next_round_inventory_update",
+                "selected_injection_block_path": "Grid/Bus26_1 and Grid/Bus26_2 shared physical B26 node",
+                "selected_fault_block_path": "Grid/Fault_B26_TEMP",
+                "formal_label_gate": "35 / 33 / 33",
+                "v2_plus_b39_count": 41,
+                "b39_status": "candidate_label_not_formal",
+                "recommended_next_step": "run B26 temporary smoke in a separate round",
+            }
+            for key, value in expected.items():
+                if readiness.get(key) != value:
+                    failures.append(f"B26 human readiness must record {key}={value!r}.")
+            for key in [
+                "human_verified_injection_point",
+                "safe_to_run_smoke_recommendation",
+                "update_diagram_success",
+                "old_fault_still_near_b16",
+                "enable_temporal_fault",
+            ]:
+                if readiness.get(key) is not True:
+                    failures.append(f"B26 human readiness must record {key}=true.")
+            for key in [
+                "source_model_saved",
+                "temporary_model_committed",
+                "source_slx_modified",
+                "temporary_slx_committed",
+                "simulink_smoke_run",
+                "smoke_success",
+                "labels_exported",
+                "gcn_trained",
+                "reranker_retrained",
+                "l12_touched",
+            ]:
+                if readiness.get(key) is not False:
+                    failures.append(f"B26 human readiness must record {key}=false.")
+        except Exception as exc:
+            failures.append(f"Failed to read B26 human readiness: {exc}")
+
+    if b26_dry_run_readiness.exists():
+        try:
+            import json
+
+            dry = json.loads(b26_dry_run_readiness.read_text(encoding="utf-8"))
+            expected = {
+                "target_bus": "B26",
+                "readiness_status": "ready_for_next_round_temp_smoke",
+                "selected_injection_block_path": "Grid/Bus26_1 and Grid/Bus26_2 shared physical B26 node",
+                "selected_fault_block_path": "Grid/Fault_B26_TEMP",
+                "formal_label_gate": "35 / 33 / 33",
+                "v2_plus_b39_count": 41,
+                "b39_status": "candidate_label_not_formal",
+                "recommended_next_step": "run actual B26 temporary smoke in a separate round",
+            }
+            for key, value in expected.items():
+                if dry.get(key) != value:
+                    failures.append(f"B26 dry-run readiness must record {key}={value!r}.")
+            for key in ["dry_run", "would_run_smoke_next_round"]:
+                if dry.get(key) is not True:
+                    failures.append(f"B26 dry-run readiness must record {key}=true.")
+            for key in [
+                "actual_simulink_run",
+                "source_slx_modified",
+                "temporary_slx_committed",
+                "labels_exported",
+                "gcn_trained",
+                "reranker_retrained",
+                "simulink_smoke_run",
+                "smoke_success",
+                "source_model_saved",
+                "temporary_model_committed",
+            ]:
+                if dry.get(key) is not False:
+                    failures.append(f"B26 dry-run readiness must record {key}=false.")
+        except Exception as exc:
+            failures.append(f"Failed to read B26 dry-run readiness: {exc}")
 
     b39_quality_review = temp_lab_smoke_dir / "ieee39_b39_temp_smoke_quality_review.json"
     if b39_quality_review.exists():

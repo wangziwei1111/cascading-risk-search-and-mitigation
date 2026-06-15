@@ -29,11 +29,12 @@ Update Diagram passed, and the checked model contains an observed B26 parallel
 fault block, `Grid/Fault (Three-Phase)1`, connected to the B26 physical node
 shared by `Grid/B25 to B26`, `Grid/Bus26_1`, and `Grid/Bus26_2`.
 
-However, the required named block `Grid/Fault_B26_TEMP` was not found in the
-checked temporary model. Therefore B26 remains unverified:
+However, at that point the required named block `Grid/Fault_B26_TEMP` was not
+found in the checked temporary model. That Round 57 status was later
+superseded by the Round 58 rename recheck:
 
-- `human_verified_injection_point = false`
-- `safe_to_run_smoke_recommendation = false`
+- `human_verified_injection_point = true` after Round 58.
+- `safe_to_run_smoke_recommendation = true` after Round 58.
 - B26 is not smoke success.
 - B26 is not a candidate label.
 - no labels were exported.
@@ -90,8 +91,15 @@ and may proceed to a separate readiness gate in the next round.
 
 ## What Codex Should Not Do This Round
 
-Codex should not run Simulink, should not claim B26 is verified, should not
-claim B26 smoke success, and should not export any B26 label.
+Codex should not run Simulink in the readiness dry-run round, should not claim
+B26 smoke success, and should not export any B26 label.
+
+## Round 59 Readiness Dry-Run
+
+Round 59 added a B26 human-readiness artifact and ran only the dry-run
+readiness check. The dry-run status is
+`ready_for_next_round_temp_smoke`. This still does not mean actual Simulink
+smoke success, and it still does not export a B26 candidate label.
 
 ## Boundaries
 

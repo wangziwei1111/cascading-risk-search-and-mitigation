@@ -78,5 +78,7 @@ This still does not mean B26 smoke success.
 
 ## Next Step
 
-Prepare B26 readiness in a separate round before any temporary smoke. Do not
-jump directly from this evidence file to smoke execution.
+Round 59 prepared B26 readiness in dry-run mode only. The dry-run status is
+`ready_for_next_round_temp_smoke`, so the next separate round can run actual
+B26 temporary smoke. Do not export labels, train GCN, or retrain the reranker
+until the actual smoke output is reviewed.
