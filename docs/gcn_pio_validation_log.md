@@ -3346,6 +3346,58 @@ B39 and B26 remain candidate labels, not formal labels. The model remains
 `phasor_RMS`, not EMT. `generator_speed_proxy` is not direct frequency.
 Temporary bus-fault injection is not engineering-grade protection.
 
+## Round 68: All-Remaining Bus-Fault Batch Smoke Quality Review
+
+This round reviews the output quality of the previous actual-smoke run for 37
+IEEE39 bus-fault temporary cases. It does not run Simulink, does not run actual
+smoke, does not export labels, does not train GCN, does not retrain the
+reranker, and does not run a GCN usefulness audit.
+
+Plain wording: the previous round answered "can these temporary bus-fault cases
+run and produce compact measurements?" This round answers "are those already
+generated measurements complete enough to enter a later candidate-only export
+round?" Passing this review is still not a label export.
+
+```text
+quality review scope = smoke_output_quality_only
+total smoke reports reviewed = 37
+quality review passed = 37
+quality review failed = 0
+candidate export eligible next round = 37
+unstable_flag true count = 36
+unstable_flag false buses = B1
+B16 quality review passed = true
+current candidate count = 42
+old formal gate = 35 / 33 / 33
+labels_exported = false
+candidate_labels_exported = false
+gcn_trained = false
+reranker_retrained = false
+gcn_usefulness_audit_run = false
+```
+
+New artifacts:
+
+- `docs/ieee39_all_remaining_bus_fault_batch_smoke_quality_review.md`
+- `scripts/gcn_search/review_ieee39_all_remaining_bus_fault_batch_smoke_quality.py`
+- `tests/test_ieee39_all_remaining_bus_fault_batch_smoke_quality_review.py`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_quality_review/batch_smoke_quality_review_summary.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_quality_review/batch_smoke_quality_review_summary.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_quality_review/batch_smoke_quality_review_summary.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_quality_review/buses_eligible_for_candidate_export.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_quality_review/smoke_quality_review_<BUS>.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_quality_review/smoke_quality_review_<BUS>.md`
+
+B16 special handling remains preserved, and the old B16 fault was not moved.
+B39/B26 remain existing candidate labels, not formal labels. The model remains
+`phasor_RMS`, not EMT. `generator_speed_proxy` is not direct frequency.
+Temporary bus-fault injection is not engineering-grade protection. Post-fault
+compact dynamic measurements should not be used as primary GCN input features,
+otherwise target-feature leakage can occur.
+
+Next step: perform candidate-only export for quality-passed buses in a separate
+round, without training GCN and without retraining the reranker.
+
 ## Round 66: All-Remaining Bus-Fault Batch Readiness Dry-Run
 
 This round checks the 37 manually connected IEEE39 bus-fault temporary local

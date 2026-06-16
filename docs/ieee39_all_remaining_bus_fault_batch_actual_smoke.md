@@ -25,3 +25,15 @@ B16 special handling is preserved, and the old B16 fault was not moved.
 B39/B26 remain existing candidate labels, not formal labels. The model remains
 `phasor_RMS`, not EMT. `generator_speed_proxy` is not direct frequency.
 Temporary bus-fault injection is not engineering-grade protection.
+
+## Follow-Up Quality Review
+
+A later review-only step checked the already generated smoke reports. That
+quality review did not run Simulink, did not run actual smoke, did not export
+labels, did not train GCN, did not retrain the reranker, and did not run a GCN
+usefulness audit.
+
+The review passed all 37 smoke reports for a later candidate-only export round.
+This still does not make the 37 targets candidate labels in the current round.
+The next safe action is candidate-only export in a separate round, without
+training.

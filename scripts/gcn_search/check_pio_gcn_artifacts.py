@@ -403,11 +403,13 @@ REQUIRED_FILES = [
     "scripts/gcn_search/train_ieee39_dynamic_aware_reranker_v2_plus_b39_b26_preview.py",
     "scripts/gcn_search/prepare_ieee39_all_remaining_bus_fault_manual_wiring_plan.py",
     "scripts/gcn_search/collect_ieee39_all_remaining_bus_fault_manual_evidence.py",
+    "scripts/gcn_search/review_ieee39_all_remaining_bus_fault_batch_smoke_quality.py",
     "tests/test_ieee39_v2_plus_b39_b26_preview_no_leakage.py",
     "tests/test_ieee39_all_remaining_bus_fault_manual_wiring_plan.py",
     "tests/test_ieee39_all_remaining_bus_fault_manual_connection_evidence.py",
     "tests/test_ieee39_all_remaining_bus_fault_batch_readiness.py",
     "tests/test_ieee39_all_remaining_bus_fault_batch_actual_smoke.py",
+    "tests/test_ieee39_all_remaining_bus_fault_batch_smoke_quality_review.py",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_composition_review.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_composition_review.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_label_family_counts.csv",
@@ -433,6 +435,7 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/manual_connection_evidence/buses_ready_for_readiness_dry_run.json",
     "docs/ieee39_all_remaining_bus_fault_batch_readiness_dry_run.md",
     "docs/ieee39_all_remaining_bus_fault_batch_actual_smoke.md",
+    "docs/ieee39_all_remaining_bus_fault_batch_smoke_quality_review.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/readiness_dry_run/batch_readiness_dry_run_summary.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/readiness_dry_run/batch_readiness_dry_run_summary.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/readiness_dry_run/batch_readiness_dry_run_summary.csv",
@@ -442,6 +445,10 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_outputs/batch_actual_smoke_summary.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_outputs/batch_actual_smoke_summary.csv",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_outputs/buses_ready_for_smoke_quality_review.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_quality_review/batch_smoke_quality_review_summary.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_quality_review/batch_smoke_quality_review_summary.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_quality_review/batch_smoke_quality_review_summary.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_quality_review/buses_eligible_for_candidate_export.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -2758,6 +2765,115 @@ def main() -> int:
                     failures.append(f"All-remaining batch smoke docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read all-remaining batch smoke artifacts: {exc}")
+
+    all_remaining_quality_dir = all_remaining_dir / "batch_smoke_quality_review"
+    all_remaining_quality_summary = all_remaining_quality_dir / "batch_smoke_quality_review_summary.json"
+    all_remaining_quality_eligible = all_remaining_quality_dir / "buses_eligible_for_candidate_export.json"
+    all_remaining_quality_doc = ROOT / "docs/ieee39_all_remaining_bus_fault_batch_smoke_quality_review.md"
+    if all_remaining_quality_summary.exists():
+        try:
+            normal_targets = [*(f"B{i}" for i in range(1, 16)), *(f"B{i}" for i in range(17, 26)), *(f"B{i}" for i in range(27, 39))]
+            all_targets = normal_targets + ["B16"]
+            summary = _read_json_path(all_remaining_quality_summary)
+            expected_summary = {
+                "batch_id": "bus_fault_all_remaining_manual_wiring",
+                "quality_review_scope": "smoke_output_quality_only",
+                "total_smoke_reports_reviewed": 37,
+                "current_candidate_count": 42,
+                "old_formal_gate": "35 / 33 / 33",
+                "actual_simulink_run_this_round": False,
+                "smoke_was_run_in_previous_round": True,
+                "labels_exported": False,
+                "candidate_labels_exported": False,
+                "gcn_trained": False,
+                "reranker_retrained": False,
+                "gcn_usefulness_audit_run": False,
+                "should_export_labels_now": False,
+                "should_train_now": False,
+            }
+            for key, value in expected_summary.items():
+                if summary.get(key) != value:
+                    failures.append(f"All-remaining smoke quality summary must record {key}={value!r}.")
+            if summary.get("num_quality_review_passed", 0) + summary.get("num_quality_review_failed", 0) != 37:
+                failures.append("All-remaining smoke quality pass/fail counts must sum to 37.")
+            if set(summary.get("quality_review_passed_buses", []) + summary.get("quality_review_failed_buses", [])) != set(all_targets):
+                failures.append("All-remaining smoke quality summary must account for all 37 targets.")
+            if summary.get("measurement_extraction_status_counts") != {"voltage_speed_angle": 37}:
+                failures.append("All-remaining smoke quality summary must preserve voltage_speed_angle count for all buses.")
+            if "B1" not in summary.get("unstable_flag_false_buses", []):
+                failures.append("All-remaining smoke quality summary must list B1 as unstable_flag=false.")
+            if summary.get("special_b16_quality_review_passed") is not True:
+                failures.append("B16 smoke quality review must pass when its smoke metrics are valid.")
+            for bus in all_targets:
+                review_json = all_remaining_quality_dir / f"smoke_quality_review_{bus}.json"
+                review_md = all_remaining_quality_dir / f"smoke_quality_review_{bus}.md"
+                if not os.path.exists(_fs_path(review_json)) or not os.path.exists(_fs_path(review_md)):
+                    failures.append(f"Missing all-remaining smoke quality review artifacts for {bus}.")
+                    continue
+                review = _read_json_path(review_json)
+                if review.get("target_bus") != bus or review.get("scenario_id") != f"BF_{bus}_TEMP_SMOKE":
+                    failures.append(f"{bus} smoke quality review has wrong target_bus or scenario_id.")
+                if review.get("actual_simulink_run_this_round") is not False or review.get("smoke_was_run_in_previous_round") is not True:
+                    failures.append(f"{bus} smoke quality review must be review-only with previous-round smoke.")
+                for key in ["labels_exported", "candidate_label_exported", "gcn_trained", "reranker_retrained", "gcn_usefulness_audit_run", "source_slx_modified", "temporary_slx_committed"]:
+                    if review.get(key) is not False:
+                        failures.append(f"{bus} smoke quality review must record {key}=false.")
+                if review.get("selected_fault_block_path") != f"Grid/Fault_{bus}_TEMP":
+                    failures.append(f"{bus} smoke quality review has wrong selected fault block path.")
+                if review.get("quality_review_passed_for_candidate_export") is True:
+                    if review.get("metrics_all_finite") is not True:
+                        failures.append(f"{bus} passed smoke quality review without finite metrics.")
+                    if review.get("signal_source_has_frequency_proxy") is not True:
+                        failures.append(f"{bus} passed smoke quality review without generator_speed_proxy.")
+                    if review.get("measurement_extraction_status") != "voltage_speed_angle":
+                        failures.append(f"{bus} passed smoke quality review without voltage_speed_angle measurements.")
+                if bus == "B16":
+                    if review.get("special_handling") is not True or review.get("b16_old_fault_not_moved") is not True:
+                        failures.append("B16 smoke quality review must preserve special handling and old-fault boundary.")
+            eligible = _read_json_path(all_remaining_quality_eligible)
+            if eligible.get("eligible_buses") != summary.get("candidate_export_eligible_buses"):
+                failures.append("All-remaining eligible-export list must match quality-passed buses.")
+            if eligible.get("blocked_buses") != summary.get("candidate_export_blocked_buses"):
+                failures.append("All-remaining eligible-export blocked list must match quality-failed buses.")
+            if eligible.get("should_export_labels_now") is not False or eligible.get("should_train_now") is not False:
+                failures.append("All-remaining eligible-export list must not trigger immediate export or training.")
+            doc_text = "\n".join(
+                [
+                    all_remaining_quality_doc.read_text(encoding="utf-8", errors="ignore"),
+                    (all_remaining_quality_dir / "batch_smoke_quality_review_summary.md").read_text(encoding="utf-8", errors="ignore"),
+                ]
+            ).lower()
+            normalized = " ".join(doc_text.replace("`", "").split())
+            for required in [
+                "did not run simulink",
+                "did not run actual smoke",
+                "did not export labels",
+                "did not train gcn",
+                "did not retrain the reranker",
+                "did not run a gcn usefulness audit",
+                "still not candidate labels",
+                "candidate-only export",
+                "unstable_flag is a compact smoke threshold marker",
+                "phasor_rms, not emt",
+                "generator_speed_proxy is not direct frequency",
+                "not engineering-grade protection",
+            ]:
+                if required not in normalized:
+                    failures.append(f"All-remaining smoke quality docs missing: {required}")
+            for bad in [
+                "37 new targets are candidate labels",
+                "this round ran simulink",
+                "this round ran actual smoke",
+                "labels were exported",
+                "gcn was trained",
+                "gcn usefulness audit was run",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+            ]:
+                if bad in normalized:
+                    failures.append(f"All-remaining smoke quality docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read all-remaining smoke quality review artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

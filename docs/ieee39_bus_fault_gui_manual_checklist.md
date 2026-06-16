@@ -228,3 +228,13 @@ Simulink smoke. All 37 smoke attempts succeeded and produced
 `voltage_speed_angle` compact measurements. These results are still not
 candidate labels. They should enter smoke quality review before any label
 export or GCN training.
+
+## Batch Smoke Quality Review Follow-Up
+
+The 37 all-remaining temporary bus-fault smoke reports later passed a
+review-only smoke quality check. This review did not run Simulink, did not run
+actual smoke, did not export labels, did not train GCN, did not retrain the
+reranker, and did not run a GCN usefulness audit.
+
+The next step is candidate-only export in a separate round. The 37 reviewed
+targets are still not candidate labels in the quality-review round.

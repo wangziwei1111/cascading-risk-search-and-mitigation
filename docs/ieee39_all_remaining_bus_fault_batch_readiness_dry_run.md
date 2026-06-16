@@ -30,3 +30,13 @@ export labels, did not train GCN, and did not run a GCN usefulness audit.
 
 The result remains temporary smoke evidence only. The 37 new targets are still
 not candidate labels until a later smoke quality review and label export round.
+
+## Smoke Quality Review Follow-Up
+
+A later quality-review-only round checked the already generated smoke reports.
+It did not run Simulink, did not run actual smoke, did not export labels, did
+not train GCN, did not retrain the reranker, and did not run a GCN usefulness
+audit.
+
+All 37 reviewed smoke reports are eligible for a later candidate-only export
+round. They are still not candidate labels in the quality-review round.

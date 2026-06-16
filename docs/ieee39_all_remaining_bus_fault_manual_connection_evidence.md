@@ -59,3 +59,13 @@ retrain the reranker, and did not run a GCN usefulness audit.
 
 The next step is smoke quality review for successful buses before any label
 export. The 37 new targets are still not candidate labels.
+
+## Smoke Quality Review Follow-Up
+
+The later smoke quality review checked the 37 already generated smoke reports.
+It did not run Simulink, did not run actual smoke, did not export labels, did
+not train GCN, did not retrain the reranker, and did not run a GCN usefulness
+audit.
+
+All 37 targets passed this review for a later candidate-only export round. They
+are still not candidate labels in the quality-review round.
