@@ -255,3 +255,11 @@ quality-reviewed candidate labels. Each new target must use its own ignored
 temporary local copy and must pass manual evidence, readiness, smoke, quality,
 export, composition review, and preview/no-leakage gates before any later GCN
 usefulness audit.
+
+## All-Remaining Manual Evidence Follow-Up
+
+The 37 all-remaining bus-fault temporary copies have now been checked in a
+manual evidence collection round. The checks found the expected fault block and
+successful Update Diagram for all 37 targets. This does not make the new
+targets candidate labels and does not make them smoke success. The next step is
+readiness dry-run, not direct smoke.

@@ -51,3 +51,17 @@ frequency. Temporary bus-fault injection is not engineering-grade protection.
 - `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_manual_connection_evidence_schema.json`
 - `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_gate_sequence.md`
 - `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/manual_review_templates/manual_bus_fault_injection_review_template_<BUS>.json`
+
+## Manual Connection Evidence Follow-Up
+
+After the user manually wired all 37 temporary local copies, the batch evidence
+collection round found:
+
+- temp models found: `37`
+- fault blocks found: `37`
+- Update Diagram success: `37`
+- automated evidence check passed: `37`
+- safe to run smoke recommendation: `37`
+
+This is still not actual smoke and not label export. The next step is a
+separate batch readiness dry-run for the passing targets.

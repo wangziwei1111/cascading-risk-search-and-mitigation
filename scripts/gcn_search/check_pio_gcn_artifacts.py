@@ -397,10 +397,13 @@ REQUIRED_FILES = [
     "docs/ieee39_v2_plus_b39_b26_no_training_composition_review.md",
     "docs/ieee39_v2_plus_b39_b26_preview_no_leakage_comparison.md",
     "docs/ieee39_all_remaining_bus_fault_manual_wiring_plan.md",
+    "docs/ieee39_all_remaining_bus_fault_manual_connection_evidence.md",
     "scripts/gcn_search/train_ieee39_dynamic_aware_reranker_v2_plus_b39_b26_preview.py",
     "scripts/gcn_search/prepare_ieee39_all_remaining_bus_fault_manual_wiring_plan.py",
+    "scripts/gcn_search/collect_ieee39_all_remaining_bus_fault_manual_evidence.py",
     "tests/test_ieee39_v2_plus_b39_b26_preview_no_leakage.py",
     "tests/test_ieee39_all_remaining_bus_fault_manual_wiring_plan.py",
+    "tests/test_ieee39_all_remaining_bus_fault_manual_connection_evidence.py",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_composition_review.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_composition_review.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_label_family_counts.csv",
@@ -420,6 +423,10 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/all_remaining_manual_gui_wiring_commands.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_manual_connection_evidence_schema.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_gate_sequence.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/manual_connection_evidence/batch_manual_connection_evidence_summary.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/manual_connection_evidence/batch_manual_connection_evidence_summary.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/manual_connection_evidence/batch_manual_connection_evidence_summary.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/manual_connection_evidence/buses_ready_for_readiness_dry_run.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -2368,6 +2375,125 @@ def main() -> int:
                     failures.append(f"All-remaining bus-fault docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read all-remaining bus-fault wiring artifacts: {exc}")
+
+    all_remaining_evidence_dir = all_remaining_dir / "manual_connection_evidence"
+    all_remaining_evidence_summary = all_remaining_evidence_dir / "batch_manual_connection_evidence_summary.json"
+    all_remaining_ready = all_remaining_evidence_dir / "buses_ready_for_readiness_dry_run.json"
+    all_remaining_evidence_doc = ROOT / "docs/ieee39_all_remaining_bus_fault_manual_connection_evidence.md"
+    if all_remaining_evidence_summary.exists():
+        try:
+            normal_targets = [*(f"B{i}" for i in range(1, 16)), *(f"B{i}" for i in range(17, 26)), *(f"B{i}" for i in range(27, 39))]
+            all_targets = normal_targets + ["B16"]
+            summary = _read_json_path(all_remaining_evidence_summary)
+            expected_summary = {
+                "batch_id": "bus_fault_all_remaining_manual_wiring",
+                "user_declared_all_wiring_complete": True,
+                "total_targets": 37,
+                "normal_targets": 36,
+                "special_targets": 1,
+                "existing_completed_bus_faults": ["B39", "B26"],
+                "current_candidate_count": 42,
+                "old_formal_gate": "35 / 33 / 33",
+                "num_temp_models_found": 37,
+                "num_fault_blocks_found": 37,
+                "num_update_diagram_success": 37,
+                "num_automated_evidence_check_passed": 37,
+                "num_human_verified_injection_point": 37,
+                "num_safe_to_run_smoke_recommendation": 37,
+                "buses_blocked": [],
+                "b16_special_check_passed": True,
+                "b16_old_fault_not_moved": True,
+                "simulink_run": False,
+                "actual_smoke_run": False,
+                "labels_exported": False,
+                "candidate_labels_exported": False,
+                "gcn_trained": False,
+                "reranker_retrained": False,
+                "gcn_usefulness_audit_run": False,
+                "should_run_smoke_now": False,
+                "should_export_labels_now": False,
+                "should_train_now": False,
+            }
+            for key, value in expected_summary.items():
+                if summary.get(key) != value:
+                    failures.append(f"All-remaining manual evidence summary must record {key}={value!r}.")
+            if set(summary.get("buses_ready_for_next_round_readiness", [])) != set(all_targets):
+                failures.append("All-remaining manual evidence summary must mark all 37 targets ready for readiness dry-run.")
+            ready = _read_json_path(all_remaining_ready)
+            if ready.get("ready_count") != 37 or ready.get("blocked_count") != 0:
+                failures.append("All-remaining readiness candidate list must record 37 ready and 0 blocked.")
+            for bus in all_targets:
+                evidence_json = all_remaining_evidence_dir / f"manual_connection_evidence_{bus}.json"
+                evidence_md = all_remaining_evidence_dir / f"manual_connection_evidence_{bus}.md"
+                if not os.path.exists(_fs_path(evidence_json)) or not os.path.exists(_fs_path(evidence_md)):
+                    failures.append(f"Missing all-remaining manual connection evidence for {bus}.")
+                    continue
+                evidence = _read_json_path(evidence_json)
+                for key in [
+                    "temp_model_exists",
+                    "fault_block_found",
+                    "fault_block_name_correct",
+                    "update_diagram_attempted",
+                    "update_diagram_success",
+                    "automated_evidence_check_passed",
+                    "human_verified_injection_point",
+                    "safe_to_run_smoke_recommendation",
+                ]:
+                    if evidence.get(key) is not True:
+                        failures.append(f"{bus} manual evidence must record {key}=true.")
+                for key in [
+                    "simulink_smoke_run",
+                    "smoke_success",
+                    "labels_exported",
+                    "candidate_label_exported",
+                    "gcn_trained",
+                    "reranker_retrained",
+                    "source_slx_modified",
+                    "temporary_slx_committed",
+                ]:
+                    if evidence.get(key) is not False:
+                        failures.append(f"{bus} manual evidence must record {key}=false.")
+                if bus == "B16":
+                    if evidence.get("special_handling") is not True or evidence.get("selected_fault_block_path") != "Grid/Fault_B16_TEMP":
+                        failures.append("B16 manual evidence must be special handling with Grid/Fault_B16_TEMP.")
+                elif evidence.get("special_handling") is not False:
+                    failures.append(f"{bus} manual evidence must not be special handling.")
+            doc_text = "\n".join(
+                [
+                    all_remaining_evidence_doc.read_text(encoding="utf-8", errors="ignore"),
+                    (all_remaining_evidence_dir / "batch_manual_connection_evidence_summary.md").read_text(encoding="utf-8", errors="ignore"),
+                ]
+            ).lower()
+            normalized = " ".join(doc_text.replace("`", "").split())
+            for required in [
+                "does not run simulink simulation",
+                "does not run actual smoke",
+                "does not export labels",
+                "does not train gcn",
+                "does not run a gcn usefulness audit",
+                "not formal labels",
+                "not candidate labels",
+                "not smoke success",
+                "phasor_rms, not emt",
+                "generator_speed_proxy is not direct frequency",
+                "not engineering-grade protection",
+            ]:
+                if required not in normalized:
+                    failures.append(f"All-remaining manual evidence docs missing: {required}")
+            for bad in [
+                "37 new targets are candidate labels",
+                "37 new targets are smoke success",
+                "gcn usefulness audit was run",
+                "labels_exported=true",
+                "candidate_label_exported=true",
+                "smoke_success=true",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+            ]:
+                if bad in normalized:
+                    failures.append(f"All-remaining manual evidence docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read all-remaining manual evidence artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

@@ -2959,6 +2959,41 @@ Artifacts:
 The model remains `phasor_RMS`, not EMT. `generator_speed_proxy` is not direct
 frequency. Temporary bus-fault injection is not engineering-grade protection.
 
+## Round 66: All-Remaining Bus-Fault Manual Connection Evidence
+
+This round collected and consolidated manual connection evidence for the 37
+remaining IEEE39 bus-fault temporary local copies after the user declared manual
+GUI wiring complete. It used load/get_param/Update Diagram checks only. It did
+not run Simulink simulation, did not run actual smoke, did not export labels,
+did not train GCN, did not retrain the reranker, and did not run a GCN
+usefulness audit.
+
+Plain wording: each short-path temporary model was opened for structural
+inspection. The expected `Grid/Fault_<BUS>_TEMP` block was found, its
+connectivity was readable, and Update Diagram completed successfully for all 37
+targets. This means the batch is ready for a separate readiness dry-run round,
+not direct smoke.
+
+```text
+total_targets = 37
+num_temp_models_found = 37
+num_fault_blocks_found = 37
+num_update_diagram_success = 37
+num_automated_evidence_check_passed = 37
+num_human_verified_injection_point = 37
+num_safe_to_run_smoke_recommendation = 37
+buses_ready_for_next_round_readiness = 37
+buses_blocked = 0
+B16 special check passed = true
+B16 old fault not moved = true
+current candidate count = 42
+old formal gate = 35 / 33 / 33
+```
+
+Recommended next step: prepare batch readiness dry-run for all 37 targets in a
+separate round. Do not directly jump to smoke, do not export labels, and do not
+train GCN.
+
 ## Round 58: B26 Manual Bus-Fault Rename Recheck
 
 This round re-collects B26 manual evidence after the user renamed the temporary

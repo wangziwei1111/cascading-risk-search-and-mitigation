@@ -201,3 +201,11 @@ been prepared for all remaining targets.
 - Do not put multiple target faults into one `.slx`.
 - This package does not run Simulink, does not export labels, does not train
   GCN, and does not run a GCN usefulness audit.
+
+## All-Remaining Manual Evidence Follow-Up
+
+The all-remaining manual evidence collection has been completed for 37 targets.
+All 37 temporary models were found, all 37 expected fault blocks were found,
+and Update Diagram succeeded for all 37. This is evidence collection only, not
+actual smoke, not label export, and not GCN training. The next step is a
+separate readiness dry-run.
