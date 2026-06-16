@@ -1,0 +1,42 @@
+﻿field,value
+diagnosis_scope,dependency_diagnosis_only
+gcn_training_run,False
+formal_gcn_audit_run,False
+simulink_run,False
+labels_exported,False
+reranker_retrained,False
+production_model_saved,False
+source_commit,6c89098a2f4a127102b16d1ef990ec66e4b9d16c
+previous_gcn_dependency_status,blocked_by_missing_gcn_dependency
+previous_torch_spec_present,True
+previous_torch_geometric_spec_present,False
+previous_torch_import_ok,False
+previous_torch_import_error,[WinError 87] 参数错误。: 'E:bin'
+current_python_executable,E:\Scripts\python.exe
+current_python_version,"3.13.7 (tags/v3.13.7:bcee1c3, Aug 14 2025, 14:15:11) [MSC v.1944 64 bit (AMD64)]"
+current_platform,Windows-11-10.0.26200-SP0
+current_sys_prefix,E:
+current_sys_base_prefix,E:
+current_sys_exec_prefix,E:
+virtual_env_detected,False
+conda_env_detected,False
+torch_spec_present,True
+torch_import_ok,False
+torch_version,
+torch_cuda_version,
+torch_cuda_available,
+torch_import_error,[WinError 87] 参数错误。: 'E:bin'
+torch_geometric_spec_present,False
+torch_geometric_import_ok,False
+torch_geometric_version,
+torch_geometric_import_error,No module named 'torch_geometric'
+pyg_extension_specs,"{""torch_scatter"": {""spec_present"": false, ""origin"": """", ""submodule_search_locations"": []}, ""torch_sparse"": {""spec_present"": false, ""origin"": """", ""submodule_search_locations"": []}, ""torch_cluster"": {""spec_present"": false, ""origin"": """", ""submodule_search_locations"": []}, ""torch_spline_conv"": {""spec_present"": false, ""origin"": """", ""submodule_search_locations"": []}}"
+suspicious_path_entries,[]
+invalid_path_entries,"[""C:\\Users\\24186\\.dotnet\\tools""]"
+drive_relative_path_entries,[]
+likely_winerror87_path_cause,True
+gcn_dependency_blocker_still_present,True
+dependency_repair_plan_generated,True
+should_train_gcn_now,False
+should_rerun_formal_gcn_audit_now,False
+recommended_next_step,"fix Windows PATH / DLL path issue first, then reinstall or verify torch and torch_geometric in the active environment"

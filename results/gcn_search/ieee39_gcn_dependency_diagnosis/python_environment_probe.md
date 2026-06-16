@@ -1,0 +1,53 @@
+# Python Environment Probe
+
+```json
+{
+  "python_executable": "E:\\Scripts\\python.exe",
+  "python_version": "3.13.7 (tags/v3.13.7:bcee1c3, Aug 14 2025, 14:15:11) [MSC v.1944 64 bit (AMD64)]",
+  "sys_prefix": "E:",
+  "sys_base_prefix": "E:",
+  "sys_exec_prefix": "E:",
+  "drive_relative_prefix_fields": {
+    "sys.prefix": "E:",
+    "sys.base_prefix": "E:",
+    "sys.exec_prefix": "E:"
+  },
+  "platform": "Windows-11-10.0.26200-SP0",
+  "platform_machine": "AMD64",
+  "os_name": "nt",
+  "cwd": "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree",
+  "virtual_env_detected": false,
+  "virtual_env_path": "",
+  "conda_env_detected": false,
+  "conda_prefix": "",
+  "pythonpath": "",
+  "path_entry_count": 20,
+  "path_first_entries": [
+    "C:\\Users\\24186\\.codex\\tmp\\arg0\\codex-arg0t3m8tr",
+    "C:\\WINDOWS\\system32",
+    "C:\\WINDOWS",
+    "C:\\WINDOWS\\System32\\Wbem",
+    "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\",
+    "C:\\WINDOWS\\System32\\OpenSSH\\",
+    "C:\\winlibs-x86_64-posix-seh-gcc-15.2.0-mingw-w64msvcrt-14.0.0-r7\\mingw64\\bin",
+    "E:\\matlab2025a\\runtime\\win64",
+    "E:\\matlab2025a\\bin",
+    "C:\\Program Files\\dotnet\\",
+    "C:\\Program Files\\Git\\cmd",
+    "C:\\Program Files\\GitHub CLI\\"
+  ],
+  "suspicious_path_entries": [],
+  "invalid_path_entries": [
+    "C:\\Users\\24186\\.dotnet\\tools"
+  ],
+  "drive_relative_path_entries": [],
+  "empty_path_entries": [],
+  "python_path_entries": [],
+  "conda_or_venv_script_entries": [],
+  "cuda_path_entries": [],
+  "torch_lib_related_entries": [],
+  "unresolved_envvar_entries": [],
+  "likely_winerror87_path_cause": true,
+  "recommended_path_fix": "Inspect drive-relative Python prefix values and PATH / DLL search paths first, because the active Python environment may be resolving DLL folders as E:bin instead of E:\\bin. Reopen the shell after fixing the active environment and rerun the import probes."
+}
+```

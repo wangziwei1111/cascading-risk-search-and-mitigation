@@ -3887,3 +3887,73 @@ Audit-level conclusion:
 Recommended next step:
 
 - `repair the local GCN dependency environment and rerun the strict no-leakage audit; still do not deploy and do not retrain the reranker`
+
+## Round 75: IEEE39 GCN Dependency Blocker Diagnosis
+
+This round is dependency diagnosis only.
+
+It did not train GCN.
+It did not rerun the formal GCN usefulness audit.
+It did not run Simulink.
+It did not export labels.
+It did not retrain the reranker.
+It did not save any production model.
+
+Plain wording: the previous round already showed that the no-leakage audit
+framework itself can run, but the GCN branch is blocked by the local Python
+environment. So this round checks the active Python executable, Python prefix,
+PATH / DLL search context, `torch` import behavior, `torch_geometric`
+availability, and repo dependency declarations. It only explains why the GCN
+branch is stuck; it does not make any GCN usefulness conclusion.
+
+Diagnosis summary:
+
+- `diagnosis_scope = dependency_diagnosis_only`
+- `source_commit = 6c89098a2f4a127102b16d1ef990ec66e4b9d16c`
+- `current_python_executable = E:\Scripts\python.exe`
+- `current_sys_prefix = E:`
+- `current_sys_base_prefix = E:`
+- `current_sys_exec_prefix = E:`
+- `torch_spec_present = true`
+- `torch_import_ok = false`
+- `torch_import_error = [WinError 87] ... 'E:bin'`
+- `torch_geometric_spec_present = false`
+- `torch_geometric_import_ok = false`
+- `likely_winerror87_path_cause = true`
+- `gcn_dependency_blocker_still_present = true`
+- `dependency_repair_plan_generated = true`
+- `should_train_gcn_now = false`
+- `should_rerun_formal_gcn_audit_now = false`
+
+Interpretation:
+
+- the new key clue is not just missing `torch_geometric`
+- the active Python environment reports bare drive prefixes such as `E:`
+- that can make `torch` assemble an illegal DLL path like `E:bin`
+- so the first repair target is the active Python / DLL path context, not blind
+  reinstallation inside the broken environment
+
+Repo dependency declaration note:
+
+- `requirements.txt` declares `torch`
+- the repo does not currently declare `torch-geometric`
+- the repo does not currently declare PyG extension packages
+
+Generated diagnosis artifacts:
+
+- `docs/ieee39_gcn_dependency_blocker_diagnosis.md`
+- `results/gcn_search/ieee39_gcn_dependency_diagnosis/gcn_dependency_diagnosis_summary.json`
+- `results/gcn_search/ieee39_gcn_dependency_diagnosis/gcn_dependency_diagnosis_summary.md`
+- `results/gcn_search/ieee39_gcn_dependency_diagnosis/gcn_dependency_diagnosis_summary.csv`
+- `results/gcn_search/ieee39_gcn_dependency_diagnosis/python_environment_probe.json`
+- `results/gcn_search/ieee39_gcn_dependency_diagnosis/torch_import_probe.json`
+- `results/gcn_search/ieee39_gcn_dependency_diagnosis/torch_geometric_import_probe.json`
+- `results/gcn_search/ieee39_gcn_dependency_diagnosis/windows_path_dll_probe.json`
+- `results/gcn_search/ieee39_gcn_dependency_diagnosis/gcn_dependency_repair_plan.json`
+
+Boundary notes remain unchanged:
+
+- `phasor_RMS` is not EMT
+- `generator_speed_proxy` is not direct frequency
+- temporary bus-fault injection is not engineering-grade protection
+- current round does not support any GCN usefulness conclusion

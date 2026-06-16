@@ -623,9 +623,16 @@ REQUIRED_FILES = [
 
 
 DISALLOWED_TRACKED_SUBSTRINGS = [
+    ".venv",
+    "venv/",
+    "site-packages",
     ".pt",
+    ".pth",
+    ".ckpt",
     ".npz",
     ".pkl",
+    ".whl",
+    ".dll",
     ".slx",
     ".slxc",
     ".mat",
@@ -649,6 +656,7 @@ DISALLOWED_TRACKED_SUBSTRINGS = [
     "path_reranker_test.csv",
     "large_simulink_log",
     "event_grid_",
+    "local_lab_copies",
 ]
 
 
@@ -5315,6 +5323,128 @@ def main() -> int:
                     failures.append("Negative-control summary with all precision=1.0 must set global_degeneracy_warning=true.")
         except Exception as exc:
             failures.append(f"Failed to read negative-control summary: {exc}")
+
+    dependency_doc = ROOT / "docs/ieee39_gcn_dependency_blocker_diagnosis.md"
+    dependency_summary = ROOT / "results/gcn_search/ieee39_gcn_dependency_diagnosis/gcn_dependency_diagnosis_summary.json"
+    dependency_summary_md = ROOT / "results/gcn_search/ieee39_gcn_dependency_diagnosis/gcn_dependency_diagnosis_summary.md"
+    dependency_summary_csv = ROOT / "results/gcn_search/ieee39_gcn_dependency_diagnosis/gcn_dependency_diagnosis_summary.csv"
+    dependency_env = ROOT / "results/gcn_search/ieee39_gcn_dependency_diagnosis/python_environment_probe.json"
+    dependency_torch = ROOT / "results/gcn_search/ieee39_gcn_dependency_diagnosis/torch_import_probe.json"
+    dependency_pyg = ROOT / "results/gcn_search/ieee39_gcn_dependency_diagnosis/torch_geometric_import_probe.json"
+    dependency_path = ROOT / "results/gcn_search/ieee39_gcn_dependency_diagnosis/windows_path_dll_probe.json"
+    dependency_plan = ROOT / "results/gcn_search/ieee39_gcn_dependency_diagnosis/gcn_dependency_repair_plan.json"
+    dependency_required = [
+        dependency_doc,
+        dependency_summary,
+        dependency_summary_md,
+        dependency_summary_csv,
+        dependency_env,
+        dependency_torch,
+        dependency_pyg,
+        dependency_path,
+        dependency_plan,
+    ]
+    existing_dependency_required = [path for path in dependency_required if path.exists()]
+    if existing_dependency_required:
+        missing_dependency_required = [path for path in dependency_required if not path.exists()]
+        if missing_dependency_required:
+            failures.append(
+                "Dependency diagnosis artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_dependency_required)
+            )
+        try:
+            payload = _read_json_path(dependency_summary)
+            for key, expected in [
+                ("diagnosis_scope", "dependency_diagnosis_only"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_run", False),
+                ("simulink_run", False),
+                ("labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("dependency_repair_plan_generated", True),
+                ("should_train_gcn_now", False),
+                ("should_rerun_formal_gcn_audit_now", False),
+            ]:
+                if payload.get(key) != expected:
+                    failures.append(f"Dependency diagnosis summary must set {key}={expected!r}.")
+            for key in [
+                "previous_gcn_dependency_status",
+                "torch_spec_present",
+                "torch_import_ok",
+                "torch_geometric_spec_present",
+                "torch_geometric_import_ok",
+                "suspicious_path_entries",
+                "drive_relative_path_entries",
+                "likely_winerror87_path_cause",
+                "gcn_dependency_blocker_still_present",
+                "recommended_next_step",
+            ]:
+                if key not in payload:
+                    failures.append(f"Dependency diagnosis summary missing key: {key}")
+        except Exception as exc:
+            failures.append(f"Failed to read dependency diagnosis summary: {exc}")
+
+        try:
+            path_payload = _read_json_path(dependency_path)
+            if path_payload.get("probe_scope") != "windows_path_dll_diagnosis_only":
+                failures.append("Windows PATH DLL probe must set probe_scope=windows_path_dll_diagnosis_only.")
+            for key in ["recommended_path_fix", "drive_relative_prefix_fields"]:
+                if key not in path_payload:
+                    failures.append(f"Windows PATH DLL probe missing key: {key}")
+        except Exception as exc:
+            failures.append(f"Failed to read Windows PATH DLL probe: {exc}")
+
+        try:
+            plan_payload = _read_json_path(dependency_plan)
+            for key in [
+                "route_a_path_dll_cleanup_first",
+                "route_b_clean_virtualenv",
+                "route_c_conda_optional",
+                "verification_commands",
+                "prohibited_actions",
+            ]:
+                if key not in plan_payload:
+                    failures.append(f"Dependency repair plan missing key: {key}")
+            verification_text = "\n".join(plan_payload.get("verification_commands", []))
+            for required in [
+                "import torch",
+                "import torch_geometric",
+                "diagnose_ieee39_gcn_dependency_blocker.py",
+                "run_ieee39_strict_no_leakage_gcn_usefulness_audit.py",
+            ]:
+                if required not in verification_text:
+                    failures.append(f"Dependency repair plan verification commands missing: {required}")
+        except Exception as exc:
+            failures.append(f"Failed to read dependency repair plan: {exc}")
+
+        dependency_text = "\n".join(
+            [
+                _read_text("docs/ieee39_gcn_dependency_blocker_diagnosis.md"),
+                _read_text("docs/gcn_pio_validation_log.md"),
+            ]
+        ).lower()
+        for required in [
+            "dependency diagnosis only",
+            "did not train gcn",
+            "did not rerun the formal gcn usefulness audit",
+            "did not run simulink",
+            "winerror 87",
+            "e:bin",
+            "phasor_rms is not emt",
+            "generator_speed_proxy is not direct frequency",
+            "not engineering-grade protection",
+        ]:
+            if required not in dependency_text:
+                failures.append(f"Dependency diagnosis docs missing: {required}")
+        for bad in [
+            "gcn is useful",
+            "gcn is useless",
+            "emt validation completed",
+            "generator_speed_proxy is direct frequency",
+        ]:
+            if bad in dependency_text:
+                failures.append(f"Dependency diagnosis docs contain overstatement: {bad}")
 
     tracked_results = set(_git_ls_files("results/gcn_search"))
     branch_changed = set(_git_changed_files_against_main())

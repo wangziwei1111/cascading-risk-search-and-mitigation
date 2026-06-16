@@ -1,0 +1,24 @@
+# Windows PATH DLL Probe
+
+```json
+{
+  "probe_scope": "windows_path_dll_diagnosis_only",
+  "suspicious_path_entries": [],
+  "invalid_path_entries": [
+    "C:\\Users\\24186\\.dotnet\\tools"
+  ],
+  "drive_relative_path_entries": [],
+  "likely_winerror87_path_cause": true,
+  "recommended_path_fix": "Inspect drive-relative Python prefix values and PATH / DLL search paths first, because the active Python environment may be resolving DLL folders as E:bin instead of E:\\bin. Reopen the shell after fixing the active environment and rerun the import probes.",
+  "python_path_entries": [],
+  "conda_or_venv_script_entries": [],
+  "cuda_path_entries": [],
+  "torch_lib_related_entries": [],
+  "unresolved_envvar_entries": [],
+  "drive_relative_prefix_fields": {
+    "sys.prefix": "E:",
+    "sys.base_prefix": "E:",
+    "sys.exec_prefix": "E:"
+  }
+}
+```
