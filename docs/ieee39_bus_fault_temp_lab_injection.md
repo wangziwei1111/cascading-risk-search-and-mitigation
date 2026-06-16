@@ -263,3 +263,14 @@ manual evidence collection round. The checks found the expected fault block and
 successful Update Diagram for all 37 targets. This does not make the new
 targets candidate labels and does not make them smoke success. The next step is
 readiness dry-run, not direct smoke.
+
+## All-Remaining Batch Readiness Dry-Run Follow-Up
+
+The all-remaining batch readiness dry-run has now checked the 37 manually
+connected temporary copies. No simulation was run and this is not actual smoke.
+It does not export labels, does not train GCN, does not retrain the reranker,
+and does not run a GCN usefulness audit.
+
+All 37 targets are ready for a next-round actual smoke attempt, with B16
+special handling preserved and the old B16 fault not moved. The 37 targets are
+still not candidate labels and still not smoke success.

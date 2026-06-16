@@ -114,6 +114,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/prepare_ieee39_bus_fault_temp_lab.py",
     "scripts/gcn_search/run_ieee39_bus_fault_temp_lab_smoke.py",
     "scripts/gcn_search/collect_ieee39_bus_fault_manual_review.py",
+    "scripts/gcn_search/prepare_ieee39_all_remaining_bus_fault_batch_readiness.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trip_isolated.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py",
     "scripts/gcn_search/update_ieee39_line_breaker_map_from_inventory.py",
@@ -2494,6 +2495,140 @@ def main() -> int:
                     failures.append(f"All-remaining manual evidence docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read all-remaining manual evidence artifacts: {exc}")
+
+    all_remaining_readiness_dir = all_remaining_dir / "readiness_dry_run"
+    all_remaining_readiness_summary = all_remaining_readiness_dir / "batch_readiness_dry_run_summary.json"
+    all_remaining_readiness_manifest = all_remaining_readiness_dir / "batch_actual_smoke_plan_manifest.json"
+    all_remaining_readiness_doc = ROOT / "docs/ieee39_all_remaining_bus_fault_batch_readiness_dry_run.md"
+    if all_remaining_readiness_summary.exists():
+        try:
+            normal_targets = [*(f"B{i}" for i in range(1, 16)), *(f"B{i}" for i in range(17, 26)), *(f"B{i}" for i in range(27, 39))]
+            all_targets = normal_targets + ["B16"]
+            summary = _read_json_path(all_remaining_readiness_summary)
+            expected_summary = {
+                "batch_id": "bus_fault_all_remaining_manual_wiring",
+                "readiness_scope": "dry_run_only",
+                "total_targets": 37,
+                "normal_targets": 36,
+                "special_targets": 1,
+                "existing_completed_bus_faults": ["B39", "B26"],
+                "current_candidate_count": 42,
+                "old_formal_gate": "35 / 33 / 33",
+                "num_manual_evidence_passed": 37,
+                "num_readiness_dry_run_checked": 37,
+                "num_ready_for_next_round_actual_smoke": 37,
+                "num_blocked_before_smoke": 0,
+                "ready_buses": all_targets,
+                "blocked_buses": [],
+                "blocked_reasons_by_bus": {},
+                "b16_special_handling_preserved": True,
+                "b16_old_fault_not_moved": True,
+                "simulation_run": False,
+                "actual_smoke_run": False,
+                "labels_exported": False,
+                "candidate_labels_exported": False,
+                "gcn_trained": False,
+                "reranker_retrained": False,
+                "gcn_usefulness_audit_run": False,
+                "should_run_actual_smoke_now": False,
+                "should_export_labels_now": False,
+                "should_train_now": False,
+            }
+            for key, value in expected_summary.items():
+                if summary.get(key) != value:
+                    failures.append(f"All-remaining readiness summary must record {key}={value!r}.")
+            for bus in all_targets:
+                readiness_json = all_remaining_readiness_dir / f"readiness_dry_run_{bus}.json"
+                readiness_md = all_remaining_readiness_dir / f"readiness_dry_run_{bus}.md"
+                if not os.path.exists(_fs_path(readiness_json)) or not os.path.exists(_fs_path(readiness_md)):
+                    failures.append(f"Missing all-remaining readiness dry-run artifact for {bus}.")
+                    continue
+                record = _read_json_path(readiness_json)
+                for key in [
+                    "temp_model_exists",
+                    "fault_block_found",
+                    "fault_block_name_correct",
+                    "update_diagram_success",
+                    "human_verified_injection_point",
+                    "safe_to_run_smoke_recommendation_from_manual_evidence",
+                    "ready_for_next_round_actual_smoke",
+                ]:
+                    if record.get(key) is not True:
+                        failures.append(f"{bus} readiness dry-run must record {key}=true.")
+                for key in [
+                    "actual_smoke_run",
+                    "simulation_run",
+                    "labels_exported",
+                    "candidate_label_exported",
+                    "gcn_trained",
+                    "reranker_retrained",
+                    "gcn_usefulness_audit_run",
+                    "source_slx_modified",
+                    "temporary_slx_committed",
+                ]:
+                    if record.get(key) is not False:
+                        failures.append(f"{bus} readiness dry-run must record {key}=false.")
+                if record.get("readiness_scope") != "dry_run_only":
+                    failures.append(f"{bus} readiness dry-run must keep readiness_scope=dry_run_only.")
+                if record.get("readiness_status") != "ready_for_next_round_actual_smoke":
+                    failures.append(f"{bus} readiness dry-run must be ready for next-round actual smoke.")
+                if record.get("selected_fault_block_path") != f"Grid/Fault_{bus}_TEMP":
+                    failures.append(f"{bus} readiness dry-run has wrong selected fault block path.")
+                if bus == "B16":
+                    if record.get("special_handling") is not True:
+                        failures.append("B16 readiness dry-run must preserve special_handling=true.")
+                elif record.get("special_handling") is not False:
+                    failures.append(f"{bus} readiness dry-run must not be special handling.")
+                if "smoke_success" in record:
+                    failures.append(f"{bus} readiness dry-run must not write smoke_success.")
+            manifest = _read_json_path(all_remaining_readiness_manifest)
+            if manifest.get("plan_scope") != "next_round_actual_smoke_plan_only":
+                failures.append("All-remaining readiness manifest must be next-round plan only.")
+            if manifest.get("actual_smoke_run_this_round") is not False:
+                failures.append("All-remaining readiness manifest must record actual_smoke_run_this_round=false.")
+            if set(manifest.get("ready_buses", [])) != set(all_targets):
+                failures.append("All-remaining readiness manifest must include all ready buses.")
+            if manifest.get("should_run_smoke_now") is not False or manifest.get("should_export_labels_now") is not False or manifest.get("should_train_now") is not False:
+                failures.append("All-remaining readiness manifest must not trigger smoke, labels, or training now.")
+            doc_text = "\n".join(
+                [
+                    all_remaining_readiness_doc.read_text(encoding="utf-8", errors="ignore"),
+                    (all_remaining_readiness_dir / "batch_readiness_dry_run_summary.md").read_text(encoding="utf-8", errors="ignore"),
+                    (all_remaining_readiness_dir / "batch_actual_smoke_plan_manifest.md").read_text(encoding="utf-8", errors="ignore"),
+                ]
+            ).lower()
+            normalized = " ".join(doc_text.replace("`", "").split())
+            for required in [
+                "readiness dry-run",
+                "not actual smoke",
+                "no simulation was run",
+                "does not export labels",
+                "does not train gcn",
+                "does not run a gcn usefulness audit",
+                "not candidate labels",
+                "not smoke success",
+                "phasor_rms, not emt",
+                "generator_speed_proxy is not direct frequency",
+                "not engineering-grade protection",
+            ]:
+                if required not in normalized:
+                    failures.append(f"All-remaining readiness docs missing: {required}")
+            for bad in [
+                "37 new targets are candidate labels",
+                "37 new targets are smoke success",
+                "actual smoke succeeded",
+                "simulation succeeded",
+                "gcn usefulness audit was run",
+                "labels_exported=true",
+                "candidate_label_exported=true",
+                "smoke_success=true",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+            ]:
+                if bad in normalized:
+                    failures.append(f"All-remaining readiness docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read all-remaining readiness dry-run artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

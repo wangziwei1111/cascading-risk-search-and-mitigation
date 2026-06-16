@@ -209,3 +209,14 @@ All 37 temporary models were found, all 37 expected fault blocks were found,
 and Update Diagram succeeded for all 37. This is evidence collection only, not
 actual smoke, not label export, and not GCN training. The next step is a
 separate readiness dry-run.
+
+## Batch Readiness Dry-Run Follow-Up
+
+The 37 all-remaining manual bus-fault copies have passed a batch readiness
+dry-run. This dry-run only checks whether a later smoke round is allowed. It
+does not run Simulink, does not run actual smoke, does not export labels, does
+not train GCN, and does not run a GCN usefulness audit.
+
+Before any later label export, the next step should be a separate actual smoke
+round followed by smoke quality review. The 37 new targets are still not
+candidate labels and still not smoke success.

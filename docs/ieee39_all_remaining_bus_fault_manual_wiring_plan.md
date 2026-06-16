@@ -65,3 +65,20 @@ collection round found:
 
 This is still not actual smoke and not label export. The next step is a
 separate batch readiness dry-run for the passing targets.
+
+## Batch Readiness Dry-Run Follow-Up
+
+The separate readiness dry-run has now checked all 37 manual evidence-passed
+temporary local copies. It did not run simulation, did not run actual smoke,
+did not export labels, did not train GCN, and did not run a GCN usefulness
+audit.
+
+- readiness checked: `37`
+- ready for next-round actual smoke: `37`
+- blocked before smoke: `0`
+- B16 special handling preserved: `true`
+- B16 old fault not moved: `true`
+
+The next step can be a separate batch actual smoke round for the ready buses.
+That later round should still avoid label export and GCN training until smoke
+quality has been reviewed.
