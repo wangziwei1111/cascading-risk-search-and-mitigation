@@ -51,9 +51,9 @@ Inside that clean environment:
 
 - `.venv-gcn-audit` is local only and must not be committed
 - wheel / DLL / site-packages / torch cache / model files must not be committed
-- this round still does not prove GCN useful
-- this round still does not prove GCN useless
-- if the imports are fixed, the next round may rerun the strict no-leakage audit
+- this round has no GCN usefulness conclusion yet
+- the formal strict no-leakage audit was not rerun after repair
+- if the imports are fixed, the next separate round may rerun the strict no-leakage audit
 - do not deploy anything yet
 - do not retrain the reranker yet
 - `phasor_RMS` is not EMT
@@ -68,3 +68,17 @@ Because the dependency blocker is now resolved, the next round can rerun:
 
 That rerun must still be a separate round. This repair round itself does not
 run the audit.
+
+## Consistency Follow-Up
+
+The existing strict no-leakage audit execution summary remains a baseline-only
+artifact from before dependency repair. It still records:
+
+- `gcn_trained_for_audit = false`
+- `gcn_dependency_status = blocked_by_missing_gcn_dependency`
+- GCN metrics unavailable / `null`
+
+The dependency repair result and the old audit execution result answer two
+different questions. Repair says the local import blocker is gone. The audit
+execution result still needs to be regenerated in a later round before making
+any GCN usefulness statement.

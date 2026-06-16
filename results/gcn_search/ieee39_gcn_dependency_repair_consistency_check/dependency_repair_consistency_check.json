@@ -1,0 +1,18 @@
+{
+  "check_scope": "dependency_repair_consistency_check",
+  "gcn_training_run": false,
+  "formal_gcn_audit_run": false,
+  "simulink_run": false,
+  "labels_exported": false,
+  "reranker_retrained": false,
+  "dependency_blocker_resolved": true,
+  "formal_audit_rerun_after_repair": false,
+  "execution_summary_still_baseline_only": true,
+  "execution_doc_matches_execution_summary": true,
+  "premature_gcn_conclusion_removed": true,
+  "final_engineering_conclusion": false,
+  "should_rerun_strict_no_leakage_audit_next": true,
+  "should_deploy_model": false,
+  "should_retrain_reranker_now": false,
+  "failed_checks": []
+}

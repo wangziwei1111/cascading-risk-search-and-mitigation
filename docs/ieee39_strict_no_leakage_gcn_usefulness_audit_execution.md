@@ -1,18 +1,22 @@
 # IEEE39 Strict No-Leakage GCN Usefulness Audit Execution
 
-This round is formal GCN usefulness audit execution.
-It is audit-only, not production training.
-It did not run Simulink.
-It did not export labels.
-It did not retrain the reranker.
-It did not modify RL mitigation.
+This document describes the existing formal audit execution artifacts. It must
+stay consistent with:
+
+`results/gcn_search/ieee39_gcn_usefulness_audit_execution/gcn_usefulness_audit_execution_summary.json`
+
+The execution summary is still a baseline-only audit because the GCN dependency
+was blocked when that audit was produced.
 
 ## Core Summary
 
 - audit_scope: `formal_gcn_usefulness_audit_execution`
 - audit_only: `true`
-- gcn_trained_for_audit: `true`
-- gcn_dependency_status: `torch_and_torch_geometric_available`
+- production_model_saved: `false`
+- gcn_trained_for_audit: `false`
+- gcn_dependency_available: `false`
+- gcn_dependency_status: `blocked_by_missing_gcn_dependency`
+- GCN metrics: unavailable / `null`
 - total_candidate_rows: `79`
 - num_total_bus_fault_candidates: `39`
 - no_leakage_feature_policy_passed: `true`
@@ -20,6 +24,7 @@ It did not modify RL mitigation.
 - target_bus_memorization_risk_flagged: `true`
 - strict_holdouts_executed: `["random_candidate_split_baseline", "label_family_holdout", "bus_fault_holdout", "leave_one_bus_fault_out", "no_dynamic_measurement_leave_one_bus_fault_out", "existing_vs_new_bus_fault_holdout"]`
 - baseline_comparison_executed: `true`
+- audit_level_conclusion: `formal GCN audit blocked by missing dependency; baseline-only audit completed`
 - final_engineering_conclusion: `false`
 - should_retrain_reranker_now: `false`
 - should_deploy_model: `false`
@@ -38,10 +43,20 @@ It did not modify RL mitigation.
 - temporary bus-fault injection is not engineering-grade protection
 - this is not a final engineering conclusion
 
-## Audit-Level Conclusion
+## Dependency Repair Follow-Up
 
-audit evidence does not support GCN usefulness over simpler baselines yet
+A later dependency repair commit fixed the local Python environment:
+
+- local `torch` import is available
+- local `torch_geometric` import is available
+- `dependency_blocker_resolved = true`
+
+That repair did not rerun the formal strict no-leakage GCN audit. Therefore the
+audit execution summary remains baseline-only, GCN metrics remain unavailable,
+and this document must not make an early GCN usefulness conclusion.
 
 ## Next Step
 
-improve feature / graph construction before any stronger GCN usefulness claim
+Rerun the strict no-leakage GCN audit in a separate round using the repaired
+environment. Until that rerun is completed, do not deploy a model and do not
+retrain the reranker.

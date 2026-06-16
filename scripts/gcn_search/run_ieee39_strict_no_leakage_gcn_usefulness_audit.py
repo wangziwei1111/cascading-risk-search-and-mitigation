@@ -819,6 +819,70 @@ def _audit_level_conclusion(gcn_available: bool, bus_fault: dict[str, Any], lobo
 
 
 def _summary_md(summary: dict[str, Any]) -> str:
+    if not summary.get("gcn_trained_for_audit", False):
+        return f"""# IEEE39 Strict No-Leakage GCN Usefulness Audit Execution
+
+This document describes the existing formal audit execution artifacts. It must
+stay consistent with:
+
+`results/gcn_search/ieee39_gcn_usefulness_audit_execution/gcn_usefulness_audit_execution_summary.json`
+
+The execution summary is still a baseline-only audit because the GCN dependency
+was blocked when that audit was produced.
+
+## Core Summary
+
+- audit_scope: `{summary['audit_scope']}`
+- audit_only: `{str(summary['audit_only']).lower()}`
+- production_model_saved: `{str(summary['production_model_saved']).lower()}`
+- gcn_trained_for_audit: `{str(summary['gcn_trained_for_audit']).lower()}`
+- gcn_dependency_available: `{str(summary.get('gcn_dependency_available', False)).lower()}`
+- gcn_dependency_status: `{summary['gcn_dependency_status']}`
+- GCN metrics: unavailable / `null`
+- total_candidate_rows: `{summary['total_candidate_rows']}`
+- num_total_bus_fault_candidates: `{summary['num_total_bus_fault_candidates']}`
+- no_leakage_feature_policy_passed: `{str(summary['no_leakage_feature_policy_passed']).lower()}`
+- forbidden_features_detected_in_inputs: `{json.dumps(summary['forbidden_features_detected_in_inputs'], ensure_ascii=False)}`
+- target_bus_memorization_risk_flagged: `{str(summary['target_bus_memorization_risk_flagged']).lower()}`
+- strict_holdouts_executed: `{json.dumps(summary['strict_holdouts_executed'], ensure_ascii=False)}`
+- baseline_comparison_executed: `{str(summary['baseline_comparison_executed']).lower()}`
+- audit_level_conclusion: `{summary['audit_level_conclusion']}`
+- final_engineering_conclusion: `{str(summary['final_engineering_conclusion']).lower()}`
+- should_retrain_reranker_now: `{str(summary['should_retrain_reranker_now']).lower()}`
+- should_deploy_model: `{str(summary['should_deploy_model']).lower()}`
+
+## Important Boundary Notes
+
+- no-leakage features only
+- forbidden features did not enter inputs
+- target_bus memorization risk still exists, so target-bus-only baseline must be reported
+- bus_fault_holdout and leave-one-bus-fault-out are mandatory
+- B1 is reported explicitly
+- NF06 sensitivity is reported explicitly
+- L12 exclusion is confirmed explicitly
+- `phasor_RMS` is not EMT
+- `generator_speed_proxy` is not direct frequency
+- temporary bus-fault injection is not engineering-grade protection
+- this is not a final engineering conclusion
+
+## Dependency Repair Follow-Up
+
+A later dependency repair commit fixed the local Python environment:
+
+- local `torch` import is available
+- local `torch_geometric` import is available
+- `dependency_blocker_resolved = true`
+
+That repair did not rerun the formal strict no-leakage GCN audit. Therefore the
+audit execution summary remains baseline-only, GCN metrics remain unavailable,
+and this document must not make an early GCN usefulness conclusion.
+
+## Next Step
+
+Rerun the strict no-leakage GCN audit in a separate round using the repaired
+environment. Until that rerun is completed, do not deploy a model and do not
+retrain the reranker.
+"""
     return f"""# IEEE39 Strict No-Leakage GCN Usefulness Audit Execution
 
 This round is formal GCN usefulness audit execution.
@@ -929,7 +993,7 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
         return summary
 
     dependency_probe = _gcn_dependency_probe()
-    gcn_dependency_available = bool(dependency_probe["torch_import_ok"])
+    gcn_dependency_available = bool(dependency_probe["torch_import_ok"]) and bool(args.allow_post_repair_gcn_audit)
     gcn_dependency_status = (
         "torch_available_custom_dense_gcn_without_torch_geometric"
         if gcn_dependency_available and not dependency_probe["torch_geometric_spec_present"]
@@ -1085,6 +1149,11 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, default=OUTPUT_DIR)
     parser.add_argument("--random-seed", type=int, default=42)
+    parser.add_argument(
+        "--allow-post-repair-gcn-audit",
+        action="store_true",
+        help="Explicitly allow rerunning the post-repair GCN audit. Default keeps the existing baseline-only artifact.",
+    )
     return parser.parse_args()
 
 

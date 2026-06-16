@@ -4025,3 +4025,44 @@ Final verification note:
 - `pytest` result after this fix: `42 passed`
 - artifact self-check result: `PASS: GCN Simulink dynamic validation artifacts are review-ready.`
 - `git diff -- src/rl_mitigation scripts/rl_mitigation` remained empty
+
+## Round 77: IEEE39 GCN Dependency Repair Consistency Check
+
+This round fixes documentation and metadata consistency after dependency
+repair. It does not train GCN, does not rerun the formal strict no-leakage GCN
+audit, does not run Simulink, does not export labels, and does not retrain the
+reranker.
+
+Plain wording: dependency repair says the local `torch` and `torch_geometric`
+imports are fixed. The old formal audit execution summary is still the earlier
+baseline-only artifact from before that repair. These are two different facts,
+so the execution document must not say that the post-repair formal GCN audit has
+already been rerun.
+
+Consistency result:
+
+- `dependency_blocker_resolved = true`
+- `formal_audit_rerun_after_repair = false`
+- `execution_summary_still_baseline_only = true`
+- `execution_doc_matches_execution_summary = true`
+- `premature_gcn_conclusion_removed = true`
+- `final_engineering_conclusion = false`
+- `should_rerun_strict_no_leakage_audit_next = true`
+- `should_deploy_model = false`
+- `should_retrain_reranker_now = false`
+
+New consistency artifacts:
+
+- `docs/ieee39_gcn_dependency_repair_consistency_check.md`
+- `results/gcn_search/ieee39_gcn_dependency_repair_consistency_check/dependency_repair_consistency_check.json`
+- `results/gcn_search/ieee39_gcn_dependency_repair_consistency_check/dependency_repair_consistency_check.md`
+
+Boundary notes remain unchanged:
+
+- no GCN usefulness conclusion yet
+- next step is rerunning the strict no-leakage audit in a separate round
+- do not deploy
+- do not retrain the reranker
+- `phasor_RMS` is not EMT
+- `generator_speed_proxy` is not direct frequency
+- temporary bus-fault injection is not engineering-grade protection

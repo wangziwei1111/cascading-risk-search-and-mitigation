@@ -5535,6 +5535,94 @@ def main() -> int:
             if bad in repair_text:
                 failures.append(f"Dependency repair docs contain overstatement: {bad}")
 
+    consistency_doc = ROOT / "docs/ieee39_gcn_dependency_repair_consistency_check.md"
+    consistency_json = ROOT / "results/gcn_search/ieee39_gcn_dependency_repair_consistency_check/dependency_repair_consistency_check.json"
+    consistency_md = ROOT / "results/gcn_search/ieee39_gcn_dependency_repair_consistency_check/dependency_repair_consistency_check.md"
+    consistency_required = [consistency_doc, consistency_json, consistency_md]
+    existing_consistency_required = [path for path in consistency_required if path.exists()]
+    if existing_consistency_required:
+        missing_consistency_required = [path for path in consistency_required if not path.exists()]
+        if missing_consistency_required:
+            failures.append(
+                "Dependency repair consistency artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_consistency_required)
+            )
+        try:
+            payload = _read_json_path(consistency_json)
+            for key, expected in [
+                ("check_scope", "dependency_repair_consistency_check"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_run", False),
+                ("simulink_run", False),
+                ("labels_exported", False),
+                ("reranker_retrained", False),
+                ("dependency_blocker_resolved", True),
+                ("formal_audit_rerun_after_repair", False),
+                ("execution_summary_still_baseline_only", True),
+                ("execution_doc_matches_execution_summary", True),
+                ("premature_gcn_conclusion_removed", True),
+                ("final_engineering_conclusion", False),
+                ("should_rerun_strict_no_leakage_audit_next", True),
+                ("should_deploy_model", False),
+                ("should_retrain_reranker_now", False),
+            ]:
+                if payload.get(key) != expected:
+                    failures.append(f"Dependency repair consistency check must set {key}={expected!r}.")
+            if payload.get("failed_checks") != []:
+                failures.append("Dependency repair consistency check must have failed_checks=[].")
+        except Exception as exc:
+            failures.append(f"Failed to read dependency repair consistency check: {exc}")
+
+        try:
+            execution_summary = _read_json_path(
+                ROOT / "results/gcn_search/ieee39_gcn_usefulness_audit_execution/gcn_usefulness_audit_execution_summary.json"
+            )
+            if execution_summary.get("gcn_trained_for_audit") is not False:
+                failures.append("Existing audit execution summary must remain gcn_trained_for_audit=false.")
+            if execution_summary.get("gcn_dependency_status") != "blocked_by_missing_gcn_dependency":
+                failures.append("Existing audit execution summary must remain blocked_by_missing_gcn_dependency.")
+            if execution_summary.get("audit_level_conclusion") != "formal GCN audit blocked by missing dependency; baseline-only audit completed":
+                failures.append("Existing audit execution summary must remain baseline-only.")
+        except Exception as exc:
+            failures.append(f"Failed to read existing audit execution summary: {exc}")
+
+        consistency_text = "\n".join(
+            [
+                _read_text("docs/ieee39_gcn_dependency_repair_consistency_check.md"),
+                _read_text("docs/ieee39_strict_no_leakage_gcn_usefulness_audit_execution.md"),
+                _read_text("docs/ieee39_gcn_dependency_repair.md"),
+                _read_text("docs/gcn_pio_validation_log.md"),
+            ]
+        ).lower()
+        for required in [
+            "dependency repair consistency check",
+            "dependency_blocker_resolved = true",
+            "formal_audit_rerun_after_repair = false",
+            "execution_summary_still_baseline_only = true",
+            "premature_gcn_conclusion_removed = true",
+            "no gcn usefulness conclusion",
+            "phasor_rms",
+            "not emt",
+            "generator_speed_proxy",
+            "not direct frequency",
+            "not engineering-grade protection",
+        ]:
+            if required not in consistency_text:
+                failures.append(f"Dependency repair consistency docs missing: {required}")
+        for bad in [
+            "gcn_trained_for_audit: `true`",
+            "gcn_trained_for_audit = true",
+            "torch_and_torch_geometric_available",
+            "audit evidence does not support gcn usefulness",
+            "gcn is useful",
+            "gcn is not useful",
+            "final gcn conclusion",
+            "emt validation completed",
+            "generator_speed_proxy is direct frequency",
+        ]:
+            if bad in consistency_text:
+                failures.append(f"Dependency repair consistency docs contain overstatement: {bad}")
+
     tracked_results = set(_git_ls_files("results/gcn_search"))
     branch_changed = set(_git_changed_files_against_main())
     tracked = sorted(tracked_results & branch_changed)
