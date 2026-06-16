@@ -113,3 +113,15 @@ old `Grid/Fault (Three-Phase)` is near B16.
 The plan creates 37 manual review templates. Every new target starts as not
 human verified, not safe to smoke, not smoke success, and not candidate-label
 exported.
+
+## All-Bus-Fault Candidate Export Follow-Up
+
+The 37 all-remaining bus-fault temporary smoke samples later passed quality
+review and were exported in a candidate-only round. This did not run Simulink,
+did not run actual smoke, did not train GCN, did not retrain the reranker, and
+did not run a GCN usefulness audit.
+
+The combined candidate count is now 79, including 39 bus-fault candidates that
+cover B1-B39. All bus-fault labels remain candidate_not_formal_label entries,
+not formal labels. The next step must be v2-plus-all-bus-fault no-training
+composition review before any training.

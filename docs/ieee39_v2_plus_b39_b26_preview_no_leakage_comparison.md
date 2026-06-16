@@ -96,3 +96,14 @@ label export. It only gives the user an auditable package for wiring one
 B39 and B26 are candidate labels, not formal labels. The model remains
 `phasor_RMS`, not EMT. `generator_speed_proxy` is not direct frequency.
 Temporary bus-fault injection is not engineering-grade protection.
+
+## All-Bus-Fault Candidate Export Follow-Up
+
+A later candidate-only export round added the 37 all-remaining bus-fault
+quality-passed samples. The combined candidate count is now 79, and B1-B39 all
+have bus-fault candidates. This did not run Simulink, did not train GCN, did
+not retrain the reranker, and did not run a GCN usefulness audit.
+
+These bus-fault labels are still candidate_not_formal_label entries, not formal
+labels. The next required step is v2-plus-all-bus-fault no-training composition
+review before any training.

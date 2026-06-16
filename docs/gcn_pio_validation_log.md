@@ -3398,6 +3398,61 @@ otherwise target-feature leakage can occur.
 Next step: perform candidate-only export for quality-passed buses in a separate
 round, without training GCN and without retraining the reranker.
 
+## Round 69: All-Remaining Bus-Fault Candidate-Only Label Export
+
+This round exports candidate labels for the 37 IEEE39 all-remaining bus-fault
+temporary smoke samples that passed batch smoke quality review. It does not run
+Simulink, does not run actual smoke, does not train GCN, does not retrain the
+reranker, and does not run a GCN usefulness audit.
+
+Plain wording: the previous quality review said "these 37 smoke outputs are
+complete enough to be registered later." This round does that registration as
+candidate-only labels. It still does not turn them into formal labels, and it
+still does not justify training before a no-training composition review.
+
+```text
+export_scope = candidate_only
+previous candidate count = 42
+new all-remaining bus-fault candidates = 37
+combined candidate count = 79
+total bus-fault candidates = 39
+all IEEE39 buses have bus-fault candidate = true
+unstable_flag false buses = B1
+old formal gate = 35 / 33 / 33
+L12 excluded = true
+NF06 provenance warning preserved = true
+gcn_trained = false
+reranker_retrained = false
+gcn_usefulness_audit_run = false
+```
+
+New artifacts:
+
+- `docs/ieee39_all_remaining_bus_fault_candidate_label_export.md`
+- `scripts/gcn_search/export_ieee39_all_remaining_bus_fault_candidate_labels.py`
+- `tests/test_ieee39_all_remaining_bus_fault_candidate_label_export.py`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/candidate_label_export/ieee39_dynamic_label_schema_v2_plus_all_bus_fault_candidates.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/candidate_label_export/batch_candidate_label_export_summary.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/candidate_label_export/batch_candidate_label_export_summary.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/candidate_label_export/batch_candidate_label_export_summary.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/candidate_label_export/v2_plus_all_bus_fault_training_readiness.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/candidate_label_export/all_bus_fault_candidate_coverage_report.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/candidate_label_export/all_bus_fault_candidate_coverage_report.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/candidate_label_export/candidate_label_<BUS>.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/candidate_label_export/candidate_label_<BUS>.csv`
+
+B1 has `unstable_flag=false`, but it remains exportable because quality pass
+does not depend on the compact unstable marker. B39/B26 remain existing
+candidate labels, not formal labels. All bus-fault labels remain
+`candidate_not_formal_label=true`. The model remains `phasor_RMS`, not EMT.
+`generator_speed_proxy` is not direct frequency. Temporary bus-fault injection
+is not engineering-grade protection. Post-fault compact dynamic measurements
+should not be used as primary GCN input features because target-feature leakage
+risk remains.
+
+Next step: run v2-plus-all-bus-fault no-training composition review before any
+training. Do not train GCN and do not retrain the reranker yet.
+
 ## Round 66: All-Remaining Bus-Fault Batch Readiness Dry-Run
 
 This round checks the 37 manually connected IEEE39 bus-fault temporary local

@@ -1,0 +1,19 @@
+{
+  "ready_for_future_preview_training": true,
+  "should_train_now": false,
+  "reason": "export-only round; run no-training composition review first",
+  "candidate_count": 79,
+  "num_bus_fault_candidates": 39,
+  "all_ieee39_buses_have_bus_fault_candidate": true,
+  "b39_b26_existing_candidates_preserved": true,
+  "new_all_remaining_bus_fault_candidates": 37,
+  "caveats": [
+    "all bus-fault labels are temporary smoke candidates, not formal labels",
+    "phasor_RMS not EMT",
+    "generator_speed_proxy not direct frequency",
+    "temporary bus-fault injection not engineering-grade protection",
+    "target-feature leakage risk remains if compact dynamic measurements are used as input features",
+    "no-training composition review is required before any preview or GCN audit",
+    "formal GCN usefulness audit must use no-leakage feature set and holdout tests"
+  ]
+}

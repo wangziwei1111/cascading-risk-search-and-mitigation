@@ -37,3 +37,11 @@ The review passed all 37 smoke reports for a later candidate-only export round.
 This still does not make the 37 targets candidate labels in the current round.
 The next safe action is candidate-only export in a separate round, without
 training.
+
+## Candidate-Only Export Follow-Up
+
+A later candidate-only export round registered the 37 quality-passed bus-fault
+smoke samples. It still did not run Simulink, did not run actual smoke, did
+not train GCN, did not retrain the reranker, and did not run a GCN usefulness
+audit. The combined candidate count is now 79, and all B1-B39 buses have
+bus-fault candidates, but these labels are candidate_not_formal_label entries.

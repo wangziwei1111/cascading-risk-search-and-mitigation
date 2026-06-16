@@ -404,12 +404,14 @@ REQUIRED_FILES = [
     "scripts/gcn_search/prepare_ieee39_all_remaining_bus_fault_manual_wiring_plan.py",
     "scripts/gcn_search/collect_ieee39_all_remaining_bus_fault_manual_evidence.py",
     "scripts/gcn_search/review_ieee39_all_remaining_bus_fault_batch_smoke_quality.py",
+    "scripts/gcn_search/export_ieee39_all_remaining_bus_fault_candidate_labels.py",
     "tests/test_ieee39_v2_plus_b39_b26_preview_no_leakage.py",
     "tests/test_ieee39_all_remaining_bus_fault_manual_wiring_plan.py",
     "tests/test_ieee39_all_remaining_bus_fault_manual_connection_evidence.py",
     "tests/test_ieee39_all_remaining_bus_fault_batch_readiness.py",
     "tests/test_ieee39_all_remaining_bus_fault_batch_actual_smoke.py",
     "tests/test_ieee39_all_remaining_bus_fault_batch_smoke_quality_review.py",
+    "tests/test_ieee39_all_remaining_bus_fault_candidate_label_export.py",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_composition_review.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_composition_review.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_label_family_counts.csv",
@@ -436,6 +438,7 @@ REQUIRED_FILES = [
     "docs/ieee39_all_remaining_bus_fault_batch_readiness_dry_run.md",
     "docs/ieee39_all_remaining_bus_fault_batch_actual_smoke.md",
     "docs/ieee39_all_remaining_bus_fault_batch_smoke_quality_review.md",
+    "docs/ieee39_all_remaining_bus_fault_candidate_label_export.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/readiness_dry_run/batch_readiness_dry_run_summary.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/readiness_dry_run/batch_readiness_dry_run_summary.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/readiness_dry_run/batch_readiness_dry_run_summary.csv",
@@ -449,6 +452,13 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_quality_review/batch_smoke_quality_review_summary.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_quality_review/batch_smoke_quality_review_summary.csv",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_quality_review/buses_eligible_for_candidate_export.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/candidate_label_export/ieee39_dynamic_label_schema_v2_plus_all_bus_fault_candidates.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/candidate_label_export/batch_candidate_label_export_summary.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/candidate_label_export/batch_candidate_label_export_summary.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/candidate_label_export/batch_candidate_label_export_summary.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/candidate_label_export/v2_plus_all_bus_fault_training_readiness.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/candidate_label_export/all_bus_fault_candidate_coverage_report.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/candidate_label_export/all_bus_fault_candidate_coverage_report.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -630,9 +640,9 @@ def main() -> int:
 
     for rel_path in REQUIRED_FILES:
         path = ROOT / rel_path
-        if not path.exists():
+        if not os.path.exists(_fs_path(path)):
             failures.append(f"Missing required artifact: {rel_path}")
-        elif path.is_file() and path.stat().st_size == 0:
+        elif os.path.isfile(_fs_path(path)) and os.path.getsize(_fs_path(path)) == 0:
             failures.append(f"Required artifact is empty: {rel_path}")
 
     log_path = ROOT / "docs/gcn_pio_validation_log.md"
@@ -2874,6 +2884,125 @@ def main() -> int:
                     failures.append(f"All-remaining smoke quality docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read all-remaining smoke quality review artifacts: {exc}")
+
+    all_remaining_export_dir = all_remaining_dir / "candidate_label_export"
+    all_remaining_export_summary = all_remaining_export_dir / "batch_candidate_label_export_summary.json"
+    all_remaining_combined = all_remaining_export_dir / "ieee39_dynamic_label_schema_v2_plus_all_bus_fault_candidates.csv"
+    all_remaining_export_doc = ROOT / "docs/ieee39_all_remaining_bus_fault_candidate_label_export.md"
+    if all_remaining_export_summary.exists():
+        try:
+            import pandas as pd
+
+            normal_targets = [*(f"B{i}" for i in range(1, 16)), *(f"B{i}" for i in range(17, 26)), *(f"B{i}" for i in range(27, 39))]
+            new_targets = normal_targets + ["B16"]
+            all_buses = {f"B{i}" for i in range(1, 40)}
+            summary = _read_json_path(all_remaining_export_summary)
+            expected_summary = {
+                "export_scope": "candidate_only",
+                "previous_candidate_count": 42,
+                "num_new_all_remaining_bus_fault_candidates": 37,
+                "num_v2_plus_all_bus_fault_candidate_labels": 79,
+                "num_total_bus_fault_candidates": 39,
+                "all_ieee39_buses_have_bus_fault_candidate": True,
+                "formal_label_gate_changed": False,
+                "old_formal_gate": "35 / 33 / 33",
+                "b39_b26_status": "existing_candidate_labels_not_formal",
+                "l12_excluded": True,
+                "nf06_provenance_warning_preserved": True,
+                "labels_exported_this_round": "candidate_only",
+                "gcn_trained": False,
+                "reranker_retrained": False,
+                "gcn_usefulness_audit_run": False,
+                "should_train_now": False,
+            }
+            for key, value in expected_summary.items():
+                if summary.get(key) != value:
+                    failures.append(f"All-remaining candidate export summary must record {key}={value!r}.")
+            if summary.get("unstable_flag_false_buses") != ["B1"]:
+                failures.append("All-remaining candidate export summary must preserve B1 as unstable_flag=false.")
+            if set(summary.get("new_candidate_buses", [])) != set(new_targets):
+                failures.append("All-remaining candidate export summary must list the 37 new candidate buses.")
+            combined = pd.read_csv(_fs_path(all_remaining_combined))
+            if len(combined) != 79:
+                failures.append("All-remaining combined candidate dataset must contain 79 rows.")
+            if "bus_fault_label" in combined.columns:
+                bus_fault = combined[combined["bus_fault_label"].map(lambda value: str(value).strip().lower() in {"1", "true", "yes"})]
+                if len(bus_fault) != 39:
+                    failures.append("All-remaining combined dataset must contain 39 bus-fault candidates.")
+                if set(bus_fault.get("target_bus", pd.Series(dtype=str)).dropna().astype(str)) != all_buses:
+                    failures.append("All-remaining combined dataset must cover B1-B39 bus-fault candidates.")
+                if not bus_fault.get("line_id", pd.Series(dtype=str)).astype(str).eq("NO_LINE").all():
+                    failures.append("All-remaining bus-fault candidates must use line_id=NO_LINE.")
+                if not bus_fault.get("candidate_not_formal_label", pd.Series(dtype=str)).map(lambda value: str(value).strip().lower() in {"1", "true", "yes"}).all():
+                    failures.append("All-remaining bus-fault candidates must remain candidate_not_formal_label=true.")
+            else:
+                failures.append("All-remaining combined dataset missing bus_fault_label column.")
+            for bus in new_targets:
+                candidate_json = all_remaining_export_dir / f"candidate_label_{bus}.json"
+                candidate_csv = all_remaining_export_dir / f"candidate_label_{bus}.csv"
+                if not os.path.exists(_fs_path(candidate_json)) or not os.path.exists(_fs_path(candidate_csv)):
+                    failures.append(f"Missing all-remaining candidate label artifacts for {bus}.")
+                    continue
+                candidate = _read_json_path(candidate_json)
+                if candidate.get("scenario_id") != f"BF_{bus}_TEMP_SMOKE" or candidate.get("target_bus") != bus:
+                    failures.append(f"{bus} candidate label has wrong scenario_id or target_bus.")
+                if candidate.get("line_id") != "NO_LINE" or candidate.get("target_bus_or_component") != bus:
+                    failures.append(f"{bus} candidate label must use NO_LINE and filled target_bus_or_component.")
+                if candidate.get("selected_fault_block_path") != f"Grid/Fault_{bus}_TEMP":
+                    failures.append(f"{bus} candidate label has wrong selected fault block path.")
+                for key in ["bus_fault_label", "temporary_smoke_candidate", "candidate_not_formal_label", "training_ready_label_candidate", "training_ready_label_v2"]:
+                    if str(candidate.get(key)).strip().lower() not in {"1", "true", "yes"}:
+                        failures.append(f"{bus} candidate label must record {key}=true.")
+                for key in ["formal_line_trip_label", "handwired_line_trip_label", "gcn_trained", "reranker_retrained", "gcn_usefulness_audit_run"]:
+                    if str(candidate.get(key)).strip().lower() in {"1", "true", "yes"}:
+                        failures.append(f"{bus} candidate label must record {key}=false.")
+                if "frequency=generator_speed_proxy" not in str(candidate.get("signal_source_summary", "")):
+                    failures.append(f"{bus} candidate label must preserve generator_speed_proxy.")
+            readiness = _read_json_path(all_remaining_export_dir / "v2_plus_all_bus_fault_training_readiness.json")
+            if readiness.get("candidate_count") != 79 or readiness.get("num_bus_fault_candidates") != 39:
+                failures.append("All-remaining training readiness must record 79 candidates and 39 bus-fault candidates.")
+            if readiness.get("should_train_now") is not False:
+                failures.append("All-remaining training readiness must keep should_train_now=false.")
+            coverage = _read_json_path(all_remaining_export_dir / "all_bus_fault_candidate_coverage_report.json")
+            if coverage.get("missing_buses") != [] or coverage.get("num_covered_buses") != 39:
+                failures.append("All-remaining coverage report must cover all 39 buses.")
+            doc_text = "\n".join(
+                [
+                    all_remaining_export_doc.read_text(encoding="utf-8", errors="ignore"),
+                    (all_remaining_export_dir / "batch_candidate_label_export_summary.md").read_text(encoding="utf-8", errors="ignore"),
+                ]
+            ).lower()
+            normalized = " ".join(doc_text.replace("`", "").split())
+            for required in [
+                "candidate-only export",
+                "did not run simulink",
+                "did not run actual smoke",
+                "did not train gcn",
+                "did not retrain the reranker",
+                "did not run a gcn usefulness audit",
+                "candidate_not_formal_label",
+                "not formal labels",
+                "phasor_rms, not emt",
+                "generator_speed_proxy is not direct frequency",
+                "not engineering-grade protection",
+                "target-feature leakage",
+                "no-training composition review",
+            ]:
+                if required not in normalized:
+                    failures.append(f"All-remaining candidate export docs missing: {required}")
+            for bad in [
+                "this round ran simulink",
+                "this round ran actual smoke",
+                "gcn was trained",
+                "gcn usefulness audit was run",
+                "bus-fault labels are formal labels",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+            ]:
+                if bad in normalized:
+                    failures.append(f"All-remaining candidate export docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read all-remaining candidate export artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

@@ -43,3 +43,15 @@ otherwise there is target-feature leakage risk.
 
 If the project continues, the next round should do candidate-only export for
 quality-passed buses, without training GCN and without retraining the reranker.
+
+## Candidate-Only Export Follow-Up
+
+A later candidate-only export round registered all 37 quality-passed buses as
+candidate labels. That export did not run Simulink, did not run actual smoke,
+did not train GCN, did not retrain the reranker, and did not run a GCN
+usefulness audit.
+
+The combined candidate count is now 79, and the bus-fault candidate count is
+39 so B1-B39 all have bus-fault candidates. These bus-fault labels are still
+candidate_not_formal_label entries, not formal labels. The next step must be a
+v2-plus-all-bus-fault no-training composition review, not training.
