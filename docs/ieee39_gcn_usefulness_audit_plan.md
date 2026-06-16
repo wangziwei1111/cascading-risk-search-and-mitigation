@@ -71,3 +71,25 @@ to that row.
 Only run the audit dry-run validator next.
 Still do not directly train GCN.
 Still do not retrain the reranker.
+
+## Dry-Run Follow-Up
+
+A later follow-up round now runs the IEEE39 GCN usefulness audit dry-run
+validator only.
+
+That follow-up still does not train GCN, does not run the formal GCN
+usefulness audit, does not run Simulink, does not export labels, and does not
+retrain the reranker.
+
+The dry-run validator passes only in the narrow sense that:
+
+- forbidden features stay out of proposed primary GCN inputs
+- strict holdouts stay complete
+- baseline comparison stays complete
+- B1 remains special-tracked
+- NF06 sensitivity remains enabled
+- L12 remains excluded
+
+Even after dry-run pass, the next step is still not blind training. The next
+step can only be preparing formal GCN usefulness audit execution under the same
+no-leakage boundary.

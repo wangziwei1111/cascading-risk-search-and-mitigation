@@ -1,0 +1,34 @@
+﻿field,value
+validator_scope,dry_run_only
+audit_execution_this_round,False
+gcn_trained_this_round,False
+formal_gcn_training,False
+reranker_retrained,False
+simulink_run,False
+labels_exported,False
+model_saved,False
+total_candidate_rows,79
+num_total_bus_fault_candidates,39
+all_ieee39_buses_have_bus_fault_candidate,True
+forbidden_features_detected_in_inputs,[]
+forbidden_features_absent_from_gcn_inputs,True
+proposed_no_leakage_gcn_input_columns,"[""fault_type"", ""duration_s"", ""fault_start_s"", ""fault_clear_s"", ""trip_implementation"", ""line_id"", ""target_bus"", ""target_bus_or_component"", ""source_model_type""]"
+target_bus_memorization_risk_flagged,True
+strict_holdouts_complete,True
+required_strict_holdouts,"[""random_candidate_split_baseline"", ""label_family_holdout"", ""bus_fault_holdout"", ""leave_one_bus_fault_out"", ""no_dynamic_measurement_leave_one_bus_fault_out"", ""existing_vs_new_bus_fault_holdout"", ""nf06_provenance_sensitivity"", ""l12_exclusion_check""]"
+baseline_comparison_complete,True
+baseline_models,"[""Ridge Regression"", ""Logistic Regression"", ""RandomForest or GradientBoosting"", ""simple ranking baseline"", ""topology-only baseline"", ""target-bus-only baseline""]"
+b1_special_tracking_enabled,True
+nf06_sensitivity_enabled,True
+l12_exclusion_check_enabled,True
+old_formal_gate,35 / 33 / 33
+l12_excluded,True
+nf06_provenance_warning_preserved,True
+warning_checks,"[""target_bus / target_bus_or_component can cause target-bus memorization and must be compared against target-bus-only baseline."", ""duration_s / fault_start_s / fault_clear_s are only intervention design variables, not free physical state features."", ""phasor_RMS is not EMT."", ""generator_speed_proxy is not direct frequency."", ""temporary bus-fault injection is not engineering-grade protection.""]"
+failed_checks,[]
+dry_run_validator_passed,True
+should_run_formal_gcn_audit_now,False
+should_train_gcn_now,False
+recommended_next_step,"prepare formal GCN usefulness audit execution in a separate round, still with no-leakage features and strict holdouts"
+dry_run,True
+strict,True

@@ -118,3 +118,22 @@ not run Simulink, does not export labels, and does not retrain the reranker.
 
 The next allowed action is only the audit dry-run validator. It is still not
 time to start formal GCN training.
+
+## Dry-Run Validator Follow-Up
+
+The later dry-run validator round also stays conservative. It does not train
+GCN, does not run the formal GCN usefulness audit, does not run Simulink, does
+not export labels, and does not retrain the reranker.
+
+That dry-run only checks whether a future strict no-leakage GCN usefulness
+audit is structurally ready:
+
+- forbidden features remain excluded from proposed primary GCN inputs
+- strict holdouts remain complete
+- baseline comparison remains complete
+- B1 remains special-tracked
+- NF06 sensitivity remains enabled
+- L12 remains excluded
+
+Even after dry-run pass, it is still not time to blindly train GCN. The next
+safe action can only be to prepare a formal usefulness audit execution round.

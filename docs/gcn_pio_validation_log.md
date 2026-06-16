@@ -3772,3 +3772,60 @@ ranking baseline, topology-only baseline, and target-bus-only baseline.
 Recommended next step:
 
 - `run audit dry-run validator before any GCN training`
+
+## Round 73: IEEE39 GCN Usefulness Audit Dry-Run Validator
+
+This round ran the IEEE39 GCN usefulness audit dry-run validator only.
+
+It did not train GCN.
+It did not run the formal GCN usefulness audit.
+It did not run Simulink.
+It did not export labels.
+It did not retrain the reranker.
+It did not save any model.
+
+Dry-run validator command:
+
+- `python scripts/gcn_search/run_ieee39_gcn_usefulness_audit_dry_run_validator.py --strict --dry-run`
+
+Dry-run validator summary:
+
+- `validator_scope = dry_run_only`
+- `dry_run_validator_passed = true`
+- `total_candidate_rows = 79`
+- `num_total_bus_fault_candidates = 39`
+- `all_ieee39_buses_have_bus_fault_candidate = true`
+- `forbidden_features_detected_in_inputs = []`
+- `forbidden_features_absent_from_gcn_inputs = true`
+- `strict_holdouts_complete = true`
+- `baseline_comparison_complete = true`
+- `b1_special_tracking_enabled = true`
+- `nf06_sensitivity_enabled = true`
+- `l12_exclusion_check_enabled = true`
+- `old_formal_gate = 35 / 33 / 33`
+- `should_run_formal_gcn_audit_now = false`
+- `should_train_gcn_now = false`
+
+Proposed no-leakage GCN input columns:
+
+- `fault_type`
+- `duration_s`
+- `fault_start_s`
+- `fault_clear_s`
+- `trip_implementation`
+- `line_id`
+- `target_bus`
+- `target_bus_or_component`
+- `source_model_type`
+
+Warning checks kept explicit:
+
+- `target_bus / target_bus_or_component` may cause target-bus memorization, so future audit must compare against a target-bus-only baseline.
+- `duration_s / fault_start_s / fault_clear_s` are intervention design variables, not free physical state features.
+- `phasor_RMS` is not EMT.
+- `generator_speed_proxy` is not direct frequency.
+- temporary bus-fault injection is not engineering-grade protection.
+
+Recommended next step:
+
+- `prepare formal GCN usefulness audit execution in a separate round, still with no-leakage features and strict holdouts`

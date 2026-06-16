@@ -444,6 +444,7 @@ REQUIRED_FILES = [
     "docs/ieee39_v2_plus_all_bus_fault_no_training_composition_review.md",
     "docs/ieee39_v2_plus_all_bus_fault_preview_no_leakage_comparison.md",
     "docs/ieee39_gcn_usefulness_audit_plan.md",
+    "docs/ieee39_gcn_usefulness_audit_dry_run_validator.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/readiness_dry_run/batch_readiness_dry_run_summary.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/readiness_dry_run/batch_readiness_dry_run_summary.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/readiness_dry_run/batch_readiness_dry_run_summary.csv",
@@ -490,6 +491,13 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_gcn_usefulness_audit_plan/baseline_comparison_plan.md",
     "results/gcn_search/ieee39_gcn_usefulness_audit_plan/gcn_audit_execution_checklist.json",
     "results/gcn_search/ieee39_gcn_usefulness_audit_plan/gcn_audit_execution_checklist.md",
+    "results/gcn_search/ieee39_gcn_usefulness_audit_dry_run/gcn_audit_dry_run_validator_summary.json",
+    "results/gcn_search/ieee39_gcn_usefulness_audit_dry_run/gcn_audit_dry_run_validator_summary.md",
+    "results/gcn_search/ieee39_gcn_usefulness_audit_dry_run/gcn_audit_dry_run_validator_summary.csv",
+    "results/gcn_search/ieee39_gcn_usefulness_audit_dry_run/proposed_no_leakage_gcn_inputs_manifest.json",
+    "results/gcn_search/ieee39_gcn_usefulness_audit_dry_run/proposed_no_leakage_gcn_inputs_manifest.md",
+    "results/gcn_search/ieee39_gcn_usefulness_audit_dry_run/formal_gcn_audit_execution_draft.json",
+    "results/gcn_search/ieee39_gcn_usefulness_audit_dry_run/formal_gcn_audit_execution_draft.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -502,8 +510,10 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_full_summary.json",
     "scripts/gcn_search/train_ieee39_v2_plus_all_bus_fault_preview.py",
     "scripts/gcn_search/prepare_ieee39_gcn_usefulness_audit_plan.py",
+    "scripts/gcn_search/run_ieee39_gcn_usefulness_audit_dry_run_validator.py",
     "tests/test_ieee39_v2_plus_all_bus_fault_preview_no_leakage.py",
     "tests/test_ieee39_gcn_usefulness_audit_plan.py",
+    "tests/test_ieee39_gcn_usefulness_audit_dry_run_validator.py",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_block_parameter_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.json",
@@ -3404,6 +3414,121 @@ def main() -> int:
                     failures.append(f"GCN usefulness audit plan docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read GCN usefulness audit plan artifacts: {exc}")
+
+    dry_run_dir = ROOT / "results/gcn_search/ieee39_gcn_usefulness_audit_dry_run"
+    dry_run_json = dry_run_dir / "gcn_audit_dry_run_validator_summary.json"
+    dry_run_md = dry_run_dir / "gcn_audit_dry_run_validator_summary.md"
+    dry_run_csv = dry_run_dir / "gcn_audit_dry_run_validator_summary.csv"
+    dry_run_manifest_json = dry_run_dir / "proposed_no_leakage_gcn_inputs_manifest.json"
+    dry_run_manifest_md = dry_run_dir / "proposed_no_leakage_gcn_inputs_manifest.md"
+    dry_run_draft_json = dry_run_dir / "formal_gcn_audit_execution_draft.json"
+    dry_run_draft_md = dry_run_dir / "formal_gcn_audit_execution_draft.md"
+    dry_run_doc = ROOT / "docs/ieee39_gcn_usefulness_audit_dry_run_validator.md"
+    if all(
+        path.exists()
+        for path in [
+            dry_run_json,
+            dry_run_md,
+            dry_run_csv,
+            dry_run_manifest_json,
+            dry_run_manifest_md,
+            dry_run_draft_json,
+            dry_run_draft_md,
+            dry_run_doc,
+        ]
+    ):
+        try:
+            dry_run = _read_json_path(dry_run_json)
+            manifest = _read_json_path(dry_run_manifest_json)
+            draft = _read_json_path(dry_run_draft_json)
+            expected = {
+                "validator_scope": "dry_run_only",
+                "audit_execution_this_round": False,
+                "gcn_trained_this_round": False,
+                "formal_gcn_training": False,
+                "reranker_retrained": False,
+                "simulink_run": False,
+                "labels_exported": False,
+                "model_saved": False,
+                "total_candidate_rows": 79,
+                "num_total_bus_fault_candidates": 39,
+                "all_ieee39_buses_have_bus_fault_candidate": True,
+                "forbidden_features_detected_in_inputs": [],
+                "forbidden_features_absent_from_gcn_inputs": True,
+                "target_bus_memorization_risk_flagged": True,
+                "strict_holdouts_complete": True,
+                "baseline_comparison_complete": True,
+                "b1_special_tracking_enabled": True,
+                "nf06_sensitivity_enabled": True,
+                "l12_exclusion_check_enabled": True,
+                "dry_run_validator_passed": True,
+                "should_run_formal_gcn_audit_now": False,
+                "should_train_gcn_now": False,
+            }
+            for key, value in expected.items():
+                if dry_run.get(key) != value:
+                    failures.append(f"GCN dry-run validator must record {key}={value!r}.")
+            for forbidden in [
+                "dynamic_stress_score",
+                "unstable_flag",
+                "min_voltage_pu",
+                "max_frequency_hz",
+                "max_speed_deviation",
+                "max_rotor_angle_separation_deg",
+            ]:
+                if forbidden in manifest.get("proposed_no_leakage_gcn_input_columns", []):
+                    failures.append(f"GCN dry-run proposed inputs must exclude {forbidden}.")
+            if draft.get("draft_scope") != "execution_draft_only" or draft.get("execute_this_round") is not False:
+                failures.append("GCN dry-run execution draft must stay execution_draft_only with execute_this_round=false.")
+            doc_text = "\n".join(
+                [
+                    dry_run_md.read_text(encoding="utf-8", errors="ignore"),
+                    dry_run_manifest_md.read_text(encoding="utf-8", errors="ignore"),
+                    dry_run_draft_md.read_text(encoding="utf-8", errors="ignore"),
+                    dry_run_doc.read_text(encoding="utf-8", errors="ignore"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                ]
+            ).lower()
+            normalized = " ".join(doc_text.replace("`", "").split())
+            current_text = "\n".join(
+                [
+                    dry_run_md.read_text(encoding="utf-8", errors="ignore"),
+                    dry_run_manifest_md.read_text(encoding="utf-8", errors="ignore"),
+                    dry_run_draft_md.read_text(encoding="utf-8", errors="ignore"),
+                    dry_run_doc.read_text(encoding="utf-8", errors="ignore"),
+                ]
+            ).lower()
+            current_normalized = " ".join(current_text.replace("`", "").split())
+            for required in [
+                "this round is the ieee39 gcn audit dry-run validator",
+                "it did not train gcn",
+                "it did not run the formal gcn usefulness audit",
+                "it did not run simulink",
+                "it did not export labels",
+                "it did not retrain the reranker",
+                "strict holdouts",
+                "baseline comparison",
+                "b1",
+                "nf06",
+                "l12",
+                "target_bus",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "engineering-grade protection",
+            ]:
+                if required not in normalized:
+                    failures.append(f"GCN dry-run validator docs missing: {required}")
+            for bad in [
+                "gcn was trained",
+                "formal gcn audit was run",
+                "final gcn conclusion",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+            ]:
+                if bad in current_normalized:
+                    failures.append(f"GCN dry-run validator docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read GCN dry-run validator artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"
