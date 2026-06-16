@@ -20,3 +20,13 @@ special handling is preserved, and the old fault was not moved.
 B39/B26 remain existing candidate labels, not formal labels. The model remains
 `phasor_RMS`, not EMT. `generator_speed_proxy` is not direct frequency.
 Temporary bus-fault injection is not engineering-grade protection.
+
+## Actual Smoke Follow-Up
+
+The next separate round ran actual Simulink smoke for all 37 readiness-passed
+temporary copies. All 37 simulations succeeded and produced
+`voltage_speed_angle` compact measurements. That follow-up still did not
+export labels, did not train GCN, and did not run a GCN usefulness audit.
+
+The result remains temporary smoke evidence only. The 37 new targets are still
+not candidate labels until a later smoke quality review and label export round.

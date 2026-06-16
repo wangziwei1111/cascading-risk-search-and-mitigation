@@ -115,6 +115,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/run_ieee39_bus_fault_temp_lab_smoke.py",
     "scripts/gcn_search/collect_ieee39_bus_fault_manual_review.py",
     "scripts/gcn_search/prepare_ieee39_all_remaining_bus_fault_batch_readiness.py",
+    "scripts/gcn_search/run_ieee39_all_remaining_bus_fault_batch_smoke.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trip_isolated.py",
     "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py",
     "scripts/gcn_search/update_ieee39_line_breaker_map_from_inventory.py",
@@ -405,6 +406,8 @@ REQUIRED_FILES = [
     "tests/test_ieee39_v2_plus_b39_b26_preview_no_leakage.py",
     "tests/test_ieee39_all_remaining_bus_fault_manual_wiring_plan.py",
     "tests/test_ieee39_all_remaining_bus_fault_manual_connection_evidence.py",
+    "tests/test_ieee39_all_remaining_bus_fault_batch_readiness.py",
+    "tests/test_ieee39_all_remaining_bus_fault_batch_actual_smoke.py",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_composition_review.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_composition_review.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_label_family_counts.csv",
@@ -428,6 +431,17 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/manual_connection_evidence/batch_manual_connection_evidence_summary.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/manual_connection_evidence/batch_manual_connection_evidence_summary.csv",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/manual_connection_evidence/buses_ready_for_readiness_dry_run.json",
+    "docs/ieee39_all_remaining_bus_fault_batch_readiness_dry_run.md",
+    "docs/ieee39_all_remaining_bus_fault_batch_actual_smoke.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/readiness_dry_run/batch_readiness_dry_run_summary.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/readiness_dry_run/batch_readiness_dry_run_summary.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/readiness_dry_run/batch_readiness_dry_run_summary.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/readiness_dry_run/batch_actual_smoke_plan_manifest.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/readiness_dry_run/batch_actual_smoke_plan_manifest.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_outputs/batch_actual_smoke_summary.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_outputs/batch_actual_smoke_summary.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_outputs/batch_actual_smoke_summary.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_outputs/buses_ready_for_smoke_quality_review.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -2629,6 +2643,121 @@ def main() -> int:
                     failures.append(f"All-remaining readiness docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read all-remaining readiness dry-run artifacts: {exc}")
+
+    all_remaining_smoke_dir = all_remaining_dir / "batch_smoke_outputs"
+    all_remaining_smoke_summary = all_remaining_smoke_dir / "batch_actual_smoke_summary.json"
+    all_remaining_smoke_quality = all_remaining_smoke_dir / "buses_ready_for_smoke_quality_review.json"
+    all_remaining_smoke_doc = ROOT / "docs/ieee39_all_remaining_bus_fault_batch_actual_smoke.md"
+    if all_remaining_smoke_summary.exists():
+        try:
+            normal_targets = [*(f"B{i}" for i in range(1, 16)), *(f"B{i}" for i in range(17, 26)), *(f"B{i}" for i in range(27, 39))]
+            all_targets = normal_targets + ["B16"]
+            summary = _read_json_path(all_remaining_smoke_summary)
+            expected_summary = {
+                "batch_id": "bus_fault_all_remaining_manual_wiring",
+                "smoke_scope": "actual_temporary_smoke_only",
+                "total_targets": 37,
+                "num_smoke_attempted": 37,
+                "current_candidate_count": 42,
+                "old_formal_gate": "35 / 33 / 33",
+                "actual_simulink_run": True,
+                "dry_run": False,
+                "labels_exported": False,
+                "candidate_labels_exported": False,
+                "gcn_trained": False,
+                "reranker_retrained": False,
+                "gcn_usefulness_audit_run": False,
+                "should_export_labels_now": False,
+                "should_train_now": False,
+            }
+            for key, value in expected_summary.items():
+                if summary.get(key) != value:
+                    failures.append(f"All-remaining batch smoke summary must record {key}={value!r}.")
+            attempted_total = summary.get("num_simulation_success", 0) + summary.get("num_simulation_failed", 0) + summary.get("num_timeout", 0)
+            if attempted_total != summary.get("num_smoke_attempted"):
+                failures.append("All-remaining batch smoke counts must sum to num_smoke_attempted.")
+            if set(summary.get("successful_buses", []) + summary.get("failed_buses", []) + summary.get("timeout_buses", [])) != set(all_targets):
+                failures.append("All-remaining batch smoke summary must account for all 37 targets.")
+            for bus in all_targets:
+                report_json = all_remaining_smoke_dir / f"batch_smoke_{bus}_report.json"
+                report_md = all_remaining_smoke_dir / f"batch_smoke_{bus}_report.md"
+                report_csv = all_remaining_smoke_dir / f"batch_smoke_{bus}_summary.csv"
+                if not os.path.exists(_fs_path(report_json)) or not os.path.exists(_fs_path(report_md)) or not os.path.exists(_fs_path(report_csv)):
+                    failures.append(f"Missing all-remaining batch smoke report artifacts for {bus}.")
+                    continue
+                report = _read_json_path(report_json)
+                for key in [
+                    "actual_simulink_run",
+                    "smoke_executed",
+                ]:
+                    if report.get(key) is not True:
+                        failures.append(f"{bus} batch smoke report must record {key}=true.")
+                for key in [
+                    "dry_run",
+                    "source_slx_modified",
+                    "temporary_slx_committed",
+                    "labels_exported",
+                    "candidate_label_exported",
+                    "gcn_trained",
+                    "reranker_retrained",
+                    "gcn_usefulness_audit_run",
+                ]:
+                    if report.get(key) is not False:
+                        failures.append(f"{bus} batch smoke report must record {key}=false.")
+                if report.get("target_bus") != bus or report.get("scenario_id") != f"BF_{bus}_TEMP_SMOKE":
+                    failures.append(f"{bus} batch smoke report has wrong target_bus or scenario_id.")
+                if report.get("selected_fault_block_path") != f"Grid/Fault_{bus}_TEMP":
+                    failures.append(f"{bus} batch smoke report has wrong selected fault block path.")
+                if report.get("simulation_success") is True:
+                    if report.get("measurement_extraction_status") != "voltage_speed_angle":
+                        failures.append(f"{bus} successful batch smoke must have voltage_speed_angle measurements.")
+                    if report.get("physical_fault_or_breaker_action_executed") is not True:
+                        failures.append(f"{bus} successful batch smoke must record physical_fault_or_breaker_action_executed=true.")
+                    if "frequency=generator_speed_proxy" not in str(report.get("signal_source_summary", "")):
+                        failures.append(f"{bus} successful batch smoke must use generator_speed_proxy frequency.")
+                if bus == "B16" and report.get("special_handling") is not True:
+                    failures.append("B16 batch smoke report must preserve special_handling=true.")
+            quality = _read_json_path(all_remaining_smoke_quality)
+            if quality.get("ready_for_quality_review_buses") != summary.get("successful_buses"):
+                failures.append("All-remaining quality-review candidate list must match successful buses.")
+            if quality.get("blocked_from_quality_review_buses") != summary.get("failed_buses", []) + summary.get("timeout_buses", []):
+                failures.append("All-remaining quality-review blocked list must match failed/timeout buses.")
+            for key in ["should_run_quality_review_now", "should_export_labels_now", "should_train_now"]:
+                if quality.get(key) is not False:
+                    failures.append(f"All-remaining quality-review candidate list must record {key}=false.")
+            doc_text = "\n".join(
+                [
+                    all_remaining_smoke_doc.read_text(encoding="utf-8", errors="ignore"),
+                    (all_remaining_smoke_dir / "batch_actual_smoke_summary.md").read_text(encoding="utf-8", errors="ignore"),
+                ]
+            ).lower()
+            normalized = " ".join(doc_text.replace("`", "").split())
+            for required in [
+                "actual simulink smoke was run",
+                "did not export labels",
+                "did not train gcn",
+                "did not run a gcn usefulness audit",
+                "not candidate labels",
+                "temporary smoke evidence",
+                "smoke quality review",
+                "phasor_rms, not emt",
+                "generator_speed_proxy is not direct frequency",
+                "not engineering-grade protection",
+            ]:
+                if required not in normalized:
+                    failures.append(f"All-remaining batch smoke docs missing: {required}")
+            for bad in [
+                "37 new targets are candidate labels",
+                "labels were exported",
+                "gcn was trained",
+                "gcn usefulness audit was run",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+            ]:
+                if bad in normalized:
+                    failures.append(f"All-remaining batch smoke docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read all-remaining batch smoke artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

@@ -274,3 +274,13 @@ and does not run a GCN usefulness audit.
 All 37 targets are ready for a next-round actual smoke attempt, with B16
 special handling preserved and the old B16 fault not moved. The 37 targets are
 still not candidate labels and still not smoke success.
+
+## All-Remaining Batch Actual Smoke Follow-Up
+
+The all-remaining batch actual smoke round has now run actual Simulink smoke
+for all 37 readiness-passed temporary copies. All 37 simulations succeeded and
+reported `voltage_speed_angle` compact measurements. This is temporary smoke
+evidence only. It does not export labels, does not train GCN, does not retrain
+the reranker, and does not run a GCN usefulness audit.
+
+The next step is batch smoke quality review before any label export.

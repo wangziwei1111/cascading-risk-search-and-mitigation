@@ -49,3 +49,13 @@ the reranker, and did not run a GCN usefulness audit.
 This only means the 37 temporary copies can be considered for a later actual
 smoke round. The 37 new targets are still not candidate labels and still not
 smoke success.
+
+## Actual Smoke Follow-Up
+
+The later batch actual smoke round attempted all 37 readiness-passed targets.
+All 37 Simulink smoke runs succeeded and produced `voltage_speed_angle`
+measurements. This still did not export labels, did not train GCN, did not
+retrain the reranker, and did not run a GCN usefulness audit.
+
+The next step is smoke quality review for successful buses before any label
+export. The 37 new targets are still not candidate labels.

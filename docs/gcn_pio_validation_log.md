@@ -3391,6 +3391,54 @@ New artifacts:
 - `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/readiness_dry_run/readiness_dry_run_<BUS>.json`
 - `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/readiness_dry_run/readiness_dry_run_<BUS>.md`
 
+## Round 67: All-Remaining Bus-Fault Batch Actual Smoke
+
+This round ran actual Simulink smoke for the 37 readiness-passed IEEE39
+bus-fault temporary local copies. It only ran smoke. It did not export labels,
+did not train GCN, did not retrain the reranker, and did not run a GCN
+usefulness audit.
+
+Plain wording: this is the first real dynamic smoke run for the 37 remaining
+temporary bus faults. All 37 models ran through Simulink and produced compact
+voltage, generator-speed-proxy frequency, and rotor-angle measurements. These
+results are still temporary smoke evidence only; they are not candidate labels
+until a later smoke quality review and label export round.
+
+```text
+smoke scope = actual_temporary_smoke_only
+total targets = 37
+smoke attempted = 37
+simulation success = 37
+simulation failed = 0
+timeout = 0
+measurement status = voltage_speed_angle for 37
+unstable_flag true count = 36
+unstable_flag false count = 1
+current candidate count = 42
+old formal gate = 35 / 33 / 33
+labels_exported = false
+candidate_labels_exported = false
+gcn_trained = false
+reranker_retrained = false
+gcn_usefulness_audit_run = false
+```
+
+B16 special handling is preserved, and the old B16 fault was not moved. B39/B26
+remain existing candidate labels, not formal labels. The model remains
+`phasor_RMS`, not EMT. `generator_speed_proxy` is not direct frequency.
+Temporary bus-fault injection is not engineering-grade protection.
+
+New artifacts:
+
+- `docs/ieee39_all_remaining_bus_fault_batch_actual_smoke.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_outputs/batch_actual_smoke_summary.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_outputs/batch_actual_smoke_summary.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_outputs/batch_actual_smoke_summary.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_outputs/buses_ready_for_smoke_quality_review.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_outputs/batch_smoke_<BUS>_report.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_outputs/batch_smoke_<BUS>_report.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_smoke_outputs/batch_smoke_<BUS>_summary.csv`
+
 ## Round 65: All-Remaining Bus-Fault Manual Wiring Plan
 
 This round prepares a manual GUI wiring batch package for all remaining IEEE39

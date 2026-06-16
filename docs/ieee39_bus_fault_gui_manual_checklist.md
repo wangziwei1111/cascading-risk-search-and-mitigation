@@ -220,3 +220,11 @@ not train GCN, and does not run a GCN usefulness audit.
 Before any later label export, the next step should be a separate actual smoke
 round followed by smoke quality review. The 37 new targets are still not
 candidate labels and still not smoke success.
+
+## Batch Actual Smoke Follow-Up
+
+The 37 all-remaining temporary bus-fault copies were later run in actual
+Simulink smoke. All 37 smoke attempts succeeded and produced
+`voltage_speed_angle` compact measurements. These results are still not
+candidate labels. They should enter smoke quality review before any label
+export or GCN training.
