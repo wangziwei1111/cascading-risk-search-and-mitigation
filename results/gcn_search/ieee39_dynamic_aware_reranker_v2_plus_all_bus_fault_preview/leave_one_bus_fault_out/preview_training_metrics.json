@@ -1,0 +1,789 @@
+{
+  "preview_only": true,
+  "final_performance_conclusion": false,
+  "simulink_run": false,
+  "actual_smoke_run": false,
+  "labels_exported": false,
+  "gcn_trained": false,
+  "formal_reranker_retrained": false,
+  "gcn_usefulness_audit_run": false,
+  "should_train_now": false,
+  "mode": "leave_one_bus_fault_out",
+  "feature_set": "with_dynamic_measurement_features",
+  "model_regression": "Ridge Regression",
+  "model_classification": "Logistic Regression",
+  "random_seed": 42,
+  "num_samples": 39,
+  "num_predictions": 39,
+  "num_bus_fault_candidates": 39,
+  "feature_columns": [
+    "duration_s",
+    "fault_start_s",
+    "fault_clear_s",
+    "line_id_numeric",
+    "target_bus_numeric",
+    "physical_fault_or_breaker_action_executed",
+    "breaker_opened",
+    "formal_line_trip_label",
+    "handwired_line_trip_label",
+    "non_line_trip_label",
+    "bus_fault_label",
+    "temporary_smoke_candidate",
+    "candidate_not_formal_label",
+    "provenance_check_required",
+    "not_independent_physical_sample_until_verified",
+    "min_voltage_pu",
+    "max_voltage_pu",
+    "min_frequency_hz",
+    "max_frequency_hz",
+    "max_speed_deviation",
+    "max_rotor_angle_separation_deg",
+    "line_id_NO_LINE",
+    "target_bus_B1",
+    "target_bus_B10",
+    "target_bus_B11",
+    "target_bus_B12",
+    "target_bus_B13",
+    "target_bus_B14",
+    "target_bus_B15",
+    "target_bus_B16",
+    "target_bus_B17",
+    "target_bus_B18",
+    "target_bus_B19",
+    "target_bus_B2",
+    "target_bus_B20",
+    "target_bus_B21",
+    "target_bus_B22",
+    "target_bus_B23",
+    "target_bus_B24",
+    "target_bus_B25",
+    "target_bus_B26",
+    "target_bus_B27",
+    "target_bus_B28",
+    "target_bus_B29",
+    "target_bus_B3",
+    "target_bus_B30",
+    "target_bus_B31",
+    "target_bus_B32",
+    "target_bus_B33",
+    "target_bus_B34",
+    "target_bus_B35",
+    "target_bus_B36",
+    "target_bus_B37",
+    "target_bus_B38",
+    "target_bus_B39",
+    "target_bus_B4",
+    "target_bus_B5",
+    "target_bus_B6",
+    "target_bus_B7",
+    "target_bus_B8",
+    "target_bus_B9",
+    "target_bus_or_component_B1",
+    "target_bus_or_component_B10",
+    "target_bus_or_component_B11",
+    "target_bus_or_component_B12",
+    "target_bus_or_component_B13",
+    "target_bus_or_component_B14",
+    "target_bus_or_component_B15",
+    "target_bus_or_component_B16",
+    "target_bus_or_component_B17",
+    "target_bus_or_component_B18",
+    "target_bus_or_component_B19",
+    "target_bus_or_component_B2",
+    "target_bus_or_component_B20",
+    "target_bus_or_component_B21",
+    "target_bus_or_component_B22",
+    "target_bus_or_component_B23",
+    "target_bus_or_component_B24",
+    "target_bus_or_component_B25",
+    "target_bus_or_component_B26",
+    "target_bus_or_component_B27",
+    "target_bus_or_component_B28",
+    "target_bus_or_component_B29",
+    "target_bus_or_component_B3",
+    "target_bus_or_component_B30",
+    "target_bus_or_component_B31",
+    "target_bus_or_component_B32",
+    "target_bus_or_component_B33",
+    "target_bus_or_component_B34",
+    "target_bus_or_component_B35",
+    "target_bus_or_component_B36",
+    "target_bus_or_component_B37",
+    "target_bus_or_component_B38",
+    "target_bus_or_component_B39",
+    "target_bus_or_component_B4",
+    "target_bus_or_component_B5",
+    "target_bus_or_component_B6",
+    "target_bus_or_component_B7",
+    "target_bus_or_component_B8",
+    "target_bus_or_component_B9",
+    "fault_type_three_phase_bus_fault_temp_smoke",
+    "label_family_non_line_trip",
+    "trip_implementation_temporary_bus_fault",
+    "source_model_type_temporary_local_lab_copy",
+    "source_model_type_unknown",
+    "duplicate_measurement_group_unknown"
+  ],
+  "compact_dynamic_measurement_features_are_post_fault": true,
+  "target_feature_leakage_risk_if_used_as_inputs": true,
+  "regression_metrics": {
+    "mae": 0.05070278715253154,
+    "rmse": 0.06168389651049481,
+    "pearson": 0.8514669442784895,
+    "spearman": 0.8603238866396762
+  },
+  "classification_metrics": {},
+  "classification_skipped_reason": "Training fold has only one unstable_flag class.",
+  "folds": [
+    {
+      "fold_id": "loo_0",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_1",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_2",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_3",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_4",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_5",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_6",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_7",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_8",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_9",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_10",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_11",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_12",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_13",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_14",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_15",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_16",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_17",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_18",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_19",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_20",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_21",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_22",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_23",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_24",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_25",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_26",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_27",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_28",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_29",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_30",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_31",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_32",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_33",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_34",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_35",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_36",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_37",
+      "num_train": 38,
+      "num_test": 1
+    },
+    {
+      "fold_id": "loo_38",
+      "num_train": 38,
+      "num_test": 1
+    }
+  ],
+  "notes": [
+    "preview-only",
+    "not GCN training",
+    "not GCN usefulness audit",
+    "not formal reranker retraining",
+    "phasor_RMS is not EMT",
+    "generator_speed_proxy is not direct frequency",
+    "temporary bus-fault injection is not engineering-grade protection"
+  ],
+  "holdout_type": "leave-one-bus-fault-out",
+  "test_count": 39,
+  "lobo_rmse": 0.06168389651049481,
+  "lobo_mae": 0.05070278715253154,
+  "lobo_max_abs_error": 0.15010114801694274,
+  "lobo_median_abs_error": 0.04246582526943349,
+  "worst_10_buses_by_abs_error": [
+    {
+      "target_bus": "B1",
+      "scenario_id": "BF_B1_TEMP_SMOKE",
+      "absolute_error": 0.15010114801694274,
+      "true_dynamic_stress_score": 0.19602585950733364,
+      "predicted_dynamic_stress_score": 0.3461270075242764,
+      "unstable_probability": null
+    },
+    {
+      "target_bus": "B9",
+      "scenario_id": "BF_B9_TEMP_SMOKE",
+      "absolute_error": 0.12762355303473566,
+      "true_dynamic_stress_score": 0.2516129494416703,
+      "predicted_dynamic_stress_score": 0.37923650247640595,
+      "unstable_probability": 0.31233228288505316
+    },
+    {
+      "target_bus": "B12",
+      "scenario_id": "BF_B12_TEMP_SMOKE",
+      "absolute_error": 0.11531875638290567,
+      "true_dynamic_stress_score": 0.28558571775809144,
+      "predicted_dynamic_stress_score": 0.4009044741409971,
+      "unstable_probability": 0.5883223143035098
+    },
+    {
+      "target_bus": "B27",
+      "scenario_id": "BF_B27_TEMP_SMOKE",
+      "absolute_error": 0.11384312261213958,
+      "true_dynamic_stress_score": 0.4195779742985555,
+      "predicted_dynamic_stress_score": 0.5334210969106951,
+      "unstable_probability": 0.6882914118667133
+    },
+    {
+      "target_bus": "B6",
+      "scenario_id": "BF_B6_TEMP_SMOKE",
+      "absolute_error": 0.10003786443122065,
+      "true_dynamic_stress_score": 0.5219551225965275,
+      "predicted_dynamic_stress_score": 0.4219172581653069,
+      "unstable_probability": 0.6676693555310897
+    },
+    {
+      "target_bus": "B10",
+      "scenario_id": "BF_B10_TEMP_SMOKE",
+      "absolute_error": 0.09875892185243429,
+      "true_dynamic_stress_score": 0.5448141364595949,
+      "predicted_dynamic_stress_score": 0.4460552146071606,
+      "unstable_probability": 0.6859560732254557
+    },
+    {
+      "target_bus": "B18",
+      "scenario_id": "BF_B18_TEMP_SMOKE",
+      "absolute_error": 0.0921805676661806,
+      "true_dynamic_stress_score": 0.37040658545803185,
+      "predicted_dynamic_stress_score": 0.46258715312421245,
+      "unstable_probability": 0.651534738136458
+    },
+    {
+      "target_bus": "B5",
+      "scenario_id": "BF_B5_TEMP_SMOKE",
+      "absolute_error": 0.08758058985588729,
+      "true_dynamic_stress_score": 0.5007832148409831,
+      "predicted_dynamic_stress_score": 0.4132026249850958,
+      "unstable_probability": 0.6622150015807236
+    },
+    {
+      "target_bus": "B24",
+      "scenario_id": "BF_B24_TEMP_SMOKE",
+      "absolute_error": 0.06806039690383481,
+      "true_dynamic_stress_score": 0.4556146110275159,
+      "predicted_dynamic_stress_score": 0.5236750079313507,
+      "unstable_probability": 0.6879764109543793
+    },
+    {
+      "target_bus": "B11",
+      "scenario_id": "BF_B11_TEMP_SMOKE",
+      "absolute_error": 0.06405452468969969,
+      "true_dynamic_stress_score": 0.5016977537641408,
+      "predicted_dynamic_stress_score": 0.43764322907444114,
+      "unstable_probability": 0.6734215978605766
+    }
+  ],
+  "b1_true_dynamic_stress_score": 0.19602585950733364,
+  "b1_predicted_dynamic_stress_score": 0.3461270075242764,
+  "b1_absolute_error": 0.15010114801694274,
+  "b1_true_unstable_flag": 0,
+  "b1_unstable_probability": null,
+  "per_bus_predictions": [
+    {
+      "target_bus": "B1",
+      "scenario_id": "BF_B1_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.19602585950733364,
+      "predicted_dynamic_stress_score": 0.3461270075242764,
+      "absolute_error": 0.15010114801694274,
+      "true_unstable_flag": 0,
+      "unstable_probability": null
+    },
+    {
+      "target_bus": "B10",
+      "scenario_id": "BF_B10_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.5448141364595949,
+      "predicted_dynamic_stress_score": 0.4460552146071606,
+      "absolute_error": 0.09875892185243429,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.6859560732254557
+    },
+    {
+      "target_bus": "B11",
+      "scenario_id": "BF_B11_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.5016977537641408,
+      "predicted_dynamic_stress_score": 0.43764322907444114,
+      "absolute_error": 0.06405452468969969,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.6734215978605766
+    },
+    {
+      "target_bus": "B12",
+      "scenario_id": "BF_B12_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.28558571775809144,
+      "predicted_dynamic_stress_score": 0.4009044741409971,
+      "absolute_error": 0.11531875638290567,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.5883223143035098
+    },
+    {
+      "target_bus": "B13",
+      "scenario_id": "BF_B13_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.49878195944499415,
+      "predicted_dynamic_stress_score": 0.4493080164748868,
+      "absolute_error": 0.049473942970107376,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.674037379728869
+    },
+    {
+      "target_bus": "B14",
+      "scenario_id": "BF_B14_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.45129787627299506,
+      "predicted_dynamic_stress_score": 0.453143597946419,
+      "absolute_error": 0.00184572167342395,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.663077996483858
+    },
+    {
+      "target_bus": "B15",
+      "scenario_id": "BF_B15_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.4102318305303317,
+      "predicted_dynamic_stress_score": 0.46970666824955615,
+      "absolute_error": 0.05947483771922446,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.6625988004674289
+    },
+    {
+      "target_bus": "B16",
+      "scenario_id": "BF_B16_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.5520514235295603,
+      "predicted_dynamic_stress_score": 0.5287326741764223,
+      "absolute_error": 0.023318749353137935,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.7168698218521485
+    },
+    {
+      "target_bus": "B17",
+      "scenario_id": "BF_B17_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.44482940662557724,
+      "predicted_dynamic_stress_score": 0.4872952318950107,
+      "absolute_error": 0.04246582526943349,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.6796953647555812
+    },
+    {
+      "target_bus": "B18",
+      "scenario_id": "BF_B18_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.37040658545803185,
+      "predicted_dynamic_stress_score": 0.46258715312421245,
+      "absolute_error": 0.0921805676661806,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.651534738136458
+    },
+    {
+      "target_bus": "B19",
+      "scenario_id": "BF_B19_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.6391974748099917,
+      "predicted_dynamic_stress_score": 0.5842420040132819,
+      "absolute_error": 0.054955470796709815,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.7338098156699014
+    },
+    {
+      "target_bus": "B2",
+      "scenario_id": "BF_B2_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.47182636827670227,
+      "predicted_dynamic_stress_score": 0.4304073398373014,
+      "absolute_error": 0.04141902843940087,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.6556526536025895
+    },
+    {
+      "target_bus": "B20",
+      "scenario_id": "BF_B20_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.6404359189645632,
+      "predicted_dynamic_stress_score": 0.5925525053093754,
+      "absolute_error": 0.04788341365518778,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.7277411190314345
+    },
+    {
+      "target_bus": "B21",
+      "scenario_id": "BF_B21_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.4721746387301224,
+      "predicted_dynamic_stress_score": 0.5052561098086197,
+      "absolute_error": 0.03308147107849729,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.6836402514092065
+    },
+    {
+      "target_bus": "B22",
+      "scenario_id": "BF_B22_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.5639700467301344,
+      "predicted_dynamic_stress_score": 0.5268519060588951,
+      "absolute_error": 0.03711814067123931,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.700965063286766
+    },
+    {
+      "target_bus": "B23",
+      "scenario_id": "BF_B23_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.5504657392731147,
+      "predicted_dynamic_stress_score": 0.5178376941026995,
+      "absolute_error": 0.032628045170415176,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.7126016500004488
+    },
+    {
+      "target_bus": "B24",
+      "scenario_id": "BF_B24_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.4556146110275159,
+      "predicted_dynamic_stress_score": 0.5236750079313507,
+      "absolute_error": 0.06806039690383481,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.6879764109543793
+    },
+    {
+      "target_bus": "B25",
+      "scenario_id": "BF_B25_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.5979239597815794,
+      "predicted_dynamic_stress_score": 0.5795395361868998,
+      "absolute_error": 0.018384423594679622,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.7285947398478198
+    },
+    {
+      "target_bus": "B26",
+      "scenario_id": "BF_B26_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.5314759474846003,
+      "predicted_dynamic_stress_score": 0.5780690731000862,
+      "absolute_error": 0.0465931256154859,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.7295897200210129
+    },
+    {
+      "target_bus": "B27",
+      "scenario_id": "BF_B27_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.4195779742985555,
+      "predicted_dynamic_stress_score": 0.5334210969106951,
+      "absolute_error": 0.11384312261213958,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.6882914118667133
+    },
+    {
+      "target_bus": "B28",
+      "scenario_id": "BF_B28_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.541275942742247,
+      "predicted_dynamic_stress_score": 0.5959258655573133,
+      "absolute_error": 0.05464992281506631,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.7225369453092428
+    },
+    {
+      "target_bus": "B29",
+      "scenario_id": "BF_B29_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.6491503405909927,
+      "predicted_dynamic_stress_score": 0.6419134961492936,
+      "absolute_error": 0.007236844441699142,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.7548981627421505
+    },
+    {
+      "target_bus": "B3",
+      "scenario_id": "BF_B3_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.376161362418042,
+      "predicted_dynamic_stress_score": 0.3993833731991235,
+      "absolute_error": 0.023222010781081492,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.6369836389013196
+    },
+    {
+      "target_bus": "B30",
+      "scenario_id": "BF_B30_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.5558681351530967,
+      "predicted_dynamic_stress_score": 0.5925284948812763,
+      "absolute_error": 0.0366603597281796,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.6685934748571076
+    },
+    {
+      "target_bus": "B31",
+      "scenario_id": "BF_B31_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.5843713123655714,
+      "predicted_dynamic_stress_score": 0.5366021443866583,
+      "absolute_error": 0.04776916797891306,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.6837088558166915
+    },
+    {
+      "target_bus": "B32",
+      "scenario_id": "BF_B32_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.6076726437286094,
+      "predicted_dynamic_stress_score": 0.5623855520825347,
+      "absolute_error": 0.045287091646074695,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.6983367022572026
+    },
+    {
+      "target_bus": "B33",
+      "scenario_id": "BF_B33_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.6704705155139777,
+      "predicted_dynamic_stress_score": 0.6302364434175742,
+      "absolute_error": 0.040234072096403506,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.7332630953201548
+    },
+    {
+      "target_bus": "B34",
+      "scenario_id": "BF_B34_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.6833537789841072,
+      "predicted_dynamic_stress_score": 0.668314480439831,
+      "absolute_error": 0.015039298544276214,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.7402111562677915
+    },
+    {
+      "target_bus": "B35",
+      "scenario_id": "BF_B35_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.5901101719139734,
+      "predicted_dynamic_stress_score": 0.5885117181451405,
+      "absolute_error": 0.0015984537688329414,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.6910662515103504
+    },
+    {
+      "target_bus": "B36",
+      "scenario_id": "BF_B36_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.619356418646559,
+      "predicted_dynamic_stress_score": 0.5887904937919934,
+      "absolute_error": 0.03056592485456555,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.7080178714587089
+    },
+    {
+      "target_bus": "B37",
+      "scenario_id": "BF_B37_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.6304424826610315,
+      "predicted_dynamic_stress_score": 0.5975964221413058,
+      "absolute_error": 0.03284606051972572,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.7167355643570202
+    },
+    {
+      "target_bus": "B38",
+      "scenario_id": "BF_B38_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.7163099319038406,
+      "predicted_dynamic_stress_score": 0.7019928644438514,
+      "absolute_error": 0.014317067459989175,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.7614744057936697
+    },
+    {
+      "target_bus": "B39",
+      "scenario_id": "BF_B39_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.6057813745060507,
+      "predicted_dynamic_stress_score": 0.6289604899090311,
+      "absolute_error": 0.023179115402980344,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.6873512456725482
+    },
+    {
+      "target_bus": "B4",
+      "scenario_id": "BF_B4_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.44635838378285514,
+      "predicted_dynamic_stress_score": 0.403806819945999,
+      "absolute_error": 0.042551563836856154,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.6523998454413704
+    },
+    {
+      "target_bus": "B5",
+      "scenario_id": "BF_B5_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.5007832148409831,
+      "predicted_dynamic_stress_score": 0.4132026249850958,
+      "absolute_error": 0.08758058985588729,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.6622150015807236
+    },
+    {
+      "target_bus": "B6",
+      "scenario_id": "BF_B6_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.5219551225965275,
+      "predicted_dynamic_stress_score": 0.4219172581653069,
+      "absolute_error": 0.10003786443122065,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.6676693555310897
+    },
+    {
+      "target_bus": "B7",
+      "scenario_id": "BF_B7_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.435690936515287,
+      "predicted_dynamic_stress_score": 0.40672412580752837,
+      "absolute_error": 0.02896681070775864,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.6424708486106128
+    },
+    {
+      "target_bus": "B8",
+      "scenario_id": "BF_B8_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.4378771309765162,
+      "predicted_dynamic_stress_score": 0.4107938380631129,
+      "absolute_error": 0.02708329291340328,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.6453437095158188
+    },
+    {
+      "target_bus": "B9",
+      "scenario_id": "BF_B9_TEMP_SMOKE",
+      "true_dynamic_stress_score": 0.2516129494416703,
+      "predicted_dynamic_stress_score": 0.37923650247640595,
+      "absolute_error": 0.12762355303473566,
+      "true_unstable_flag": 1,
+      "unstable_probability": 0.31233228288505316
+    }
+  ]
+}

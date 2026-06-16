@@ -54,3 +54,14 @@ bus-fault coverage, no duplicate scenario IDs, no duplicate label IDs, and the
 expected target-feature leakage risk if post-fault compact measurements are
 used as GCN inputs. The next step is preview/no-leakage comparison in a
 separate round, not training.
+
+## Preview / No-Leakage Follow-Up
+
+The later preview/no-leakage comparison was also run in a separate round. It
+remained preview-only. It did not run Simulink, did not export labels, did not
+train GCN, did not retrain the reranker, and did not run a GCN usefulness
+audit.
+
+The preview comparison showed that `include_all_79_candidates` behaves like a
+leaky upper-bound and that the stricter no-dynamic-measurement checks are more
+important than the include-all score.

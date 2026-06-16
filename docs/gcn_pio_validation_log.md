@@ -3681,3 +3681,46 @@ Artifacts:
 
 The model remains `phasor_RMS`, not EMT. `generator_speed_proxy` is not direct
 frequency. Temporary bus-fault injection is not engineering-grade protection.
+## Round 71: IEEE39 v2-plus-all-bus-fault Preview / No-Leakage Comparison
+
+This round ran preview-only lightweight checks on the latest 79-row
+`v2_plus_all_bus_fault_candidates` dataset. It did not run Simulink, did not
+run actual smoke, did not export labels, did not train GCN, did not retrain
+the formal reranker, and did not run a GCN usefulness audit.
+
+Preview metrics:
+
+- `include_all_79_rmse = 0.04779276761418548`
+- `no_dynamic_measurement_rmse = 0.0760962611650434`
+- `label_family_holdout_rmse = 0.22989473254428716`
+- `bus_fault_holdout_rmse = 0.16513213481446426`
+- `leave_one_bus_fault_out_rmse = 0.06168389651049481`
+- `no_dynamic_measurement_leave_one_bus_fault_out_rmse = 0.08660365983240884`
+
+B1 stayed as `unstable_flag=false` low-risk / stable marker. In the stricter
+no-dynamic leave-one-bus-fault-out regression check:
+
+- `b1_true_dynamic_stress_score = 0.19602585950733364`
+- `b1_predicted_dynamic_stress_score = 0.3932795323245355`
+- `b1_absolute_error = 0.19725367281720185`
+- `b1_unstable_probability = 0.8840996130572778`
+- `b1_unstable_probability_source = bus_fault_holdout_fallback`
+
+Worst 10 buses by absolute error in the no-dynamic leave-one-bus-fault-out
+check:
+
+- `B1, B9, B12, B27, B19, B18, B20, B6, B10, B5`
+
+Interpretation:
+
+- `include_all_79_candidates` is a leaky upper-bound because it includes
+  post-fault compact dynamic measurement features.
+- `no_dynamic_measurement_features` and
+  `no_dynamic_measurement_leave_one_bus_fault_out` are the more important
+  no-leakage checks.
+- This round cannot directly prove GCN useful or not useful because no GCN
+  usefulness audit ran.
+
+Recommended next step:
+
+- `leakage risk confirmed; prepare GCN usefulness audit only with no-leakage features and strict holdouts, not training yet`

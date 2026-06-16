@@ -40,3 +40,15 @@ no-dynamic-measurement feature set, label-family holdout, bus-fault holdout,
 and leave-one-bus-fault-out checks.
 
 Recommended next step: `run v2-plus-all-bus-fault preview/no-leakage comparison in a separate round, not GCN training`.
+
+## Preview Follow-Up
+
+A later separate round has now run the v2-plus-all-bus-fault
+preview/no-leakage comparison. That follow-up remained preview-only. It did
+not run Simulink, did not export labels, did not train GCN, did not retrain
+the formal reranker, and did not run a GCN usefulness audit.
+
+That follow-up supports the same leakage warning: `include_all_79_candidates`
+is a leaky upper-bound, while `no_dynamic_measurement_features` and
+`no_dynamic_measurement_leave_one_bus_fault_out` are the more important
+no-leakage checks.
