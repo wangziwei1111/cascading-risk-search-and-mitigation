@@ -443,6 +443,7 @@ REQUIRED_FILES = [
     "docs/ieee39_all_remaining_bus_fault_candidate_label_export.md",
     "docs/ieee39_v2_plus_all_bus_fault_no_training_composition_review.md",
     "docs/ieee39_v2_plus_all_bus_fault_preview_no_leakage_comparison.md",
+    "docs/ieee39_gcn_usefulness_audit_plan.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/readiness_dry_run/batch_readiness_dry_run_summary.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/readiness_dry_run/batch_readiness_dry_run_summary.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/readiness_dry_run/batch_readiness_dry_run_summary.csv",
@@ -479,6 +480,16 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_all_bus_fault_preview/leave_one_bus_fault_out/preview_training_metrics.json",
     "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_all_bus_fault_preview/no_dynamic_measurement_leave_one_bus_fault_out/preview_training_metrics.json",
     "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_all_bus_fault_preview/existing_vs_new_bus_fault_check/preview_training_metrics.json",
+    "results/gcn_search/ieee39_gcn_usefulness_audit_plan/gcn_usefulness_audit_plan.json",
+    "results/gcn_search/ieee39_gcn_usefulness_audit_plan/gcn_usefulness_audit_plan.md",
+    "results/gcn_search/ieee39_gcn_usefulness_audit_plan/no_leakage_feature_policy.json",
+    "results/gcn_search/ieee39_gcn_usefulness_audit_plan/no_leakage_feature_policy.md",
+    "results/gcn_search/ieee39_gcn_usefulness_audit_plan/strict_holdout_split_manifest.json",
+    "results/gcn_search/ieee39_gcn_usefulness_audit_plan/strict_holdout_split_manifest.md",
+    "results/gcn_search/ieee39_gcn_usefulness_audit_plan/baseline_comparison_plan.json",
+    "results/gcn_search/ieee39_gcn_usefulness_audit_plan/baseline_comparison_plan.md",
+    "results/gcn_search/ieee39_gcn_usefulness_audit_plan/gcn_audit_execution_checklist.json",
+    "results/gcn_search/ieee39_gcn_usefulness_audit_plan/gcn_audit_execution_checklist.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -490,7 +501,9 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_full.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_full_summary.json",
     "scripts/gcn_search/train_ieee39_v2_plus_all_bus_fault_preview.py",
+    "scripts/gcn_search/prepare_ieee39_gcn_usefulness_audit_plan.py",
     "tests/test_ieee39_v2_plus_all_bus_fault_preview_no_leakage.py",
+    "tests/test_ieee39_gcn_usefulness_audit_plan.py",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_block_parameter_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.json",
@@ -3271,6 +3284,126 @@ def main() -> int:
                     failures.append(f"All-bus-fault preview docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read v2-plus-all-bus-fault preview artifacts: {exc}")
+
+    audit_plan_dir = ROOT / "results/gcn_search/ieee39_gcn_usefulness_audit_plan"
+    audit_plan_json = audit_plan_dir / "gcn_usefulness_audit_plan.json"
+    audit_plan_md = audit_plan_dir / "gcn_usefulness_audit_plan.md"
+    audit_doc = ROOT / "docs/ieee39_gcn_usefulness_audit_plan.md"
+    if audit_plan_json.exists() and audit_plan_md.exists() and audit_doc.exists():
+        try:
+            plan = _read_json_path(audit_plan_json)
+            expected = {
+                "audit_scope": "plan_only",
+                "audit_execution_this_round": False,
+                "gcn_trained_this_round": False,
+                "formal_gcn_training": False,
+                "reranker_retrained": False,
+                "simulink_run": False,
+                "labels_exported": False,
+                "candidate_dataset": "v2_plus_all_bus_fault_candidates",
+                "total_candidate_rows": 79,
+                "num_total_bus_fault_candidates": 39,
+                "all_ieee39_buses_have_bus_fault_candidate": True,
+                "old_formal_gate": "35 / 33 / 33",
+                "l12_excluded": True,
+                "nf06_provenance_warning_preserved": True,
+                "unstable_flag_false_buses": ["B1"],
+                "leakage_risk_confirmed_by_preview": True,
+                "include_all_is_forbidden_for_gcn_audit": True,
+                "no_dynamic_measurement_features_required": True,
+                "recommended_audit_type": "strict_no_leakage_gcn_usefulness_audit",
+                "should_run_audit_now": False,
+                "should_train_now": False,
+                "dry_run": True,
+            }
+            for key, value in expected.items():
+                if plan.get(key) != value:
+                    failures.append(f"GCN usefulness audit plan must record {key}={value!r}.")
+            policy = _read_json_path(audit_plan_dir / "no_leakage_feature_policy.json")
+            split = _read_json_path(audit_plan_dir / "strict_holdout_split_manifest.json")
+            baseline = _read_json_path(audit_plan_dir / "baseline_comparison_plan.json")
+            checklist = _read_json_path(audit_plan_dir / "gcn_audit_execution_checklist.json")
+            if policy.get("feature_policy_passed") is not True:
+                failures.append("GCN usefulness audit feature policy must pass.")
+            for feature in [
+                "min_voltage_pu",
+                "max_frequency_hz",
+                "max_speed_deviation",
+                "max_rotor_angle_separation_deg",
+                "dynamic_stress_score",
+                "unstable_flag",
+            ]:
+                if feature not in policy.get("forbidden_post_fault_dynamic_measurement_features", []) and feature not in policy.get("forbidden_label_derived_features", []):
+                    failures.append(f"GCN usefulness audit feature policy missing forbidden feature {feature}.")
+            for split_name in [
+                "bus_fault_holdout",
+                "leave_one_bus_fault_out",
+                "no_dynamic_measurement_leave_one_bus_fault_out",
+                "nf06_provenance_sensitivity",
+            ]:
+                if split_name not in split.get("splits", {}):
+                    failures.append(f"GCN usefulness audit split manifest missing {split_name}.")
+            if checklist.get("should_train_now") is not False:
+                failures.append("GCN usefulness audit execution checklist must keep should_train_now=false.")
+            if checklist.get("failed_checks") != []:
+                failures.append("GCN usefulness audit execution checklist must have empty failed_checks.")
+            if len(baseline.get("baseline_models", [])) < 5:
+                failures.append("GCN usefulness audit baseline plan must contain enough baselines.")
+            doc_text = "\n".join(
+                [
+                    audit_doc.read_text(encoding="utf-8", errors="ignore"),
+                    audit_plan_md.read_text(encoding="utf-8", errors="ignore"),
+                    (audit_plan_dir / "no_leakage_feature_policy.md").read_text(encoding="utf-8", errors="ignore"),
+                    (audit_plan_dir / "strict_holdout_split_manifest.md").read_text(encoding="utf-8", errors="ignore"),
+                    (audit_plan_dir / "baseline_comparison_plan.md").read_text(encoding="utf-8", errors="ignore"),
+                    (audit_plan_dir / "gcn_audit_execution_checklist.md").read_text(encoding="utf-8", errors="ignore"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                ]
+            ).lower()
+            normalized = " ".join(doc_text.replace("`", "").split())
+            current_text = "\n".join(
+                [
+                    audit_doc.read_text(encoding="utf-8", errors="ignore"),
+                    audit_plan_md.read_text(encoding="utf-8", errors="ignore"),
+                    (audit_plan_dir / "no_leakage_feature_policy.md").read_text(encoding="utf-8", errors="ignore"),
+                    (audit_plan_dir / "strict_holdout_split_manifest.md").read_text(encoding="utf-8", errors="ignore"),
+                    (audit_plan_dir / "baseline_comparison_plan.md").read_text(encoding="utf-8", errors="ignore"),
+                    (audit_plan_dir / "gcn_audit_execution_checklist.md").read_text(encoding="utf-8", errors="ignore"),
+                ]
+            ).lower()
+            current_normalized = " ".join(current_text.replace("`", "").split())
+            for required in [
+                "only prepares the gcn usefulness audit plan",
+                "it did not train gcn",
+                "it did not run the gcn usefulness audit",
+                "it did not run simulink",
+                "it did not export labels",
+                "it did not retrain the reranker",
+                "leaky upper-bound",
+                "no-dynamic-measurement feature set",
+                "bus_fault_holdout",
+                "leave_one_bus_fault_out",
+                "b1",
+                "nf06",
+                "l12 stays excluded",
+                "candidate_not_formal_label",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "not engineering-grade protection",
+            ]:
+                if required not in normalized:
+                    failures.append(f"GCN usefulness audit plan docs missing: {required}")
+            for bad in [
+                "gcn usefulness audit was run",
+                "gcn was trained",
+                "final gcn conclusion",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+            ]:
+                if bad in current_normalized:
+                    failures.append(f"GCN usefulness audit plan docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read GCN usefulness audit plan artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

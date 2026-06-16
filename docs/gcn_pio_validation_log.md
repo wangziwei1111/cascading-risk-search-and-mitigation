@@ -3724,3 +3724,51 @@ Interpretation:
 Recommended next step:
 
 - `leakage risk confirmed; prepare GCN usefulness audit only with no-leakage features and strict holdouts, not training yet`
+## Round 72: IEEE39 GCN Usefulness Audit Plan Preparation
+
+This round only prepared the IEEE39 v2-plus-all-bus-fault GCN usefulness audit
+plan.
+
+It did not train GCN.
+It did not run the GCN usefulness audit.
+It did not run Simulink.
+It did not export labels.
+It did not retrain the reranker.
+
+Plan summary:
+
+- `audit_scope = plan_only`
+- `total_candidate_rows = 79`
+- `num_total_bus_fault_candidates = 39`
+- `all_ieee39_buses_have_bus_fault_candidate = true`
+- `include_all_is_forbidden_for_gcn_audit = true`
+- `no_dynamic_measurement_features_required = true`
+- `old_formal_gate = 35 / 33 / 33`
+- `l12_excluded = true`
+- `nf06_provenance_warning_preserved = true`
+- `unstable_flag_false_buses = ["B1"]`
+
+Required strict holdouts:
+
+- `random_candidate_split_baseline`
+- `label_family_holdout`
+- `bus_fault_holdout`
+- `leave_one_bus_fault_out`
+- `no_dynamic_measurement_leave_one_bus_fault_out`
+- `existing_vs_new_bus_fault_holdout`
+- `nf06_provenance_sensitivity`
+- `l12_exclusion_check`
+
+The feature policy explicitly forbids post-fault compact dynamic measurement
+features such as `min_voltage_pu`, `max_voltage_pu`, `min_frequency_hz`,
+`max_frequency_hz`, `max_speed_deviation`, `max_rotor_angle_separation_deg`,
+`measurement_extraction_status`, `unstable_flag`, and
+`dynamic_stress_score` from future GCN inputs.
+
+The plan also generated baseline comparison rules, including Ridge Regression,
+Logistic Regression, RandomForest or GradientBoosting if available, simple
+ranking baseline, topology-only baseline, and target-bus-only baseline.
+
+Recommended next step:
+
+- `run audit dry-run validator before any GCN training`

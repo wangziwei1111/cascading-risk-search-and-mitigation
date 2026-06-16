@@ -1,0 +1,37 @@
+{
+  "plan_scope": "plan_only",
+  "baseline_models": [
+    {
+      "name": "Ridge Regression",
+      "role": "numeric regression baseline for proxy target difficulty"
+    },
+    {
+      "name": "Logistic Regression",
+      "role": "binary stable / unstable baseline"
+    },
+    {
+      "name": "RandomForest or GradientBoosting",
+      "role": "nonlinear tabular baseline if repo dependencies allow"
+    },
+    {
+      "name": "simple ranking baseline",
+      "role": "rank-order baseline without GCN message passing"
+    },
+    {
+      "name": "topology-only baseline",
+      "role": "check how much graph structure alone explains labels"
+    },
+    {
+      "name": "target-bus-only baseline",
+      "role": "detect whether target_bus encoding can memorize label distribution"
+    }
+  ],
+  "gcn_useful_only_if": [
+    "uses no-leakage features",
+    "beats simple baselines on bus_fault_holdout and leave_one_bus_fault_out",
+    "does not depend on post-fault compact dynamic measurements",
+    "does not silently fail on B1 stable/low-risk marker",
+    "does not look good only on random split",
+    "keeps explicit confidence and limitation language, not final engineering conclusion"
+  ]
+}

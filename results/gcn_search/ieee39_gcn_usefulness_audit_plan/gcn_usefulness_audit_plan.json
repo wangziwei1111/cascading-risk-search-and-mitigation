@@ -1,0 +1,27 @@
+{
+  "audit_scope": "plan_only",
+  "audit_execution_this_round": false,
+  "gcn_trained_this_round": false,
+  "formal_gcn_training": false,
+  "reranker_retrained": false,
+  "simulink_run": false,
+  "labels_exported": false,
+  "candidate_dataset": "v2_plus_all_bus_fault_candidates",
+  "total_candidate_rows": 79,
+  "num_total_bus_fault_candidates": 39,
+  "all_ieee39_buses_have_bus_fault_candidate": true,
+  "old_formal_gate": "35 / 33 / 33",
+  "l12_excluded": true,
+  "nf06_provenance_warning_preserved": true,
+  "unstable_flag_false_buses": [
+    "B1"
+  ],
+  "leakage_risk_confirmed_by_preview": true,
+  "include_all_is_forbidden_for_gcn_audit": true,
+  "no_dynamic_measurement_features_required": true,
+  "recommended_audit_type": "strict_no_leakage_gcn_usefulness_audit",
+  "should_run_audit_now": false,
+  "should_train_now": false,
+  "recommended_next_step": "run audit dry-run validator before any GCN training",
+  "dry_run": true
+}

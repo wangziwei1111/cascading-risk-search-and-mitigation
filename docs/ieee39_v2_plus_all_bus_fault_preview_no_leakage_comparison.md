@@ -109,3 +109,12 @@ This is a descriptive preview result only. It is not a final bus ranking.
 ## Recommended Next Step
 
 `leakage risk confirmed; prepare GCN usefulness audit only with no-leakage features and strict holdouts, not training yet`
+
+## Audit-Plan Follow-Up
+
+A later separate round now prepares the IEEE39 GCN usefulness audit plan. That
+follow-up still does not train GCN, does not run the GCN usefulness audit, does
+not run Simulink, does not export labels, and does not retrain the reranker.
+
+The next allowed action is only the audit dry-run validator. It is still not
+time to start formal GCN training.

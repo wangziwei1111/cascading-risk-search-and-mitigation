@@ -52,3 +52,7 @@ That follow-up supports the same leakage warning: `include_all_79_candidates`
 is a leaky upper-bound, while `no_dynamic_measurement_features` and
 `no_dynamic_measurement_leave_one_bus_fault_out` are the more important
 no-leakage checks.
+
+The next separate round then prepares the GCN usefulness audit plan only. That
+plan round still does not train GCN and still does not execute the GCN
+usefulness audit itself.

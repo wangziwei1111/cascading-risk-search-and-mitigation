@@ -1,0 +1,20 @@
+{
+  "checklist_scope": "plan_only",
+  "dataset_exists": true,
+  "row_count_79": true,
+  "bus_fault_count_39": true,
+  "all_B1_B39_covered": true,
+  "forbidden_dynamic_features_absent_from_proposed_gcn_inputs": true,
+  "target_dynamic_stress_score_not_in_inputs": true,
+  "unstable_flag_not_in_inputs": true,
+  "L12_excluded": true,
+  "NF06_warning_preserved": true,
+  "B1_stable_marker_preserved": true,
+  "old_formal_gate_unchanged": true,
+  "split_manifests_generated": true,
+  "baseline_plan_generated": true,
+  "no_slx_mat_slprj_committed": true,
+  "rl_diff_empty": true,
+  "should_train_now": false,
+  "failed_checks": []
+}

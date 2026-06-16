@@ -1,0 +1,61 @@
+{
+  "policy_scope": "plan_only",
+  "feature_policy_passed": true,
+  "include_all_79_feature_set": {
+    "status": "forbidden_for_gcn_audit",
+    "reason": "includes post-fault compact dynamic measurement features and acts as leaky upper-bound"
+  },
+  "no_dynamic_measurement_feature_set": {
+    "status": "required_baseline",
+    "reason": "minimum leakage-reduced baseline before any formal GCN usefulness audit"
+  },
+  "forbidden_post_fault_dynamic_measurement_features": [
+    "min_voltage_pu",
+    "max_voltage_pu",
+    "min_frequency_hz",
+    "max_frequency_hz",
+    "max_speed_deviation",
+    "max_rotor_angle_separation_deg",
+    "measurement_extraction_status",
+    "unstable_flag",
+    "dynamic_stress_score",
+    "trip_time_s",
+    "signal_source_summary",
+    "output_summary_path",
+    "output_event_log_path"
+  ],
+  "forbidden_label_derived_features": [
+    "formal_line_trip_label",
+    "handwired_line_trip_label",
+    "non_line_trip_label",
+    "bus_fault_label",
+    "temporary_smoke_candidate",
+    "candidate_not_formal_label",
+    "training_ready_label_v2",
+    "training_ready_candidate",
+    "training_ready_candidate_smoke",
+    "training_ready_label_candidate"
+  ],
+  "allowed_input_categories": [
+    "network topology / graph structure",
+    "line_id / target_bus metadata encoded without target leakage",
+    "pre-fault static electrical metadata if available",
+    "disturbance type / planned contingency descriptor",
+    "duration_s, fault_start_s, fault_clear_s only if treated as intervention design variables and documented"
+  ],
+  "conditionally_allowed_features_requiring_leakage_audit": [
+    "candidate family flags only if explicitly audited for leakage risk"
+  ],
+  "proposed_no_leakage_gcn_input_columns": [
+    "fault_type",
+    "duration_s",
+    "fault_start_s",
+    "fault_clear_s",
+    "trip_implementation",
+    "line_id",
+    "target_bus",
+    "target_bus_or_component",
+    "source_model_type"
+  ],
+  "failed_checks": []
+}
