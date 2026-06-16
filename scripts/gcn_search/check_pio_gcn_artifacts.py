@@ -405,6 +405,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/collect_ieee39_all_remaining_bus_fault_manual_evidence.py",
     "scripts/gcn_search/review_ieee39_all_remaining_bus_fault_batch_smoke_quality.py",
     "scripts/gcn_search/export_ieee39_all_remaining_bus_fault_candidate_labels.py",
+    "scripts/gcn_search/review_ieee39_v2_plus_all_bus_fault_composition.py",
     "tests/test_ieee39_v2_plus_b39_b26_preview_no_leakage.py",
     "tests/test_ieee39_all_remaining_bus_fault_manual_wiring_plan.py",
     "tests/test_ieee39_all_remaining_bus_fault_manual_connection_evidence.py",
@@ -412,6 +413,7 @@ REQUIRED_FILES = [
     "tests/test_ieee39_all_remaining_bus_fault_batch_actual_smoke.py",
     "tests/test_ieee39_all_remaining_bus_fault_batch_smoke_quality_review.py",
     "tests/test_ieee39_all_remaining_bus_fault_candidate_label_export.py",
+    "tests/test_ieee39_v2_plus_all_bus_fault_composition_review.py",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_composition_review.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_composition_review.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_label_family_counts.csv",
@@ -439,6 +441,7 @@ REQUIRED_FILES = [
     "docs/ieee39_all_remaining_bus_fault_batch_actual_smoke.md",
     "docs/ieee39_all_remaining_bus_fault_batch_smoke_quality_review.md",
     "docs/ieee39_all_remaining_bus_fault_candidate_label_export.md",
+    "docs/ieee39_v2_plus_all_bus_fault_no_training_composition_review.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/readiness_dry_run/batch_readiness_dry_run_summary.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/readiness_dry_run/batch_readiness_dry_run_summary.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/readiness_dry_run/batch_readiness_dry_run_summary.csv",
@@ -459,6 +462,12 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/candidate_label_export/v2_plus_all_bus_fault_training_readiness.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/candidate_label_export/all_bus_fault_candidate_coverage_report.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/candidate_label_export/all_bus_fault_candidate_coverage_report.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/no_training_composition_review/v2_plus_all_bus_fault_composition_review.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/no_training_composition_review/v2_plus_all_bus_fault_composition_review.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/no_training_composition_review/v2_plus_all_bus_fault_composition_review.csv",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/no_training_composition_review/all_bus_fault_coverage_check.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/no_training_composition_review/schema_and_duplicate_check.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/no_training_composition_review/leakage_risk_and_training_boundary_check.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -3003,6 +3012,112 @@ def main() -> int:
                     failures.append(f"All-remaining candidate export docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read all-remaining candidate export artifacts: {exc}")
+
+    all_bus_composition_dir = all_remaining_dir / "no_training_composition_review"
+    all_bus_composition_json = all_bus_composition_dir / "v2_plus_all_bus_fault_composition_review.json"
+    all_bus_composition_doc = ROOT / "docs/ieee39_v2_plus_all_bus_fault_no_training_composition_review.md"
+    if all_bus_composition_json.exists():
+        try:
+            review = _read_json_path(all_bus_composition_json)
+            expected = {
+                "review_scope": "no_training_composition_review",
+                "candidate_dataset": "v2_plus_all_bus_fault_candidates",
+                "total_candidate_rows": 79,
+                "expected_candidate_rows": 79,
+                "row_count_check_passed": True,
+                "num_total_bus_fault_candidates": 39,
+                "expected_total_bus_fault_candidates": 39,
+                "all_ieee39_buses_have_bus_fault_candidate": True,
+                "old_formal_gate": "35 / 33 / 33",
+                "formal_label_gate_changed": False,
+                "l12_excluded": True,
+                "nf06_provenance_warning_preserved": True,
+                "composition_review_passed": True,
+                "compact_dynamic_measurement_features_are_post_fault": True,
+                "target_feature_leakage_risk_if_used_as_inputs": True,
+                "simulink_run": False,
+                "actual_smoke_run": False,
+                "labels_exported": False,
+                "gcn_trained": False,
+                "reranker_retrained": False,
+                "gcn_usefulness_audit_run": False,
+                "preview_training_run": False,
+                "should_train_now": False,
+            }
+            for key, value in expected.items():
+                if review.get(key) != value:
+                    failures.append(f"V2-plus-all-bus-fault composition review must record {key}={value!r}.")
+            if review.get("missing_bus_fault_buses") != []:
+                failures.append("V2-plus-all-bus-fault composition review must have no missing bus-fault buses.")
+            if review.get("scenario_id_duplicates") != [] or review.get("label_id_v2_duplicates") != []:
+                failures.append("V2-plus-all-bus-fault composition review must have no duplicate scenario or label IDs.")
+            if review.get("dynamic_stress_score_nonfinite_rows") != []:
+                failures.append("V2-plus-all-bus-fault composition review must have no nonfinite bus-fault dynamic stress scores.")
+            if review.get("unstable_flag_false_buses") != ["B1"]:
+                failures.append("V2-plus-all-bus-fault composition review must preserve B1 as unstable_flag=false.")
+            for key in [
+                "every_bus_fault_row_has_line_id_NO_LINE",
+                "every_bus_fault_row_has_target_bus_filled",
+                "every_bus_fault_row_has_target_bus_or_component_filled",
+                "every_bus_fault_row_candidate_not_formal_label_true",
+                "every_bus_fault_row_formal_line_trip_label_false",
+                "every_bus_fault_row_bus_fault_label_true",
+                "every_bus_fault_row_temporary_smoke_candidate_true",
+                "every_bus_fault_row_quality_review_passed_true",
+                "every_bus_fault_row_signal_source_contains_frequency_proxy",
+                "every_bus_fault_row_phasor_rms_not_emt_true",
+                "every_bus_fault_row_generator_speed_proxy_not_direct_frequency_true",
+                "every_bus_fault_row_temporary_bus_fault_not_engineering_grade_protection_true",
+            ]:
+                if review.get(key) is not True:
+                    failures.append(f"V2-plus-all-bus-fault composition review must pass {key}.")
+            coverage = _read_json_path(all_bus_composition_dir / "all_bus_fault_coverage_check.json")
+            schema = _read_json_path(all_bus_composition_dir / "schema_and_duplicate_check.json")
+            leakage = _read_json_path(all_bus_composition_dir / "leakage_risk_and_training_boundary_check.json")
+            if coverage.get("missing_bus_fault_buses") != [] or coverage.get("num_covered_buses") != 39:
+                failures.append("V2-plus-all-bus-fault coverage check must cover all 39 buses.")
+            if schema.get("scenario_id_duplicates") != [] or schema.get("label_id_v2_duplicates") != []:
+                failures.append("V2-plus-all-bus-fault schema check must have no duplicate IDs.")
+            if leakage.get("target_feature_leakage_risk_if_used_as_inputs") is not True or leakage.get("should_train_now") is not False:
+                failures.append("V2-plus-all-bus-fault leakage boundary check must preserve leakage warning and no-training boundary.")
+            doc_text = "\n".join(
+                [
+                    all_bus_composition_doc.read_text(encoding="utf-8", errors="ignore"),
+                    (all_bus_composition_dir / "v2_plus_all_bus_fault_composition_review.md").read_text(encoding="utf-8", errors="ignore"),
+                ]
+            ).lower()
+            normalized = " ".join(doc_text.replace("`", "").split())
+            for required in [
+                "no-training composition review",
+                "did not run simulink",
+                "did not run actual smoke",
+                "did not export labels",
+                "did not train gcn",
+                "did not retrain the reranker",
+                "did not run a gcn usefulness audit",
+                "candidate_not_formal_label",
+                "not formal labels",
+                "phasor_rms, not emt",
+                "generator_speed_proxy is not direct frequency",
+                "not engineering-grade protection",
+                "target-feature leakage",
+                "preview/no-leakage comparison",
+            ]:
+                if required not in normalized:
+                    failures.append(f"V2-plus-all-bus-fault composition docs missing: {required}")
+            for bad in [
+                "this round ran simulink",
+                "this round export labels",
+                "gcn was trained",
+                "gcn usefulness audit was run",
+                "bus-fault labels are formal labels",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+            ]:
+                if bad in normalized:
+                    failures.append(f"V2-plus-all-bus-fault composition docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read v2-plus-all-bus-fault composition artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

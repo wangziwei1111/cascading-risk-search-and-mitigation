@@ -3453,6 +3453,59 @@ risk remains.
 Next step: run v2-plus-all-bus-fault no-training composition review before any
 training. Do not train GCN and do not retrain the reranker yet.
 
+## Round 70: V2 Plus All Bus-Fault No-Training Composition Review
+
+This round reviews the latest 79-row IEEE39 v2-plus-all-bus-fault candidate
+dataset. It does not run Simulink, does not run actual smoke, does not export
+labels, does not train GCN, does not retrain the reranker, does not run a GCN
+usefulness audit, and does not run preview training.
+
+Plain wording: the previous round built the 79-row candidate table. This round
+checks whether that table is internally consistent before any model experiment.
+It checks row counts, bus-fault coverage, duplicate IDs, schema completeness for
+bus-fault rows, leakage risk, and training boundaries.
+
+```text
+review_scope = no_training_composition_review
+total candidate rows = 79
+total bus-fault candidates = 39
+all B1-B39 have bus-fault candidate = true
+missing bus-fault buses = []
+duplicate scenario ids = []
+duplicate label ids = []
+unstable_flag false buses = B1
+old formal gate = 35 / 33 / 33
+L12 excluded = true
+NF06 provenance warning preserved = true
+target-feature leakage risk if compact dynamic measurements are used as inputs = true
+gcn_trained = false
+reranker_retrained = false
+gcn_usefulness_audit_run = false
+preview_training_run = false
+```
+
+New artifacts:
+
+- `docs/ieee39_v2_plus_all_bus_fault_no_training_composition_review.md`
+- `scripts/gcn_search/review_ieee39_v2_plus_all_bus_fault_composition.py`
+- `tests/test_ieee39_v2_plus_all_bus_fault_composition_review.py`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/no_training_composition_review/v2_plus_all_bus_fault_composition_review.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/no_training_composition_review/v2_plus_all_bus_fault_composition_review.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/no_training_composition_review/v2_plus_all_bus_fault_composition_review.csv`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/no_training_composition_review/all_bus_fault_coverage_check.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/no_training_composition_review/schema_and_duplicate_check.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/no_training_composition_review/leakage_risk_and_training_boundary_check.json`
+
+All bus-fault labels remain `candidate_not_formal_label=true`, not formal
+labels. B39/B26 remain existing candidate labels, not formal labels. B1
+`unstable_flag=false` is a compact low-risk/stable marker, not a quality
+failure. The model remains `phasor_RMS`, not EMT. `generator_speed_proxy` is
+not direct frequency. Temporary bus-fault injection is not engineering-grade
+protection.
+
+Next step: run v2-plus-all-bus-fault preview/no-leakage comparison in a
+separate round. Do not train GCN and do not retrain the reranker yet.
+
 ## Round 66: All-Remaining Bus-Fault Batch Readiness Dry-Run
 
 This round checks the 37 manually connected IEEE39 bus-fault temporary local

@@ -202,6 +202,7 @@ def _write_summary_csv(path: Path, candidates: list[dict[str, Any]]) -> None:
 
 
 def _align_and_combine(existing: pd.DataFrame, candidates: list[dict[str, Any]]) -> pd.DataFrame:
+    existing = _normalize_existing_bus_fault_rows(existing.copy())
     new_df = pd.DataFrame(candidates)
     for col in existing.columns:
         if col not in new_df.columns:
@@ -210,6 +211,57 @@ def _align_and_combine(existing: pd.DataFrame, candidates: list[dict[str, Any]])
         if col not in existing.columns:
             existing[col] = ""
     return pd.concat([existing, new_df[existing.columns]], ignore_index=True)
+
+
+def _normalize_existing_bus_fault_rows(existing: pd.DataFrame) -> pd.DataFrame:
+    if "bus_fault_label" not in existing.columns:
+        return existing
+    mask = existing["bus_fault_label"].map(_as_bool)
+    for idx, row in existing.loc[mask].iterrows():
+        bus = str(row.get("target_bus") or row.get("target_bus_or_component") or "").strip()
+        scenario = str(row.get("scenario_id") or "")
+        if not bus and scenario.startswith("BF_B") and "_TEMP" in scenario:
+            bus = scenario.removeprefix("BF_").split("_TEMP", 1)[0]
+        if bus:
+            existing.at[idx, "target_bus"] = bus
+            existing.at[idx, "target_bus_or_component"] = bus
+            if not str(row.get("selected_fault_block_path") or "").strip() or str(row.get("selected_fault_block_path")).lower() == "nan":
+                existing.at[idx, "selected_fault_block_path"] = f"Grid/Fault_{bus}_TEMP"
+            if not str(row.get("selected_injection_block_path") or "").strip() or str(row.get("selected_injection_block_path")).lower() == "nan":
+                existing.at[idx, "selected_injection_block_path"] = f"Grid/Fault_{bus}_TEMP"
+        existing.at[idx, "line_id"] = "NO_LINE"
+        for col in [
+            "quality_review_passed_for_candidate_export",
+            "training_ready_label_candidate",
+            "phasor_rms_not_emt",
+            "generator_speed_proxy_not_direct_frequency",
+            "temporary_bus_fault_not_engineering_grade_protection",
+        ]:
+            if col in existing.columns:
+                existing.at[idx, col] = True
+        for col in ["source_slx_modified", "temporary_slx_committed", "gcn_trained", "reranker_retrained", "gcn_usefulness_audit_run"]:
+            if col in existing.columns:
+                existing.at[idx, col] = False
+        if "labels_exported_this_round" in existing.columns:
+            existing.at[idx, "labels_exported_this_round"] = "candidate_only"
+        if "old_formal_gate" in existing.columns:
+            existing.at[idx, "old_formal_gate"] = OLD_FORMAL_GATE
+        if "b39_b26_status" in existing.columns:
+            existing.at[idx, "b39_b26_status"] = "existing_candidate_labels_not_formal"
+        for col in ["l12_excluded", "nf06_provenance_warning_preserved"]:
+            if col in existing.columns:
+                existing.at[idx, col] = True
+        if "dynamic_stress_score" in existing.columns and not _is_finite_value(row.get("dynamic_stress_score")):
+            existing.at[idx, "dynamic_stress_score"] = _dynamic_stress_score(row.to_dict())
+    return existing
+
+
+def _is_finite_value(value: Any) -> bool:
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError):
+        return False
+    return math.isfinite(parsed)
 
 
 def _write_doc(summary: dict[str, Any]) -> None:

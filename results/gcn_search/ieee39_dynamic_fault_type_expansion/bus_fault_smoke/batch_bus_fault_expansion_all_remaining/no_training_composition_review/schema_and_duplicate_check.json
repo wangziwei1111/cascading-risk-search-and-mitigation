@@ -1,0 +1,30 @@
+{
+  "required_columns_present": true,
+  "required_columns": [
+    "scenario_id",
+    "label_id_v2",
+    "label_family",
+    "fault_type",
+    "target_bus",
+    "target_bus_or_component",
+    "line_id",
+    "dynamic_stress_score",
+    "unstable_flag",
+    "bus_fault_label",
+    "temporary_smoke_candidate",
+    "candidate_not_formal_label",
+    "formal_line_trip_label",
+    "quality_review_passed_for_candidate_export",
+    "signal_source_summary",
+    "phasor_rms_not_emt",
+    "generator_speed_proxy_not_direct_frequency",
+    "temporary_bus_fault_not_engineering_grade_protection",
+    "training_ready_label_candidate",
+    "training_ready_label_v2"
+  ],
+  "missing_required_columns": [],
+  "scenario_id_duplicates": [],
+  "label_id_v2_duplicates": [],
+  "dynamic_stress_score_nonfinite_rows": [],
+  "dynamic_stress_score_out_of_range_rows": []
+}

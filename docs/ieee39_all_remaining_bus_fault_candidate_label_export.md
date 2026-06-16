@@ -41,3 +41,16 @@ otherwise target-feature leakage risk remains.
 
 Run v2-plus-all-bus-fault no-training composition review before any training.
 Do not train GCN and do not retrain the reranker in the next check step.
+
+## No-Training Composition Review Follow-Up
+
+A later no-training composition review checked the 79-row candidate table. It
+did not run Simulink, did not run actual smoke, did not export labels, did not
+train GCN, did not retrain the reranker, and did not run a GCN usefulness
+audit.
+
+The review confirmed 79 candidate rows, 39 bus-fault candidates, B1-B39
+bus-fault coverage, no duplicate scenario IDs, no duplicate label IDs, and the
+expected target-feature leakage risk if post-fault compact measurements are
+used as GCN inputs. The next step is preview/no-leakage comparison in a
+separate round, not training.

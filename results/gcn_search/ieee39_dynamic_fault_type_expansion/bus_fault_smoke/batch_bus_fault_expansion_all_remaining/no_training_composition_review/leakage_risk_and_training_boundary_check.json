@@ -1,0 +1,24 @@
+{
+  "compact_dynamic_measurement_columns_present": [
+    "min_voltage_pu",
+    "max_voltage_pu",
+    "min_frequency_hz",
+    "max_frequency_hz",
+    "max_speed_deviation",
+    "max_rotor_angle_separation_deg"
+  ],
+  "compact_dynamic_measurement_features_are_post_fault": true,
+  "target_feature_leakage_risk_if_used_as_inputs": true,
+  "no_dynamic_measurement_feature_set_required_for_future_audit": true,
+  "label_family_holdout_required_for_future_audit": true,
+  "bus_fault_holdout_required_for_future_audit": true,
+  "leave_one_bus_fault_out_required_for_future_audit": true,
+  "simulink_run": false,
+  "actual_smoke_run": false,
+  "labels_exported": false,
+  "gcn_trained": false,
+  "reranker_retrained": false,
+  "gcn_usefulness_audit_run": false,
+  "preview_training_run": false,
+  "should_train_now": false
+}

@@ -55,3 +55,10 @@ The combined candidate count is now 79, and the bus-fault candidate count is
 39 so B1-B39 all have bus-fault candidates. These bus-fault labels are still
 candidate_not_formal_label entries, not formal labels. The next step must be a
 v2-plus-all-bus-fault no-training composition review, not training.
+
+## No-Training Composition Review Follow-Up
+
+The later composition review passed. It checked the 79-row candidate table
+without running Simulink, without exporting labels, and without training GCN.
+It confirmed B1-B39 bus-fault coverage and explicitly marked target-feature
+leakage risk for future model audits.

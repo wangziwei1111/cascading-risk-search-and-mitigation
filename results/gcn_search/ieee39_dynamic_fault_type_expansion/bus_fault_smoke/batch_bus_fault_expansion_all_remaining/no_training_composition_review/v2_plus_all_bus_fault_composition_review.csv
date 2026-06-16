@@ -1,0 +1,72 @@
+check,value
+review_scope,no_training_composition_review
+candidate_dataset,v2_plus_all_bus_fault_candidates
+total_candidate_rows,79
+expected_candidate_rows,79
+row_count_check_passed,True
+previous_candidate_count,42
+num_new_all_remaining_bus_fault_candidates,37
+num_total_bus_fault_candidates,39
+expected_total_bus_fault_candidates,39
+all_ieee39_buses_have_bus_fault_candidate,True
+covered_bus_fault_buses,"[""B1"", ""B2"", ""B3"", ""B4"", ""B5"", ""B6"", ""B7"", ""B8"", ""B9"", ""B10"", ""B11"", ""B12"", ""B13"", ""B14"", ""B15"", ""B16"", ""B17"", ""B18"", ""B19"", ""B20"", ""B21"", ""B22"", ""B23"", ""B24"", ""B25"", ""B26"", ""B27"", ""B28"", ""B29"", ""B30"", ""B31"", ""B32"", ""B33"", ""B34"", ""B35"", ""B36"", ""B37"", ""B38"", ""B39""]"
+missing_bus_fault_buses,[]
+existing_candidate_buses,"[""B39"", ""B26""]"
+newly_exported_candidate_buses,"[""B1"", ""B2"", ""B3"", ""B4"", ""B5"", ""B6"", ""B7"", ""B8"", ""B9"", ""B10"", ""B11"", ""B12"", ""B13"", ""B14"", ""B15"", ""B17"", ""B18"", ""B19"", ""B20"", ""B21"", ""B22"", ""B23"", ""B24"", ""B25"", ""B27"", ""B28"", ""B29"", ""B30"", ""B31"", ""B32"", ""B33"", ""B34"", ""B35"", ""B36"", ""B37"", ""B38"", ""B16""]"
+old_formal_gate,35 / 33 / 33
+formal_label_gate_changed,False
+l12_excluded,True
+nf06_provenance_warning_preserved,True
+bus_fault_rows_count,39
+every_bus_fault_row_has_line_id_NO_LINE,True
+every_bus_fault_row_has_target_bus_filled,True
+every_bus_fault_row_has_target_bus_or_component_filled,True
+every_bus_fault_row_candidate_not_formal_label_true,True
+every_bus_fault_row_formal_line_trip_label_false,True
+every_bus_fault_row_bus_fault_label_true,True
+every_bus_fault_row_temporary_smoke_candidate_true,True
+every_bus_fault_row_quality_review_passed_true,True
+every_bus_fault_row_signal_source_contains_frequency_proxy,True
+every_bus_fault_row_phasor_rms_not_emt_true,True
+every_bus_fault_row_generator_speed_proxy_not_direct_frequency_true,True
+every_bus_fault_row_temporary_bus_fault_not_engineering_grade_protection_true,True
+required_columns_present,True
+b1_unstable_false_preserved,True
+missing_required_columns,[]
+scenario_id_duplicates,[]
+label_id_v2_duplicates,[]
+target_bus_missing_rows,"[""single_line_trip"", ""clean_lab_handwired_line_trip_L02"", ""clean_lab_handwired_line_trip_L03"", ""clean_lab_handwired_line_trip_L04"", ""clean_lab_handwired_line_trip_L05"", ""clean_lab_handwired_line_trip_L07"", ""clean_lab_handwired_line_trip_L06"", ""clean_lab_handwired_line_trip_L08"", ""clean_lab_handwired_line_trip_L09"", ""clean_lab_handwired_line_trip_L10"", ""clean_lab_handwired_line_trip_L17"", ""clean_lab_handwired_line_trip_L15"", ""clean_lab_handwired_line_trip_L14"", ""clean_lab_handwired_line_trip_L13"", ""clean_lab_handwired_line_trip_L11"", ""clean_lab_handwired_line_trip_L18"", ""clean_lab_handwired_line_trip_L16"", ""clean_lab_handwired_line_trip_L24"", ""clean_lab_handwired_line_trip_L23"", ""clean_lab_handwired_line_trip_L22"", ""clean_lab_handwired_line_trip_L21"", ""clean_lab_handwired_line_trip_L20"", ""clean_lab_handwired_line_trip_L19"", ""clean_lab_handwired_line_trip_L27"", ""clean_lab_handwired_line_trip_L28"", ""clean_lab_handwired_line_trip_L29"", ""clean_lab_handwired_line_trip_L30"", ""clean_lab_handwired_line_trip_L31"", ""clean_lab_handwired_line_trip_L32"", ""clean_lab_handwired_line_trip_L25"", ""clean_lab_handwired_line_trip_L26"", ""clean_lab_handwired_line_trip_L33"", ""clean_lab_handwired_line_trip_L34"", ""relay_trip_test"", ""three_phase_fault_clear"", ""NF01"", ""NF02"", ""NF03"", ""NF04"", ""NF06""]"
+target_bus_or_component_missing_rows,"[""three_phase_fault_clear""]"
+line_id_missing_rows,"[""single_line_trip"", ""clean_lab_handwired_line_trip_L02"", ""clean_lab_handwired_line_trip_L03"", ""clean_lab_handwired_line_trip_L04"", ""clean_lab_handwired_line_trip_L05"", ""clean_lab_handwired_line_trip_L07"", ""clean_lab_handwired_line_trip_L06"", ""clean_lab_handwired_line_trip_L08"", ""clean_lab_handwired_line_trip_L09"", ""clean_lab_handwired_line_trip_L10"", ""clean_lab_handwired_line_trip_L17"", ""clean_lab_handwired_line_trip_L15"", ""clean_lab_handwired_line_trip_L14"", ""clean_lab_handwired_line_trip_L13"", ""clean_lab_handwired_line_trip_L11"", ""clean_lab_handwired_line_trip_L18"", ""clean_lab_handwired_line_trip_L16"", ""clean_lab_handwired_line_trip_L24"", ""clean_lab_handwired_line_trip_L23"", ""clean_lab_handwired_line_trip_L22"", ""clean_lab_handwired_line_trip_L21"", ""clean_lab_handwired_line_trip_L20"", ""clean_lab_handwired_line_trip_L19"", ""clean_lab_handwired_line_trip_L27"", ""clean_lab_handwired_line_trip_L28"", ""clean_lab_handwired_line_trip_L29"", ""clean_lab_handwired_line_trip_L30"", ""clean_lab_handwired_line_trip_L31"", ""clean_lab_handwired_line_trip_L32"", ""clean_lab_handwired_line_trip_L25"", ""clean_lab_handwired_line_trip_L26"", ""clean_lab_handwired_line_trip_L33"", ""clean_lab_handwired_line_trip_L34"", ""relay_trip_test"", ""three_phase_fault_clear"", ""NF01"", ""NF02"", ""NF03"", ""NF04"", ""NF06""]"
+dynamic_stress_score_missing_rows,[]
+dynamic_stress_score_nonfinite_rows,[]
+dynamic_stress_score_out_of_range_rows,[]
+unstable_flag_value_counts,"{""true"": 45, ""false"": 34}"
+unstable_flag_false_buses,"[""B1""]"
+num_formal_or_existing_line_trip_rows,33
+num_non_line_trip_rows,44
+num_bus_fault_rows,39
+num_temporary_smoke_candidates,39
+num_candidate_not_formal_label_rows,39
+num_training_ready_label_candidate_rows,39
+num_training_ready_label_v2_rows,79
+compact_dynamic_measurement_columns_present,"[""min_voltage_pu"", ""max_voltage_pu"", ""min_frequency_hz"", ""max_frequency_hz"", ""max_speed_deviation"", ""max_rotor_angle_separation_deg""]"
+compact_dynamic_measurement_features_are_post_fault,True
+target_feature_leakage_risk_if_used_as_inputs,True
+no_dynamic_measurement_feature_set_required_for_future_audit,True
+label_family_holdout_required_for_future_audit,True
+bus_fault_holdout_required_for_future_audit,True
+leave_one_bus_fault_out_required_for_future_audit,True
+simulink_run,False
+actual_smoke_run,False
+labels_exported,False
+gcn_trained,False
+reranker_retrained,False
+gcn_usefulness_audit_run,False
+preview_training_run,False
+should_train_now,False
+failed_checks,[]
+composition_review_passed,True
+recommended_next_step,"run v2-plus-all-bus-fault preview/no-leakage comparison in a separate round, not GCN training"
+source_export_summary_count,79
+source_coverage_all_buses,True

@@ -107,3 +107,13 @@ not retrain the reranker, and did not run a GCN usefulness audit.
 These bus-fault labels are still candidate_not_formal_label entries, not formal
 labels. The next required step is v2-plus-all-bus-fault no-training composition
 review before any training.
+
+## V2 Plus All Bus-Fault Composition Follow-Up
+
+The v2-plus-all-bus-fault no-training composition review later passed. It
+confirmed 79 candidate rows, 39 bus-fault candidates, all B1-B39 bus-fault
+coverage, no duplicate scenario IDs, and no duplicate label IDs. This review
+did not train GCN and did not run a GCN usefulness audit.
+
+The next step is preview/no-leakage comparison in a separate round, not direct
+training.
