@@ -93,3 +93,15 @@ The dry-run validator passes only in the narrow sense that:
 Even after dry-run pass, the next step is still not blind training. The next
 step can only be preparing formal GCN usefulness audit execution under the same
 no-leakage boundary.
+
+## Execution Follow-Up
+
+A later execution round did start the formal strict no-leakage usefulness audit
+framework in audit-only mode. It still did not run Simulink, did not export
+labels, did not retrain the reranker, and did not modify RL mitigation.
+
+However, that execution round did not produce a valid GCN-vs-baseline result
+yet because the local GCN dependency environment was blocked: `torch` import
+failed on the current Windows DLL path setup. So the current evidence is still
+baseline-only audit evidence plus a dependency blocker report, not a final GCN
+usefulness conclusion.

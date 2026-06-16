@@ -1,0 +1,97 @@
+{
+  "RandomForest or GradientBoosting": {
+    "status": "dependency_unavailable",
+    "reason": "sklearn not installed in this workspace",
+    "audit_only": true
+  },
+  "Ridge Regression / Logistic Regression": {
+    "regression": {
+      "mae": 0.10404437001814465,
+      "max_absolute_error": 0.3311148373611962,
+      "median_absolute_error": 0.07799678324767054,
+      "pearson": 0.7960974240578993,
+      "rmse": 0.13993633172810052,
+      "spearman": 0.7147058823529412
+    },
+    "classification": {
+      "accuracy": 0.9375,
+      "f1": 0.9411764705882353,
+      "precision": 0.8888888888888888,
+      "recall": 1.0,
+      "roc_auc": 0.90625
+    },
+    "audit_only": true
+  },
+  "global mean sanity baseline": {
+    "regression": {
+      "mae": 0.21343186013834897,
+      "max_absolute_error": 0.2822490659661693,
+      "median_absolute_error": 0.24742306834045225,
+      "pearson": null,
+      "rmse": 0.22942879150261983,
+      "spearman": null
+    },
+    "classification": {
+      "accuracy": 0.5,
+      "f1": 0.6666666666666666,
+      "precision": 0.5,
+      "recall": 1.0,
+      "roc_auc": 0.953125
+    },
+    "audit_only": true
+  },
+  "simple ranking baseline": {
+    "regression": {
+      "mae": 0.11216982939545586,
+      "max_absolute_error": 0.33238962126740057,
+      "median_absolute_error": 0.07375750774730608,
+      "pearson": 0.7382771396583073,
+      "rmse": 0.15417183090322076,
+      "spearman": 0.7496097424035806
+    },
+    "classification": {
+      "accuracy": 0.9375,
+      "f1": 0.9411764705882353,
+      "precision": 0.8888888888888888,
+      "recall": 1.0,
+      "roc_auc": 0.953125
+    },
+    "audit_only": true
+  },
+  "target-bus-only baseline": {
+    "regression": {
+      "mae": 0.16504398296507622,
+      "max_absolute_error": 0.41531166278791903,
+      "median_absolute_error": 0.11973868860400629,
+      "pearson": 0.5273396941647114,
+      "rmse": 0.1948107151607001,
+      "spearman": 0.6352396490811211
+    },
+    "classification": {
+      "accuracy": 0.8125,
+      "f1": 0.7999999999999999,
+      "precision": 0.8571428571428571,
+      "recall": 0.75,
+      "roc_auc": 0.875
+    },
+    "audit_only": true
+  },
+  "topology-only baseline": {
+    "regression": {
+      "mae": 0.1384064575969112,
+      "max_absolute_error": 0.43836175440313685,
+      "median_absolute_error": 0.09668859698881437,
+      "pearson": 0.6543813249648909,
+      "rmse": 0.1741881063187623,
+      "spearman": 0.4285718933588614
+    },
+    "classification": {
+      "accuracy": 0.875,
+      "f1": 0.875,
+      "precision": 0.875,
+      "recall": 0.875,
+      "roc_auc": 0.90625
+    },
+    "audit_only": true
+  }
+}

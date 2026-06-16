@@ -3829,3 +3829,61 @@ Warning checks kept explicit:
 Recommended next step:
 
 - `prepare formal GCN usefulness audit execution in a separate round, still with no-leakage features and strict holdouts`
+
+## Round 74: IEEE39 Strict No-Leakage GCN Usefulness Audit Execution
+
+This round runs the strict no-leakage GCN usefulness audit execution.
+
+It is audit-only, not production training.
+It did not run Simulink.
+It did not export labels.
+It did not retrain the reranker.
+It did not modify RL mitigation.
+
+Audit command:
+
+- `python scripts/gcn_search/run_ieee39_strict_no_leakage_gcn_usefulness_audit.py`
+
+Execution summary:
+
+- `audit_scope = formal_gcn_usefulness_audit_execution`
+- `audit_only = true`
+- `production_model_saved = false`
+- `gcn_trained_for_audit = false`
+- `gcn_dependency_status = blocked_by_missing_gcn_dependency`
+- `total_candidate_rows = 79`
+- `num_total_bus_fault_candidates = 39`
+- `forbidden_features_detected_in_inputs = []`
+- `no_leakage_feature_policy_passed = true`
+- `strict_holdouts_executed = ["random_candidate_split_baseline", "label_family_holdout", "bus_fault_holdout", "leave_one_bus_fault_out", "no_dynamic_measurement_leave_one_bus_fault_out", "existing_vs_new_bus_fault_holdout"]`
+- `baseline_comparison_executed = true`
+- `final_engineering_conclusion = false`
+- `should_retrain_reranker_now = false`
+- `should_deploy_model = false`
+
+Dependency blocker:
+
+- `torch_spec_present = true`
+- `torch_geometric_spec_present = false`
+- `torch_import_ok = false`
+- `torch_import_error = [WinError 87] 参数错误。: 'E:bin'`
+
+Core baseline-only audit evidence:
+
+- `bus_fault_holdout` best baseline: `Ridge Regression / Logistic Regression`, `RMSE = 0.12218041951744671`
+- `leave_one_bus_fault_out` best baseline: `Ridge Regression / Logistic Regression`, `RMSE = 0.09590813978527941`
+- `no_dynamic_measurement_leave_one_bus_fault_out` best baseline: `Ridge Regression / Logistic Regression`, `RMSE = 0.09590813978527941`
+- `B1 true_dynamic_stress_score = 0.19602585950733364`
+- `B1 ridge_logistic_predicted_dynamic_stress_score = 0.5201847730493291`
+- `B1 ridge_logistic_absolute_error = 0.32415891354199544`
+- `NF06 include baseline bus_fault_holdout RMSE = 0.12218041951744671`
+- `NF06 exclude baseline bus_fault_holdout RMSE = 0.12743229641231885`
+- `L12 excluded = true`
+
+Audit-level conclusion:
+
+- `formal GCN audit blocked by missing dependency; baseline-only audit completed`
+
+Recommended next step:
+
+- `repair the local GCN dependency environment and rerun the strict no-leakage audit; still do not deploy and do not retrain the reranker`

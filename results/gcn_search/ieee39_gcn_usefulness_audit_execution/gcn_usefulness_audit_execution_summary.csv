@@ -1,0 +1,36 @@
+﻿field,value
+audit_scope,formal_gcn_usefulness_audit_execution
+audit_only,True
+production_model_saved,False
+gcn_trained_for_audit,False
+gcn_dependency_available,False
+gcn_dependency_status,blocked_by_missing_gcn_dependency
+simulink_run,False
+actual_smoke_run,False
+labels_exported,False
+reranker_retrained,False
+rl_mitigation_touched,False
+total_candidate_rows,79
+num_total_bus_fault_candidates,39
+all_ieee39_buses_have_bus_fault_candidate,True
+old_formal_gate,35 / 33 / 33
+l12_excluded,True
+nf06_provenance_warning_preserved,True
+b1_special_tracking_enabled,True
+forbidden_features_detected_in_inputs,[]
+no_leakage_feature_policy_passed,True
+target_bus_memorization_risk_flagged,True
+strict_holdouts_executed,"[""random_candidate_split_baseline"", ""label_family_holdout"", ""bus_fault_holdout"", ""leave_one_bus_fault_out"", ""no_dynamic_measurement_leave_one_bus_fault_out"", ""existing_vs_new_bus_fault_holdout""]"
+baseline_comparison_executed,True
+gcn_vs_baseline_summary,"{""bus_fault_holdout"": {""gcn_rmse"": null, ""best_baseline_name"": ""Ridge Regression / Logistic Regression"", ""best_baseline_rmse"": 0.12218041951744671}, ""leave_one_bus_fault_out"": {""gcn_rmse"": null, ""best_baseline_name"": ""Ridge Regression / Logistic Regression"", ""best_baseline_rmse"": 0.09590813978527941}, ""no_dynamic_measurement_leave_one_bus_fault_out"": {""gcn_rmse"": null, ""best_baseline_name"": ""Ridge Regression / Logistic Regression"", ""best_baseline_rmse"": 0.09590813978527941}}"
+bus_fault_holdout_result,"{""gcn_rmse"": null, ""best_baseline_name"": ""Ridge Regression / Logistic Regression"", ""best_baseline_rmse"": 0.12218041951744671}"
+leave_one_bus_fault_out_result,"{""gcn_rmse"": null, ""best_baseline_name"": ""Ridge Regression / Logistic Regression"", ""best_baseline_rmse"": 0.09590813978527941}"
+no_dynamic_measurement_leave_one_bus_fault_out_result,"{""gcn_rmse"": null, ""best_baseline_name"": ""Ridge Regression / Logistic Regression"", ""best_baseline_rmse"": 0.09590813978527941}"
+b1_result,"{""target_bus"": ""B1"", ""scenario_id"": ""BF_B1_TEMP_SMOKE"", ""true_dynamic_stress_score"": 0.19602585950733364, ""gcn_predicted_dynamic_stress_score"": null, ""gcn_absolute_error"": null, ""gcn_unstable_probability"": null, ""ridge_logistic_predicted_dynamic_stress_score"": 0.5201847730493291, ""ridge_logistic_absolute_error"": 0.32415891354199544, ""target_bus_only_predicted_dynamic_stress_score"": 0.5057645215705512, ""target_bus_only_absolute_error"": 0.30973866206321754}"
+nf06_sensitivity_result,"{""include_NF06"": {""gcn_bus_fault_holdout_rmse"": null, ""best_baseline_name"": ""Ridge Regression / Logistic Regression"", ""best_baseline_bus_fault_holdout_rmse"": 0.12218041951744671, ""row_count"": 79}, ""exclude_NF06"": {""gcn_bus_fault_holdout_rmse"": null, ""best_baseline_name"": ""Ridge Regression / Logistic Regression"", ""best_baseline_bus_fault_holdout_rmse"": 0.12743229641231885, ""row_count"": 78}, ""difference_summary"": {""gcn_rmse_delta_exclude_minus_include"": null}}"
+l12_exclusion_result,"{""l12_excluded"": true, ""present_l12_entries"": []}"
+audit_level_conclusion,formal GCN audit blocked by missing dependency; baseline-only audit completed
+final_engineering_conclusion,False
+should_retrain_reranker_now,False
+should_deploy_model,False
+recommended_next_step,repair the local GCN dependency environment and rerun the strict no-leakage audit; still do not deploy and do not retrain the reranker

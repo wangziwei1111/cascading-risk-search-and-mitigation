@@ -1,0 +1,7 @@
+{
+  "audit_only": true,
+  "dependency_status": "blocked_by_missing_gcn_dependency",
+  "regression": {},
+  "classification": {},
+  "classification_unavailable_reason": "GCN dependency unavailable."
+}

@@ -1,0 +1,8 @@
+{
+  "audit_only": true,
+  "status": "blocked_by_missing_gcn_dependency",
+  "torch_spec_present": true,
+  "torch_geometric_spec_present": false,
+  "torch_import_ok": false,
+  "torch_import_error": "[WinError 87] 参数错误。: 'E:bin'"
+}

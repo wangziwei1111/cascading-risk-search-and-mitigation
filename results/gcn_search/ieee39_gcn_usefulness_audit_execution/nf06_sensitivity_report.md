@@ -1,0 +1,21 @@
+# NF06 Sensitivity Report
+
+```json
+{
+  "include_NF06": {
+    "gcn_bus_fault_holdout_rmse": null,
+    "best_baseline_name": "Ridge Regression / Logistic Regression",
+    "best_baseline_bus_fault_holdout_rmse": 0.12218041951744671,
+    "row_count": 79
+  },
+  "exclude_NF06": {
+    "gcn_bus_fault_holdout_rmse": null,
+    "best_baseline_name": "Ridge Regression / Logistic Regression",
+    "best_baseline_bus_fault_holdout_rmse": 0.12743229641231885,
+    "row_count": 78
+  },
+  "difference_summary": {
+    "gcn_rmse_delta_exclude_minus_include": null
+  }
+}
+```
