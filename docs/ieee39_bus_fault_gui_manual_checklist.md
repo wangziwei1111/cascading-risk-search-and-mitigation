@@ -186,3 +186,18 @@ B26 is still not a formal label, and B26 candidate label export remains a
 separate next-round task. The model remains `phasor_RMS`, not EMT.
 `generator_speed_proxy` is not direct frequency. Temporary bus-fault injection
 is not engineering-grade protection.
+
+## All-Remaining Manual Wiring Batch Follow-Up
+
+After the v2-plus-B39+B26 preview/no-leakage comparison, the next preparation
+step is to collect more bus-fault samples. A batch manual wiring package has
+been prepared for all remaining targets.
+
+- Do not rewire B39 or B26 in this batch.
+- Normal targets are `B1-B15`, `B17-B25`, and `B27-B38`.
+- `B16` is special handling because the old `Grid/Fault (Three-Phase)` is near
+  B16.
+- Use one independent ignored temporary local copy per target bus.
+- Do not put multiple target faults into one `.slx`.
+- This package does not run Simulink, does not export labels, does not train
+  GCN, and does not run a GCN usefulness audit.

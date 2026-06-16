@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -394,8 +396,11 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/ieee39_v2_plus_b39_b26_training_readiness.json",
     "docs/ieee39_v2_plus_b39_b26_no_training_composition_review.md",
     "docs/ieee39_v2_plus_b39_b26_preview_no_leakage_comparison.md",
+    "docs/ieee39_all_remaining_bus_fault_manual_wiring_plan.md",
     "scripts/gcn_search/train_ieee39_dynamic_aware_reranker_v2_plus_b39_b26_preview.py",
+    "scripts/gcn_search/prepare_ieee39_all_remaining_bus_fault_manual_wiring_plan.py",
     "tests/test_ieee39_v2_plus_b39_b26_preview_no_leakage.py",
+    "tests/test_ieee39_all_remaining_bus_fault_manual_wiring_plan.py",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_composition_review.json",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_composition_review.md",
     "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/b26_candidate_label_export/no_training_composition_review/ieee39_v2_plus_b39_b26_label_family_counts.csv",
@@ -410,6 +415,11 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_b26_preview/bus_fault_holdout/preview_training_metrics.json",
     "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_b26_preview/b39_holdout/preview_training_metrics.json",
     "results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_b26_preview/b26_holdout/preview_training_metrics.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/ieee39_bus_fault_all_remaining_targets.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/ieee39_bus_fault_all_remaining_targets.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/all_remaining_manual_gui_wiring_commands.md",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_manual_connection_evidence_schema.json",
+    "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_gate_sequence.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -566,6 +576,18 @@ def _git_changed_files_against_main() -> list[str]:
 
 def _read_text(rel_path: str) -> str:
     return (ROOT / rel_path).read_text(encoding="utf-8", errors="ignore")
+
+
+def _fs_path(path: Path) -> str:
+    resolved = str(path.resolve())
+    if os.name == "nt" and not resolved.startswith("\\\\?\\"):
+        return "\\\\?\\" + resolved
+    return resolved
+
+
+def _read_json_path(path: Path) -> object:
+    with open(_fs_path(path), encoding="utf-8") as handle:
+        return json.load(handle)
 
 
 def _truthy(value: object) -> bool:
@@ -2232,6 +2254,120 @@ def main() -> int:
                     failures.append(f"v2-plus-B39+B26 preview docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read v2-plus-B39+B26 preview artifacts: {exc}")
+
+    all_remaining_dir = ROOT / "results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining"
+    all_remaining_json = all_remaining_dir / "ieee39_bus_fault_all_remaining_targets.json"
+    all_remaining_md = all_remaining_dir / "ieee39_bus_fault_all_remaining_targets.md"
+    all_remaining_commands = all_remaining_dir / "all_remaining_manual_gui_wiring_commands.md"
+    all_remaining_schema = all_remaining_dir / "batch_manual_connection_evidence_schema.json"
+    all_remaining_gate = all_remaining_dir / "batch_gate_sequence.md"
+    all_remaining_doc = ROOT / "docs/ieee39_all_remaining_bus_fault_manual_wiring_plan.md"
+    if all_remaining_json.exists():
+        try:
+            normal_targets = [*(f"B{i}" for i in range(1, 16)), *(f"B{i}" for i in range(17, 26)), *(f"B{i}" for i in range(27, 39))]
+            all_targets = normal_targets + ["B16"]
+            payload = _read_json_path(all_remaining_json)
+            expected = {
+                "batch_id": "bus_fault_all_remaining_manual_wiring",
+                "existing_bus_fault_candidates": ["B39", "B26"],
+                "current_candidate_count": 42,
+                "old_formal_gate": "35 / 33 / 33",
+                "normal_target_buses": normal_targets,
+                "special_target_buses": ["B16"],
+                "all_new_target_buses": all_targets,
+                "num_normal_targets": 36,
+                "num_special_targets": 1,
+                "num_all_new_targets": 37,
+                "excluded_from_wiring": ["B39", "B26"],
+                "should_run_smoke_now": False,
+                "should_export_labels_now": False,
+                "should_train_now": False,
+                "gcn_usefulness_audit_now": False,
+            }
+            for key, value in expected.items():
+                if payload.get(key) != value:
+                    failures.append(f"All-remaining bus-fault plan must record {key}={value!r}.")
+            template_dir = all_remaining_dir / "manual_review_templates"
+            for bus in all_targets:
+                template_path = template_dir / f"manual_bus_fault_injection_review_template_{bus}.json"
+                if not os.path.exists(_fs_path(template_path)):
+                    failures.append(f"Missing all-remaining bus-fault template for {bus}.")
+                    continue
+                template = _read_json_path(template_path)
+                if template.get("target_bus") != bus:
+                    failures.append(f"{bus} template target_bus mismatch.")
+                if template.get("suggested_fault_block_name") != f"Grid/Fault_{bus}_TEMP":
+                    failures.append(f"{bus} template has wrong suggested fault block name.")
+                for key in [
+                    "human_verified_injection_point",
+                    "safe_to_run_smoke_recommendation",
+                    "simulink_smoke_run",
+                    "smoke_success",
+                    "candidate_label_exported",
+                    "labels_exported",
+                    "gcn_trained",
+                    "reranker_retrained",
+                    "temporary_model_committed",
+                    "source_slx_modified",
+                    "temporary_slx_committed",
+                ]:
+                    if template.get(key) is not False:
+                        failures.append(f"{bus} template must initialize {key}=false.")
+                if bus == "B16":
+                    if template.get("special_handling") is not True or not template.get("special_handling_reason"):
+                        failures.append("B16 template must be special handling with a nonempty reason.")
+                elif template.get("special_handling") is not False:
+                    failures.append(f"{bus} template must not be special handling.")
+            schema = _read_json_path(all_remaining_schema)
+            for required in [
+                "batch_id",
+                "target_bus",
+                "special_handling",
+                "temp_model_path",
+                "human_verified_injection_point",
+                "safe_to_run_smoke_recommendation",
+                "simulink_smoke_run",
+                "smoke_success",
+                "candidate_label_exported",
+                "labels_exported",
+                "gcn_trained",
+                "reranker_retrained",
+                "failed_checks",
+                "next_action",
+            ]:
+                if required not in schema.get("required", []):
+                    failures.append(f"All-remaining evidence schema missing required field: {required}")
+            doc_text = "\n".join(
+                path.read_text(encoding="utf-8", errors="ignore")
+                for path in [all_remaining_md, all_remaining_commands, all_remaining_gate, all_remaining_doc]
+            ).lower()
+            normalized = " ".join(doc_text.replace("`", "").split())
+            for required in [
+                "does not run simulink",
+                "does not export labels",
+                "does not train gcn",
+                "does not run a gcn usefulness audit",
+                "candidate labels, not formal labels",
+                "phasor_rms, not emt",
+                "generator_speed_proxy is not direct frequency",
+                "not engineering-grade protection",
+            ]:
+                if required not in normalized:
+                    failures.append(f"All-remaining bus-fault docs missing: {required}")
+            for bad in [
+                "this round ran simulink",
+                "labels were exported",
+                "gcn was trained",
+                "gcn usefulness audit was run",
+                "human verified=true",
+                "smoke success=true",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+            ]:
+                if bad in normalized:
+                    failures.append(f"All-remaining bus-fault docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read all-remaining bus-fault wiring artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

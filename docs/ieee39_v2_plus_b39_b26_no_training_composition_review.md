@@ -101,3 +101,15 @@ Key results:
 The comparison confirms that include-all is only a leaky upper-bound. The
 recommended next step is to collect more bus-fault candidates before GCN
 usefulness audit.
+
+## All-Remaining Bus-Fault Manual Wiring Follow-Up
+
+The follow-up action is an all-remaining bus-fault manual wiring plan, not a
+training run and not a GCN usefulness audit. B39 and B26 are excluded because
+they already have quality-reviewed candidate labels. The new normal targets
+are `B1-B15`, `B17-B25`, and `B27-B38`; `B16` is special handling because the
+old `Grid/Fault (Three-Phase)` is near B16.
+
+The plan creates 37 manual review templates. Every new target starts as not
+human verified, not safe to smoke, not smoke success, and not candidate-label
+exported.

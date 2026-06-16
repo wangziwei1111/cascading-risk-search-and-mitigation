@@ -242,3 +242,16 @@ Artifacts:
 - `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/b26_manual_connection_evidence.md`
 - `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary_B26.json`
 - `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/temp_lab_plans/manual_review_consolidation_summary_B26.md`
+
+## All-Remaining Manual Wiring Package
+
+A later preparation-only round creates an all-remaining manual wiring package.
+It does not run Simulink, does not run smoke, does not export labels, does not
+train GCN, and does not retrain the reranker.
+
+The package covers normal targets `B1-B15`, `B17-B25`, and `B27-B38`, plus
+special target `B16`. B39 and B26 are excluded because they already have
+quality-reviewed candidate labels. Each new target must use its own ignored
+temporary local copy and must pass manual evidence, readiness, smoke, quality,
+export, composition review, and preview/no-leakage gates before any later GCN
+usefulness audit.

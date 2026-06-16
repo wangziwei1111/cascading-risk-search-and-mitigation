@@ -3311,6 +3311,49 @@ B39 and B26 remain candidate labels, not formal labels. The model remains
 `phasor_RMS`, not EMT. `generator_speed_proxy` is not direct frequency.
 Temporary bus-fault injection is not engineering-grade protection.
 
+## Round 65: All-Remaining Bus-Fault Manual Wiring Plan
+
+This round prepares a manual GUI wiring batch package for all remaining IEEE39
+bus-fault targets. It does not run Simulink, does not run smoke, does not
+export labels, does not train GCN, does not run a GCN usefulness audit, and
+does not retrain the reranker.
+
+Plain wording: the previous B39+B26 preview/no-leakage comparison showed that
+bus-fault holdout is still a small-sample problem. This round therefore moves
+to sample collection preparation, not model evaluation. It creates one manual
+review template per remaining target bus so the user can wire
+`Grid/Fault_<BUS>_TEMP` blocks in independent ignored temporary local copies.
+
+```text
+existing completed bus faults = B39, B26
+normal targets = B1-B15, B17-B25, B27-B38
+special target = B16
+excluded targets = B39, B26
+total new target count = 37
+current candidate count = 42
+old formal gate = 35 / 33 / 33
+templates generated = 37
+should_run_smoke_now = false
+should_export_labels_now = false
+should_train_now = false
+gcn_usefulness_audit_now = false
+```
+
+New artifacts:
+
+- `docs/ieee39_all_remaining_bus_fault_manual_wiring_plan.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/ieee39_bus_fault_all_remaining_targets.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/ieee39_bus_fault_all_remaining_targets.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/all_remaining_manual_gui_wiring_commands.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_manual_connection_evidence_schema.json`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/batch_gate_sequence.md`
+- `results/gcn_search/ieee39_dynamic_fault_type_expansion/bus_fault_smoke/batch_bus_fault_expansion_all_remaining/manual_review_templates/`
+
+B16 is marked as special handling because the old `Grid/Fault (Three-Phase)`
+is near B16. The old fault must not be renamed or moved. No new target is human
+verified, safe to smoke, smoke success, or candidate-label exported in this
+round.
+
 ## Round 57: B26 Manual Bus-Fault Review Evidence
 
 This round only records B26 manual GUI review evidence. It does not run

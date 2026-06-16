@@ -64,6 +64,21 @@ and B26 are only two candidate bus-fault samples.
 
 Collect more bus-fault candidates before GCN usefulness audit.
 
+## All-Remaining Bus-Fault Manual Wiring Follow-Up
+
+Following this recommendation, a separate all-remaining bus-fault manual wiring
+plan has been prepared. It is not training, not a GCN audit, not smoke, and not
+label export. It only gives the user an auditable package for wiring one
+`Grid/Fault_<BUS>_TEMP` block per independent ignored temporary local copy.
+
+- excluded existing candidate labels: `B39`, `B26`
+- normal new targets: `B1-B15`, `B17-B25`, `B27-B38`
+- special target: `B16`
+- total new target count: `37`
+- every new target starts with `human_verified_injection_point=false`,
+  `safe_to_run_smoke_recommendation=false`, `smoke_success=false`, and
+  `candidate_label_exported=false`
+
 ## Outputs
 
 - `results/gcn_search/ieee39_dynamic_aware_reranker_v2_plus_b39_b26_preview/v2_plus_b39_b26_preview_comparison.json`

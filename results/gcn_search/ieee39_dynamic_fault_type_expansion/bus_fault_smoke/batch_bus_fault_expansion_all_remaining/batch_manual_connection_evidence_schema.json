@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "IEEE39 bus-fault manual connection evidence",
+  "type": "object",
+  "required": [
+    "batch_id",
+    "target_bus",
+    "special_handling",
+    "temp_model_path",
+    "selected_injection_block_path",
+    "selected_injection_port_description",
+    "selected_fault_block_path",
+    "fault_block_connected_in_parallel",
+    "original_network_connection_preserved",
+    "old_fault_still_near_b16",
+    "old_fault_not_moved",
+    "no_unintended_bypass",
+    "no_floating_ports",
+    "no_unintended_islanding",
+    "update_diagram_attempted",
+    "update_diagram_success",
+    "update_diagram_error",
+    "fault_start_s",
+    "fault_clear_s",
+    "duration_s",
+    "R_pn_fault",
+    "R_ng_fault",
+    "enable_temporal_fault",
+    "source_model_saved",
+    "temporary_model_saved",
+    "temporary_model_committed",
+    "source_slx_modified",
+    "temporary_slx_committed",
+    "simulink_smoke_run",
+    "smoke_success",
+    "candidate_label_exported",
+    "labels_exported",
+    "gcn_trained",
+    "reranker_retrained",
+    "human_verified_injection_point",
+    "safe_to_run_smoke_recommendation",
+    "failed_checks",
+    "next_action"
+  ],
+  "properties": {
+    "batch_id": {
+      "type": [
+        "string",
+        "number",
+        "boolean",
+        "array"
+      ]
+    },
+    "target_bus": {
+      "type": [
+        "string",
+        "number",
+        "boolean",
+        "array"
+      ]
+    },
+    "special_handling": {
+      "type": "boolean"
+    },
+    "temp_model_path": {
+      "type": [
+        "string",
+        "number",
+        "boolean",
+        "array"
+      ]
+    },
+    "selected_injection_block_path": {
+      "type": [
+        "string",
+        "number",
+        "boolean",
+        "array"
+      ]
+    },
+    "selected_injection_port_description": {
+      "type": [
+        "string",
+        "number",
+        "boolean",
+        "array"
+      ]
+    },
+    "selected_fault_block_path": {
+      "type": [
+        "string",
+        "number",
+        "boolean",
+        "array"
+      ]
+    },
+    "fault_block_connected_in_parallel": {
+      "type": "boolean"
+    },
+    "original_network_connection_preserved": {
+      "type": "boolean"
+    },
+    "old_fault_still_near_b16": {
+      "type": "boolean"
+    },
+    "old_fault_not_moved": {
+      "type": "boolean"
+    },
+    "no_unintended_bypass": {
+      "type": "boolean"
+    },
+    "no_floating_ports": {
+      "type": "boolean"
+    },
+    "no_unintended_islanding": {
+      "type": "boolean"
+    },
+    "update_diagram_attempted": {
+      "type": "boolean"
+    },
+    "update_diagram_success": {
+      "type": "boolean"
+    },
+    "update_diagram_error": {
+      "type": [
+        "string",
+        "number",
+        "boolean",
+        "array"
+      ]
+    },
+    "fault_start_s": {
+      "type": [
+        "string",
+        "number",
+        "boolean",
+        "array"
+      ]
+    },
+    "fault_clear_s": {
+      "type": [
+        "string",
+        "number",
+        "boolean",
+        "array"
+      ]
+    },
+    "duration_s": {
+      "type": [
+        "string",
+        "number",
+        "boolean",
+        "array"
+      ]
+    },
+    "R_pn_fault": {
+      "type": [
+        "string",
+        "number",
+        "boolean",
+        "array"
+      ]
+    },
+    "R_ng_fault": {
+      "type": [
+        "string",
+        "number",
+        "boolean",
+        "array"
+      ]
+    },
+    "enable_temporal_fault": {
+      "type": "boolean"
+    },
+    "source_model_saved": {
+      "type": "boolean"
+    },
+    "temporary_model_saved": {
+      "type": "boolean"
+    },
+    "temporary_model_committed": {
+      "type": "boolean"
+    },
+    "source_slx_modified": {
+      "type": "boolean"
+    },
+    "temporary_slx_committed": {
+      "type": "boolean"
+    },
+    "simulink_smoke_run": {
+      "type": "boolean"
+    },
+    "smoke_success": {
+      "type": "boolean"
+    },
+    "candidate_label_exported": {
+      "type": "boolean"
+    },
+    "labels_exported": {
+      "type": "boolean"
+    },
+    "gcn_trained": {
+      "type": "boolean"
+    },
+    "reranker_retrained": {
+      "type": "boolean"
+    },
+    "human_verified_injection_point": {
+      "type": "boolean"
+    },
+    "safe_to_run_smoke_recommendation": {
+      "type": "boolean"
+    },
+    "failed_checks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "next_action": {
+      "type": [
+        "string",
+        "number",
+        "boolean",
+        "array"
+      ]
+    }
+  },
+  "additionalProperties": true
+}
