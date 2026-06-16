@@ -1,0 +1,23 @@
+{
+  "repair_scope": "local_dependency_environment_repair",
+  "venv_creation_attempted": true,
+  "venv_path": "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\.venv-gcn-audit",
+  "venv_python_path": "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\.venv-gcn-audit\\Scripts\\python.exe",
+  "venv_exists": true,
+  "creation_command": [
+    "C:\\Users\\24186\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+    "-m",
+    "venv",
+    ".venv-gcn-audit"
+  ],
+  "post_creation_prefix_probe": {
+    "command": [
+      "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\.venv-gcn-audit\\Scripts\\python.exe",
+      "-c",
+      "import sys; print(sys.executable); print(sys.prefix); print(sys.base_prefix); print(sys.exec_prefix)"
+    ],
+    "returncode": 0,
+    "stdout": "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\.venv-gcn-audit\\Scripts\\python.exe\nC:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\.venv-gcn-audit\nC:\\Users\\24186\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\nC:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\.venv-gcn-audit\n",
+    "stderr": ""
+  }
+}

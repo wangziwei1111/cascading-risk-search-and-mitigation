@@ -1,0 +1,42 @@
+# GCN Dependency Repair Summary
+
+```json
+{
+  "repair_scope": "local_dependency_environment_repair",
+  "gcn_training_run": false,
+  "formal_gcn_audit_run": false,
+  "simulink_run": false,
+  "labels_exported": false,
+  "reranker_retrained": false,
+  "production_model_saved": false,
+  "source_commit": "b60c5b6abd54b20a4c1f1a2ad5e00a209c301b60",
+  "previous_python_executable": "E:\\Scripts\\python.exe",
+  "previous_sys_prefix": "E:",
+  "previous_torch_import_ok": false,
+  "previous_torch_import_error": "[WinError 87] ?????: 'E:bin'",
+  "previous_torch_geometric_import_ok": false,
+  "new_venv_path": "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\.venv-gcn-audit",
+  "new_python_executable": "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\.venv-gcn-audit\\Scripts\\python.exe",
+  "new_sys_prefix": "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\.venv-gcn-audit",
+  "new_sys_base_prefix": "C:\\Users\\24186\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python",
+  "new_sys_exec_prefix": "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\.venv-gcn-audit",
+  "new_python_prefix_is_absolute": true,
+  "new_python_prefix_is_not_bare_drive": true,
+  "pip_upgrade_ok": true,
+  "torch_install_attempted": true,
+  "torch_import_ok": true,
+  "torch_version": "2.12.0+cpu",
+  "torch_cuda_version": null,
+  "torch_cuda_available": false,
+  "torch_import_error": "",
+  "torch_geometric_install_attempted": true,
+  "torch_geometric_import_ok": true,
+  "torch_geometric_version": "2.8.0",
+  "torch_geometric_import_error": "",
+  "dependency_blocker_resolved": true,
+  "remaining_blockers": [],
+  "should_train_gcn_now": false,
+  "should_rerun_formal_gcn_audit_now": false,
+  "recommended_next_step": "rerun dependency diagnosis and then rerun strict no-leakage GCN audit in a separate round"
+}
+```

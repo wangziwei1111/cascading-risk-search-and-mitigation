@@ -3957,3 +3957,71 @@ Boundary notes remain unchanged:
 - `generator_speed_proxy` is not direct frequency
 - temporary bus-fault injection is not engineering-grade protection
 - current round does not support any GCN usefulness conclusion
+
+## Round 76: IEEE39 Local GCN Dependency Environment Repair
+
+This round is local dependency environment repair.
+
+It did not train GCN.
+It did not run the formal GCN audit.
+It did not run Simulink.
+It did not export labels.
+It did not retrain the reranker.
+It did not save any production model.
+
+Plain wording: the diagnosis round already showed that the old interpreter was
+broken because `sys.prefix` collapsed to bare `E:` and `torch` tried to load
+DLLs from illegal `E:bin`. So this round stops using that broken interpreter,
+creates a clean repository-local `.venv-gcn-audit`, installs CPU-only `torch`,
+installs `torch_geometric`, reruns dependency diagnosis inside the clean
+environment, and checks whether the blocker is truly gone.
+
+Repair summary:
+
+- `repair_scope = local_dependency_environment_repair`
+- `previous_python_executable = E:\Scripts\python.exe`
+- `previous_sys_prefix = E:`
+- `new_python_executable = .venv-gcn-audit\Scripts\python.exe`
+- `new_sys_prefix = absolute repository-local path`
+- `new_python_prefix_is_absolute = true`
+- `new_python_prefix_is_not_bare_drive = true`
+- `torch_install_attempted = true`
+- `torch_import_ok = true`
+- `torch_version = 2.12.0+cpu`
+- `torch_cuda_version = None`
+- `torch_cuda_available = false`
+- `torch_geometric_install_attempted = true`
+- `torch_geometric_import_ok = true`
+- `torch_geometric_version = 2.8.0`
+- `dependency_blocker_resolved = true`
+- `remaining_blockers = []`
+- `should_train_gcn_now = false`
+- `should_rerun_formal_gcn_audit_now = false`
+
+New repair artifacts:
+
+- `docs/ieee39_gcn_dependency_repair.md`
+- `results/gcn_search/ieee39_gcn_dependency_repair/gcn_dependency_repair_summary.json`
+- `results/gcn_search/ieee39_gcn_dependency_repair/venv_creation_report.json`
+- `results/gcn_search/ieee39_gcn_dependency_repair/torch_install_verify_report.json`
+- `results/gcn_search/ieee39_gcn_dependency_repair/torch_geometric_install_verify_report.json`
+- `results/gcn_search/ieee39_gcn_dependency_repair/post_repair_dependency_diagnosis_report.json`
+
+Boundary notes remain unchanged:
+
+- `.venv-gcn-audit` is local only and not committed
+- wheel / DLL / site-packages / torch cache / model files are not committed
+- this round still does not support any GCN usefulness conclusion
+- `phasor_RMS` is not EMT
+- `generator_speed_proxy` is not direct frequency
+- temporary bus-fault injection is not engineering-grade protection
+
+Final verification note:
+
+- some Python subprocess tests originally called bare `python`, which could fall
+  back to the broken `E:` interpreter
+- the repair round updates those test entry points to use `sys.executable`, so
+  the subprocess inherits the repaired repository-local environment
+- `pytest` result after this fix: `42 passed`
+- artifact self-check result: `PASS: GCN Simulink dynamic validation artifacts are review-ready.`
+- `git diff -- src/rl_mitigation scripts/rl_mitigation` remained empty

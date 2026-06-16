@@ -11,8 +11,8 @@ It did not modify RL mitigation.
 
 - audit_scope: `formal_gcn_usefulness_audit_execution`
 - audit_only: `true`
-- gcn_trained_for_audit: `false`
-- gcn_dependency_status: `blocked_by_missing_gcn_dependency`
+- gcn_trained_for_audit: `true`
+- gcn_dependency_status: `torch_and_torch_geometric_available`
 - total_candidate_rows: `79`
 - num_total_bus_fault_candidates: `39`
 - no_leakage_feature_policy_passed: `true`
@@ -40,8 +40,8 @@ It did not modify RL mitigation.
 
 ## Audit-Level Conclusion
 
-formal GCN audit blocked by missing dependency; baseline-only audit completed
+audit evidence does not support GCN usefulness over simpler baselines yet
 
 ## Next Step
 
-repair the local GCN dependency environment and rerun the strict no-leakage audit; still do not deploy and do not retrain the reranker
+improve feature / graph construction before any stronger GCN usefulness claim

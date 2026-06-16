@@ -3,28 +3,14 @@
 ```json
 {
   "module_name": "torch",
-  "import_ok": false,
-  "version": null,
-  "module_file": null,
-  "error": "[WinError 87] 参数错误。: 'E:bin'",
-  "traceback_tail": [
-    "  File \"<frozen importlib._bootstrap>\", line 1331, in _find_and_load_unlocked",
-    "  File \"<frozen importlib._bootstrap>\", line 935, in _load_unlocked",
-    "  File \"<frozen importlib._bootstrap_external>\", line 1026, in exec_module",
-    "  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed",
-    "  File \"E:\\Lib\\site-packages\\torch\\__init__.py\", line 285, in <module>",
-    "    _load_dll_libraries()",
-    "    ~~~~~~~~~~~~~~~~~~~^^",
-    "  File \"E:\\Lib\\site-packages\\torch\\__init__.py\", line 239, in _load_dll_libraries",
-    "    os.add_dll_directory(dll_path)",
-    "    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^",
-    "  File \"<frozen os>\", line 1165, in add_dll_directory",
-    "OSError: [WinError 87] 参数错误。: 'E:bin'"
-  ],
-  "likely_causes": [
-    "Windows PATH contains drive-relative or invalid DLL search entries.",
-    "Torch binary and active Python environment are incompatible.",
-    "A conflicting Python / conda / venv environment is shadowing the intended torch install."
-  ]
+  "import_ok": true,
+  "version": "2.12.0+cpu",
+  "module_file": "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\.venv-gcn-audit\\Lib\\site-packages\\torch\\__init__.py",
+  "error": "",
+  "traceback_tail": [],
+  "torch_cuda_version": null,
+  "torch_cuda_available": false,
+  "torch_mps_available": false,
+  "torch_lib_path": "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\.venv-gcn-audit\\Lib\\site-packages\\torch\\lib"
 }
 ```

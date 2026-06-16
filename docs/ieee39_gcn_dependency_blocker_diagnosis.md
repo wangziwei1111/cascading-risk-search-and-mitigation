@@ -84,3 +84,11 @@ Use the generated diagnosis artifacts in:
 
 Repair the local environment first, rerun the dependency diagnosis, and only
 then consider rerunning the strict no-leakage GCN usefulness audit.
+
+## Follow-Up Repair Note
+
+In the next repair round, the blocker is resolved by creating a clean local
+`.venv-gcn-audit` environment and avoiding the broken `E:\Scripts\python.exe`
+launcher path. That repair round remains dependency-environment work only; it
+still does not train GCN, does not run Simulink, and does not rerun the formal
+audit in the same round.

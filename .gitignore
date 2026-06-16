@@ -2,6 +2,16 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .venv/
+.venv-gcn-audit/
+.venv-*/
+venv/
+env/
+site-packages/
+*.whl
+*.dll
+*.pt
+*.pth
+*.ckpt
 *.egg-info/
 results/**/*.pt
 results/**/*.npz

@@ -159,6 +159,22 @@ def _run_command(command: list[str]) -> dict[str, Any]:
         }
 
 
+def _git_check_ignore(path: Path) -> bool:
+    try:
+        completed = subprocess.run(
+            ["git", "check-ignore", str(path)],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+            encoding="utf-8",
+            errors="replace",
+        )
+        return completed.returncode == 0
+    except Exception:
+        return False
+
+
 def _split_path_entries() -> list[str]:
     raw = os.environ.get("PATH", "")
     return raw.split(os.pathsep) if raw else []
@@ -209,6 +225,13 @@ def _probe_python_environment() -> dict[str, Any]:
     sys_prefix = sys.prefix
     sys_base_prefix = getattr(sys, "base_prefix", "")
     sys_exec_prefix = sys.exec_prefix
+    python_prefix_is_absolute = Path(sys_prefix).is_absolute()
+    python_prefix_bare_drive = bool(BARE_DRIVE_PATTERN.match(sys_prefix))
+    python_prefix_suspicious = bool(
+        python_prefix_bare_drive or DRIVE_RELATIVE_PATTERN.match(sys_prefix)
+    )
+    repair_venv = ROOT / ".venv-gcn-audit"
+    repair_venv_python = repair_venv / "Scripts" / "python.exe"
     drive_relative_prefix_fields = {
         "sys.prefix": sys_prefix if DRIVE_RELATIVE_PATTERN.match(sys_prefix) or BARE_DRIVE_PATTERN.match(sys_prefix) else "",
         "sys.base_prefix": sys_base_prefix
@@ -246,6 +269,13 @@ def _probe_python_environment() -> dict[str, Any]:
         "sys_prefix": sys_prefix,
         "sys_base_prefix": sys_base_prefix,
         "sys_exec_prefix": sys_exec_prefix,
+        "python_prefix_is_absolute": python_prefix_is_absolute,
+        "python_prefix_bare_drive": python_prefix_bare_drive,
+        "python_prefix_suspicious": python_prefix_suspicious,
+        "repair_environment_detected": sys_prefix.lower().endswith(".venv-gcn-audit"),
+        "repair_venv_exists": repair_venv.exists(),
+        "repair_venv_python_path": str(repair_venv_python.resolve()) if repair_venv_python.exists() else str(repair_venv_python),
+        "repair_venv_gitignored": _git_check_ignore(repair_venv),
         "drive_relative_prefix_fields": drive_relative_prefix_fields,
         "platform": platform.platform(),
         "platform_machine": platform.machine(),
@@ -569,6 +599,13 @@ def run_diagnosis(args: argparse.Namespace) -> dict[str, Any]:
         "current_sys_prefix": env_probe["sys_prefix"],
         "current_sys_base_prefix": env_probe["sys_base_prefix"],
         "current_sys_exec_prefix": env_probe["sys_exec_prefix"],
+        "python_prefix_is_absolute": env_probe["python_prefix_is_absolute"],
+        "python_prefix_bare_drive": env_probe["python_prefix_bare_drive"],
+        "python_prefix_suspicious": env_probe["python_prefix_suspicious"],
+        "repair_environment_detected": env_probe["repair_environment_detected"],
+        "repair_venv_exists": env_probe["repair_venv_exists"],
+        "repair_venv_python_path": env_probe["repair_venv_python_path"],
+        "repair_venv_gitignored": env_probe["repair_venv_gitignored"],
         "virtual_env_detected": env_probe["virtual_env_detected"],
         "conda_env_detected": env_probe["conda_env_detected"],
         "torch_spec_present": torch_spec["spec_present"],
@@ -609,6 +646,13 @@ def run_diagnosis(args: argparse.Namespace) -> dict[str, Any]:
         "torch_lib_related_entries": env_probe["torch_lib_related_entries"],
         "unresolved_envvar_entries": env_probe["unresolved_envvar_entries"],
         "drive_relative_prefix_fields": env_probe["drive_relative_prefix_fields"],
+        "python_prefix_is_absolute": env_probe["python_prefix_is_absolute"],
+        "python_prefix_bare_drive": env_probe["python_prefix_bare_drive"],
+        "python_prefix_suspicious": env_probe["python_prefix_suspicious"],
+        "repair_environment_detected": env_probe["repair_environment_detected"],
+        "repair_venv_exists": env_probe["repair_venv_exists"],
+        "repair_venv_python_path": env_probe["repair_venv_python_path"],
+        "repair_venv_gitignored": env_probe["repair_venv_gitignored"],
     }
     repair_plan = _build_repair_plan(summary, env_probe, repo_probe)
 

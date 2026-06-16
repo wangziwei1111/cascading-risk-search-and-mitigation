@@ -1,3 +1,6 @@
+# Post Repair Dependency Diagnosis Report
+
+```json
 {
   "diagnosis_scope": "dependency_diagnosis_only",
   "gcn_training_run": false,
@@ -71,3 +74,4 @@
   "should_rerun_formal_gcn_audit_now": false,
   "recommended_next_step": "rerun strict no-leakage GCN usefulness audit in a separate round"
 }
+```

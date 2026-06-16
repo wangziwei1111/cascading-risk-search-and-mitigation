@@ -13,14 +13,14 @@ It did not save any production model.
 - diagnosis_scope: `dependency_diagnosis_only`
 - previous_gcn_dependency_status: `blocked_by_missing_gcn_dependency`
 - torch_spec_present: `true`
-- torch_import_ok: `false`
-- torch_import_error: `[WinError 87] 参数错误。: 'E:bin'`
-- torch_geometric_spec_present: `false`
-- torch_geometric_import_ok: `false`
+- torch_import_ok: `true`
+- torch_import_error: ``
+- torch_geometric_spec_present: `true`
+- torch_geometric_import_ok: `true`
 - suspicious_path_entries: `[]`
 - drive_relative_path_entries: `[]`
-- likely_winerror87_path_cause: `true`
-- gcn_dependency_blocker_still_present: `true`
+- likely_winerror87_path_cause: `false`
+- gcn_dependency_blocker_still_present: `false`
 - dependency_repair_plan_generated: `true`
 
 ## Important Notes
@@ -39,4 +39,4 @@ It did not save any production model.
 
 ## Recommended Next Step
 
-fix Windows PATH / DLL path issue first, then reinstall or verify torch and torch_geometric in the active environment
+rerun strict no-leakage GCN usefulness audit in a separate round

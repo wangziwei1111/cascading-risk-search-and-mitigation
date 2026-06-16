@@ -2,11 +2,11 @@
   "plan_scope": "dependency_diagnosis_only",
   "current_blocker_summary": {
     "torch_spec_present": true,
-    "torch_import_ok": false,
-    "torch_import_error": "[WinError 87] 参数错误。: 'E:bin'",
-    "torch_geometric_spec_present": false,
-    "torch_geometric_import_ok": false,
-    "suspected_primary_blocker": "windows_path_dll_issue"
+    "torch_import_ok": true,
+    "torch_import_error": "",
+    "torch_geometric_spec_present": true,
+    "torch_geometric_import_ok": true,
+    "suspected_primary_blocker": "active_environment_not_ready"
   },
   "route_a_path_dll_cleanup_first": {
     "when_to_use": [
@@ -89,5 +89,5 @@
     "pyg_extensions_declared_in_repo": false,
     "dependency_documentation_missing": false
   },
-  "recommended_next_step": "fix Windows PATH / DLL path issue first, then reinstall or verify torch and torch_geometric in the active environment"
+  "recommended_next_step": "rerun strict no-leakage GCN usefulness audit in a separate round"
 }

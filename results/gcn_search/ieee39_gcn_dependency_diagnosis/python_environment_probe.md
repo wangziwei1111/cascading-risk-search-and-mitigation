@@ -2,16 +2,19 @@
 
 ```json
 {
-  "python_executable": "E:\\Scripts\\python.exe",
-  "python_version": "3.13.7 (tags/v3.13.7:bcee1c3, Aug 14 2025, 14:15:11) [MSC v.1944 64 bit (AMD64)]",
-  "sys_prefix": "E:",
-  "sys_base_prefix": "E:",
-  "sys_exec_prefix": "E:",
-  "drive_relative_prefix_fields": {
-    "sys.prefix": "E:",
-    "sys.base_prefix": "E:",
-    "sys.exec_prefix": "E:"
-  },
+  "python_executable": "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\.venv-gcn-audit\\Scripts\\python.exe",
+  "python_version": "3.12.13 (main, Mar  3 2026, 15:01:35) [MSC v.1944 64 bit (AMD64)]",
+  "sys_prefix": "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\.venv-gcn-audit",
+  "sys_base_prefix": "C:\\Users\\24186\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python",
+  "sys_exec_prefix": "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\.venv-gcn-audit",
+  "python_prefix_is_absolute": true,
+  "python_prefix_bare_drive": false,
+  "python_prefix_suspicious": false,
+  "repair_environment_detected": true,
+  "repair_venv_exists": true,
+  "repair_venv_python_path": "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\.venv-gcn-audit\\Scripts\\python.exe",
+  "repair_venv_gitignored": true,
+  "drive_relative_prefix_fields": {},
   "platform": "Windows-11-10.0.26200-SP0",
   "platform_machine": "AMD64",
   "os_name": "nt",
@@ -21,8 +24,9 @@
   "conda_env_detected": false,
   "conda_prefix": "",
   "pythonpath": "",
-  "path_entry_count": 20,
+  "path_entry_count": 21,
   "path_first_entries": [
+    "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\.venv-gcn-audit\\Scripts",
     "C:\\Users\\24186\\.codex\\tmp\\arg0\\codex-arg0t3m8tr",
     "C:\\WINDOWS\\system32",
     "C:\\WINDOWS",
@@ -33,8 +37,7 @@
     "E:\\matlab2025a\\runtime\\win64",
     "E:\\matlab2025a\\bin",
     "C:\\Program Files\\dotnet\\",
-    "C:\\Program Files\\Git\\cmd",
-    "C:\\Program Files\\GitHub CLI\\"
+    "C:\\Program Files\\Git\\cmd"
   ],
   "suspicious_path_entries": [],
   "invalid_path_entries": [
@@ -43,11 +46,13 @@
   "drive_relative_path_entries": [],
   "empty_path_entries": [],
   "python_path_entries": [],
-  "conda_or_venv_script_entries": [],
+  "conda_or_venv_script_entries": [
+    "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\.venv-gcn-audit\\Scripts"
+  ],
   "cuda_path_entries": [],
   "torch_lib_related_entries": [],
   "unresolved_envvar_entries": [],
-  "likely_winerror87_path_cause": true,
-  "recommended_path_fix": "Inspect drive-relative Python prefix values and PATH / DLL search paths first, because the active Python environment may be resolving DLL folders as E:bin instead of E:\\bin. Reopen the shell after fixing the active environment and rerun the import probes."
+  "likely_winerror87_path_cause": false,
+  "recommended_path_fix": "Clean invalid PATH entries and verify that the active Python / Scripts / CUDA paths do not conflict."
 }
 ```

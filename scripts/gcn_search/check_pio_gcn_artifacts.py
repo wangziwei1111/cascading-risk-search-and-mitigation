@@ -5446,6 +5446,95 @@ def main() -> int:
             if bad in dependency_text:
                 failures.append(f"Dependency diagnosis docs contain overstatement: {bad}")
 
+    repair_doc = ROOT / "docs/ieee39_gcn_dependency_repair.md"
+    repair_summary = ROOT / "results/gcn_search/ieee39_gcn_dependency_repair/gcn_dependency_repair_summary.json"
+    repair_summary_md = ROOT / "results/gcn_search/ieee39_gcn_dependency_repair/gcn_dependency_repair_summary.md"
+    repair_summary_csv = ROOT / "results/gcn_search/ieee39_gcn_dependency_repair/gcn_dependency_repair_summary.csv"
+    repair_venv = ROOT / "results/gcn_search/ieee39_gcn_dependency_repair/venv_creation_report.json"
+    repair_torch = ROOT / "results/gcn_search/ieee39_gcn_dependency_repair/torch_install_verify_report.json"
+    repair_pyg = ROOT / "results/gcn_search/ieee39_gcn_dependency_repair/torch_geometric_install_verify_report.json"
+    repair_post = ROOT / "results/gcn_search/ieee39_gcn_dependency_repair/post_repair_dependency_diagnosis_report.json"
+    repair_required = [
+        repair_doc,
+        repair_summary,
+        repair_summary_md,
+        repair_summary_csv,
+        repair_venv,
+        repair_torch,
+        repair_pyg,
+        repair_post,
+    ]
+    existing_repair_required = [path for path in repair_required if path.exists()]
+    if existing_repair_required:
+        missing_repair_required = [path for path in repair_required if not path.exists()]
+        if missing_repair_required:
+            failures.append(
+                "Dependency repair artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_repair_required)
+            )
+        try:
+            payload = _read_json_path(repair_summary)
+            for key, expected in [
+                ("repair_scope", "local_dependency_environment_repair"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_run", False),
+                ("simulink_run", False),
+                ("labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("torch_install_attempted", True),
+                ("torch_geometric_install_attempted", True),
+                ("should_train_gcn_now", False),
+                ("should_rerun_formal_gcn_audit_now", False),
+            ]:
+                if payload.get(key) != expected:
+                    failures.append(f"Dependency repair summary must set {key}={expected!r}.")
+            for key in [
+                "new_venv_path",
+                "new_python_executable",
+                "new_sys_prefix",
+                "new_python_prefix_is_absolute",
+                "new_python_prefix_is_not_bare_drive",
+                "torch_import_ok",
+                "torch_geometric_import_ok",
+                "dependency_blocker_resolved",
+                "recommended_next_step",
+            ]:
+                if key not in payload:
+                    failures.append(f"Dependency repair summary missing key: {key}")
+        except Exception as exc:
+            failures.append(f"Failed to read dependency repair summary: {exc}")
+
+        repair_text = "\n".join(
+            [
+                _read_text("docs/ieee39_gcn_dependency_repair.md"),
+                _read_text("docs/gcn_pio_validation_log.md"),
+            ]
+        ).lower()
+        for required in [
+            "local dependency environment repair",
+            "did not train gcn",
+            "did not run the formal gcn audit",
+            "did not run simulink",
+            "did not export labels",
+            "sys.prefix = e:",
+            "e:bin",
+            "phasor_rms is not emt",
+            "generator_speed_proxy is not direct frequency",
+            "not engineering-grade protection",
+        ]:
+            if required not in repair_text:
+                failures.append(f"Dependency repair docs missing: {required}")
+        for bad in [
+            "gcn is useful",
+            "gcn is useless",
+            "formal gcn audit rerun completed",
+            "emt validation completed",
+            "generator_speed_proxy is direct frequency",
+        ]:
+            if bad in repair_text:
+                failures.append(f"Dependency repair docs contain overstatement: {bad}")
+
     tracked_results = set(_git_ls_files("results/gcn_search"))
     branch_changed = set(_git_changed_files_against_main())
     tracked = sorted(tracked_results & branch_changed)

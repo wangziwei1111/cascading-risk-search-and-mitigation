@@ -1,6 +1,7 @@
 import json
 import os
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -41,7 +42,7 @@ def _read_text(path: Path) -> str:
 
 def test_audit_execution_runs_and_writes_artifacts() -> None:
     subprocess.run(
-        ["python", "scripts/gcn_search/run_ieee39_strict_no_leakage_gcn_usefulness_audit.py"],
+        [sys.executable, "scripts/gcn_search/run_ieee39_strict_no_leakage_gcn_usefulness_audit.py"],
         cwd=ROOT,
         text=True,
         check=True,

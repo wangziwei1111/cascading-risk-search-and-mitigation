@@ -12,31 +12,38 @@ previous_torch_spec_present,True
 previous_torch_geometric_spec_present,False
 previous_torch_import_ok,False
 previous_torch_import_error,[WinError 87] 参数错误。: 'E:bin'
-current_python_executable,E:\Scripts\python.exe
-current_python_version,"3.13.7 (tags/v3.13.7:bcee1c3, Aug 14 2025, 14:15:11) [MSC v.1944 64 bit (AMD64)]"
+current_python_executable,C:\Users\24186\Documents\New project 7\simulink-dynamic-validation-worktree\.venv-gcn-audit\Scripts\python.exe
+current_python_version,"3.12.13 (main, Mar  3 2026, 15:01:35) [MSC v.1944 64 bit (AMD64)]"
 current_platform,Windows-11-10.0.26200-SP0
-current_sys_prefix,E:
-current_sys_base_prefix,E:
-current_sys_exec_prefix,E:
+current_sys_prefix,C:\Users\24186\Documents\New project 7\simulink-dynamic-validation-worktree\.venv-gcn-audit
+current_sys_base_prefix,C:\Users\24186\.cache\codex-runtimes\codex-primary-runtime\dependencies\python
+current_sys_exec_prefix,C:\Users\24186\Documents\New project 7\simulink-dynamic-validation-worktree\.venv-gcn-audit
+python_prefix_is_absolute,True
+python_prefix_bare_drive,False
+python_prefix_suspicious,False
+repair_environment_detected,True
+repair_venv_exists,True
+repair_venv_python_path,C:\Users\24186\Documents\New project 7\simulink-dynamic-validation-worktree\.venv-gcn-audit\Scripts\python.exe
+repair_venv_gitignored,True
 virtual_env_detected,False
 conda_env_detected,False
 torch_spec_present,True
-torch_import_ok,False
-torch_version,
+torch_import_ok,True
+torch_version,2.12.0+cpu
 torch_cuda_version,
-torch_cuda_available,
-torch_import_error,[WinError 87] 参数错误。: 'E:bin'
-torch_geometric_spec_present,False
-torch_geometric_import_ok,False
-torch_geometric_version,
-torch_geometric_import_error,No module named 'torch_geometric'
+torch_cuda_available,False
+torch_import_error,
+torch_geometric_spec_present,True
+torch_geometric_import_ok,True
+torch_geometric_version,2.8.0
+torch_geometric_import_error,
 pyg_extension_specs,"{""torch_scatter"": {""spec_present"": false, ""origin"": """", ""submodule_search_locations"": []}, ""torch_sparse"": {""spec_present"": false, ""origin"": """", ""submodule_search_locations"": []}, ""torch_cluster"": {""spec_present"": false, ""origin"": """", ""submodule_search_locations"": []}, ""torch_spline_conv"": {""spec_present"": false, ""origin"": """", ""submodule_search_locations"": []}}"
 suspicious_path_entries,[]
 invalid_path_entries,"[""C:\\Users\\24186\\.dotnet\\tools""]"
 drive_relative_path_entries,[]
-likely_winerror87_path_cause,True
-gcn_dependency_blocker_still_present,True
+likely_winerror87_path_cause,False
+gcn_dependency_blocker_still_present,False
 dependency_repair_plan_generated,True
 should_train_gcn_now,False
 should_rerun_formal_gcn_audit_now,False
-recommended_next_step,"fix Windows PATH / DLL path issue first, then reinstall or verify torch and torch_geometric in the active environment"
+recommended_next_step,rerun strict no-leakage GCN usefulness audit in a separate round

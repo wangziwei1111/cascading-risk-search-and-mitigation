@@ -1,6 +1,7 @@
 import json
 import os
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -42,7 +43,7 @@ def _read_text(path: Path) -> str:
 def test_dependency_diagnosis_executes_and_writes_artifacts() -> None:
     subprocess.run(
         [
-            "python",
+            sys.executable,
             "scripts/gcn_search/diagnose_ieee39_gcn_dependency_blocker.py",
             "--strict",
             "--write-report",
@@ -100,8 +101,16 @@ def test_dependency_diagnosis_summary_fields() -> None:
     assert summary["current_sys_prefix"] == env_probe["sys_prefix"]
     assert summary["current_sys_base_prefix"] == env_probe["sys_base_prefix"]
     assert summary["current_sys_exec_prefix"] == env_probe["sys_exec_prefix"]
+    assert "python_prefix_is_absolute" in summary
+    assert "python_prefix_bare_drive" in summary
+    assert "python_prefix_suspicious" in summary
+    assert "repair_environment_detected" in summary
+    assert "repair_venv_exists" in summary
+    assert "repair_venv_python_path" in summary
+    assert "repair_venv_gitignored" in summary
     assert path_probe["probe_scope"] == "windows_path_dll_diagnosis_only"
     assert "recommended_path_fix" in path_probe
+    assert "drive_relative_prefix_fields" in path_probe
     assert "route_a_path_dll_cleanup_first" in repair_plan
     assert "route_b_clean_virtualenv" in repair_plan
     assert "route_c_conda_optional" in repair_plan

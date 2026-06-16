@@ -1,6 +1,7 @@
 import json
 import os
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -36,7 +37,7 @@ def _read_text(path: Path) -> str:
 def test_dry_run_validator_executes_and_writes_artifacts() -> None:
     subprocess.run(
         [
-            "python",
+            sys.executable,
             "scripts/gcn_search/run_ieee39_gcn_usefulness_audit_dry_run_validator.py",
             "--strict",
             "--dry-run",
