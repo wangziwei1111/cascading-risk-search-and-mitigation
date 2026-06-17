@@ -1,0 +1,39 @@
+# Paper-Aligned Feature Manifest
+
+- `topology_status_feature`:
+  - `paper_symbol`: x_t
+  - `chinese_meaning`: 支路当前是否已经断开；0 表示在线运行，1 表示已经断开
+  - `repo_mapping`: encode current cascading state's outaged branch set over L branch nodes
+  - `available`: True
+  - `no_leakage`: True
+- `relay_ratio_feature`:
+  - `paper_symbol`: x_p
+  - `chinese_meaning`: 保护继电器相关比例，即支路潮流除以继电器动作阈值
+  - `repo_mapping`: |branch_flow| / relay_threshold
+  - `available`: False
+  - `missing_reason`: missing_static_or_prefault_flow_source and verified relay threshold source
+  - `post_fault_dynamic_measurements_forbidden_as_substitute`: True
+- `branch_flow_feature`:
+  - `paper_symbol`: x_b
+  - `chinese_meaning`: 当前状态下支路潮流
+  - `repo_mapping`: current-state OPF/PF branch flow
+  - `available`: False
+  - `missing_reason`: missing OPF/PF/static current-state branch flow source for IEEE39 dry-run
+- `endpoint_load_feature`:
+  - `paper_symbol`: x_l
+  - `chinese_meaning`: 支路两端母线负荷中较大的一个
+  - `repo_mapping`: max(load_from_bus, load_to_bus)
+  - `available`: False
+  - `missing_reason`: missing verified current-state bus load source for IEEE39 dry-run
+- `forbidden_features_detected_in_inputs`:
+  - []
+- `dynamic_measurements_forbidden`: True
+- `dynamic_targets_only_used_as_labels`: True
+- `no_leakage_feature_policy_passed`: True
+- `missing_required_paper_features`:
+  - relay_ratio_feature: verified current-state branch flow and relay threshold source
+  - branch_flow_feature: verified OPF/PF/current-state branch flow source
+  - endpoint_load_feature: verified current-state bus load source
+- `available_required_paper_features`:
+  - topology_status_feature from current outaged branch set
+- `feature_readiness_for_prototype`: False

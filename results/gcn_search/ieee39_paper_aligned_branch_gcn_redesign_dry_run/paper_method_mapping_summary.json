@@ -1,0 +1,18 @@
+{
+  "paper_method": "branch_as_node_gcn_for_cascading_search",
+  "paper_graph_node": "branch_or_line",
+  "paper_graph_edge_rule": "two_branch_nodes_connected_if_original_branches_share_a_bus",
+  "paper_output": "branch_vulnerability_vector",
+  "paper_target_semantics": "whether disconnecting branch k from current state leads to load shedding",
+  "paper_inputs": [
+    "topology_status",
+    "relay_ratio",
+    "branch_flow",
+    "endpoint_load"
+  ],
+  "paper_online_search": "gcn_first_then_physical_rule_lodf",
+  "paper_lrp_note": "LRP explains contribution from topology, protection, branch flow, and load input groups.",
+  "current_repo_previous_graph": "candidate_as_node_in_one_dense_graph",
+  "current_repo_previous_issue": "candidate rows used as graph nodes",
+  "redesign_required": true
+}

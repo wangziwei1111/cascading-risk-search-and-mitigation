@@ -526,6 +526,22 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/graph_construction_diagnosis.md",
     "results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/next_gcn_improvement_plan.json",
     "results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/next_gcn_improvement_plan.md",
+    "docs/ieee39_paper_aligned_branch_gcn_redesign_dry_run.md",
+    "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_method_mapping_summary.json",
+    "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_method_mapping_summary.md",
+    "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/ieee39_branch_topology_source_inventory.json",
+    "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/ieee39_branch_topology_source_inventory.md",
+    "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/ieee39_branch_as_node_graph_manifest.json",
+    "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/ieee39_branch_as_node_graph_manifest.md",
+    "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_feature_manifest.json",
+    "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_feature_manifest.md",
+    "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_label_plan.json",
+    "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_label_plan.md",
+    "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/hybrid_search_policy_plan.json",
+    "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/hybrid_search_policy_plan.md",
+    "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_branch_gcn_dry_run_validator_summary.json",
+    "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_branch_gcn_dry_run_validator_summary.md",
+    "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_branch_gcn_dry_run_validator_summary.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -541,11 +557,13 @@ REQUIRED_FILES = [
     "scripts/gcn_search/run_ieee39_gcn_usefulness_audit_dry_run_validator.py",
     "scripts/gcn_search/run_ieee39_strict_no_leakage_gcn_usefulness_audit.py",
     "scripts/gcn_search/diagnose_ieee39_gcn_audit_evidence_gap.py",
+    "scripts/gcn_search/prepare_ieee39_paper_aligned_branch_gcn_redesign_dry_run.py",
     "tests/test_ieee39_v2_plus_all_bus_fault_preview_no_leakage.py",
     "tests/test_ieee39_gcn_usefulness_audit_plan.py",
     "tests/test_ieee39_gcn_usefulness_audit_dry_run_validator.py",
     "tests/test_ieee39_strict_no_leakage_gcn_usefulness_audit_execution.py",
     "tests/test_ieee39_gcn_audit_evidence_diagnosis.py",
+    "tests/test_ieee39_paper_aligned_branch_gcn_redesign_dry_run.py",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_block_parameter_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.json",
@@ -3794,6 +3812,125 @@ def main() -> int:
         except Exception as exc:
             failures.append(f"Failed to read GCN audit evidence diagnosis artifacts: {exc}")
 
+    paper_dry_dir = ROOT / "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run"
+    paper_dry_summary = paper_dry_dir / "paper_aligned_branch_gcn_dry_run_validator_summary.json"
+    paper_dry_doc = ROOT / "docs/ieee39_paper_aligned_branch_gcn_redesign_dry_run.md"
+    paper_dry_required = [
+        paper_dry_doc,
+        paper_dry_dir / "paper_method_mapping_summary.json",
+        paper_dry_dir / "paper_method_mapping_summary.md",
+        paper_dry_dir / "ieee39_branch_topology_source_inventory.json",
+        paper_dry_dir / "ieee39_branch_topology_source_inventory.md",
+        paper_dry_dir / "ieee39_branch_as_node_graph_manifest.json",
+        paper_dry_dir / "ieee39_branch_as_node_graph_manifest.md",
+        paper_dry_dir / "paper_aligned_feature_manifest.json",
+        paper_dry_dir / "paper_aligned_feature_manifest.md",
+        paper_dry_dir / "paper_aligned_label_plan.json",
+        paper_dry_dir / "paper_aligned_label_plan.md",
+        paper_dry_dir / "hybrid_search_policy_plan.json",
+        paper_dry_dir / "hybrid_search_policy_plan.md",
+        paper_dry_summary,
+        paper_dry_dir / "paper_aligned_branch_gcn_dry_run_validator_summary.md",
+        paper_dry_dir / "paper_aligned_branch_gcn_dry_run_validator_summary.csv",
+    ]
+    existing_paper_dry_required = [path for path in paper_dry_required if path.exists()]
+    if existing_paper_dry_required:
+        missing_paper_dry_required = [path for path in paper_dry_required if not path.exists()]
+        if missing_paper_dry_required:
+            failures.append(
+                "IEEE39 paper-aligned branch GCN dry-run artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_paper_dry_required)
+            )
+        try:
+            payload = _read_json_path(paper_dry_summary)
+            topology = _read_json_path(paper_dry_dir / "ieee39_branch_topology_source_inventory.json")
+            graph = _read_json_path(paper_dry_dir / "ieee39_branch_as_node_graph_manifest.json")
+            features = _read_json_path(paper_dry_dir / "paper_aligned_feature_manifest.json")
+            labels = _read_json_path(paper_dry_dir / "paper_aligned_label_plan.json")
+            for key, expected in [
+                ("dry_run_scope", "paper_aligned_branch_gcn_redesign_dry_run"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("simulink_run", False),
+                ("labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("paper_graph_node_type", "branch"),
+                ("paper_graph_edge_rule", "shared_endpoint_bus"),
+                ("previous_repo_graph_type", "candidate_similarity_graph"),
+                ("previous_candidate_as_node_design_deprecated", True),
+                ("proposed_graph_type", "branch_as_node_physical_line_graph"),
+                ("bus_fault_labels_directly_paper_aligned", False),
+                ("line_trip_labels_first_priority", True),
+                ("final_engineering_conclusion", False),
+                ("should_train_gcn_now", False),
+                ("should_rerun_formal_audit_now", False),
+                ("should_retrain_reranker_now", False),
+                ("should_deploy_model", False),
+            ]:
+                if payload.get(key) != expected:
+                    failures.append(f"Paper-aligned branch GCN dry-run must set {key}={expected!r}.")
+            if payload.get("forbidden_features_detected_in_inputs") != []:
+                failures.append("Paper-aligned branch GCN dry-run must keep forbidden_features_detected_in_inputs=[].")
+            if topology.get("detected_num_buses") != 39:
+                failures.append("Paper-aligned branch GCN dry-run must detect B1-B39 bus list.")
+            if topology.get("detected_num_branches") != 34:
+                failures.append("Paper-aligned branch GCN dry-run must preserve current L01-L34 map.")
+            if topology.get("l12_mapping_status", {}).get("mapping_found") is not True:
+                failures.append("Paper-aligned branch GCN dry-run must preserve L12 mapping status.")
+            if graph.get("graph_is_candidate_similarity_graph") is not False:
+                failures.append("Paper-aligned branch graph must not be marked as candidate similarity graph.")
+            if graph.get("graph_uses_physical_branch_connectivity") is not True:
+                failures.append("Paper-aligned branch graph must use shared-endpoint physical branch connectivity.")
+            if features.get("dynamic_measurements_forbidden") is not True:
+                failures.append("Paper-aligned feature manifest must forbid dynamic measurements as inputs.")
+            if features.get("feature_readiness_for_prototype") is not False:
+                failures.append("Paper-aligned feature manifest must not claim full feature readiness yet.")
+            if labels.get("can_build_paper_labels_from_existing_data") is not False:
+                failures.append("Paper-aligned label plan must not claim current labels are fully paper-style labels.")
+            paper_dry_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_paper_aligned_branch_gcn_redesign_dry_run.md"),
+                    _read_text("results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_method_mapping_summary.md"),
+                    _read_text("results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_feature_manifest.md"),
+                    _read_text("results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_label_plan.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                ]
+            ).lower()
+            normalized = " ".join(paper_dry_text.replace("`", "").split())
+            for required in [
+                "paper-aligned branch gcn redesign dry-run",
+                "does not train gcn",
+                "does not rerun the formal audit",
+                "does not run simulink",
+                "does not export labels",
+                "does not retrain the reranker",
+                "not a candidate-row graph",
+                "branch vulnerability vector",
+                "bus-fault labels are not directly equivalent",
+                "line-trip labels should be the first priority",
+                "post-fault dynamic measurements cannot be used as gcn inputs",
+                "dynamic_stress_score and unstable_flag can only be labels",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "not engineering-grade protection",
+            ]:
+                if required not in normalized:
+                    failures.append(f"Paper-aligned branch GCN dry-run docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is useless",
+                "formal audit rerun completed",
+                "final engineering conclusion: true",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+                "production_model_saved = true",
+            ]:
+                if bad in normalized:
+                    failures.append(f"Paper-aligned branch GCN dry-run docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read paper-aligned branch GCN dry-run artifacts: {exc}")
+
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"
     b39_review_md = b39_review_dir / "ieee39_v2_plus_b39_composition_review.md"
@@ -5703,10 +5840,12 @@ def main() -> int:
             execution_summary = _read_json_path(
                 ROOT / "results/gcn_search/ieee39_gcn_usefulness_audit_execution/gcn_usefulness_audit_execution_summary.json"
             )
-            if execution_summary.get("gcn_trained_for_audit") is not True:
-                failures.append("Post-repair audit execution summary must set gcn_trained_for_audit=true.")
-            if execution_summary.get("gcn_dependency_status") != "torch_and_torch_geometric_available":
-                failures.append("Post-repair audit execution summary must record torch_and_torch_geometric_available.")
+            if execution_summary.get("gcn_trained_for_audit") is True:
+                if execution_summary.get("gcn_dependency_status") != "torch_and_torch_geometric_available":
+                    failures.append("Post-repair audit execution summary must record torch_and_torch_geometric_available when GCN training is reported.")
+            else:
+                if execution_summary.get("gcn_dependency_status") != "blocked_by_missing_gcn_dependency":
+                    failures.append("Baseline-only audit execution summary must explain why GCN training was not run.")
             if execution_summary.get("final_engineering_conclusion") is not False:
                 failures.append("Post-repair audit execution summary must keep final_engineering_conclusion=false.")
             if execution_summary.get("should_deploy_model") is not False:

@@ -1,5 +1,20 @@
 # IEEE39 GCN Audit Evidence Diagnosis
 
+## Paper-Aligned Redesign Follow-Up
+
+The next dry-run prepares a paper-aligned branch GCN redesign. The key
+correction is that the paper GCN is not a candidate-row graph: each original
+branch or line should be one graph node, and two branch nodes should connect
+when the original branches share a bus. This follow-up still does not train
+GCN, does not rerun the formal audit, does not run Simulink, does not export
+labels, and does not retrain the reranker.
+
+The current IEEE39 bus-fault labels are not directly paper-aligned branch
+vulnerability labels. Line-trip labels should be handled first; bus-fault
+labels should remain a later extension. Post-fault dynamic measurements cannot
+be used as GCN inputs. `dynamic_stress_score` and `unstable_flag` can only be
+labels or audit targets.
+
 This round is evidence diagnosis only.
 
 It does not train GCN.

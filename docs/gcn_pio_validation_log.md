@@ -4197,3 +4197,43 @@ Boundary notes remain unchanged:
 - `phasor_RMS` is not EMT
 - `generator_speed_proxy` is not direct frequency
 - temporary bus-fault injection is not engineering-grade protection
+
+## Round 80: IEEE39 Paper-Aligned Branch GCN Redesign Dry-Run
+
+This round prepares a paper-aligned branch GCN redesign dry-run based on `Searching for Critical Power System Cascading Failures With Graph Convolutional Network`. It does not train GCN, does not rerun the formal audit, does not run Simulink, does not export labels, does not retrain the reranker, and does not save a production model.
+
+The important correction is methodological. The paper GCN is not a candidate-row graph. In the paper, each original power-system branch or line is one graph node, and two graph nodes are connected when the two original branches share one bus. The output is a branch vulnerability vector: the kth value means whether disconnecting branch k from the current operational state leads to load shedding.
+
+Dry-run artifacts:
+
+- `scripts/gcn_search/prepare_ieee39_paper_aligned_branch_gcn_redesign_dry_run.py`
+- `docs/ieee39_paper_aligned_branch_gcn_redesign_dry_run.md`
+- `results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_method_mapping_summary.json`
+- `results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/ieee39_branch_topology_source_inventory.json`
+- `results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/ieee39_branch_as_node_graph_manifest.json`
+- `results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_feature_manifest.json`
+- `results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_label_plan.json`
+- `results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/hybrid_search_policy_plan.json`
+- `results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_branch_gcn_dry_run_validator_summary.json`
+
+Current dry-run result:
+
+- `paper_graph_node_type = branch`
+- `paper_graph_edge_rule = shared_endpoint_bus`
+- `previous_repo_graph_type = candidate_similarity_graph`
+- `proposed_graph_type = branch_as_node_physical_line_graph`
+- detected bus list = B1-B39
+- detected branch map = L01-L34 from the existing IEEE39 wrapper line map
+- `can_build_branch_line_graph = true`
+- `can_build_required_paper_features = false`
+- `can_build_paper_labels_from_existing_data = false`
+- `bus_fault_labels_directly_paper_aligned = false`
+- `line_trip_labels_first_priority = true`
+- `forbidden_features_detected_in_inputs = []`
+- `final_engineering_conclusion = false`
+
+The branch graph can be constructed from the verified wrapper line map, but the paper input features are not fully ready. The missing items are verified pre-fault/current-state branch flow, relay threshold or line limit, and bus load sources. The paper-style branch vulnerability labels are also not ready because the current IEEE39 dynamic labels are scenario-level `dynamic_stress_score` and `unstable_flag`, not a per-state vector over all candidate branches.
+
+This means the next step is still not deployment and not reranker retraining. The next step is to add verified static/prefault flow, limit, and bus-load sources, then build a paper-style branch vulnerability label generator for line-trip labels first. Bus-fault labels should remain a separate extension.
+
+`phasor_RMS` is not EMT. `generator_speed_proxy` is not direct frequency. Temporary bus-fault injection is not engineering-grade protection.

@@ -1,0 +1,15 @@
+# Hybrid Search Policy Plan
+
+- `paper_search_policy`: GCN predicted vulnerable branches first, then physical LODF priority
+- `proposed_repo_policy`:
+  - `y_gcn_branch_vulnerability_score`: paper-aligned branch GCN output over L branch nodes
+  - `y_p_lodf_physics_priority`: physical LODF/security priority used as fallback and tie-breaker
+  - `combined_search_or_reranking`: search GCN-positive/high-score branches first, then supplement with y_P ordering
+  - `top_k_physical_simulation_validation`: validate selected paths with existing physical/dynamic pipeline only after audit evidence improves
+- `no_reranker_retrain_now`: True
+- `no_deployment_now`: True
+- `how_this_connects_to_existing_pipeline`:
+  - physics-enhanced GCN initial screening
+  - online state update
+  - path-level reranking
+  - Top-K Simulink validation
