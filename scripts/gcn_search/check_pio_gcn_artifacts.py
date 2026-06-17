@@ -583,6 +583,24 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_relay_threshold_proxy_approval/no_leakage_proxy_feature_audit.json",
     "results/gcn_search/ieee39_relay_threshold_proxy_approval/no_leakage_proxy_feature_audit.md",
     "results/gcn_search/ieee39_relay_threshold_proxy_approval/relay_threshold_proxy_limitations.md",
+    "docs/ieee39_paper_style_branch_vulnerability_label_generator_dry_run.md",
+    "results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/branch_vulnerability_label_semantics.json",
+    "results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/branch_vulnerability_label_semantics.md",
+    "results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/state_space_manifest.json",
+    "results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/state_space_manifest.md",
+    "results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/state_space_manifest.csv",
+    "results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/state_branch_label_generation_plan.json",
+    "results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/state_branch_label_generation_plan.md",
+    "results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/state_branch_label_generation_plan.csv",
+    "results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/existing_label_reuse_audit.json",
+    "results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/existing_label_reuse_audit.md",
+    "results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/no_leakage_label_generator_audit.json",
+    "results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/no_leakage_label_generator_audit.md",
+    "results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/label_generator_blocker_report.json",
+    "results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/label_generator_blocker_report.md",
+    "results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/branch_vulnerability_label_generator_dry_run_summary.json",
+    "results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/branch_vulnerability_label_generator_dry_run_summary.md",
+    "results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/branch_vulnerability_label_generator_dry_run_summary.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -602,6 +620,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/prepare_ieee39_paper_aligned_feature_source_dry_run.py",
     "scripts/gcn_search/prepare_ieee39_static_operating_point_feature_source_dry_run.py",
     "scripts/gcn_search/approve_ieee39_relay_threshold_proxy.py",
+    "scripts/gcn_search/prepare_ieee39_paper_style_branch_vulnerability_label_generator_dry_run.py",
     "tests/test_ieee39_v2_plus_all_bus_fault_preview_no_leakage.py",
     "tests/test_ieee39_gcn_usefulness_audit_plan.py",
     "tests/test_ieee39_gcn_usefulness_audit_dry_run_validator.py",
@@ -612,6 +631,7 @@ REQUIRED_FILES = [
     "tests/test_ieee39_paper_aligned_feature_source_dry_run.py",
     "tests/test_ieee39_static_operating_point_feature_source_dry_run.py",
     "tests/test_ieee39_relay_threshold_proxy_approval.py",
+    "tests/test_ieee39_paper_style_branch_vulnerability_label_generator_dry_run.py",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_block_parameter_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.json",
@@ -4486,6 +4506,193 @@ def main() -> int:
                     failures.append(f"Relay threshold proxy approval docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read relay threshold proxy approval artifacts: {exc}")
+
+    label_generator_dir = ROOT / "results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run"
+    label_generator_summary = label_generator_dir / "branch_vulnerability_label_generator_dry_run_summary.json"
+    label_generator_semantics = label_generator_dir / "branch_vulnerability_label_semantics.json"
+    label_generator_states = label_generator_dir / "state_space_manifest.json"
+    label_generator_plan = label_generator_dir / "state_branch_label_generation_plan.json"
+    label_generator_reuse = label_generator_dir / "existing_label_reuse_audit.json"
+    label_generator_no_leakage = label_generator_dir / "no_leakage_label_generator_audit.json"
+    label_generator_blocker = label_generator_dir / "label_generator_blocker_report.json"
+    label_generator_doc = ROOT / "docs/ieee39_paper_style_branch_vulnerability_label_generator_dry_run.md"
+    label_generator_required = [
+        label_generator_semantics,
+        label_generator_dir / "branch_vulnerability_label_semantics.md",
+        label_generator_states,
+        label_generator_dir / "state_space_manifest.md",
+        label_generator_dir / "state_space_manifest.csv",
+        label_generator_plan,
+        label_generator_dir / "state_branch_label_generation_plan.md",
+        label_generator_dir / "state_branch_label_generation_plan.csv",
+        label_generator_reuse,
+        label_generator_dir / "existing_label_reuse_audit.md",
+        label_generator_no_leakage,
+        label_generator_dir / "no_leakage_label_generator_audit.md",
+        label_generator_blocker,
+        label_generator_dir / "label_generator_blocker_report.md",
+        label_generator_summary,
+        label_generator_dir / "branch_vulnerability_label_generator_dry_run_summary.md",
+        label_generator_dir / "branch_vulnerability_label_generator_dry_run_summary.csv",
+        label_generator_doc,
+    ]
+    existing_label_generator_required = [path for path in label_generator_required if path.exists()]
+    if existing_label_generator_required:
+        missing_label_generator_required = [path for path in label_generator_required if not path.exists()]
+        if missing_label_generator_required:
+            failures.append(
+                "IEEE39 paper-style branch vulnerability label generator dry-run artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_label_generator_required)
+            )
+        try:
+            summary = _read_json_path(label_generator_summary)
+            semantics = _read_json_path(label_generator_semantics)
+            states = _read_json_path(label_generator_states)
+            plan_rows = _read_json_path(label_generator_plan)
+            reuse = _read_json_path(label_generator_reuse)
+            no_leakage = _read_json_path(label_generator_no_leakage)
+            blocker = _read_json_path(label_generator_blocker)
+            for key, expected in [
+                ("dry_run_scope", "paper_style_branch_vulnerability_label_generator_dry_run"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("simulink_run", False),
+                ("labels_exported", False),
+                ("formal_labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("source_proxy_approval_commit", "caa1decb21bddecc899fa55e5e9ce44241c8a029"),
+                ("paper_graph_node_type", "branch"),
+                ("paper_graph_edge_rule", "shared_endpoint_bus"),
+                ("num_branch_nodes", 34),
+                ("feature_matrix_with_proxy_ready", True),
+                ("relay_threshold_is_proxy", True),
+                ("proxy_allowed_for_audit_only_prototype", True),
+                ("proxy_allowed_for_production", False),
+                ("label_shape_target", "num_states x num_branches"),
+                ("num_states_planned", 35),
+                ("num_state_branch_pairs_planned", 1156),
+                ("can_generate_full_state_branch_label_matrix_now", False),
+                ("can_generate_base_state_single_line_labels_now", False),
+                ("can_generate_single_outage_next_branch_labels_now", False),
+                ("bus_fault_labels_directly_paper_aligned", False),
+                ("line_trip_labels_first_priority", True),
+                ("l12_special_case_preserved", True),
+                ("nf06_warning_preserved", True),
+                ("forbidden_features_detected_in_inputs", []),
+                ("no_leakage_label_generator_policy_passed", True),
+                ("final_engineering_conclusion", False),
+                ("should_train_gcn_now", False),
+                ("should_rerun_formal_audit_now", False),
+                ("should_export_labels_now", False),
+                ("should_retrain_reranker_now", False),
+                ("should_deploy_model", False),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"Branch vulnerability label generator dry-run must set {key}={expected!r}.")
+            if "no complete state x branch" not in str(summary.get("blocker_if_any", "")):
+                failures.append("Branch vulnerability label generator blocker must mention missing state x branch label source.")
+            if summary.get("recommended_next_step") != "implement controlled line-trip label generation loop for paper-style branch vulnerability labels":
+                failures.append("Branch vulnerability label generator recommended next step must be controlled line-trip loop.")
+            for key, expected in [
+                ("label_semantics_scope", "paper_style_branch_vulnerability_label_semantics"),
+                ("paper_label_type", "branch_vulnerability_binary_vector"),
+                ("label_shape", "num_states x num_branches"),
+                ("bus_fault_labels_directly_paper_aligned", False),
+                ("line_trip_labels_first_priority", True),
+                ("no_training_this_round", True),
+            ]:
+                if semantics.get(key) != expected:
+                    failures.append(f"Branch vulnerability label semantics must set {key}={expected!r}.")
+            if len(states) != 35:
+                failures.append("State space manifest must contain 35 states.")
+            if not states or states[0].get("state_id") != "base_state":
+                failures.append("State space manifest must start with base_state.")
+            if len(plan_rows) != 1156:
+                failures.append("State-branch label generation plan must contain 1156 rows.")
+            if any(row.get("label_value") is not None for row in plan_rows):
+                failures.append("Label generation dry-run must not fabricate 0/1 label values.")
+            if any(row.get("label_source_available") is not False for row in plan_rows):
+                failures.append("Label generation dry-run must keep label_source_available=false.")
+            if not any(row.get("l12_special_case_flag") is True for row in plan_rows):
+                failures.append("Label generation plan must preserve L12 special case rows.")
+            for key, expected in [
+                ("bus_fault_labels_directly_paper_aligned", False),
+                ("l12_excluded_or_special", True),
+                ("nf06_warning_preserved", True),
+            ]:
+                if reuse.get(key) != expected:
+                    failures.append(f"Existing label reuse audit must set {key}={expected!r}.")
+            for key, expected in [
+                ("forbidden_features_detected_in_inputs", []),
+                ("post_fault_dynamic_measurements_used_as_inputs", False),
+                ("dynamic_outputs_used_only_as_labels_or_targets", True),
+                ("label_derived_flags_used_as_inputs", False),
+                ("proxy_relay_threshold_used_only_in_feature_generation", True),
+                ("no_leakage_label_generator_policy_passed", True),
+            ]:
+                if no_leakage.get(key) != expected:
+                    failures.append(f"No-leakage label generator audit must set {key}={expected!r}.")
+            for key, expected in [
+                ("can_generate_full_state_branch_label_matrix_now", False),
+                ("can_generate_base_state_single_line_labels_now", False),
+                ("can_generate_single_outage_next_branch_labels_now", False),
+                ("no_simulink_run_this_round", True),
+                ("no_label_export_this_round", True),
+            ]:
+                if blocker.get(key) != expected:
+                    failures.append(f"Label generator blocker report must set {key}={expected!r}.")
+            label_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_paper_style_branch_vulnerability_label_generator_dry_run.md"),
+                    _read_text("results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/branch_vulnerability_label_semantics.md"),
+                    _read_text("results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/state_branch_label_generation_plan.md"),
+                    _read_text("results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/label_generator_blocker_report.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                    _read_text("docs/ieee39_relay_threshold_proxy_approval.md"),
+                    _read_text("docs/ieee39_static_operating_point_feature_source_dry_run.md"),
+                    _read_text("docs/ieee39_paper_aligned_branch_gcn_redesign_dry_run.md"),
+                ]
+            ).lower()
+            normalized_label = " ".join(label_text.replace("`", "").split())
+            for required in [
+                "paper-style branch vulnerability label generator dry-run",
+                "did not train gcn",
+                "did not rerun formal audit",
+                "did not run simulink",
+                "did not export formal labels",
+                "did not retrain the reranker",
+                "state x branch",
+                "vulnerability vector",
+                "scenario-level dynamic labels",
+                "bus-fault labels are not directly paper-aligned",
+                "line-trip labels should be prepared first",
+                "beta * rate_a",
+                "not a real relay setting",
+                "not an engineering-grade protection threshold",
+                "controlled line-trip label generation loop",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "temporary bus-fault injection is not engineering-grade protection",
+            ]:
+                if required not in normalized_label:
+                    failures.append(f"Branch vulnerability label generator docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is useless",
+                "formal audit rerun completed",
+                "labels exported = true",
+                "formal_labels_exported = true",
+                "final engineering conclusion: true",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+                "real relay setting = true",
+                "production ready",
+            ]:
+                if bad in normalized_label:
+                    failures.append(f"Branch vulnerability label generator docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read branch vulnerability label generator dry-run artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

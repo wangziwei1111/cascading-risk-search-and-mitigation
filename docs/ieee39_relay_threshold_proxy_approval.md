@@ -40,3 +40,19 @@ Post-fault dynamic measurements are not used as inputs. `dynamic_stress_score` a
 ## Boundaries
 
 This is not deployment, not reranker retraining, and not a final engineering conclusion. It provides no GCN usefulness conclusion. `phasor_RMS` is not EMT. `generator_speed_proxy` is not direct frequency. Temporary bus-fault injection is not engineering-grade protection.
+
+## Label Generator Dry-Run Follow-Up
+
+A later paper-style branch vulnerability label generator dry-run uses this
+approved proxy only for feature generation. It does not export formal labels
+and does not train GCN.
+
+The dry-run plans a `num_states x num_branches` label structure for line-trip
+labels. It keeps bus-fault labels outside the directly paper-aligned branch
+vulnerability vector, preserves the L12 special case, and keeps NF06 warnings.
+
+- `label_shape_target = num_states x num_branches`
+- `num_states_planned = 35`
+- `num_state_branch_pairs_planned = 1156`
+- `can_generate_full_state_branch_label_matrix_now = false`
+- `recommended_next_step = implement controlled line-trip label generation loop for paper-style branch vulnerability labels`

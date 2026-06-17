@@ -4444,3 +4444,65 @@ This is not deployment and not reranker retraining. It provides no GCN
 usefulness conclusion. `phasor_RMS` is not EMT. `generator_speed_proxy` is not
 direct frequency. Temporary bus-fault injection is not engineering-grade
 protection.
+
+## Round 85: IEEE39 Paper-Style Branch Vulnerability Label Generator Dry-Run
+
+This round prepares the IEEE39 paper-style branch vulnerability label generator
+dry-run for line-trip labels. It does not train GCN, does not rerun the formal
+audit, does not run Simulink, does not export formal labels, does not retrain
+the reranker, and does not save a production model.
+
+The paper label is a state x branch vulnerability vector. In a current
+operational state, `y_GCN[k]` means whether disconnecting branch `k` causes
+load shedding or a documented proxy critical event. This differs from the
+current scenario-level `dynamic_stress_score` / `unstable_flag` artifacts.
+
+Artifacts:
+
+- `scripts/gcn_search/prepare_ieee39_paper_style_branch_vulnerability_label_generator_dry_run.py`
+- `docs/ieee39_paper_style_branch_vulnerability_label_generator_dry_run.md`
+- `results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/branch_vulnerability_label_semantics.json`
+- `results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/state_space_manifest.json`
+- `results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/state_branch_label_generation_plan.json`
+- `results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/existing_label_reuse_audit.json`
+- `results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/no_leakage_label_generator_audit.json`
+- `results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/label_generator_blocker_report.json`
+- `results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/branch_vulnerability_label_generator_dry_run_summary.json`
+
+Current result:
+
+- `dry_run_scope = paper_style_branch_vulnerability_label_generator_dry_run`
+- `feature_matrix_with_proxy_ready = true`
+- `relay_threshold_is_proxy = true`
+- `proxy_allowed_for_audit_only_prototype = true`
+- `proxy_allowed_for_production = false`
+- `label_shape_target = num_states x num_branches`
+- `num_states_planned = 35`
+- `num_state_branch_pairs_planned = 1156`
+- `can_generate_full_state_branch_label_matrix_now = false`
+- `can_generate_base_state_single_line_labels_now = false`
+- `can_generate_single_outage_next_branch_labels_now = false`
+- `bus_fault_labels_directly_paper_aligned = false`
+- `line_trip_labels_first_priority = true`
+- `l12_special_case_preserved = true`
+- `nf06_warning_preserved = true`
+- `forbidden_features_detected_in_inputs = []`
+- `no_leakage_label_generator_policy_passed = true`
+- `final_engineering_conclusion = false`
+- `should_train_gcn_now = false`
+- `should_rerun_formal_audit_now = false`
+- `should_export_labels_now = false`
+- `should_retrain_reranker_now = false`
+- `should_deploy_model = false`
+
+Interpretation: the dry-run can plan the label matrix, but it cannot generate
+real 0/1 paper labels yet. Unknown, timeout, islanding special, and
+not-simulated entries remain null/planned/blocked/excluded. The next step is
+to implement a controlled line-trip label generation loop for paper-style
+branch vulnerability labels.
+
+This is not deployment and not reranker retraining. It provides no GCN
+usefulness conclusion. `beta * RATE_A` is still an audit-only proxy, not a real
+protection setting. `phasor_RMS` is not EMT. `generator_speed_proxy` is not
+direct frequency. Temporary bus-fault injection is not engineering-grade
+protection.

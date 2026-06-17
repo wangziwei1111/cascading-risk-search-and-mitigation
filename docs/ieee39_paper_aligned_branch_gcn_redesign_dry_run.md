@@ -106,3 +106,32 @@ However, the relay threshold is still not a verified source; only a
 
 Therefore the paper-aligned feature source is closer, but still not approved
 for training until the relay-threshold proxy is documented and approved.
+
+## Branch Vulnerability Label Generator Follow-Up
+
+Later dry-runs resolved the static feature source with an approved audit-only
+`beta * RATE_A` proxy and then prepared a paper-style branch vulnerability
+label generator dry-run. The label generator dry-run did not train GCN, did not
+rerun the formal audit, did not run Simulink, did not export formal labels, and
+did not retrain the reranker.
+
+Updated label-generator status:
+
+- `feature_matrix_with_proxy_ready = true`
+- `relay_threshold_is_proxy = true`
+- `proxy_allowed_for_audit_only_prototype = true`
+- `proxy_allowed_for_production = false`
+- `label_shape_target = num_states x num_branches`
+- `num_states_planned = 35`
+- `num_state_branch_pairs_planned = 1156`
+- `can_generate_full_state_branch_label_matrix_now = false`
+- `bus_fault_labels_directly_paper_aligned = false`
+- `line_trip_labels_first_priority = true`
+- `l12_special_case_preserved = true`
+- `nf06_warning_preserved = true`
+
+The current blocker is no longer the L01-L34 feature source with proxy. The
+current blocker is the absence of a controlled line-trip label generation loop
+that can fill paper-style state x branch labels without fabricating 0/1 labels.
+Unknown, timeout, islanding special, and not-simulated entries must remain
+null, planned, blocked, or excluded.

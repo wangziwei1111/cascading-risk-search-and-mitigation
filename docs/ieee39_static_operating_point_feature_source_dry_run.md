@@ -60,3 +60,20 @@ The approval still does not train GCN, does not rerun formal audit, does not
 run Simulink, does not export labels, and does not retrain the reranker. The
 next step is a paper-style branch vulnerability label generator dry-run for
 line-trip labels.
+
+## Branch Vulnerability Label Generator Dry-Run Follow-Up
+
+A later dry-run defines the paper-style `state x branch` label generator
+structure. It uses the approved `beta * RATE_A` proxy only in the feature
+matrix and does not export formal labels.
+
+- `label_shape_target = num_states x num_branches`
+- `num_states_planned = 35`
+- `num_state_branch_pairs_planned = 1156`
+- `can_generate_full_state_branch_label_matrix_now = false`
+- `bus_fault_labels_directly_paper_aligned = false`
+- `line_trip_labels_first_priority = true`
+
+The blocker is the absence of a controlled line-trip label generation loop.
+Existing scenario-level dynamic labels are not treated as complete paper-style
+state x branch labels.
