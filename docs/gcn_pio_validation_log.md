@@ -4506,3 +4506,64 @@ usefulness conclusion. `beta * RATE_A` is still an audit-only proxy, not a real
 protection setting. `phasor_RMS` is not EMT. `generator_speed_proxy` is not
 direct frequency. Temporary bus-fault injection is not engineering-grade
 protection.
+
+## Round 86: IEEE39 Base-State Branch Vulnerability Label Pilot
+
+This round generates a base-state label pilot only. It does not train GCN, does
+not rerun the formal audit, does not run Simulink, does not export formal
+labels, does not retrain the reranker, and does not save a production model.
+
+Scope:
+
+- `pilot_scope = base_state_branch_vulnerability_label_pilot`
+- `state_id = base_state`
+- `prior_outaged_branches = []`
+- only `base_state x L01-L34`
+- does not generate `single_outage_state x next_branch` labels
+- does not use bus-fault labels
+
+Artifacts:
+
+- `scripts/gcn_search/generate_ieee39_base_state_branch_vulnerability_label_pilot.py`
+- `docs/ieee39_base_state_branch_vulnerability_label_pilot.md`
+- `results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot/base_state_branch_vulnerability_label_pilot_summary.json`
+- `results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot/base_state_branch_vulnerability_label_matrix.json`
+- `results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot/existing_line_trip_label_reuse_report.json`
+- `results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot/no_leakage_base_state_label_pilot_audit.json`
+
+Current result:
+
+- `num_candidate_branches = 34`
+- `num_label_slots = 34`
+- `num_labels_available = 33`
+- `num_labels_unknown = 0`
+- `num_labels_excluded = 1`
+- `l12_special_case_preserved = true`
+- `feature_matrix_with_proxy_ready = true`
+- `relay_threshold_is_proxy = true`
+- `proxy_allowed_for_audit_only_prototype = true`
+- `proxy_allowed_for_production = false`
+- `bus_fault_labels_used = false`
+- `line_trip_labels_first_priority = true`
+- `forbidden_features_detected_in_inputs = []`
+- `no_leakage_policy_passed = true`
+- `pilot_labels_are_formal_training_labels = false`
+- `final_engineering_conclusion = false`
+- `should_train_gcn_now = false`
+- `should_rerun_formal_audit_now = false`
+- `should_export_formal_labels_now = false`
+- `should_retrain_reranker_now = false`
+- `should_deploy_model = false`
+
+Interpretation: 33 existing training-ready handwired line-trip dynamic rows can
+be reused for the base-state pilot matrix. L12 remains special/excluded because
+it is an islanding-timeout case and is not forced to 0 or 1. Unknown or missing
+sources remain null by rule; in this base-state pilot, no non-L12 slot is
+unknown.
+
+This is not deployment and not reranker retraining. It provides no GCN
+usefulness conclusion. `beta * RATE_A` is still an audit-only proxy, not a real
+relay setting. Pilot labels are not formal training labels. `phasor_RMS` is not
+EMT. `generator_speed_proxy` is not direct frequency. Temporary bus-fault
+injection is not engineering-grade protection. The next step is a controlled
+single-outage state label generation loop dry-run.

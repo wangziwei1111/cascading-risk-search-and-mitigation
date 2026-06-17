@@ -601,6 +601,17 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/branch_vulnerability_label_generator_dry_run_summary.json",
     "results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/branch_vulnerability_label_generator_dry_run_summary.md",
     "results/gcn_search/ieee39_paper_style_branch_vulnerability_label_generator_dry_run/branch_vulnerability_label_generator_dry_run_summary.csv",
+    "docs/ieee39_base_state_branch_vulnerability_label_pilot.md",
+    "results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot/base_state_branch_vulnerability_label_pilot_summary.json",
+    "results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot/base_state_branch_vulnerability_label_pilot_summary.md",
+    "results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot/base_state_branch_vulnerability_label_pilot_summary.csv",
+    "results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot/base_state_branch_vulnerability_label_matrix.json",
+    "results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot/base_state_branch_vulnerability_label_matrix.md",
+    "results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot/base_state_branch_vulnerability_label_matrix.csv",
+    "results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot/existing_line_trip_label_reuse_report.json",
+    "results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot/existing_line_trip_label_reuse_report.md",
+    "results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot/no_leakage_base_state_label_pilot_audit.json",
+    "results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot/no_leakage_base_state_label_pilot_audit.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -621,6 +632,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/prepare_ieee39_static_operating_point_feature_source_dry_run.py",
     "scripts/gcn_search/approve_ieee39_relay_threshold_proxy.py",
     "scripts/gcn_search/prepare_ieee39_paper_style_branch_vulnerability_label_generator_dry_run.py",
+    "scripts/gcn_search/generate_ieee39_base_state_branch_vulnerability_label_pilot.py",
     "tests/test_ieee39_v2_plus_all_bus_fault_preview_no_leakage.py",
     "tests/test_ieee39_gcn_usefulness_audit_plan.py",
     "tests/test_ieee39_gcn_usefulness_audit_dry_run_validator.py",
@@ -632,6 +644,7 @@ REQUIRED_FILES = [
     "tests/test_ieee39_static_operating_point_feature_source_dry_run.py",
     "tests/test_ieee39_relay_threshold_proxy_approval.py",
     "tests/test_ieee39_paper_style_branch_vulnerability_label_generator_dry_run.py",
+    "tests/test_ieee39_base_state_branch_vulnerability_label_pilot.py",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_block_parameter_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.json",
@@ -4693,6 +4706,169 @@ def main() -> int:
                     failures.append(f"Branch vulnerability label generator docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read branch vulnerability label generator dry-run artifacts: {exc}")
+
+    base_pilot_dir = ROOT / "results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot"
+    base_pilot_summary = base_pilot_dir / "base_state_branch_vulnerability_label_pilot_summary.json"
+    base_pilot_matrix = base_pilot_dir / "base_state_branch_vulnerability_label_matrix.json"
+    base_pilot_reuse = base_pilot_dir / "existing_line_trip_label_reuse_report.json"
+    base_pilot_no_leakage = base_pilot_dir / "no_leakage_base_state_label_pilot_audit.json"
+    base_pilot_doc = ROOT / "docs/ieee39_base_state_branch_vulnerability_label_pilot.md"
+    base_pilot_required = [
+        base_pilot_summary,
+        base_pilot_dir / "base_state_branch_vulnerability_label_pilot_summary.md",
+        base_pilot_dir / "base_state_branch_vulnerability_label_pilot_summary.csv",
+        base_pilot_matrix,
+        base_pilot_dir / "base_state_branch_vulnerability_label_matrix.md",
+        base_pilot_dir / "base_state_branch_vulnerability_label_matrix.csv",
+        base_pilot_reuse,
+        base_pilot_dir / "existing_line_trip_label_reuse_report.md",
+        base_pilot_no_leakage,
+        base_pilot_dir / "no_leakage_base_state_label_pilot_audit.md",
+        base_pilot_doc,
+    ]
+    existing_base_pilot_required = [path for path in base_pilot_required if path.exists()]
+    if existing_base_pilot_required:
+        missing_base_pilot_required = [path for path in base_pilot_required if not path.exists()]
+        if missing_base_pilot_required:
+            failures.append(
+                "IEEE39 base-state branch vulnerability label pilot artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_base_pilot_required)
+            )
+        try:
+            summary = _read_json_path(base_pilot_summary)
+            matrix = _read_json_path(base_pilot_matrix)
+            reuse = _read_json_path(base_pilot_reuse)
+            no_leakage = _read_json_path(base_pilot_no_leakage)
+            for key, expected in [
+                ("pilot_scope", "base_state_branch_vulnerability_label_pilot"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("simulink_run", False),
+                ("labels_exported", False),
+                ("formal_labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("source_label_generator_dry_run_commit", "221fa4baa1a1f1090fd953650b8577031380ffe8"),
+                ("state_id", "base_state"),
+                ("prior_outaged_branches", []),
+                ("num_candidate_branches", 34),
+                ("num_label_slots", 34),
+                ("num_labels_available", 33),
+                ("num_labels_unknown", 0),
+                ("num_labels_excluded", 1),
+                ("l12_special_case_preserved", True),
+                ("feature_matrix_with_proxy_ready", True),
+                ("relay_threshold_is_proxy", True),
+                ("proxy_allowed_for_audit_only_prototype", True),
+                ("proxy_allowed_for_production", False),
+                ("bus_fault_labels_used", False),
+                ("line_trip_labels_first_priority", True),
+                ("forbidden_features_detected_in_inputs", []),
+                ("no_leakage_policy_passed", True),
+                ("pilot_labels_are_formal_training_labels", False),
+                ("final_engineering_conclusion", False),
+                ("should_train_gcn_now", False),
+                ("should_rerun_formal_audit_now", False),
+                ("should_export_formal_labels_now", False),
+                ("should_retrain_reranker_now", False),
+                ("should_deploy_model", False),
+                ("blocker_if_any", None),
+                ("recommended_next_step", "prepare controlled single-outage state label generation loop dry-run"),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"Base-state branch vulnerability label pilot must set {key}={expected!r}.")
+            if len(matrix) != 34:
+                failures.append("Base-state label pilot matrix must contain 34 rows.")
+            else:
+                l12_rows = [row for row in matrix if row.get("line_id") == "L12"]
+                if len(l12_rows) != 1:
+                    failures.append("Base-state label pilot matrix must contain exactly one L12 row.")
+                elif not (
+                    l12_rows[0].get("label_status") == "excluded"
+                    and l12_rows[0].get("label_value") is None
+                    and l12_rows[0].get("l12_special_case_flag") is True
+                ):
+                    failures.append("Base-state label pilot must preserve L12 as excluded/null/special.")
+                non_l12 = [row for row in matrix if row.get("line_id") != "L12"]
+                if len(non_l12) != 33:
+                    failures.append("Base-state label pilot must contain 33 non-L12 rows.")
+                if any(row.get("state_id") != "base_state" for row in matrix):
+                    failures.append("Base-state label pilot matrix must only use state_id=base_state.")
+                if any(row.get("prior_outaged_branches") != [] for row in matrix):
+                    failures.append("Base-state label pilot matrix must keep prior_outaged_branches=[].")
+                if any(row.get("label_status") != "available" for row in non_l12):
+                    failures.append("All non-L12 base-state pilot rows should be available from existing line-trip artifacts.")
+                if any(row.get("label_source") != "existing_training_ready_handwired_line_trip" for row in non_l12):
+                    failures.append("All non-L12 base-state pilot rows must use existing line-trip label source.")
+            for key, expected in [
+                ("existing_line_trip_labels_found", True),
+                ("existing_line_trip_labels_count", 33),
+                ("reused_for_base_state_count", 33),
+                ("unknown_count", 0),
+                ("excluded_count", 1),
+                ("l12_status", "excluded_special_islanding_timeout"),
+                ("old_formal_gate_preserved", True),
+            ]:
+                if reuse.get(key) != expected:
+                    failures.append(f"Existing line-trip label reuse report must set {key}={expected!r}.")
+            for key, expected in [
+                ("forbidden_features_detected_in_inputs", []),
+                ("post_fault_dynamic_measurements_used_as_inputs", False),
+                ("dynamic_outputs_used_only_as_labels_or_targets", True),
+                ("label_derived_flags_used_as_inputs", False),
+                ("proxy_relay_threshold_used_only_in_feature_generation", True),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if no_leakage.get(key) != expected:
+                    failures.append(f"No-leakage base-state label pilot audit must set {key}={expected!r}.")
+            base_pilot_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_base_state_branch_vulnerability_label_pilot.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                    _read_text("docs/ieee39_paper_style_branch_vulnerability_label_generator_dry_run.md"),
+                    _read_text("docs/ieee39_relay_threshold_proxy_approval.md"),
+                    _read_text("results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot/base_state_branch_vulnerability_label_pilot_summary.md"),
+                    _read_text("results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot/existing_line_trip_label_reuse_report.md"),
+                    _read_text("results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot/no_leakage_base_state_label_pilot_audit.md"),
+                ]
+            ).lower()
+            normalized_base_pilot = " ".join(base_pilot_text.replace("`", "").split())
+            for required in [
+                "base-state label pilot only",
+                "does not train gcn",
+                "does not rerun formal audit",
+                "does not run simulink",
+                "does not export formal labels",
+                "does not retrain the reranker",
+                "only base_state x l01-l34",
+                "does not generate single_outage_state x next_branch labels",
+                "does not use bus-fault labels",
+                "unknown or missing sources remain null",
+                "l12 remains special/excluded",
+                "beta * rate_a",
+                "audit-only",
+                "not a real relay setting",
+                "pilot labels are not formal training labels",
+                "controlled single-outage state label generation loop",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "temporary bus-fault injection is not engineering-grade protection",
+            ]:
+                if required not in normalized_base_pilot:
+                    failures.append(f"Base-state label pilot docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is useless",
+                "formal audit rerun completed",
+                "formal labels exported",
+                "final engineering conclusion: true",
+                "production_model_saved = true",
+                "real relay setting = true",
+            ]:
+                if bad in normalized_base_pilot:
+                    failures.append(f"Base-state label pilot docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read base-state branch vulnerability label pilot artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

@@ -56,3 +56,23 @@ vulnerability vector, preserves the L12 special case, and keeps NF06 warnings.
 - `num_state_branch_pairs_planned = 1156`
 - `can_generate_full_state_branch_label_matrix_now = false`
 - `recommended_next_step = implement controlled line-trip label generation loop for paper-style branch vulnerability labels`
+
+## Base-State Label Pilot Follow-Up
+
+A later base-state branch vulnerability label pilot continues to use
+`beta * RATE_A` only as an audit-only feature-generation proxy. It does not
+make the proxy a real relay setting, does not train GCN, does not rerun formal
+audit, does not run Simulink, does not export formal labels, and does not
+retrain the reranker.
+
+The pilot covers only `base_state x L01-L34`, reuses existing training-ready
+handwired line-trip artifacts first, keeps bus-fault labels out of the branch
+vulnerability vector, and preserves L12 as a special/excluded
+islanding-timeout case. Pilot labels are not formal training labels.
+
+- `pilot_scope = base_state_branch_vulnerability_label_pilot`
+- `num_label_slots = 34`
+- `num_labels_available = 33`
+- `num_labels_excluded = 1`
+- `bus_fault_labels_used = false`
+- `pilot_labels_are_formal_training_labels = false`
