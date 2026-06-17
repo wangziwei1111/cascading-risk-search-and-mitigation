@@ -545,6 +545,19 @@ REQUIRED_FILES = [
     "docs/ieee39_paper_aligned_branch_gcn_redesign_consistency_check.md",
     "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_consistency_check/paper_aligned_redesign_consistency_check.json",
     "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_consistency_check/paper_aligned_redesign_consistency_check.md",
+    "docs/ieee39_paper_aligned_feature_source_dry_run.md",
+    "results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/feature_source_inventory.json",
+    "results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/feature_source_inventory.md",
+    "results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/l01_l34_feature_readiness_matrix.json",
+    "results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/l01_l34_feature_readiness_matrix.md",
+    "results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/l01_l34_feature_readiness_matrix.csv",
+    "results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/paper_feature_mapping_plan.json",
+    "results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/paper_feature_mapping_plan.md",
+    "results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/no_leakage_feature_source_audit.json",
+    "results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/no_leakage_feature_source_audit.md",
+    "results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/feature_source_dry_run_validator_summary.json",
+    "results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/feature_source_dry_run_validator_summary.md",
+    "results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/feature_source_dry_run_validator_summary.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -561,6 +574,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/run_ieee39_strict_no_leakage_gcn_usefulness_audit.py",
     "scripts/gcn_search/diagnose_ieee39_gcn_audit_evidence_gap.py",
     "scripts/gcn_search/prepare_ieee39_paper_aligned_branch_gcn_redesign_dry_run.py",
+    "scripts/gcn_search/prepare_ieee39_paper_aligned_feature_source_dry_run.py",
     "tests/test_ieee39_v2_plus_all_bus_fault_preview_no_leakage.py",
     "tests/test_ieee39_gcn_usefulness_audit_plan.py",
     "tests/test_ieee39_gcn_usefulness_audit_dry_run_validator.py",
@@ -568,6 +582,7 @@ REQUIRED_FILES = [
     "tests/test_ieee39_gcn_audit_evidence_diagnosis.py",
     "tests/test_ieee39_paper_aligned_branch_gcn_redesign_dry_run.py",
     "tests/test_ieee39_paper_aligned_branch_gcn_redesign_consistency_check.py",
+    "tests/test_ieee39_paper_aligned_feature_source_dry_run.py",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_block_parameter_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.json",
@@ -4035,6 +4050,129 @@ def main() -> int:
                     failures.append(f"Paper-aligned redesign consistency docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read paper-aligned redesign consistency artifacts: {exc}")
+
+    feature_source_dir = ROOT / "results/gcn_search/ieee39_paper_aligned_feature_source_dry_run"
+    feature_source_summary = feature_source_dir / "feature_source_dry_run_validator_summary.json"
+    feature_source_inventory = feature_source_dir / "feature_source_inventory.json"
+    feature_source_matrix = feature_source_dir / "l01_l34_feature_readiness_matrix.json"
+    feature_source_mapping = feature_source_dir / "paper_feature_mapping_plan.json"
+    feature_source_no_leakage = feature_source_dir / "no_leakage_feature_source_audit.json"
+    feature_source_doc = ROOT / "docs/ieee39_paper_aligned_feature_source_dry_run.md"
+    feature_source_required = [
+        feature_source_summary,
+        feature_source_inventory,
+        feature_source_matrix,
+        feature_source_mapping,
+        feature_source_no_leakage,
+        feature_source_doc,
+    ]
+    existing_feature_source_required = [path for path in feature_source_required if path.exists()]
+    if existing_feature_source_required:
+        missing_feature_source_required = [path for path in feature_source_required if not path.exists()]
+        if missing_feature_source_required:
+            failures.append(
+                "IEEE39 paper-aligned feature source dry-run artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_feature_source_required)
+            )
+        try:
+            summary = _read_json_path(feature_source_summary)
+            inventory = _read_json_path(feature_source_inventory)
+            matrix = _read_json_path(feature_source_matrix)
+            mapping = _read_json_path(feature_source_mapping)
+            no_leakage = _read_json_path(feature_source_no_leakage)
+            for key, expected in [
+                ("dry_run_scope", "paper_aligned_feature_source_dry_run"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("simulink_run", False),
+                ("labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("source_consistency_commit", "e41e17f591958f8622baa9002f9b5e01376590d5"),
+                ("paper_graph_node_type", "branch"),
+                ("paper_graph_edge_rule", "shared_endpoint_bus"),
+                ("branch_line_graph_ready", True),
+                ("num_branch_nodes", 34),
+                ("branch_flow_source_ready", False),
+                ("line_limit_source_ready", False),
+                ("relay_threshold_source_ready", False),
+                ("bus_load_source_ready", False),
+                ("can_build_required_paper_features", False),
+                ("can_build_l01_l34_feature_matrix", False),
+                ("forbidden_features_detected_in_inputs", []),
+                ("no_leakage_feature_source_policy_passed", True),
+                ("l12_special_case_preserved", True),
+                ("final_engineering_conclusion", False),
+                ("should_train_gcn_now", False),
+                ("should_rerun_formal_audit_now", False),
+                ("should_retrain_reranker_now", False),
+                ("should_deploy_model", False),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"Paper-aligned feature source dry-run must set {key}={expected!r}.")
+            if "verified current-state branch flow" not in str(summary.get("blocker_if_any", "")):
+                failures.append("Paper-aligned feature source dry-run blocker must mention missing verified current-state branch flow.")
+            if inventory.get("inventory_scope") != "paper_aligned_feature_source_inventory":
+                failures.append("Feature source inventory scope is wrong.")
+            if inventory.get("verified_sources_ready") is not False:
+                failures.append("Feature source inventory must not mark verified_sources_ready=true yet.")
+            if no_leakage.get("forbidden_features_detected_in_inputs") != []:
+                failures.append("Feature source no-leakage audit must have forbidden_features_detected_in_inputs=[].")
+            if no_leakage.get("post_fault_dynamic_measurements_used_as_inputs") is not False:
+                failures.append("Feature source no-leakage audit must not use post-fault dynamic measurements as inputs.")
+            if mapping.get("feature_vector_shape") != "L x 4" or mapping.get("current_L") != 34:
+                failures.append("Paper feature mapping plan must keep feature_vector_shape='L x 4' and current_L=34.")
+            if not isinstance(matrix, list) or len(matrix) != 34:
+                failures.append("L01-L34 feature readiness matrix must contain 34 rows.")
+            else:
+                l12_rows = [row for row in matrix if row.get("line_id") == "L12"]
+                if not l12_rows or l12_rows[0].get("l12_special_case_flag") is not True:
+                    failures.append("L12 special case flag must be preserved in feature readiness matrix.")
+                if any(row.get("ready_for_paper_feature_vector") for row in matrix):
+                    failures.append("No L01-L34 row should be marked ready before verified flow/limit/load sources exist.")
+            feature_source_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_paper_aligned_feature_source_dry_run.md"),
+                    _read_text("results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/feature_source_inventory.md"),
+                    _read_text("results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/paper_feature_mapping_plan.md"),
+                    _read_text("results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/no_leakage_feature_source_audit.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                ]
+            ).lower()
+            normalized_feature_source = " ".join(feature_source_text.replace("`", "").split())
+            for required in [
+                "paper-aligned feature source dry-run",
+                "does not train gcn",
+                "does not rerun the formal audit",
+                "does not run simulink",
+                "does not export labels",
+                "does not retrain the reranker",
+                "x_t",
+                "x_p",
+                "x_b",
+                "x_l",
+                "post-fault dynamic measurement cannot replace",
+                "l12 remains a special case",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "not engineering-grade protection",
+            ]:
+                if required not in normalized_feature_source:
+                    failures.append(f"Paper-aligned feature source docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is useless",
+                "formal audit rerun completed",
+                "final engineering conclusion: true",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+                "production_model_saved = true",
+                "production ready",
+            ]:
+                if bad in normalized_feature_source:
+                    failures.append(f"Paper-aligned feature source docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read paper-aligned feature source dry-run artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

@@ -35,3 +35,25 @@ is not engineering-grade protection.
 - `should_deploy_model = false`
 - `should_retrain_reranker_now = false`
 - `failed_checks = []`
+
+## Feature Source Follow-Up
+
+The next dry-run focuses on static/pre-fault/current-state feature sources for
+the paper-aligned `L x 4` input. It still does not train GCN, does not rerun the
+formal audit, does not run Simulink, does not export labels, and does not
+retrain the reranker.
+
+The feature-source result preserves this consistency check and reports:
+
+- `branch_line_graph_ready = true`
+- `num_branch_nodes = 34`
+- `branch_flow_source_ready = false`
+- `line_limit_source_ready = false`
+- `relay_threshold_source_ready = false`
+- `bus_load_source_ready = false`
+- `can_build_required_paper_features = false`
+- `can_build_l01_l34_feature_matrix = false`
+
+The blocker remains missing verified current-state branch flow, line limit or
+relay threshold, and endpoint bus load sources. Post-fault dynamic measurements
+remain forbidden as GCN inputs.

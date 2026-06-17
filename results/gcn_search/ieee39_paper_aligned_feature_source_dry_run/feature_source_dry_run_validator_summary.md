@@ -1,0 +1,44 @@
+# IEEE39 Paper-Aligned Feature Source Dry-Run Validator Summary
+
+- `dry_run_scope`: paper_aligned_feature_source_dry_run
+- `gcn_training_run`: False
+- `formal_gcn_audit_rerun`: False
+- `simulink_run`: False
+- `labels_exported`: False
+- `reranker_retrained`: False
+- `production_model_saved`: False
+- `source_consistency_commit`: e41e17f591958f8622baa9002f9b5e01376590d5
+- `paper_graph_node_type`: branch
+- `paper_graph_edge_rule`: shared_endpoint_bus
+- `branch_line_graph_ready`: True
+- `num_branch_nodes`: 34
+- `branch_flow_source_ready`: False
+- `line_limit_source_ready`: False
+- `relay_threshold_source_ready`: False
+- `bus_load_source_ready`: False
+- `can_build_required_paper_features`: False
+- `can_build_l01_l34_feature_matrix`: False
+## forbidden_features_detected_in_inputs
+- []
+
+- `no_leakage_feature_source_policy_passed`: True
+- `l12_special_case_preserved`: True
+- `final_engineering_conclusion`: False
+- `should_train_gcn_now`: False
+- `should_rerun_formal_audit_now`: False
+- `should_retrain_reranker_now`: False
+- `should_deploy_model`: False
+- `blocker_if_any`: verified current-state branch flow, line limit or relay threshold, and endpoint bus load sources are incomplete
+- `recommended_next_step`: add or generate verified current-state PF/OPF branch flow, line limit, and bus load sources before label generator
+## previous_redesign_consistency
+```json
+{
+  "can_build_branch_line_graph": true,
+  "can_build_required_paper_features": false,
+  "can_build_paper_labels_from_existing_data": false,
+  "line_trip_labels_first_priority": true
+}
+```
+
+- `previous_feature_manifest_ready`: False
+- `previous_label_plan_ready`: False

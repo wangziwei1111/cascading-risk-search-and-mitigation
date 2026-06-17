@@ -1,0 +1,30 @@
+# IEEE39 Paper Feature Mapping Plan
+
+- `x_t_topology_status_mapping`: Use current outaged branch set over L01-L34; 0 means online and 1 means disconnected.
+- `x_p_relay_ratio_mapping`: |branch_flow| / relay_threshold; blocked until verified branch flow and relay threshold or documented line-limit proxy exist.
+- `x_b_branch_flow_mapping`: Use verified current-state PF/OPF branch active power flow; blocked in this dry-run.
+- `x_l_endpoint_load_mapping`: Use max(load_from_bus, load_to_bus) from verified current-state bus load table; blocked in this dry-run.
+- `normalization_plan`: Normalize only after raw physical values are preserved; do not compute physics ratios from normalized values.
+- `units_plan`: Record MW for branch flow and load, MW or MVA for limits, and dimensionless ratio for x_p.
+- `per_unit_conversion_plan`: If sources are per-unit, record baseMVA and convert consistently before feature normalization.
+## missing_conversion_requirements
+- `baseMVA_for_any_per_unit_source`
+- `verified_branch_flow_units`
+- `verified_load_units`
+- `relay_threshold_or_line_limit_units`
+
+- `no_leakage_policy`: Only pre-fault/current-state static PF/OPF and topology inputs are allowed; post-fault dynamic measurements are forbidden as inputs.
+## forbidden_dynamic_measurement_inputs
+- `min_voltage_pu`
+- `max_voltage_pu`
+- `frequency`
+- `rotor angle`
+- `speed deviation`
+- `dynamic_stress_score`
+- `unstable_flag`
+- `phasor_RMS`
+- `generator_speed_proxy`
+
+- `feature_vector_shape`: L x 4
+- `current_L`: 34
+- `future_extension_note`: if full IEEE39 branch set differs from L01-L34, mapping must be reconciled before training

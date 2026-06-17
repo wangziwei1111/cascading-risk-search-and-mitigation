@@ -4277,3 +4277,59 @@ limit or relay threshold, bus load sources, and a branch vulnerability label
 generator. This is not deployment and not reranker retraining. `phasor_RMS` is
 not EMT. `generator_speed_proxy` is not direct frequency. Temporary bus-fault
 injection is not engineering-grade protection.
+
+## Round 82: IEEE39 Paper-Aligned Feature Source Dry-Run
+
+This round inventories verified static/pre-fault/current-state feature sources
+needed for the paper-aligned IEEE39 branch GCN input. It does not train GCN,
+does not rerun the formal audit, does not run Simulink, does not export labels,
+does not retrain the reranker, and does not save a production model.
+
+The original paper input is `X_GCN = L x 4`:
+
+- `x_t`: topology status, meaning whether the current branch is already disconnected.
+- `x_p`: relay ratio, meaning `|branch_flow| / relay_threshold`.
+- `x_b`: branch flow, meaning current-state branch power flow.
+- `x_l`: endpoint load, meaning the larger load at the two endpoint buses.
+
+Dry-run artifacts:
+
+- `scripts/gcn_search/prepare_ieee39_paper_aligned_feature_source_dry_run.py`
+- `docs/ieee39_paper_aligned_feature_source_dry_run.md`
+- `results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/feature_source_inventory.json`
+- `results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/l01_l34_feature_readiness_matrix.json`
+- `results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/paper_feature_mapping_plan.json`
+- `results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/no_leakage_feature_source_audit.json`
+- `results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/feature_source_dry_run_validator_summary.json`
+
+Current dry-run result:
+
+- `dry_run_scope = paper_aligned_feature_source_dry_run`
+- `branch_line_graph_ready = true`
+- `num_branch_nodes = 34`
+- `branch_flow_source_ready = false`
+- `line_limit_source_ready = false`
+- `relay_threshold_source_ready = false`
+- `bus_load_source_ready = false`
+- `can_build_required_paper_features = false`
+- `can_build_l01_l34_feature_matrix = false`
+- `forbidden_features_detected_in_inputs = []`
+- `no_leakage_feature_source_policy_passed = true`
+- `l12_special_case_preserved = true`
+- `final_engineering_conclusion = false`
+- `should_train_gcn_now = false`
+- `should_rerun_formal_audit_now = false`
+- `should_retrain_reranker_now = false`
+- `should_deploy_model = false`
+
+The L01-L34 topology feature can be constructed from the current outaged branch
+set and the existing wrapper line map. The remaining paper features are still
+blocked because verified current-state branch flow, verified line limit or
+relay threshold, and verified current-state endpoint bus load sources are not
+ready. Post-fault dynamic measurement cannot replace these inputs.
+
+Recommended next step: add or generate verified current-state PF/OPF branch
+flow, line limit, and bus load sources before building the paper-style branch
+vulnerability label generator. This is not deployment and not reranker
+retraining. `phasor_RMS` is not EMT. `generator_speed_proxy` is not direct
+frequency. Temporary bus-fault injection is not engineering-grade protection.

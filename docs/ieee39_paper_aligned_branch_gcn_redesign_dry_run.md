@@ -68,3 +68,22 @@ over simpler baselines yet.
 This does not change the paper-aligned dry-run status above: the branch-as-node
 graph can be built, but the required paper features and paper-style branch
 vulnerability labels are still not ready.
+
+## Feature Source Dry-Run Follow-Up
+
+A later feature-source dry-run inventories the static/pre-fault/current-state
+sources needed for the paper input matrix `X_GCN = L x 4`. The result keeps the
+same method direction: branch nodes with shared endpoint bus edges are ready,
+but the verified inputs for `x_p`, `x_b`, and `x_l` are still incomplete.
+
+- `branch_line_graph_ready = true`
+- `num_branch_nodes = 34`
+- `branch_flow_source_ready = false`
+- `line_limit_source_ready = false`
+- `relay_threshold_source_ready = false`
+- `bus_load_source_ready = false`
+- `can_build_required_paper_features = false`
+- `can_build_l01_l34_feature_matrix = false`
+
+This follow-up also keeps the no-leakage rule: post-fault dynamic measurements
+cannot replace branch flow, relay threshold, or endpoint load inputs.

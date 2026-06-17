@@ -1,0 +1,256 @@
+# IEEE39 Paper-Aligned Feature Source Inventory
+
+- `inventory_scope`: paper_aligned_feature_source_inventory
+## branch_flow_sources_found
+- {"path": "docs/README_RTS79_REPRODUCTION.md", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/gcn_current_progress.md", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/gcn_pio_validation_log.md", "matched_token": "branch_flow", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/ieee39_paper_aligned_branch_gcn_redesign_consistency_check.md", "matched_token": "branch_flow", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/ieee39_paper_aligned_branch_gcn_redesign_dry_run.md", "matched_token": "branch_flow", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/improved_opa_text.txt", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/pio_gcn_dynamic_event_strength_calibration.md", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/pio_gcn_post_fault_sanity_ladder.md", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/pio_gcn_relay_vs_security_constraint.md", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/pio_gcn_simulink_dynamic_validation_plan.md", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/pio_gcn_simulink_real_topk_dynamic_smoke.md", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/pio_gcn_simulink_real_topk_validation.md", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/rl_mitigation_reproducibility_gaps.md", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_ieee39/setup_ieee39_dynamic_experiment_wrapper.m", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/README.md", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/apply_security_redispatch_approx.m", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/calibrate_event_driven_dynamic_scales.m", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/calibrate_post_fault_dynamic_response.m", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/calibrate_rts79_swing_scales.m", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/check_rts79_swing_model_sanity.m", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/run_mild_overload_security_demo.m", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/run_post_fault_sanity_ladder.m", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/run_severe_overload_relay_demo.m", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/run_swing_equilibrium_sanity_demo.m", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/simulate_rts79_swing_case.m", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json", "matched_token": "loading", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_consistency_check/paper_aligned_redesign_consistency_check.json", "matched_token": "branch flow", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_consistency_check/paper_aligned_redesign_consistency_check.md", "matched_token": "branch flow", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_branch_gcn_dry_run_validator_summary.csv", "matched_token": "branch flow", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_branch_gcn_dry_run_validator_summary.json", "matched_token": "branch flow", "trust_level": "unverified_repository_reference"}
+
+## line_limit_sources_found
+- {"path": "docs/README_RTS79_REPRODUCTION.md", "matched_token": "rate_a", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/gcn_cascading_text.txt", "matched_token": "lmax", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/gcn_current_progress.md", "matched_token": "rate_a", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/gcn_pio_validation_log.md", "matched_token": "line limit", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/ieee39_paper_aligned_branch_gcn_redesign_consistency_check.md", "matched_token": "line limit", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/ieee39_paper_aligned_branch_gcn_redesign_dry_run.md", "matched_token": "line limit", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/rl_mitigation_reproducibility_gaps.md", "matched_token": "ratea", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/rl_mitigation_reproduction.md", "matched_token": "rate_a", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/apply_security_redispatch_approx.m", "matched_token": "lmax", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_consistency_check/paper_aligned_redesign_consistency_check.json", "matched_token": "line limit", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_consistency_check/paper_aligned_redesign_consistency_check.md", "matched_token": "line limit", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_branch_gcn_dry_run_validator_summary.csv", "matched_token": "line limit", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_branch_gcn_dry_run_validator_summary.json", "matched_token": "line limit", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_branch_gcn_dry_run_validator_summary.md", "matched_token": "line limit", "trust_level": "unverified_repository_reference"}
+- {"path": "results/rl_mitigation/ieee14/calibration/cascade_action_calibration_summary.csv", "matched_token": "rate_a", "trust_level": "unverified_repository_reference"}
+- {"path": "results/rl_mitigation/ieee14/calibration/cascade_scenario_stats.csv", "matched_token": "rate_a", "trust_level": "unverified_repository_reference"}
+- {"path": "results/rl_mitigation/ieee14/calibration/cascade_scenario_summary.json", "matched_token": "rate_a", "trust_level": "unverified_repository_reference"}
+- {"path": "results/rl_mitigation/ieee14/reports/ieee14_minimal_pipeline_report.md", "matched_token": "rate_a", "trust_level": "unverified_repository_reference"}
+- {"path": "results/rl_mitigation/ieee14/tables/table_ieee14_capacity_calibration.csv", "matched_token": "rate_a", "trust_level": "unverified_repository_reference"}
+- {"path": "results/rl_mitigation/ieee14/tables/thesis_table_explanation.md", "matched_token": "rate_a", "trust_level": "unverified_repository_reference"}
+- {"path": "scripts/gcn_search/prepare_ieee39_paper_aligned_branch_gcn_redesign_dry_run.py", "matched_token": "line limit", "trust_level": "unverified_repository_reference"}
+- {"path": "scripts/rl_mitigation/calibrate_ieee14_cascade_scenarios.py", "matched_token": "rate_a", "trust_level": "unverified_repository_reference"}
+- {"path": "scripts/rl_mitigation/export_ieee14_thesis_tables.py", "matched_token": "rate_a", "trust_level": "unverified_repository_reference"}
+- {"path": "scripts/rl_mitigation/run_ieee14_minimal_pipeline.py", "matched_token": "rate_a", "trust_level": "unverified_repository_reference"}
+- {"path": "src/gcn_search/ieee14/branch_graph.py", "matched_token": "rate_a", "trust_level": "unverified_repository_reference"}
+- {"path": "src/gcn_search/legacy_rts79/export_rts79_simulink_basecase.py", "matched_token": "rate_a", "trust_level": "unverified_repository_reference"}
+- {"path": "src/gcn_search/legacy_rts79/rts79_cascade.py", "matched_token": "rate_a", "trust_level": "unverified_repository_reference"}
+- {"path": "src/gcn_search/legacy_rts79/rts79_lodf.py", "matched_token": "rate_a", "trust_level": "unverified_repository_reference"}
+- {"path": "src/gcn_search/legacy_rts79/train_rts79_gcn.py", "matched_token": "rate_a", "trust_level": "unverified_repository_reference"}
+- {"path": "src/gcn_search/legacy_rts79/train_rts79_paper_gcn.py", "matched_token": "rate_a", "trust_level": "unverified_repository_reference"}
+
+## relay_threshold_sources_found
+- {"path": "docs/README_RTS79_REPRODUCTION.md", "matched_token": "beta", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/gcn_cascading_text.txt", "matched_token": "relay threshold", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/gcn_current_progress.md", "matched_token": "beta", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/gcn_pio_validation_log.md", "matched_token": "relay_threshold", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/ieee39_paper_aligned_branch_gcn_redesign_consistency_check.md", "matched_token": "relay_threshold", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/ieee39_paper_aligned_branch_gcn_redesign_dry_run.md", "matched_token": "relay_threshold", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/pio_gcn_dynamic_event_strength_calibration.md", "matched_token": "relay_beta", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/pio_gcn_post_fault_sanity_ladder.md", "matched_token": "relay_beta", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/pio_gcn_relay_vs_security_constraint.md", "matched_token": "relay threshold", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/pio_gcn_simulink_dynamic_validation_plan.md", "matched_token": "relay threshold", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/pio_gcn_simulink_real_topk_dynamic_smoke.md", "matched_token": "relay_beta", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/pio_gcn_simulink_real_topk_validation.md", "matched_token": "relay threshold", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/README.md", "matched_token": "relay threshold", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/apply_security_redispatch_approx.m", "matched_token": "relay_beta", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/calibrate_event_driven_dynamic_scales.m", "matched_token": "relay_beta", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/calibrate_post_fault_dynamic_response.m", "matched_token": "relay_beta", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/run_mild_overload_security_demo.m", "matched_token": "relay_beta", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/run_severe_overload_relay_demo.m", "matched_token": "relay_beta", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/run_swing_equilibrium_sanity_demo.m", "matched_token": "relay_beta", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/simulate_rts79_swing_case.m", "matched_token": "relay_beta", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_simlog_tree_inventory.csv", "matched_token": "beta", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_compatible_breaker_candidates.csv", "matched_token": "beta", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_feature_manifest.json", "matched_token": "relay_threshold", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_feature_manifest.md", "matched_token": "relay_threshold", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/simulink_dynamic_calibration/event_driven_calibration_summary.json", "matched_token": "relay_beta", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/simulink_dynamic_calibration/event_driven_scale_grid.csv", "matched_token": "relay_beta", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/simulink_dynamic_calibration/post_fault_calibration_grid.csv", "matched_token": "relay_beta", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/simulink_dynamic_calibration/post_fault_calibration_summary.json", "matched_token": "relay_beta", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/simulink_dynamic_calibration/recommended_event_driven_options.json", "matched_token": "relay_beta", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/simulink_dynamic_calibration/recommended_post_fault_options.json", "matched_token": "relay_beta", "trust_level": "unverified_repository_reference"}
+
+## bus_load_sources_found
+- {"path": "docs/gcn_cascading_text.txt", "matched_token": "bus load", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/gcn_pio_validation_log.md", "matched_token": "bus load", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/ieee39_paper_aligned_branch_gcn_redesign_consistency_check.md", "matched_token": "bus load", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/ieee39_paper_aligned_branch_gcn_redesign_dry_run.md", "matched_token": "bus load", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/improved_opa_text.txt", "matched_token": " pd", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/initialize_swing_equilibrium.m", "matched_token": "load_mw", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/run_swing_equilibrium_sanity_demo.m", "matched_token": "load_mw", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/simulate_rts79_swing_case.m", "matched_token": "load_mw", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/update_swing_power_after_load_shed.m", "matched_token": "load_mw", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_consistency_check/paper_aligned_redesign_consistency_check.json", "matched_token": "bus load", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_consistency_check/paper_aligned_redesign_consistency_check.md", "matched_token": "bus load", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_branch_gcn_dry_run_validator_summary.csv", "matched_token": "bus load", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_branch_gcn_dry_run_validator_summary.json", "matched_token": "bus load", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_branch_gcn_dry_run_validator_summary.md", "matched_token": "bus load", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_feature_manifest.json", "matched_token": "bus load", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_feature_manifest.md", "matched_token": "bus load", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/simulink_dynamic_equilibrium_diagnostics/swing_equilibrium_diagnostics.csv", "matched_token": "load_mw", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/simulink_dynamic_equilibrium_diagnostics/swing_equilibrium_diagnostics.json", "matched_token": "load_mw", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/simulink_dynamic_equilibrium_sanity/swing_equilibrium_sanity_summary.json", "matched_token": "load_mw", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/simulink_dynamic_method_comparison_summary/dynamic_method_comparison_stress_ranks.csv", "matched_token": "load_mw", "trust_level": "unverified_repository_reference"}
+- {"path": "scripts/gcn_search/build_ieee39_full_line_map.py", "matched_token": " pd", "trust_level": "unverified_repository_reference"}
+- {"path": "scripts/gcn_search/check_pio_gcn_artifacts.py", "matched_token": " pd", "trust_level": "unverified_repository_reference"}
+- {"path": "scripts/gcn_search/diagnose_ieee39_gcn_audit_evidence_gap.py", "matched_token": " pd", "trust_level": "unverified_repository_reference"}
+- {"path": "scripts/gcn_search/diagnose_ieee39_l12_islanding_case.py", "matched_token": " pd", "trust_level": "unverified_repository_reference"}
+- {"path": "scripts/gcn_search/export_ieee39_all_remaining_bus_fault_candidate_labels.py", "matched_token": " pd", "trust_level": "unverified_repository_reference"}
+- {"path": "scripts/gcn_search/export_ieee39_non_line_trip_dynamic_labels.py", "matched_token": " pd", "trust_level": "unverified_repository_reference"}
+- {"path": "scripts/gcn_search/prepare_ieee39_gcn_usefulness_audit_plan.py", "matched_token": " pd", "trust_level": "unverified_repository_reference"}
+- {"path": "scripts/gcn_search/prepare_ieee39_paper_aligned_branch_gcn_redesign_dry_run.py", "matched_token": "bus load", "trust_level": "unverified_repository_reference"}
+- {"path": "scripts/gcn_search/print_ieee39_clean_breaker_lab_batch_checklist.py", "matched_token": " pd", "trust_level": "unverified_repository_reference"}
+- {"path": "scripts/gcn_search/print_ieee39_clean_breaker_lab_checklist.py", "matched_token": " pd", "trust_level": "unverified_repository_reference"}
+
+## dc_power_flow_or_opf_scripts_found
+- {"path": "README.md", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "docs/README_RTS79_REPRODUCTION.md", "matched_token": "dcpf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "docs/gcn_cascading_text.txt", "matched_token": "dcopf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "docs/gcn_current_progress.md", "matched_token": "dcpf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "docs/gcn_pio_validation_log.md", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "docs/gcn_search_reproduction.md", "matched_token": "lodf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "docs/ieee39_measurement_extraction_and_timed_trip.md", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "docs/ieee39_paper_aligned_branch_gcn_redesign_dry_run.md", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "docs/ieee39_real_fault_execution_status.md", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "docs/improved_opa_text.txt", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "docs/pio_gcn_dynamic_event_strength_calibration.md", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "docs/pio_gcn_dynamic_method_comparison_non_smoke.md", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "docs/pio_gcn_dynamic_method_comparison_top100.md", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "docs/pio_gcn_dynamic_preliminary_diagnostic_report.md", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "docs/pio_gcn_post_fault_sanity_ladder.md", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "docs/pio_gcn_relay_vs_security_constraint.md", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "docs/pio_gcn_simulink_dynamic_negative_controls.md", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "docs/pio_gcn_simulink_dynamic_validation_plan.md", "matched_token": "dc power flow", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "docs/pio_gcn_simulink_real_topk_dynamic_smoke.md", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "docs/pio_gcn_simulink_real_topk_event_driven_validation.md", "matched_token": "lodf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "docs/pio_gcn_swing_equilibrium_and_threshold_calibration.md", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "matlab/simulink_rts79/README.md", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "matlab/simulink_rts79/apply_security_redispatch_approx.m", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "matlab/simulink_rts79/initialize_swing_equilibrium.m", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "matlab/simulink_rts79/run_dynamic_method_comparison_batch.m", "matched_token": "lodf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "matlab/simulink_rts79/run_post_fault_sanity_ladder.m", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "matlab/simulink_rts79/run_swing_equilibrium_sanity_demo.m", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "matlab/simulink_rts79/update_swing_power_after_load_shed.m", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "results/gcn_search/ieee39_graphical_dynamic_model/ieee39_vs_simplified_comparison.csv", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "results/gcn_search/ieee39_graphical_dynamic_model/ieee39_vs_simplified_comparison.json", "matched_token": "opf", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+
+## matpower_or_case_data_found
+- {"path": "docs/gcn_cascading_text.txt", "matched_token": "matpower", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "docs/rl_mitigation_reproducibility_gaps.md", "matched_token": "matpower", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "docs/rl_mitigation_reproduction.md", "matched_token": "matpower", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "src/rl_mitigation/cases/ieee118.py", "matched_token": "ppc", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "src/rl_mitigation/cases/pypower_case_adapter.py", "matched_token": "ppc", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "src/rl_mitigation/envs/powerflow_backend.py", "matched_token": "pandapower", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "src/rl_mitigation/envs/pypower_ac_backend.py", "matched_token": "matpower", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+- {"path": "tests/rl_mitigation/test_ieee14_case_consistency.py", "matched_token": "ppc", "trust_level": "generator_or_reference_required_not_verified_feature_source"}
+
+## simulink_prefault_sources_found
+- {"path": "docs/gcn_pio_validation_log.md", "matched_token": "pre-fault", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/ieee39_gcn_audit_evidence_diagnosis.md", "matched_token": "pre-fault", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/ieee39_gcn_dependency_blocker_diagnosis.md", "matched_token": "initialization", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/ieee39_paper_aligned_branch_gcn_redesign_consistency_check.md", "matched_token": "pre-fault", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/ieee39_paper_aligned_branch_gcn_redesign_dry_run.md", "matched_token": "pre-fault", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/improved_opa_text.txt", "matched_token": "initialization", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/pio_gcn_simulink_dynamic_validation_plan.md", "matched_token": "basecase", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/pio_gcn_simulink_real_topk_event_driven_validation.md", "matched_token": "basecase", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/pio_gcn_simulink_real_topk_validation.md", "matched_token": "basecase", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/rl_mitigation_reproducibility_gaps.md", "matched_token": "initialization", "trust_level": "unverified_repository_reference"}
+- {"path": "docs/thesis_integration_plan.md", "matched_token": "initialization", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/README.md", "matched_token": "basecase", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/build_rts79_swing_simulink_model.m", "matched_token": "basecase", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/calibrate_event_driven_dynamic_scales.m", "matched_token": "basecase", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/calibrate_post_fault_dynamic_response.m", "matched_token": "basecase", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/calibrate_rts79_swing_scales.m", "matched_token": "basecase", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/check_rts79_swing_model_sanity.m", "matched_token": "basecase", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/initialize_swing_equilibrium.m", "matched_token": "initialization", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/run_dynamic_method_comparison_batch.m", "matched_token": "basecase", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/run_dynamic_negative_control_batch.m", "matched_token": "basecase", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/run_mild_overload_security_demo.m", "matched_token": "basecase", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/run_post_fault_sanity_ladder.m", "matched_token": "basecase", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/run_real_topk_dynamic_validation.m", "matched_token": "basecase", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/run_real_topk_event_driven_dynamic_validation.m", "matched_token": "basecase", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/run_rts79_dynamic_batch.m", "matched_token": "basecase", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/run_rts79_dynamic_path_case.m", "matched_token": "basecase", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/run_severe_overload_relay_demo.m", "matched_token": "basecase", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/run_swing_equilibrium_sanity_demo.m", "matched_token": "basecase", "trust_level": "unverified_repository_reference"}
+- {"path": "matlab/simulink_rts79/simulate_rts79_swing_case.m", "matched_token": "basecase", "trust_level": "unverified_repository_reference"}
+- {"path": "results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/gcn_audit_evidence_diagnosis_summary.csv", "matched_token": "pre-fault", "trust_level": "unverified_repository_reference"}
+
+## post_fault_sources_detected_and_forbidden
+- {"path": "docs/gcn_pio_validation_log.md", "matched_token": "dynamic_stress_score", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_all_remaining_bus_fault_batch_actual_smoke.md", "matched_token": "unstable_flag", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_all_remaining_bus_fault_batch_readiness_dry_run.md", "matched_token": "phasor_rms", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_all_remaining_bus_fault_batch_smoke_quality_review.md", "matched_token": "unstable_flag", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_all_remaining_bus_fault_candidate_label_export.md", "matched_token": "unstable_flag", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_all_remaining_bus_fault_manual_connection_evidence.md", "matched_token": "phasor_rms", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_all_remaining_bus_fault_manual_wiring_plan.md", "matched_token": "phasor_rms", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_b26_bus_fault_candidate_label_export.md", "matched_token": "dynamic_stress_score", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_b26_manual_bus_fault_review_result.md", "matched_token": "phasor_rms", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_b26_manual_bus_fault_verification_plan.md", "matched_token": "dynamic_stress_score", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_b26_temp_smoke_quality_review.md", "matched_token": "dynamic_stress_score", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_b26_temp_smoke_readiness.md", "matched_token": "phasor_rms", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_b26_temporary_bus_fault_smoke.md", "matched_token": "dynamic_stress_score", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_b39_bus_fault_candidate_label_export.md", "matched_token": "phasor_rms", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_b39_temp_smoke_quality_review.md", "matched_token": "unstable_flag", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_b39_temp_smoke_readiness.md", "matched_token": "phasor_rms", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_b39_temporary_bus_fault_smoke.md", "matched_token": "unstable_flag", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_batch_per_line_clean_breaker_lab_workflow.md", "matched_token": "phasor_rms", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_bus_fault_b39_manual_review_result.md", "matched_token": "phasor_rms", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_bus_fault_gui_manual_checklist.md", "matched_token": "phasor_rms", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_bus_fault_smoke_tests.md", "matched_token": "unstable_flag", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_bus_fault_temp_lab_injection.md", "matched_token": "phasor_rms", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_clean_breaker_lab_workflow.md", "matched_token": "rotor_angle", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_dynamic_aware_reranker_preview_training.md", "matched_token": "dynamic_stress_score", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_dynamic_aware_reranker_v2_preview_training.md", "matched_token": "unstable_flag", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_dynamic_aware_stricter_independent_test_comparison.md", "matched_token": "dynamic_stress_score", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_fault_breaker_relay_wrapper.md", "matched_token": "phasor_rms", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_gcn_audit_evidence_diagnosis.md", "matched_token": "dynamic_stress_score", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_gcn_dependency_blocker_diagnosis.md", "matched_token": "phasor_rms", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+- {"path": "docs/ieee39_gcn_dependency_repair.md", "matched_token": "phasor_rms", "trust_level": "forbidden_post_fault_dynamic_measurement"}
+
+## source_trust_level_by_category
+```json
+{
+  "branch_flow": "not_verified_for_ieee39_paper_input",
+  "line_limit": "not_verified_for_ieee39_paper_input",
+  "relay_threshold": "not_verified_for_ieee39_paper_input",
+  "bus_load": "not_verified_for_ieee39_paper_input",
+  "dc_power_flow_or_opf": "generator_required_if_used_for_future_features",
+  "post_fault_dynamic_measurements": "forbidden_as_gcn_inputs"
+}
+```
+
+## missing_source_categories
+- `verified_current_state_branch_flow`
+- `verified_line_limit_or_relay_threshold`
+- `verified_current_state_bus_load`
+
+- `verified_sources_ready`: False
+- `blocker_if_any`: verified current-state branch flow, line limit or relay threshold, and endpoint bus load sources are incomplete
