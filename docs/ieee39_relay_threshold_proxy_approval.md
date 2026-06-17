@@ -76,3 +76,17 @@ islanding-timeout case. Pilot labels are not formal training labels.
 - `num_labels_excluded = 1`
 - `bus_fault_labels_used = false`
 - `pilot_labels_are_formal_training_labels = false`
+
+## Single-Outage Label Loop Follow-Up
+
+Later dry-runs use `beta * RATE_A` only as an audit-only proxy, not as a real
+relay setting. The base-state pilot covers only `base_state x L01-L34`; its 33
+available non-L12 labels are all negative, so it should not be used alone for
+GCN training.
+
+The controlled single-outage dry-run plans `single_outage_state x next_branch`
+labels, with 34 states and 1122 ordered prior-to-next branch pairs. It does not
+train GCN, does not rerun formal audit, does not run new Simulink, does not
+export formal labels, and does not retrain the reranker. Bus-fault labels are
+unused, line-trip labels remain first priority, L12 stays special/excluded,
+NF06 warning is preserved, and no 0/1 label is fabricated.

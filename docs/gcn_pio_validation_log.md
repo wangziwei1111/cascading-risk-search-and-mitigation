@@ -4567,3 +4567,68 @@ relay setting. Pilot labels are not formal training labels. `phasor_RMS` is not
 EMT. `generator_speed_proxy` is not direct frequency. Temporary bus-fault
 injection is not engineering-grade protection. The next step is a controlled
 single-outage state label generation loop dry-run.
+
+## Round 87: IEEE39 Single-Outage Label Loop Dry-Run
+
+This round prepares the controlled `single_outage_state x next_branch` label
+loop as a dry-run only. It does not train GCN, does not rerun formal audit,
+does not run new Simulink, does not export formal labels, does not retrain the
+reranker, and does not save a production model.
+
+Plain-language meaning: the base-state pilot only asked what happens when one
+line is tripped from the original system. Its 33 available non-L12 labels were
+all negative, so it cannot train a useful branch-risk classifier by itself.
+This round therefore plans the next controlled task list: after branch `i` is
+already outaged, evaluate candidate next branch `k`.
+
+Artifacts:
+
+- `scripts/gcn_search/prepare_ieee39_single_outage_label_loop_dry_run.py`
+- `docs/ieee39_single_outage_label_loop_dry_run.md`
+- `results/gcn_search/ieee39_single_outage_label_loop_dry_run/single_outage_state_manifest.json`
+- `results/gcn_search/ieee39_single_outage_label_loop_dry_run/single_outage_state_branch_label_loop_plan.json`
+- `results/gcn_search/ieee39_single_outage_label_loop_dry_run/base_state_label_distribution_review.json`
+- `results/gcn_search/ieee39_single_outage_label_loop_dry_run/existing_artifact_reuse_for_single_outage_audit.json`
+- `results/gcn_search/ieee39_single_outage_label_loop_dry_run/no_leakage_single_outage_label_loop_audit.json`
+- `results/gcn_search/ieee39_single_outage_label_loop_dry_run/single_outage_label_loop_dry_run_summary.json`
+
+Current result:
+
+- `dry_run_scope = single_outage_label_loop_dry_run`
+- `base_state_all_available_labels_negative = true`
+- `base_state_should_not_be_used_alone_for_training = true`
+- `num_single_outage_states_planned = 34`
+- `num_state_branch_pairs_planned = 1122`
+- `num_pairs_excluded_due_to_same_branch = 34`
+- `num_pairs_excluded_due_to_l12_special = 66`
+- `num_pairs_planned_for_future_generation = 1056`
+- `num_pairs_available_from_existing_artifacts = 0`
+- `can_generate_single_outage_labels_now = false`
+- `can_export_formal_single_outage_labels_now = false`
+- `bus_fault_labels_used = false`
+- `line_trip_labels_first_priority = true`
+- `l12_special_case_preserved = true`
+- `nf06_warning_preserved = true`
+- `forbidden_features_detected_in_inputs = []`
+- `no_leakage_policy_passed = true`
+- `final_engineering_conclusion = false`
+- `should_train_gcn_now = false`
+- `should_rerun_formal_audit_now = false`
+- `should_export_formal_labels_now = false`
+- `should_retrain_reranker_now = false`
+- `should_deploy_model = false`
+
+Boundary notes:
+
+- `beta * RATE_A` remains an audit-only proxy, not a real relay setting.
+- Bus-fault labels are unused in the branch vulnerability loop.
+- L12 stays special/excluded.
+- NF06 warning is preserved.
+- `phasor_RMS` is not EMT.
+- `generator_speed_proxy` is not direct frequency.
+- Temporary bus-fault injection is not engineering-grade protection.
+- Unknown, timeout, not simulated, or special cases remain null/excluded; no
+  0/1 label is fabricated.
+
+Recommended next step: implement a controlled generation runner for selected
+single-outage pilot pairs in a separate round.

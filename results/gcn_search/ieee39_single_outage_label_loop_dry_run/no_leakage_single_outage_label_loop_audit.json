@@ -1,0 +1,23 @@
+{
+  "forbidden_features_detected_in_inputs": [],
+  "post_fault_dynamic_measurements_used_as_inputs": false,
+  "dynamic_outputs_used_only_as_labels_or_targets": true,
+  "label_derived_flags_used_as_inputs": false,
+  "proxy_relay_threshold_used_only_in_feature_generation": true,
+  "bus_fault_labels_used": false,
+  "no_leakage_policy_passed": true,
+  "forbidden_features_checked": [
+    "min_voltage_pu",
+    "max_voltage_pu",
+    "min_frequency_hz",
+    "max_frequency_hz",
+    "max_speed_deviation",
+    "max_rotor_angle_separation_deg",
+    "dynamic_stress_score",
+    "unstable_flag",
+    "phasor_RMS",
+    "generator_speed_proxy",
+    "post-fault dynamic measurements",
+    "label-derived flags"
+  ]
+}

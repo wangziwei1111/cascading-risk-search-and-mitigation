@@ -612,6 +612,22 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot/existing_line_trip_label_reuse_report.md",
     "results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot/no_leakage_base_state_label_pilot_audit.json",
     "results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot/no_leakage_base_state_label_pilot_audit.md",
+    "docs/ieee39_single_outage_label_loop_dry_run.md",
+    "results/gcn_search/ieee39_single_outage_label_loop_dry_run/single_outage_state_manifest.json",
+    "results/gcn_search/ieee39_single_outage_label_loop_dry_run/single_outage_state_manifest.md",
+    "results/gcn_search/ieee39_single_outage_label_loop_dry_run/single_outage_state_manifest.csv",
+    "results/gcn_search/ieee39_single_outage_label_loop_dry_run/single_outage_state_branch_label_loop_plan.json",
+    "results/gcn_search/ieee39_single_outage_label_loop_dry_run/single_outage_state_branch_label_loop_plan.md",
+    "results/gcn_search/ieee39_single_outage_label_loop_dry_run/single_outage_state_branch_label_loop_plan.csv",
+    "results/gcn_search/ieee39_single_outage_label_loop_dry_run/base_state_label_distribution_review.json",
+    "results/gcn_search/ieee39_single_outage_label_loop_dry_run/base_state_label_distribution_review.md",
+    "results/gcn_search/ieee39_single_outage_label_loop_dry_run/existing_artifact_reuse_for_single_outage_audit.json",
+    "results/gcn_search/ieee39_single_outage_label_loop_dry_run/existing_artifact_reuse_for_single_outage_audit.md",
+    "results/gcn_search/ieee39_single_outage_label_loop_dry_run/no_leakage_single_outage_label_loop_audit.json",
+    "results/gcn_search/ieee39_single_outage_label_loop_dry_run/no_leakage_single_outage_label_loop_audit.md",
+    "results/gcn_search/ieee39_single_outage_label_loop_dry_run/single_outage_label_loop_dry_run_summary.json",
+    "results/gcn_search/ieee39_single_outage_label_loop_dry_run/single_outage_label_loop_dry_run_summary.md",
+    "results/gcn_search/ieee39_single_outage_label_loop_dry_run/single_outage_label_loop_dry_run_summary.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -633,6 +649,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/approve_ieee39_relay_threshold_proxy.py",
     "scripts/gcn_search/prepare_ieee39_paper_style_branch_vulnerability_label_generator_dry_run.py",
     "scripts/gcn_search/generate_ieee39_base_state_branch_vulnerability_label_pilot.py",
+    "scripts/gcn_search/prepare_ieee39_single_outage_label_loop_dry_run.py",
     "tests/test_ieee39_v2_plus_all_bus_fault_preview_no_leakage.py",
     "tests/test_ieee39_gcn_usefulness_audit_plan.py",
     "tests/test_ieee39_gcn_usefulness_audit_dry_run_validator.py",
@@ -645,6 +662,7 @@ REQUIRED_FILES = [
     "tests/test_ieee39_relay_threshold_proxy_approval.py",
     "tests/test_ieee39_paper_style_branch_vulnerability_label_generator_dry_run.py",
     "tests/test_ieee39_base_state_branch_vulnerability_label_pilot.py",
+    "tests/test_ieee39_single_outage_label_loop_dry_run.py",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_block_parameter_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.json",
@@ -4869,6 +4887,200 @@ def main() -> int:
                     failures.append(f"Base-state label pilot docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read base-state branch vulnerability label pilot artifacts: {exc}")
+
+    single_outage_dir = ROOT / "results/gcn_search/ieee39_single_outage_label_loop_dry_run"
+    single_outage_summary = single_outage_dir / "single_outage_label_loop_dry_run_summary.json"
+    single_outage_states = single_outage_dir / "single_outage_state_manifest.json"
+    single_outage_plan = single_outage_dir / "single_outage_state_branch_label_loop_plan.json"
+    single_outage_base_review = single_outage_dir / "base_state_label_distribution_review.json"
+    single_outage_reuse = single_outage_dir / "existing_artifact_reuse_for_single_outage_audit.json"
+    single_outage_no_leakage = single_outage_dir / "no_leakage_single_outage_label_loop_audit.json"
+    single_outage_doc = ROOT / "docs/ieee39_single_outage_label_loop_dry_run.md"
+    single_outage_required = [
+        single_outage_states,
+        single_outage_dir / "single_outage_state_manifest.md",
+        single_outage_dir / "single_outage_state_manifest.csv",
+        single_outage_plan,
+        single_outage_dir / "single_outage_state_branch_label_loop_plan.md",
+        single_outage_dir / "single_outage_state_branch_label_loop_plan.csv",
+        single_outage_base_review,
+        single_outage_dir / "base_state_label_distribution_review.md",
+        single_outage_reuse,
+        single_outage_dir / "existing_artifact_reuse_for_single_outage_audit.md",
+        single_outage_no_leakage,
+        single_outage_dir / "no_leakage_single_outage_label_loop_audit.md",
+        single_outage_summary,
+        single_outage_dir / "single_outage_label_loop_dry_run_summary.md",
+        single_outage_dir / "single_outage_label_loop_dry_run_summary.csv",
+        single_outage_doc,
+    ]
+    existing_single_outage_required = [path for path in single_outage_required if path.exists()]
+    if existing_single_outage_required:
+        missing_single_outage_required = [path for path in single_outage_required if not path.exists()]
+        if missing_single_outage_required:
+            failures.append(
+                "IEEE39 single-outage label loop dry-run artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_single_outage_required)
+            )
+        try:
+            summary = _read_json_path(single_outage_summary)
+            states = _read_json_path(single_outage_states)
+            plan = _read_json_path(single_outage_plan)
+            base_review = _read_json_path(single_outage_base_review)
+            reuse = _read_json_path(single_outage_reuse)
+            no_leakage = _read_json_path(single_outage_no_leakage)
+            for key, expected in [
+                ("dry_run_scope", "single_outage_label_loop_dry_run"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("simulink_run", False),
+                ("new_simulink_run", False),
+                ("labels_exported", False),
+                ("formal_labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("source_base_state_pilot_commit", "449f8d1e625672bb6e01fbffd59c6bb97d3d0fe0"),
+                ("paper_graph_node_type", "branch"),
+                ("paper_graph_edge_rule", "shared_endpoint_bus"),
+                ("feature_matrix_with_proxy_ready", True),
+                ("relay_threshold_is_proxy", True),
+                ("proxy_allowed_for_audit_only_prototype", True),
+                ("proxy_allowed_for_production", False),
+                ("base_state_all_available_labels_negative", True),
+                ("base_state_should_not_be_used_alone_for_training", True),
+                ("num_single_outage_states_planned", 34),
+                ("num_state_branch_pairs_planned", 1122),
+                ("num_pairs_excluded_due_to_same_branch", 34),
+                ("num_pairs_excluded_due_to_l12_special", 66),
+                ("num_pairs_planned_for_future_generation", 1056),
+                ("num_pairs_available_from_existing_artifacts", 0),
+                ("can_generate_single_outage_labels_now", False),
+                ("can_export_formal_single_outage_labels_now", False),
+                ("bus_fault_labels_used", False),
+                ("line_trip_labels_first_priority", True),
+                ("l12_special_case_preserved", True),
+                ("nf06_warning_preserved", True),
+                ("forbidden_features_detected_in_inputs", []),
+                ("no_leakage_policy_passed", True),
+                ("final_engineering_conclusion", False),
+                ("should_train_gcn_now", False),
+                ("should_rerun_formal_audit_now", False),
+                ("should_export_formal_labels_now", False),
+                ("should_retrain_reranker_now", False),
+                ("should_deploy_model", False),
+                (
+                    "recommended_next_step",
+                    "implement controlled generation runner for selected single-outage pilot pairs in a separate round",
+                ),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"Single-outage label loop dry-run must set {key}={expected!r}.")
+            if "no approved reusable single_outage_state x next_branch" not in str(summary.get("blocker_if_any")):
+                failures.append("Single-outage dry-run must record the missing reusable-artifact blocker.")
+            if len(states) != 34:
+                failures.append("Single-outage state manifest must contain 34 states.")
+            else:
+                l12_states = [row for row in states if row.get("prior_outaged_branch") == "L12"]
+                if len(l12_states) != 1 or l12_states[0].get("eligible_for_label_generation") is not False:
+                    failures.append("Single-outage state manifest must preserve prior L12 as ineligible/special.")
+                if any(row.get("num_candidate_next_branches") != 33 for row in states):
+                    failures.append("Each single-outage state must plan 33 next-branch candidates.")
+                if any(row.get("prior_outaged_branch") in row.get("candidate_next_branches", []) for row in states):
+                    failures.append("Single-outage states must not include the prior outage as a next candidate.")
+            if len(plan) != 1122:
+                failures.append("Single-outage pair plan must contain 1122 ordered prior->next rows.")
+            else:
+                l12_rows = [row for row in plan if row.get("l12_special_case_flag")]
+                planned_rows = [row for row in plan if row.get("label_status") == "planned"]
+                if len(l12_rows) != 66:
+                    failures.append("Single-outage pair plan must exclude 66 rows involving L12.")
+                if len(planned_rows) != 1056:
+                    failures.append("Single-outage pair plan must leave 1056 rows for future generation.")
+                if any(row.get("label_value") is not None for row in plan):
+                    failures.append("Single-outage dry-run must not fabricate 0/1 labels.")
+                if any(row.get("bus_fault_label_used") is not False for row in plan):
+                    failures.append("Single-outage pair plan must not use bus-fault labels.")
+                if any(row.get("prior_outaged_branch") == row.get("candidate_next_branch") for row in plan):
+                    failures.append("Single-outage pair plan must exclude same-branch prior/candidate rows.")
+            for key, expected in [
+                ("base_state_num_label_slots", 34),
+                ("base_state_num_labels_available", 33),
+                ("base_state_num_positive_labels", 0),
+                ("base_state_num_negative_labels", 33),
+                ("base_state_num_excluded_labels", 1),
+                ("base_state_all_available_labels_negative", True),
+                ("training_risk_if_using_base_state_only", True),
+            ]:
+                if base_review.get(key) != expected:
+                    failures.append(f"Single-outage base-state review must set {key}={expected!r}.")
+            for key, expected in [
+                ("existing_multi_line_or_path_labels_found", False),
+                ("reusable_for_single_outage_count", 0),
+                ("reusable_sequences", []),
+                ("bus_fault_labels_used", False),
+                ("l12_excluded_or_special", True),
+            ]:
+                if reuse.get(key) != expected:
+                    failures.append(f"Single-outage reuse audit must set {key}={expected!r}.")
+            for key, expected in [
+                ("forbidden_features_detected_in_inputs", []),
+                ("post_fault_dynamic_measurements_used_as_inputs", False),
+                ("dynamic_outputs_used_only_as_labels_or_targets", True),
+                ("label_derived_flags_used_as_inputs", False),
+                ("proxy_relay_threshold_used_only_in_feature_generation", True),
+                ("bus_fault_labels_used", False),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if no_leakage.get(key) != expected:
+                    failures.append(f"Single-outage no-leakage audit must set {key}={expected!r}.")
+            single_outage_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_single_outage_label_loop_dry_run.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                    _read_text("results/gcn_search/ieee39_single_outage_label_loop_dry_run/single_outage_label_loop_dry_run_summary.md"),
+                    _read_text("results/gcn_search/ieee39_single_outage_label_loop_dry_run/base_state_label_distribution_review.md"),
+                    _read_text("results/gcn_search/ieee39_single_outage_label_loop_dry_run/existing_artifact_reuse_for_single_outage_audit.md"),
+                    _read_text("results/gcn_search/ieee39_single_outage_label_loop_dry_run/no_leakage_single_outage_label_loop_audit.md"),
+                ]
+            ).lower()
+            normalized_single_outage = " ".join(single_outage_text.replace("`", "").split())
+            for required in [
+                "controlled single-outage state label loop dry-run",
+                "does not train gcn",
+                "does not rerun formal audit",
+                "does not run new simulink",
+                "does not export formal labels",
+                "does not retrain the reranker",
+                "all 33 available non-l12 labels were negative",
+                "cannot train",
+                "single_outage_state x next_branch",
+                "does not fabricate 0/1 labels",
+                "beta * rate_a",
+                "audit-only proxy",
+                "not a real relay setting",
+                "bus-fault labels are unused",
+                "l12 stays special/excluded",
+                "nf06 warning is preserved",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "temporary bus-fault injection is not engineering-grade protection",
+            ]:
+                if required not in normalized_single_outage:
+                    failures.append(f"Single-outage label loop docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is useless",
+                "formal audit rerun completed",
+                "formal labels exported",
+                "final engineering conclusion: true",
+                "production_model_saved = true",
+                "real relay setting = true",
+                "deployment ready",
+            ]:
+                if bad in normalized_single_outage:
+                    failures.append(f"Single-outage label loop docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read single-outage label loop dry-run artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"
