@@ -24,10 +24,9 @@
   "conda_env_detected": false,
   "conda_prefix": "",
   "pythonpath": "",
-  "path_entry_count": 21,
+  "path_entry_count": 20,
   "path_first_entries": [
-    "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\.venv-gcn-audit\\Scripts",
-    "C:\\Users\\24186\\.codex\\tmp\\arg0\\codex-arg0t3m8tr",
+    "C:\\Users\\24186\\.codex\\tmp\\arg0\\codex-arg0h7Z2AT",
     "C:\\WINDOWS\\system32",
     "C:\\WINDOWS",
     "C:\\WINDOWS\\System32\\Wbem",
@@ -37,7 +36,8 @@
     "E:\\matlab2025a\\runtime\\win64",
     "E:\\matlab2025a\\bin",
     "C:\\Program Files\\dotnet\\",
-    "C:\\Program Files\\Git\\cmd"
+    "C:\\Program Files\\Git\\cmd",
+    "C:\\Program Files\\GitHub CLI\\"
   ],
   "suspicious_path_entries": [],
   "invalid_path_entries": [
@@ -46,9 +46,7 @@
   "drive_relative_path_entries": [],
   "empty_path_entries": [],
   "python_path_entries": [],
-  "conda_or_venv_script_entries": [
-    "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\.venv-gcn-audit\\Scripts"
-  ],
+  "conda_or_venv_script_entries": [],
   "cuda_path_entries": [],
   "torch_lib_related_entries": [],
   "unresolved_envvar_entries": [],

@@ -82,3 +82,19 @@ The dependency repair result and the old audit execution result answer two
 different questions. Repair says the local import blocker is gone. The audit
 execution result still needs to be regenerated in a later round before making
 any GCN usefulness statement.
+
+## Post-Repair Audit Rerun Follow-Up
+
+A later audit-only round has now rerun the strict no-leakage GCN usefulness
+audit inside `.venv-gcn-audit`. That later round records:
+
+- `gcn_trained_for_audit = true`
+- `gcn_dependency_status = torch_and_torch_geometric_available`
+- `forbidden_features_detected_in_inputs = []`
+- `final_engineering_conclusion = false`
+- `should_deploy_model = false`
+- `should_retrain_reranker_now = false`
+
+The rerun is audit-level evidence only. It does not convert this dependency
+repair into production training, does not deploy a model, and does not retrain
+the reranker.

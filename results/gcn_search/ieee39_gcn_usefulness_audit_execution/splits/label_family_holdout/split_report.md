@@ -2,10 +2,10 @@
 
 This split is audit-only.
 
-- gcn_dependency_status: `blocked_by_missing_gcn_dependency`
-- gcn_rmse: `None`
+- gcn_dependency_status: `torch_available_custom_dense_gcn`
+- gcn_rmse: `0.8259986583016521`
 - best_baseline_by_rmse: `Ridge Regression / Logistic Regression`
-- best_baseline_rmse: `0.15121877958024396`
+- best_baseline_rmse: `0.151218779580246`
 
 ## Note
 

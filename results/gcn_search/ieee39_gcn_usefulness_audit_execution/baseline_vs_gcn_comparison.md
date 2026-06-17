@@ -3,19 +3,19 @@
 ```json
 {
   "bus_fault_holdout": {
-    "gcn_rmse": null,
+    "gcn_rmse": 0.7032927445152551,
     "best_baseline_name": "Ridge Regression / Logistic Regression",
-    "best_baseline_rmse": 0.12218041951744671
+    "best_baseline_rmse": 0.12218041951744846
   },
   "leave_one_bus_fault_out": {
-    "gcn_rmse": null,
+    "gcn_rmse": 0.11934040488715501,
     "best_baseline_name": "Ridge Regression / Logistic Regression",
-    "best_baseline_rmse": 0.09590813978527941
+    "best_baseline_rmse": 0.09590813978528158
   },
   "no_dynamic_measurement_leave_one_bus_fault_out": {
-    "gcn_rmse": null,
+    "gcn_rmse": 0.11934040488715501,
     "best_baseline_name": "Ridge Regression / Logistic Regression",
-    "best_baseline_rmse": 0.09590813978527941
+    "best_baseline_rmse": 0.09590813978528158
   }
 }
 ```

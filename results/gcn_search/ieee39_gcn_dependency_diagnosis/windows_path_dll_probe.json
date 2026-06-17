@@ -8,9 +8,7 @@
   "likely_winerror87_path_cause": false,
   "recommended_path_fix": "Clean invalid PATH entries and verify that the active Python / Scripts / CUDA paths do not conflict.",
   "python_path_entries": [],
-  "conda_or_venv_script_entries": [
-    "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\.venv-gcn-audit\\Scripts"
-  ],
+  "conda_or_venv_script_entries": [],
   "cuda_path_entries": [],
   "torch_lib_related_entries": [],
   "unresolved_envvar_entries": [],

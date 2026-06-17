@@ -42,38 +42,38 @@ def test_consistency_check_artifacts_exist() -> None:
 def test_consistency_check_summary_fields() -> None:
     payload = _read_json(SUMMARY_JSON)
     assert payload["check_scope"] == "dependency_repair_consistency_check"
-    assert payload["gcn_training_run"] is False
-    assert payload["formal_gcn_audit_run"] is False
+    assert payload["gcn_training_run"] is True
+    assert payload["formal_gcn_audit_run"] is True
     assert payload["simulink_run"] is False
     assert payload["labels_exported"] is False
     assert payload["reranker_retrained"] is False
     assert payload["dependency_blocker_resolved"] is True
-    assert payload["formal_audit_rerun_after_repair"] is False
-    assert payload["execution_summary_still_baseline_only"] is True
+    assert payload["formal_audit_rerun_after_repair"] is True
+    assert payload["execution_summary_still_baseline_only"] is False
     assert payload["execution_doc_matches_execution_summary"] is True
     assert payload["premature_gcn_conclusion_removed"] is True
     assert payload["final_engineering_conclusion"] is False
-    assert payload["should_rerun_strict_no_leakage_audit_next"] is True
+    assert payload["should_rerun_strict_no_leakage_audit_next"] is False
     assert payload["should_deploy_model"] is False
     assert payload["should_retrain_reranker_now"] is False
     assert payload["failed_checks"] == []
 
 
-def test_execution_doc_matches_existing_baseline_only_summary() -> None:
+def test_execution_doc_matches_post_repair_audit_summary() -> None:
     summary = _read_json(EXECUTION_SUMMARY)
     execution_doc = _read_text(EXECUTION_DOC).lower()
-    assert summary["gcn_trained_for_audit"] is False
-    assert summary["gcn_dependency_status"] == "blocked_by_missing_gcn_dependency"
-    assert summary["audit_level_conclusion"] == (
-        "formal GCN audit blocked by missing dependency; baseline-only audit completed"
-    )
+    assert summary["gcn_trained_for_audit"] is True
+    assert summary["gcn_dependency_status"] == "torch_and_torch_geometric_available"
+    assert summary["audit_level_conclusion"] in {
+        "audit evidence suggests GCN may add value under no-leakage strict holdouts",
+        "audit evidence does not support GCN usefulness over simpler baselines yet",
+    }
     assert summary["final_engineering_conclusion"] is False
     assert summary["should_retrain_reranker_now"] is False
     assert summary["should_deploy_model"] is False
-    assert "gcn_trained_for_audit: `false`" in execution_doc
-    assert "blocked_by_missing_gcn_dependency" in execution_doc
-    assert "gcn metrics: unavailable / `null`" in execution_doc
-    assert "baseline-only audit completed" in execution_doc
+    assert "gcn_trained_for_audit: `true`" in execution_doc
+    assert "torch_and_torch_geometric_available" in execution_doc
+    assert "final_engineering_conclusion: `false`" in execution_doc
 
 
 def test_consistency_docs_are_conservative() -> None:
@@ -90,10 +90,10 @@ def test_consistency_docs_are_conservative() -> None:
     for required in [
         "dependency repair consistency check",
         "dependency_blocker_resolved = true",
-        "formal_audit_rerun_after_repair = false",
-        "execution_summary_still_baseline_only = true",
+        "formal_audit_rerun_after_repair = true",
+        "execution_summary_still_baseline_only = false",
         "premature_gcn_conclusion_removed = true",
-        "no gcn usefulness conclusion",
+        "audit-level evidence",
         "phasor_rms",
         "not emt",
         "generator_speed_proxy",
@@ -102,10 +102,6 @@ def test_consistency_docs_are_conservative() -> None:
     ]:
         assert required in normalized
     for forbidden in [
-        "gcn_trained_for_audit: true",
-        "gcn_trained_for_audit = true",
-        "torch_and_torch_geometric_available",
-        "audit evidence does not support gcn usefulness",
         "gcn is useful",
         "gcn is not useful",
         "final gcn conclusion",

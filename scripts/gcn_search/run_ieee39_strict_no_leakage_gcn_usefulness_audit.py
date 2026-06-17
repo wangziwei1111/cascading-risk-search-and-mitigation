@@ -993,7 +993,7 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
         return summary
 
     dependency_probe = _gcn_dependency_probe()
-    gcn_dependency_available = bool(dependency_probe["torch_import_ok"]) and bool(args.allow_post_repair_gcn_audit)
+    gcn_dependency_available = bool(dependency_probe["torch_import_ok"])
     gcn_dependency_status = (
         "torch_available_custom_dense_gcn_without_torch_geometric"
         if gcn_dependency_available and not dependency_probe["torch_geometric_spec_present"]
@@ -1152,7 +1152,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--allow-post-repair-gcn-audit",
         action="store_true",
-        help="Explicitly allow rerunning the post-repair GCN audit. Default keeps the existing baseline-only artifact.",
+        help=(
+            "Compatibility flag retained from the dependency-repair consistency round. "
+            "The audit now runs the GCN branch by default when dependencies are available."
+        ),
     )
     return parser.parse_args()
 

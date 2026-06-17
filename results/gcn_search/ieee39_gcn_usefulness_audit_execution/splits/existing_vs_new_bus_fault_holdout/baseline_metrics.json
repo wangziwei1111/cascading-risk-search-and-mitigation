@@ -1,16 +1,15 @@
 {
   "RandomForest or GradientBoosting": {
-    "status": "dependency_unavailable",
-    "reason": "sklearn not installed in this workspace",
+    "status": "not_implemented_even_though_sklearn_available",
     "audit_only": true
   },
   "Ridge Regression / Logistic Regression": {
     "regression": {
-      "mae": 0.09539209448364347,
-      "max_absolute_error": 0.3447309449012008,
-      "median_absolute_error": 0.08945892813553974,
+      "mae": 0.09539209448364343,
+      "max_absolute_error": 0.3447309449012004,
+      "median_absolute_error": 0.08945892813553885,
       "pearson": null,
-      "rmse": 0.12211370204325386,
+      "rmse": 0.12211370204325374,
       "spearman": null
     },
     "classification": {
@@ -78,11 +77,11 @@
   },
   "topology-only baseline": {
     "regression": {
-      "mae": 0.1078424467268245,
-      "max_absolute_error": 0.2665203817370586,
-      "median_absolute_error": 0.10067618910633247,
+      "mae": 0.10784244672682443,
+      "max_absolute_error": 0.26652038173705844,
+      "median_absolute_error": 0.10067618910633253,
       "pearson": null,
-      "rmse": 0.13292261096482025,
+      "rmse": 0.13292261096482016,
       "spearman": null
     },
     "classification": {

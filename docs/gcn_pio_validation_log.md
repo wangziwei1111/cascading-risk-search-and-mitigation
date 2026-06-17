@@ -3956,6 +3956,74 @@ Boundary notes remain unchanged:
 - `phasor_RMS` is not EMT
 - `generator_speed_proxy` is not direct frequency
 - temporary bus-fault injection is not engineering-grade protection
+
+## Round 78: IEEE39 Strict No-Leakage GCN Audit Rerun After Dependency Repair
+
+This round reruns the IEEE39 strict no-leakage GCN usefulness audit inside the
+repaired `.venv-gcn-audit` environment.
+
+It runs audit-only GCN training/evaluation.
+It does not run Simulink.
+It does not export labels.
+It does not retrain the reranker.
+It does not run RL mitigation.
+It does not save a production model.
+
+Plain wording: the dependency blocker is gone, so the audit can finally compare
+the GCN branch against simpler baselines under strict no-leakage holdouts. The
+result is still only audit-level evidence, not a deployment decision.
+
+Dependency verification:
+
+- `torch_version = 2.12.0+cpu`
+- `torch_geometric_version = 2.8.0`
+- `gcn_dependency_status = torch_and_torch_geometric_available`
+
+Execution summary:
+
+- `gcn_trained_for_audit = true`
+- `total_candidate_rows = 79`
+- `num_total_bus_fault_candidates = 39`
+- `forbidden_features_detected_in_inputs = []`
+- `final_engineering_conclusion = false`
+- `should_retrain_reranker_now = false`
+- `should_deploy_model = false`
+
+Strict holdout results:
+
+- `bus_fault_holdout`: GCN RMSE `0.7032927445`; best baseline `Ridge Regression / Logistic Regression` RMSE `0.1221804195`
+- `leave_one_bus_fault_out`: GCN RMSE `0.1193404049`; best baseline `Ridge Regression / Logistic Regression` RMSE `0.0959081398`
+- `no_dynamic_measurement_leave_one_bus_fault_out`: GCN RMSE `0.1193404049`; best baseline `Ridge Regression / Logistic Regression` RMSE `0.0959081398`
+
+Special checks:
+
+- B1 true stress `0.1960258595`, GCN prediction `0.5078984499`, absolute error `0.3118725904`, unstable probability `1.0`
+- NF06 included: GCN bus-fault holdout RMSE `0.7032927445`; best baseline RMSE `0.1221804195`; row count `79`
+- NF06 excluded: GCN bus-fault holdout RMSE `0.4857115424`; best baseline RMSE `0.1274322964`; row count `78`
+- L12 exclusion confirmed: `l12_excluded = true`, `present_l12_entries = []`
+
+Audit-level conclusion:
+
+`audit evidence does not support GCN usefulness over simpler baselines yet`
+
+Validation:
+
+- dependency import probes passed for `torch` and `torch_geometric`
+- audit command: `python scripts/gcn_search/run_ieee39_strict_no_leakage_gcn_usefulness_audit.py`
+- pytest result: `25 passed`
+- artifact self-check result: `PASS: GCN Simulink dynamic validation artifacts are review-ready.`
+- `git diff -- src/rl_mitigation scripts/rl_mitigation` remained empty
+
+Boundary notes remain unchanged:
+
+- no Simulink run
+- no label export
+- no production model saved
+- no reranker retraining
+- no deployment conclusion
+- `phasor_RMS` is not EMT
+- `generator_speed_proxy` is not direct frequency
+- temporary bus-fault injection is not engineering-grade protection
 - current round does not support any GCN usefulness conclusion
 
 ## Round 76: IEEE39 Local GCN Dependency Environment Repair

@@ -5551,18 +5551,18 @@ def main() -> int:
             payload = _read_json_path(consistency_json)
             for key, expected in [
                 ("check_scope", "dependency_repair_consistency_check"),
-                ("gcn_training_run", False),
-                ("formal_gcn_audit_run", False),
+                ("gcn_training_run", True),
+                ("formal_gcn_audit_run", True),
                 ("simulink_run", False),
                 ("labels_exported", False),
                 ("reranker_retrained", False),
                 ("dependency_blocker_resolved", True),
-                ("formal_audit_rerun_after_repair", False),
-                ("execution_summary_still_baseline_only", True),
+                ("formal_audit_rerun_after_repair", True),
+                ("execution_summary_still_baseline_only", False),
                 ("execution_doc_matches_execution_summary", True),
                 ("premature_gcn_conclusion_removed", True),
                 ("final_engineering_conclusion", False),
-                ("should_rerun_strict_no_leakage_audit_next", True),
+                ("should_rerun_strict_no_leakage_audit_next", False),
                 ("should_deploy_model", False),
                 ("should_retrain_reranker_now", False),
             ]:
@@ -5577,12 +5577,16 @@ def main() -> int:
             execution_summary = _read_json_path(
                 ROOT / "results/gcn_search/ieee39_gcn_usefulness_audit_execution/gcn_usefulness_audit_execution_summary.json"
             )
-            if execution_summary.get("gcn_trained_for_audit") is not False:
-                failures.append("Existing audit execution summary must remain gcn_trained_for_audit=false.")
-            if execution_summary.get("gcn_dependency_status") != "blocked_by_missing_gcn_dependency":
-                failures.append("Existing audit execution summary must remain blocked_by_missing_gcn_dependency.")
-            if execution_summary.get("audit_level_conclusion") != "formal GCN audit blocked by missing dependency; baseline-only audit completed":
-                failures.append("Existing audit execution summary must remain baseline-only.")
+            if execution_summary.get("gcn_trained_for_audit") is not True:
+                failures.append("Post-repair audit execution summary must set gcn_trained_for_audit=true.")
+            if execution_summary.get("gcn_dependency_status") != "torch_and_torch_geometric_available":
+                failures.append("Post-repair audit execution summary must record torch_and_torch_geometric_available.")
+            if execution_summary.get("final_engineering_conclusion") is not False:
+                failures.append("Post-repair audit execution summary must keep final_engineering_conclusion=false.")
+            if execution_summary.get("should_deploy_model") is not False:
+                failures.append("Post-repair audit execution summary must keep should_deploy_model=false.")
+            if execution_summary.get("should_retrain_reranker_now") is not False:
+                failures.append("Post-repair audit execution summary must keep should_retrain_reranker_now=false.")
         except Exception as exc:
             failures.append(f"Failed to read existing audit execution summary: {exc}")
 
@@ -5597,10 +5601,10 @@ def main() -> int:
         for required in [
             "dependency repair consistency check",
             "dependency_blocker_resolved = true",
-            "formal_audit_rerun_after_repair = false",
-            "execution_summary_still_baseline_only = true",
+            "formal_audit_rerun_after_repair = true",
+            "execution_summary_still_baseline_only = false",
             "premature_gcn_conclusion_removed = true",
-            "no gcn usefulness conclusion",
+            "audit-level evidence",
             "phasor_rms",
             "not emt",
             "generator_speed_proxy",
@@ -5610,10 +5614,6 @@ def main() -> int:
             if required not in consistency_text:
                 failures.append(f"Dependency repair consistency docs missing: {required}")
         for bad in [
-            "gcn_trained_for_audit: `true`",
-            "gcn_trained_for_audit = true",
-            "torch_and_torch_geometric_available",
-            "audit evidence does not support gcn usefulness",
             "gcn is useful",
             "gcn is not useful",
             "final gcn conclusion",

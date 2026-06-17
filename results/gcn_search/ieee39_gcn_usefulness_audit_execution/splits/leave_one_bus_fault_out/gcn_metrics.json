@@ -1,7 +1,21 @@
 {
   "audit_only": true,
-  "dependency_status": "blocked_by_missing_gcn_dependency",
-  "regression": {},
-  "classification": {},
-  "classification_unavailable_reason": "GCN dependency unavailable."
+  "dependency_status": "torch_available_custom_dense_gcn",
+  "num_folds": 39,
+  "regression": {
+    "mae": 0.09398533339385817,
+    "rmse": 0.11934040488715501,
+    "pearson": -0.14734606104345266,
+    "spearman": -0.19190283400809716,
+    "median_absolute_error": 0.084339304671327,
+    "max_absolute_error": 0.31187259039043247
+  },
+  "classification": {
+    "accuracy": 0.9743589743589743,
+    "precision": 0.9743589743589743,
+    "recall": 1.0,
+    "f1": 0.9870129870129869,
+    "roc_auc": 0.0
+  },
+  "classification_unavailable_reason": ""
 }

@@ -1,16 +1,15 @@
 {
   "RandomForest or GradientBoosting": {
-    "status": "dependency_unavailable",
-    "reason": "sklearn not installed in this workspace",
+    "status": "not_implemented_even_though_sklearn_available",
     "audit_only": true
   },
   "Ridge Regression / Logistic Regression": {
     "regression": {
-      "mae": 0.09976126857392038,
-      "max_absolute_error": 0.2797246560912552,
-      "median_absolute_error": 0.0801176195545078,
+      "mae": 0.09976126857392163,
+      "max_absolute_error": 0.2797246560912497,
+      "median_absolute_error": 0.08011761955451369,
       "pearson": null,
-      "rmse": 0.12218041951744671,
+      "rmse": 0.12218041951744846,
       "spearman": null
     },
     "classification": {
