@@ -542,6 +542,9 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_branch_gcn_dry_run_validator_summary.json",
     "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_branch_gcn_dry_run_validator_summary.md",
     "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_dry_run/paper_aligned_branch_gcn_dry_run_validator_summary.csv",
+    "docs/ieee39_paper_aligned_branch_gcn_redesign_consistency_check.md",
+    "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_consistency_check/paper_aligned_redesign_consistency_check.json",
+    "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_consistency_check/paper_aligned_redesign_consistency_check.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -564,6 +567,7 @@ REQUIRED_FILES = [
     "tests/test_ieee39_strict_no_leakage_gcn_usefulness_audit_execution.py",
     "tests/test_ieee39_gcn_audit_evidence_diagnosis.py",
     "tests/test_ieee39_paper_aligned_branch_gcn_redesign_dry_run.py",
+    "tests/test_ieee39_paper_aligned_branch_gcn_redesign_consistency_check.py",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_block_parameter_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.json",
@@ -3930,6 +3934,107 @@ def main() -> int:
                     failures.append(f"Paper-aligned branch GCN dry-run docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read paper-aligned branch GCN dry-run artifacts: {exc}")
+
+    consistency_dir = ROOT / "results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_consistency_check"
+    consistency_json = consistency_dir / "paper_aligned_redesign_consistency_check.json"
+    consistency_md = consistency_dir / "paper_aligned_redesign_consistency_check.md"
+    consistency_doc = ROOT / "docs/ieee39_paper_aligned_branch_gcn_redesign_consistency_check.md"
+    consistency_required = [consistency_json, consistency_md, consistency_doc]
+    existing_consistency_required = [path for path in consistency_required if path.exists()]
+    if existing_consistency_required:
+        missing_consistency_required = [path for path in consistency_required if not path.exists()]
+        if missing_consistency_required:
+            failures.append(
+                "IEEE39 paper-aligned redesign consistency artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_consistency_required)
+            )
+        try:
+            payload = _read_json_path(consistency_json)
+            for key, expected in [
+                ("check_scope", "paper_aligned_branch_gcn_redesign_consistency_check"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("simulink_run", False),
+                ("labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("source_dry_run_commit", "3230109b27c3b9af54801b61835b9a491490b2c1"),
+                ("execution_summary_post_repair_audit", True),
+                ("execution_doc_matches_execution_summary", True),
+                ("stale_baseline_only_text_removed", True),
+                ("paper_aligned_dry_run_preserved", True),
+                ("can_build_branch_line_graph", True),
+                ("can_build_required_paper_features", False),
+                ("can_build_paper_labels_from_existing_data", False),
+                ("bus_fault_labels_directly_paper_aligned", False),
+                ("line_trip_labels_first_priority", True),
+                ("final_engineering_conclusion", False),
+                ("should_deploy_model", False),
+                ("should_retrain_reranker_now", False),
+            ]:
+                if payload.get(key) != expected:
+                    failures.append(f"Paper-aligned redesign consistency check must set {key}={expected!r}.")
+            if payload.get("failed_checks") != []:
+                failures.append("Paper-aligned redesign consistency check must have failed_checks=[].")
+            execution_doc = _read_text("docs/ieee39_strict_no_leakage_gcn_usefulness_audit_execution.md").lower()
+            normalized_execution = " ".join(execution_doc.replace("`", "").split())
+            for required in [
+                "post-repair strict no-leakage audit",
+                "gcn_trained_for_audit: true",
+                "gcn_dependency_available: true",
+                "gcn_dependency_status: torch_and_torch_geometric_available",
+                "0.7032927445152551",
+                "0.12218041951744846",
+                "audit evidence does not support gcn usefulness over simpler baselines yet",
+            ]:
+                if required not in normalized_execution:
+                    failures.append(f"Strict no-leakage audit execution doc missing current post-repair wording: {required}")
+            for stale in [
+                "execution summary is still a baseline-only audit",
+                "gcn_trained_for_audit: false",
+                "gcn_dependency_status: blocked_by_missing_gcn_dependency",
+                "gcn metrics: unavailable",
+                "formal gcn audit blocked by missing dependency",
+                "baseline-only audit completed",
+            ]:
+                if stale in normalized_execution:
+                    failures.append(f"Strict no-leakage audit execution doc still contains stale wording: {stale}")
+            consistency_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_paper_aligned_branch_gcn_redesign_consistency_check.md"),
+                    _read_text("results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_consistency_check/paper_aligned_redesign_consistency_check.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                ]
+            ).lower()
+            normalized = " ".join(consistency_text.replace("`", "").split())
+            for required in [
+                "documentation consistency",
+                "does not train gcn",
+                "does not rerun the formal audit",
+                "does not run simulink",
+                "does not export labels",
+                "does not retrain the reranker",
+                "current audit evidence does not support gcn usefulness over simpler baselines yet",
+                "can_build_required_paper_features = false",
+                "can_build_paper_labels_from_existing_data = false",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "not engineering-grade protection",
+            ]:
+                if required not in normalized:
+                    failures.append(f"Paper-aligned redesign consistency docs missing: {required}")
+            for bad in [
+                "gcn is useless",
+                "final engineering conclusion: true",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+                "production_model_saved = true",
+                "production ready",
+            ]:
+                if bad in normalized:
+                    failures.append(f"Paper-aligned redesign consistency docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read paper-aligned redesign consistency artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

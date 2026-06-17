@@ -15,6 +15,16 @@ labels should remain a later extension. Post-fault dynamic measurements cannot
 be used as GCN inputs. `dynamic_stress_score` and `unstable_flag` can only be
 labels or audit targets.
 
+## Consistency Follow-Up
+
+A later consistency check removed stale baseline-only wording from the current
+strict no-leakage audit execution document. The execution summary is the
+post-repair audit result with `gcn_trained_for_audit = true` and
+`gcn_dependency_status = torch_and_torch_geometric_available`, but the
+audit-level conclusion remains conservative: current evidence does not support
+GCN usefulness over simpler baselines yet. No formal audit was rerun in that
+consistency-only round.
+
 This round is evidence diagnosis only.
 
 It does not train GCN.

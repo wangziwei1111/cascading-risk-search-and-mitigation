@@ -4237,3 +4237,43 @@ The branch graph can be constructed from the verified wrapper line map, but the 
 This means the next step is still not deployment and not reranker retraining. The next step is to add verified static/prefault flow, limit, and bus-load sources, then build a paper-style branch vulnerability label generator for line-trip labels first. Bus-fault labels should remain a separate extension.
 
 `phasor_RMS` is not EMT. `generator_speed_proxy` is not direct frequency. Temporary bus-fault injection is not engineering-grade protection.
+
+## Round 81: IEEE39 Paper-Aligned Branch GCN Redesign Consistency Check
+
+This round fixes documentation consistency after the paper-aligned branch GCN
+redesign dry-run. It does not train GCN, does not rerun the formal strict
+no-leakage audit, does not run Simulink, does not export labels, does not
+retrain the reranker, and does not save a production model.
+
+The strict no-leakage execution summary is a post-repair audit:
+
+- `gcn_trained_for_audit = true`
+- `gcn_dependency_available = true`
+- `gcn_dependency_status = torch_and_torch_geometric_available`
+- `bus_fault_holdout` GCN RMSE = `0.7032927445152551`
+- `bus_fault_holdout` best baseline RMSE = `0.12218041951744846`
+- audit-level conclusion = current audit evidence does not support GCN usefulness over simpler baselines yet
+- `final_engineering_conclusion = false`
+- `should_retrain_reranker_now = false`
+- `should_deploy_model = false`
+
+The stale baseline-only wording was removed from the current execution
+document. The paper-aligned dry-run is preserved:
+
+- `can_build_branch_line_graph = true`
+- `can_build_required_paper_features = false`
+- `can_build_paper_labels_from_existing_data = false`
+- `bus_fault_labels_directly_paper_aligned = false`
+- `line_trip_labels_first_priority = true`
+
+New consistency artifacts:
+
+- `docs/ieee39_paper_aligned_branch_gcn_redesign_consistency_check.md`
+- `results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_consistency_check/paper_aligned_redesign_consistency_check.json`
+- `results/gcn_search/ieee39_paper_aligned_branch_gcn_redesign_consistency_check/paper_aligned_redesign_consistency_check.md`
+
+Next step remains adding verified pre-fault/current-state branch flow, line
+limit or relay threshold, bus load sources, and a branch vulnerability label
+generator. This is not deployment and not reranker retraining. `phasor_RMS` is
+not EMT. `generator_speed_proxy` is not direct frequency. Temporary bus-fault
+injection is not engineering-grade protection.

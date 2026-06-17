@@ -55,3 +55,16 @@ Phasor_RMS is not EMT. Generator_speed_proxy is not direct frequency. Temporary 
 - recommended_next_step: add verified pre-fault/current-state branch flow, line limit, and bus load sources first
 
 This is preparation for a future audit-only paper-aligned branch-as-node GCN prototype. It is not deployment and not reranker retraining.
+
+## Consistency Follow-Up
+
+A later consistency check aligned the strict no-leakage audit execution document
+with the post-repair audit summary. The current execution summary records
+`gcn_trained_for_audit = true`,
+`gcn_dependency_status = torch_and_torch_geometric_available`, and the
+audit-level conclusion that current evidence does not support GCN usefulness
+over simpler baselines yet.
+
+This does not change the paper-aligned dry-run status above: the branch-as-node
+graph can be built, but the required paper features and paper-style branch
+vulnerability labels are still not ready.
