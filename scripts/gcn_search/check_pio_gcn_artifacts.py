@@ -512,6 +512,20 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_gcn_usefulness_audit_execution/nf06_sensitivity_report.md",
     "results/gcn_search/ieee39_gcn_usefulness_audit_execution/l12_exclusion_confirmation.json",
     "results/gcn_search/ieee39_gcn_usefulness_audit_execution/l12_exclusion_confirmation.md",
+    "docs/ieee39_gcn_audit_evidence_diagnosis.md",
+    "results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/gcn_audit_evidence_diagnosis_summary.json",
+    "results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/gcn_audit_evidence_diagnosis_summary.md",
+    "results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/gcn_audit_evidence_diagnosis_summary.csv",
+    "results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/gcn_vs_baseline_gap_analysis.json",
+    "results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/gcn_vs_baseline_gap_analysis.md",
+    "results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/b1_and_classification_diagnosis.json",
+    "results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/b1_and_classification_diagnosis.md",
+    "results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/nf06_sensitivity_diagnosis.json",
+    "results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/nf06_sensitivity_diagnosis.md",
+    "results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/graph_construction_diagnosis.json",
+    "results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/graph_construction_diagnosis.md",
+    "results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/next_gcn_improvement_plan.json",
+    "results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/next_gcn_improvement_plan.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -526,10 +540,12 @@ REQUIRED_FILES = [
     "scripts/gcn_search/prepare_ieee39_gcn_usefulness_audit_plan.py",
     "scripts/gcn_search/run_ieee39_gcn_usefulness_audit_dry_run_validator.py",
     "scripts/gcn_search/run_ieee39_strict_no_leakage_gcn_usefulness_audit.py",
+    "scripts/gcn_search/diagnose_ieee39_gcn_audit_evidence_gap.py",
     "tests/test_ieee39_v2_plus_all_bus_fault_preview_no_leakage.py",
     "tests/test_ieee39_gcn_usefulness_audit_plan.py",
     "tests/test_ieee39_gcn_usefulness_audit_dry_run_validator.py",
     "tests/test_ieee39_strict_no_leakage_gcn_usefulness_audit_execution.py",
+    "tests/test_ieee39_gcn_audit_evidence_diagnosis.py",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_block_parameter_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.json",
@@ -3667,6 +3683,116 @@ def main() -> int:
                     failures.append(f"GCN audit execution docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read GCN audit execution artifacts: {exc}")
+
+    diagnosis_dir = ROOT / "results/gcn_search/ieee39_gcn_audit_evidence_diagnosis"
+    diagnosis_json = diagnosis_dir / "gcn_audit_evidence_diagnosis_summary.json"
+    diagnosis_md = diagnosis_dir / "gcn_audit_evidence_diagnosis_summary.md"
+    diagnosis_csv = diagnosis_dir / "gcn_audit_evidence_diagnosis_summary.csv"
+    diagnosis_doc = ROOT / "docs/ieee39_gcn_audit_evidence_diagnosis.md"
+    diagnosis_gap = diagnosis_dir / "gcn_vs_baseline_gap_analysis.json"
+    diagnosis_b1 = diagnosis_dir / "b1_and_classification_diagnosis.json"
+    diagnosis_nf06 = diagnosis_dir / "nf06_sensitivity_diagnosis.json"
+    diagnosis_graph = diagnosis_dir / "graph_construction_diagnosis.json"
+    diagnosis_plan = diagnosis_dir / "next_gcn_improvement_plan.json"
+    diagnosis_required = [
+        diagnosis_json,
+        diagnosis_md,
+        diagnosis_csv,
+        diagnosis_doc,
+        diagnosis_gap,
+        diagnosis_dir / "gcn_vs_baseline_gap_analysis.md",
+        diagnosis_b1,
+        diagnosis_dir / "b1_and_classification_diagnosis.md",
+        diagnosis_nf06,
+        diagnosis_dir / "nf06_sensitivity_diagnosis.md",
+        diagnosis_graph,
+        diagnosis_dir / "graph_construction_diagnosis.md",
+        diagnosis_plan,
+        diagnosis_dir / "next_gcn_improvement_plan.md",
+    ]
+    existing_diagnosis_required = [path for path in diagnosis_required if path.exists()]
+    if existing_diagnosis_required:
+        missing_diagnosis_required = [path for path in diagnosis_required if not path.exists()]
+        if missing_diagnosis_required:
+            failures.append(
+                "GCN audit evidence diagnosis artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_diagnosis_required)
+            )
+        try:
+            payload = _read_json_path(diagnosis_json)
+            gap = _read_json_path(diagnosis_gap)
+            b1_diag = _read_json_path(diagnosis_b1)
+            nf06_diag = _read_json_path(diagnosis_nf06)
+            graph_diag = _read_json_path(diagnosis_graph)
+            plan_diag = _read_json_path(diagnosis_plan)
+            for key, expected in [
+                ("diagnosis_scope", "gcn_audit_evidence_diagnosis"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("simulink_run", False),
+                ("labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("final_engineering_conclusion", False),
+                ("should_retrain_reranker_now", False),
+                ("should_deploy_model", False),
+            ]:
+                if payload.get(key) != expected:
+                    failures.append(f"GCN audit evidence diagnosis must set {key}={expected!r}.")
+            if payload.get("forbidden_features_detected_in_inputs") != []:
+                failures.append("GCN audit evidence diagnosis must keep forbidden_features_detected_in_inputs=[].")
+            if gap.get("bus_fault_holdout_gcn_rmse", 0) <= gap.get("bus_fault_holdout_best_baseline_rmse", 0):
+                failures.append("GCN audit evidence diagnosis must preserve bus_fault_holdout GCN > baseline RMSE.")
+            if gap.get("lobo_gcn_rmse", 0) <= gap.get("lobo_best_baseline_rmse", 0):
+                failures.append("GCN audit evidence diagnosis must preserve LOBO GCN > baseline RMSE.")
+            if b1_diag.get("gcn_unstable_probability") != 1.0:
+                failures.append("B1 diagnosis must preserve gcn_unstable_probability=1.0.")
+            if nf06_diag.get("nf06_changes_audit_conclusion") is not False:
+                failures.append("NF06 diagnosis must state that NF06 does not change the conclusion.")
+            if "message passing" not in str(graph_diag.get("message_passing_usage", "")).lower():
+                failures.append("Graph construction diagnosis must include message passing usage.")
+            if plan_diag.get("training_triggered") is not False:
+                failures.append("Next GCN improvement plan must not trigger training.")
+            diagnosis_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_gcn_audit_evidence_diagnosis.md"),
+                    _read_text("results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/gcn_audit_evidence_diagnosis_summary.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                ]
+            ).lower()
+            normalized = " ".join(diagnosis_text.replace("`", "").split())
+            for required in [
+                "evidence diagnosis only",
+                "does not train gcn",
+                "does not rerun the formal audit",
+                "does not run simulink",
+                "does not export labels",
+                "does not retrain the reranker",
+                "current audit evidence does not support gcn usefulness over simpler baselines yet",
+                "not a final proof against gcn",
+                "b1",
+                "overconfident",
+                "nf06",
+                "candidate rows as graph nodes",
+                "not physical bus-branch electrical topology",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "not engineering-grade protection",
+            ]:
+                if required not in normalized:
+                    failures.append(f"GCN audit evidence diagnosis docs missing: {required}")
+            for bad in [
+                "gcn is useless",
+                "final engineering conclusion: true",
+                "production_model_saved = true",
+                "production model saved: true",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+            ]:
+                if bad in normalized:
+                    failures.append(f"GCN audit evidence diagnosis docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read GCN audit evidence diagnosis artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

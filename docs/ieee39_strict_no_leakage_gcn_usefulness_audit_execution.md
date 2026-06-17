@@ -45,3 +45,23 @@ audit evidence does not support GCN usefulness over simpler baselines yet
 ## Next Step
 
 improve feature / graph construction before any stronger GCN usefulness claim
+
+## Evidence Diagnosis Follow-Up
+
+A later evidence-diagnosis round analyzed why this audit does not support GCN
+usefulness over simpler baselines yet. That diagnosis did not train GCN, did
+not rerun the formal audit, did not run Simulink, did not export labels, and
+did not retrain the reranker.
+
+Key diagnosis points:
+
+- `bus_fault_holdout` GCN-baseline RMSE gap: `0.5811123249978067`
+- `leave_one_bus_fault_out` GCN-baseline RMSE gap: `0.023432265101873434`
+- `no_dynamic_measurement_leave_one_bus_fault_out` GCN-baseline RMSE gap: `0.023432265101873434`
+- B1 remains an overconfident stable-marker failure case
+- NF06 sensitivity changes GCN RMSE but does not change the audit-level conclusion
+- the current dense GCN uses candidate rows as graph nodes and equality-based categorical adjacency, not physical bus-branch electrical topology
+
+The recommended next step is to improve no-leakage graph construction and
+features before rerunning the audit. Do not deploy and do not retrain the
+reranker from the current evidence.

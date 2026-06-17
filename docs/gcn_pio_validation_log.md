@@ -3957,6 +3957,69 @@ Boundary notes remain unchanged:
 - `generator_speed_proxy` is not direct frequency
 - temporary bus-fault injection is not engineering-grade protection
 
+## Round 79: IEEE39 GCN Audit Evidence Gap Diagnosis
+
+This round diagnoses why the previous strict no-leakage GCN audit evidence does
+not support GCN usefulness over simpler baselines yet.
+
+It did not train GCN.
+It did not rerun the formal audit.
+It did not run Simulink.
+It did not export labels.
+It did not retrain the reranker.
+It did not save a production model.
+
+Plain wording: the previous round already produced the GCN-vs-baseline numbers.
+This round only reads those outputs and explains where the gap appears to come
+from.
+
+Diagnosis summary:
+
+- `diagnosis_scope = gcn_audit_evidence_diagnosis`
+- `gcn_training_run = false`
+- `formal_gcn_audit_rerun = false`
+- `simulink_run = false`
+- `labels_exported = false`
+- `reranker_retrained = false`
+- `production_model_saved = false`
+- `final_engineering_conclusion = false`
+- `should_retrain_reranker_now = false`
+- `should_deploy_model = false`
+
+GCN-baseline gaps:
+
+- `bus_fault_holdout`: `0.5811123249978067`
+- `leave_one_bus_fault_out`: `0.023432265101873434`
+- `no_dynamic_measurement_leave_one_bus_fault_out`: `0.023432265101873434`
+
+Main diagnosis:
+
+- B1 is an overconfident stable-marker failure case: true stress `0.1960258595`, GCN prediction `0.5078984499`, probability `1.0`
+- NF06 sensitivity reduces GCN RMSE when excluded but does not change the conclusion
+- the current dense GCN uses candidate rows as graph nodes
+- adjacency is based on categorical equality, not physical bus-branch electrical topology
+- no-leakage inputs are mostly tabular categorical encodings
+- current priority should be graph / feature construction and sample-size diagnosis, not deployment or reranker retraining
+
+New artifacts:
+
+- `docs/ieee39_gcn_audit_evidence_diagnosis.md`
+- `results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/gcn_audit_evidence_diagnosis_summary.json`
+- `results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/gcn_vs_baseline_gap_analysis.json`
+- `results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/b1_and_classification_diagnosis.json`
+- `results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/nf06_sensitivity_diagnosis.json`
+- `results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/graph_construction_diagnosis.json`
+- `results/gcn_search/ieee39_gcn_audit_evidence_diagnosis/next_gcn_improvement_plan.json`
+
+Boundary notes remain unchanged:
+
+- this is not a final proof against GCN
+- do not deploy
+- do not retrain the reranker
+- `phasor_RMS` is not EMT
+- `generator_speed_proxy` is not direct frequency
+- temporary bus-fault injection is not engineering-grade protection
+
 ## Round 78: IEEE39 Strict No-Leakage GCN Audit Rerun After Dependency Repair
 
 This round reruns the IEEE39 strict no-leakage GCN usefulness audit inside the

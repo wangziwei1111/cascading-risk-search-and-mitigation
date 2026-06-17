@@ -1,0 +1,25 @@
+# NF06 Sensitivity Diagnosis
+
+```json
+{
+  "analysis_scope": "nf06_sensitivity_diagnosis",
+  "include_NF06": {
+    "gcn_bus_fault_holdout_rmse": 0.7032927445152551,
+    "best_baseline_name": "Ridge Regression / Logistic Regression",
+    "best_baseline_bus_fault_holdout_rmse": 0.12218041951744846,
+    "row_count": 79
+  },
+  "exclude_NF06": {
+    "gcn_bus_fault_holdout_rmse": 0.48571154241503994,
+    "best_baseline_name": "Ridge Regression / Logistic Regression",
+    "best_baseline_bus_fault_holdout_rmse": 0.12743229641231898,
+    "row_count": 78
+  },
+  "gcn_rmse_delta_exclude_minus_include": -0.2175812021002152,
+  "include_gcn_minus_baseline_rmse": 0.5811123249978067,
+  "exclude_gcn_minus_baseline_rmse": 0.358279246002721,
+  "nf06_changes_gcn_rmse": true,
+  "nf06_changes_audit_conclusion": false,
+  "diagnosis": "Excluding NF06 reduces GCN RMSE, but GCN remains worse than the best simple baseline; therefore NF06 sensitivity does not change the audit-level conclusion."
+}
+```

@@ -1,0 +1,19 @@
+# GCN vs Baseline Gap Analysis
+
+```json
+{
+  "analysis_scope": "gcn_vs_baseline_gap",
+  "bus_fault_holdout_gcn_rmse": 0.7032927445152551,
+  "bus_fault_holdout_best_baseline_rmse": 0.12218041951744846,
+  "bus_fault_holdout_gcn_minus_baseline_rmse": 0.5811123249978067,
+  "lobo_gcn_rmse": 0.11934040488715501,
+  "lobo_best_baseline_rmse": 0.09590813978528158,
+  "lobo_gcn_minus_baseline_rmse": 0.023432265101873434,
+  "no_dynamic_lobo_gcn_rmse": 0.11934040488715501,
+  "no_dynamic_lobo_best_baseline_rmse": 0.09590813978528158,
+  "no_dynamic_lobo_gcn_minus_baseline_rmse": 0.023432265101873434,
+  "baseline_name": "Ridge Regression / Logistic Regression",
+  "audit_level_conclusion": "audit evidence does not support GCN usefulness over simpler baselines yet",
+  "interpretation": "GCN RMSE is larger than the best simple baseline in the reported strict holdouts."
+}
+```
