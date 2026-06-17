@@ -1,0 +1,18 @@
+{
+  "forbidden_features_checked": [
+    "min_voltage_pu",
+    "max_voltage_pu",
+    "frequency",
+    "rotor angle",
+    "speed deviation",
+    "dynamic_stress_score",
+    "unstable_flag",
+    "phasor_RMS",
+    "generator_speed_proxy"
+  ],
+  "forbidden_features_detected_in_inputs": [],
+  "post_fault_dynamic_measurements_used_as_inputs": false,
+  "dynamic_targets_only_used_as_labels": true,
+  "static_or_prefault_sources_only": true,
+  "no_leakage_static_feature_policy_passed": true
+}

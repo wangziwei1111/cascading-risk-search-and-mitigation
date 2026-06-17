@@ -558,6 +558,21 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/feature_source_dry_run_validator_summary.json",
     "results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/feature_source_dry_run_validator_summary.md",
     "results/gcn_search/ieee39_paper_aligned_feature_source_dry_run/feature_source_dry_run_validator_summary.csv",
+    "docs/ieee39_static_operating_point_feature_source_dry_run.md",
+    "results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/static_case_source_inventory.json",
+    "results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/static_case_source_inventory.md",
+    "results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/dc_power_flow_generation_plan.json",
+    "results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/dc_power_flow_generation_plan.md",
+    "results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/l01_l34_static_feature_source_matrix.json",
+    "results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/l01_l34_static_feature_source_matrix.md",
+    "results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/l01_l34_static_feature_source_matrix.csv",
+    "results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/relay_threshold_proxy_proposal.json",
+    "results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/relay_threshold_proxy_proposal.md",
+    "results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/no_leakage_static_feature_audit.json",
+    "results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/no_leakage_static_feature_audit.md",
+    "results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/static_feature_source_dry_run_validator_summary.json",
+    "results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/static_feature_source_dry_run_validator_summary.md",
+    "results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/static_feature_source_dry_run_validator_summary.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -575,6 +590,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/diagnose_ieee39_gcn_audit_evidence_gap.py",
     "scripts/gcn_search/prepare_ieee39_paper_aligned_branch_gcn_redesign_dry_run.py",
     "scripts/gcn_search/prepare_ieee39_paper_aligned_feature_source_dry_run.py",
+    "scripts/gcn_search/prepare_ieee39_static_operating_point_feature_source_dry_run.py",
     "tests/test_ieee39_v2_plus_all_bus_fault_preview_no_leakage.py",
     "tests/test_ieee39_gcn_usefulness_audit_plan.py",
     "tests/test_ieee39_gcn_usefulness_audit_dry_run_validator.py",
@@ -583,6 +599,7 @@ REQUIRED_FILES = [
     "tests/test_ieee39_paper_aligned_branch_gcn_redesign_dry_run.py",
     "tests/test_ieee39_paper_aligned_branch_gcn_redesign_consistency_check.py",
     "tests/test_ieee39_paper_aligned_feature_source_dry_run.py",
+    "tests/test_ieee39_static_operating_point_feature_source_dry_run.py",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_block_parameter_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.json",
@@ -4173,6 +4190,156 @@ def main() -> int:
                     failures.append(f"Paper-aligned feature source docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read paper-aligned feature source dry-run artifacts: {exc}")
+
+    static_source_dir = ROOT / "results/gcn_search/ieee39_static_operating_point_feature_source_dry_run"
+    static_summary = static_source_dir / "static_feature_source_dry_run_validator_summary.json"
+    static_inventory = static_source_dir / "static_case_source_inventory.json"
+    static_plan = static_source_dir / "dc_power_flow_generation_plan.json"
+    static_matrix = static_source_dir / "l01_l34_static_feature_source_matrix.json"
+    static_proxy = static_source_dir / "relay_threshold_proxy_proposal.json"
+    static_no_leakage = static_source_dir / "no_leakage_static_feature_audit.json"
+    static_doc = ROOT / "docs/ieee39_static_operating_point_feature_source_dry_run.md"
+    static_required = [static_summary, static_inventory, static_plan, static_matrix, static_proxy, static_no_leakage, static_doc]
+    existing_static_required = [path for path in static_required if path.exists()]
+    if existing_static_required:
+        missing_static_required = [path for path in static_required if not path.exists()]
+        if missing_static_required:
+            failures.append(
+                "IEEE39 static operating point feature source dry-run artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_static_required)
+            )
+        try:
+            summary = _read_json_path(static_summary)
+            inventory = _read_json_path(static_inventory)
+            plan = _read_json_path(static_plan)
+            matrix = _read_json_path(static_matrix)
+            proxy = _read_json_path(static_proxy)
+            no_leakage = _read_json_path(static_no_leakage)
+            for key, expected in [
+                ("dry_run_scope", "ieee39_static_operating_point_feature_source_dry_run"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("simulink_run", False),
+                ("labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("source_feature_dry_run_commit", "8deeab9b37c1033dc957736981119705977b4473"),
+                ("paper_graph_node_type", "branch"),
+                ("paper_graph_edge_rule", "shared_endpoint_bus"),
+                ("branch_line_graph_ready", True),
+                ("num_branch_nodes", 34),
+                ("selected_case_source", "pypower.case39"),
+                ("selected_case_source_trust_level", "standard_installed_case_loader_static_pre_fault"),
+                ("dc_pf_run_this_round", True),
+                ("branch_flow_source_ready", True),
+                ("line_limit_source_ready", True),
+                ("relay_threshold_source_ready", False),
+                ("relay_threshold_proxy_proposed", True),
+                ("relay_threshold_proxy_allowed_for_training_now", False),
+                ("bus_load_source_ready", True),
+                ("can_build_l01_l34_static_feature_matrix", False),
+                ("can_build_required_paper_features_without_proxy", False),
+                ("can_build_required_paper_features_with_documented_proxy", True),
+                ("forbidden_features_detected_in_inputs", []),
+                ("no_leakage_static_feature_policy_passed", True),
+                ("l12_special_case_preserved", True),
+                ("final_engineering_conclusion", False),
+                ("should_train_gcn_now", False),
+                ("should_rerun_formal_audit_now", False),
+                ("should_retrain_reranker_now", False),
+                ("should_deploy_model", False),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"Static operating point dry-run must set {key}={expected!r}.")
+            if "unapproved beta * RATE_A proxy" not in str(summary.get("blocker_if_any", "")):
+                failures.append("Static operating point dry-run blocker must mention unapproved beta * RATE_A proxy.")
+            for key in ["baseMVA_available", "bus_table_available", "branch_table_available", "generator_table_available", "branch_flow_available", "branch_limit_available", "bus_load_available", "can_generate_dc_power_flow"]:
+                if inventory.get(key) is not True:
+                    failures.append(f"Static case source inventory must set {key}=True.")
+            for key, expected in [
+                ("run_dc_pf_this_round", True),
+                ("dc_pf_solver_available", True),
+                ("uses_simulink", False),
+                ("uses_post_fault_dynamic_measurements", False),
+                ("baseMVA", 100.0),
+                ("bus_count", 39),
+                ("branch_count", 46),
+                ("mapping_to_L01_L34_possible", True),
+            ]:
+                if plan.get(key) != expected:
+                    failures.append(f"DC PF generation plan must set {key}={expected!r}.")
+            for key, expected in [
+                ("relay_threshold_source_found", False),
+                ("line_limit_source_found", True),
+                ("proxy_needed", True),
+                ("proposed_proxy", "beta * line_limit"),
+                ("beta_value", 1.2),
+                ("proxy_allowed_for_training_now", False),
+                ("no_training_this_round", True),
+            ]:
+                if proxy.get(key) != expected:
+                    failures.append(f"Relay threshold proxy proposal must set {key}={expected!r}.")
+            if no_leakage.get("forbidden_features_detected_in_inputs") != []:
+                failures.append("Static no-leakage audit must have forbidden_features_detected_in_inputs=[].")
+            if no_leakage.get("post_fault_dynamic_measurements_used_as_inputs") is not False:
+                failures.append("Static no-leakage audit must not use post-fault dynamic measurements as inputs.")
+            if not isinstance(matrix, list) or len(matrix) != 34:
+                failures.append("Static L01-L34 feature source matrix must contain 34 rows.")
+            else:
+                if not all(row.get("branch_flow_available") for row in matrix):
+                    failures.append("Every static matrix row must have branch_flow_available=True.")
+                if not all(row.get("line_limit_available") for row in matrix):
+                    failures.append("Every static matrix row must have line_limit_available=True.")
+                if not all(row.get("endpoint_load_available") for row in matrix):
+                    failures.append("Every static matrix row must have endpoint_load_available=True.")
+                if any(row.get("relay_threshold_available") for row in matrix):
+                    failures.append("Static matrix must not mark relay_threshold_available=True when only proxy exists.")
+                if any(row.get("ready_for_lx4_feature_vector") for row in matrix):
+                    failures.append("Static matrix must not mark Lx4 vector ready before relay proxy approval.")
+                l12_rows = [row for row in matrix if row.get("line_id") == "L12"]
+                if not l12_rows or l12_rows[0].get("l12_special_case_flag") is not True:
+                    failures.append("Static matrix must preserve L12 special case flag.")
+            static_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_static_operating_point_feature_source_dry_run.md"),
+                    _read_text("results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/static_case_source_inventory.md"),
+                    _read_text("results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/relay_threshold_proxy_proposal.md"),
+                    _read_text("results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/no_leakage_static_feature_audit.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                ]
+            ).lower()
+            normalized_static = " ".join(static_text.replace("`", "").split())
+            for required in [
+                "static operating point feature source dry-run",
+                "does not train gcn",
+                "does not rerun the formal audit",
+                "does not run simulink",
+                "does not export labels",
+                "does not retrain the reranker",
+                "relay threshold proxy",
+                "not allowed for training now",
+                "post-fault dynamic measurements are not used as inputs",
+                "l12 remains a special case",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "not engineering-grade protection",
+            ]:
+                if required not in normalized_static:
+                    failures.append(f"Static operating point docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is useless",
+                "formal audit rerun completed",
+                "final engineering conclusion: true",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+                "production_model_saved = true",
+                "production ready",
+            ]:
+                if bad in normalized_static:
+                    failures.append(f"Static operating point docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read static operating point feature source dry-run artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

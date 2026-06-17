@@ -87,3 +87,22 @@ but the verified inputs for `x_p`, `x_b`, and `x_l` are still incomplete.
 
 This follow-up also keeps the no-leakage rule: post-fault dynamic measurements
 cannot replace branch flow, relay threshold, or endpoint load inputs.
+
+## Static Operating Point Feature Source Follow-Up
+
+A later static operating point dry-run selected `pypower.case39` as a standard
+installed static case loader and ran DC PF without Simulink. This gives
+L01-L34 static branch flow, `RATE_A` line limit, and endpoint bus load sources.
+However, the relay threshold is still not a verified source; only a
+`beta * RATE_A` proxy is proposed.
+
+- `dc_pf_run_this_round = true`
+- `branch_flow_source_ready = true`
+- `line_limit_source_ready = true`
+- `bus_load_source_ready = true`
+- `relay_threshold_source_ready = false`
+- `relay_threshold_proxy_proposed = true`
+- `relay_threshold_proxy_allowed_for_training_now = false`
+
+Therefore the paper-aligned feature source is closer, but still not approved
+for training until the relay-threshold proxy is documented and approved.

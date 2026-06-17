@@ -36,3 +36,23 @@ L12 remains a special case and the old gate is unchanged.
 `add or generate verified current-state PF/OPF branch flow, line limit, and bus load sources before label generator`
 
 This is not deployment, not reranker retraining, and not a final engineering conclusion. `phasor_RMS` is not EMT. `generator_speed_proxy` is not direct frequency. Temporary bus-fault injection is not engineering-grade protection.
+
+## Static Operating Point Follow-Up
+
+A later static operating point dry-run found a local standard case loader:
+`pypower.case39`. Using that static/pre-fault case, the dry-run successfully ran
+DC PF without Simulink and mapped L01-L34 to static branch flow, `RATE_A` line
+limit, and endpoint bus load sources.
+
+- `selected_case_source = pypower.case39`
+- `dc_pf_run_this_round = true`
+- `branch_flow_source_ready = true`
+- `line_limit_source_ready = true`
+- `bus_load_source_ready = true`
+- `relay_threshold_source_ready = false`
+- `relay_threshold_proxy_proposed = true`
+- `relay_threshold_proxy_allowed_for_training_now = false`
+
+The result improves the source situation but still does not authorize training:
+the relay threshold exists only as a proposed `beta * RATE_A` proxy and needs
+explicit approval before it can be used in a paper-aligned GCN input.

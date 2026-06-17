@@ -4333,3 +4333,60 @@ flow, line limit, and bus load sources before building the paper-style branch
 vulnerability label generator. This is not deployment and not reranker
 retraining. `phasor_RMS` is not EMT. `generator_speed_proxy` is not direct
 frequency. Temporary bus-fault injection is not engineering-grade protection.
+
+## Round 83: IEEE39 Static Operating Point Feature Source Dry-Run
+
+This round prepares a static operating point feature source dry-run for the
+paper-aligned IEEE39 branch GCN input. It does not train GCN, does not rerun the
+formal audit, does not run Simulink, does not export labels, does not retrain
+the reranker, and does not save a production model.
+
+The dry-run found a local standard static case loader, `pypower.case39`, and
+ran DC PF only for static/pre-fault operating point feature generation. It did
+not use post-fault dynamic measurements.
+
+Artifacts:
+
+- `scripts/gcn_search/prepare_ieee39_static_operating_point_feature_source_dry_run.py`
+- `docs/ieee39_static_operating_point_feature_source_dry_run.md`
+- `results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/static_case_source_inventory.json`
+- `results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/dc_power_flow_generation_plan.json`
+- `results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/l01_l34_static_feature_source_matrix.json`
+- `results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/relay_threshold_proxy_proposal.json`
+- `results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/no_leakage_static_feature_audit.json`
+- `results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/static_feature_source_dry_run_validator_summary.json`
+
+Current result:
+
+- `dry_run_scope = ieee39_static_operating_point_feature_source_dry_run`
+- `selected_case_source = pypower.case39`
+- `selected_case_source_trust_level = standard_installed_case_loader_static_pre_fault`
+- `dc_pf_run_this_round = true`
+- `branch_flow_source_ready = true`
+- `line_limit_source_ready = true`
+- `relay_threshold_source_ready = false`
+- `relay_threshold_proxy_proposed = true`
+- `relay_threshold_proxy_allowed_for_training_now = false`
+- `bus_load_source_ready = true`
+- `can_build_l01_l34_static_feature_matrix = false`
+- `can_build_required_paper_features_without_proxy = false`
+- `can_build_required_paper_features_with_documented_proxy = true`
+- `forbidden_features_detected_in_inputs = []`
+- `no_leakage_static_feature_policy_passed = true`
+- `l12_special_case_preserved = true`
+- `final_engineering_conclusion = false`
+- `should_train_gcn_now = false`
+- `should_rerun_formal_audit_now = false`
+- `should_retrain_reranker_now = false`
+- `should_deploy_model = false`
+
+Interpretation: the static source blocker is mostly resolved for branch flow,
+line limit, and bus load. The remaining blocker is relay threshold provenance:
+the current dry-run proposes `beta * RATE_A` using project default
+`beta = 1.2`, but the proxy is not allowed for training now. It needs explicit
+approval and documentation before moving to paper-style branch vulnerability
+label generation.
+
+This is not deployment and not reranker retraining. `phasor_RMS` is not EMT.
+`generator_speed_proxy` is not direct frequency. Temporary bus-fault injection
+is not engineering-grade protection.

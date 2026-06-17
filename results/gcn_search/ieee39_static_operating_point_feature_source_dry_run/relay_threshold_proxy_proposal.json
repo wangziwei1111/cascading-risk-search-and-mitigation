@@ -1,0 +1,11 @@
+{
+  "relay_threshold_source_found": false,
+  "line_limit_source_found": true,
+  "proxy_needed": true,
+  "proposed_proxy": "beta * line_limit",
+  "beta_value": 1.2,
+  "beta_value_source": "docs/pio_gcn_relay_vs_security_constraint.md project default beta = 1.2",
+  "proxy_allowed_for_training_now": false,
+  "reason": "needs explicit approval / documentation before training",
+  "no_training_this_round": true
+}
