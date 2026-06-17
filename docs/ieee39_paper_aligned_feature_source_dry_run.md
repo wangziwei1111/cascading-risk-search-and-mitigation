@@ -56,3 +56,24 @@ limit, and endpoint bus load sources.
 The result improves the source situation but still does not authorize training:
 the relay threshold exists only as a proposed `beta * RATE_A` proxy and needs
 explicit approval before it can be used in a paper-aligned GCN input.
+
+## Relay Threshold Proxy Approval Follow-Up
+
+A later approval round approved `beta * RATE_A` as an audit-only
+paper-aligned prototype proxy. `beta = 1.2` comes from the project default, and
+`RATE_A` comes from the `pypower.case39` branch line-limit field.
+
+This approval means the L01-L34 `L x 4` paper feature source matrix can be
+built with proxy, but only for proxy-based audit preparation. It is not a real
+relay protection setting, not an engineering-grade threshold, not allowed for
+production, and not a GCN usefulness conclusion.
+
+- `relay_threshold_proxy_approved = true`
+- `relay_threshold_proxy_allowed_for_audit_only_prototype = true`
+- `relay_threshold_proxy_allowed_for_production = false`
+- `can_build_required_paper_features_with_approved_proxy = true`
+- `can_build_l01_l34_paper_feature_matrix_with_proxy = true`
+
+Branch vulnerability labels are still not generated in this approval round.
+The next step is a paper-style branch vulnerability label generator dry-run for
+line-trip labels.

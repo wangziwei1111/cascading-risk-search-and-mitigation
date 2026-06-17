@@ -573,6 +573,16 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/static_feature_source_dry_run_validator_summary.json",
     "results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/static_feature_source_dry_run_validator_summary.md",
     "results/gcn_search/ieee39_static_operating_point_feature_source_dry_run/static_feature_source_dry_run_validator_summary.csv",
+    "docs/ieee39_relay_threshold_proxy_approval.md",
+    "results/gcn_search/ieee39_relay_threshold_proxy_approval/relay_threshold_proxy_approval_summary.json",
+    "results/gcn_search/ieee39_relay_threshold_proxy_approval/relay_threshold_proxy_approval_summary.md",
+    "results/gcn_search/ieee39_relay_threshold_proxy_approval/relay_threshold_proxy_approval_summary.csv",
+    "results/gcn_search/ieee39_relay_threshold_proxy_approval/l01_l34_approved_paper_feature_source_matrix.json",
+    "results/gcn_search/ieee39_relay_threshold_proxy_approval/l01_l34_approved_paper_feature_source_matrix.md",
+    "results/gcn_search/ieee39_relay_threshold_proxy_approval/l01_l34_approved_paper_feature_source_matrix.csv",
+    "results/gcn_search/ieee39_relay_threshold_proxy_approval/no_leakage_proxy_feature_audit.json",
+    "results/gcn_search/ieee39_relay_threshold_proxy_approval/no_leakage_proxy_feature_audit.md",
+    "results/gcn_search/ieee39_relay_threshold_proxy_approval/relay_threshold_proxy_limitations.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -591,6 +601,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/prepare_ieee39_paper_aligned_branch_gcn_redesign_dry_run.py",
     "scripts/gcn_search/prepare_ieee39_paper_aligned_feature_source_dry_run.py",
     "scripts/gcn_search/prepare_ieee39_static_operating_point_feature_source_dry_run.py",
+    "scripts/gcn_search/approve_ieee39_relay_threshold_proxy.py",
     "tests/test_ieee39_v2_plus_all_bus_fault_preview_no_leakage.py",
     "tests/test_ieee39_gcn_usefulness_audit_plan.py",
     "tests/test_ieee39_gcn_usefulness_audit_dry_run_validator.py",
@@ -600,6 +611,7 @@ REQUIRED_FILES = [
     "tests/test_ieee39_paper_aligned_branch_gcn_redesign_consistency_check.py",
     "tests/test_ieee39_paper_aligned_feature_source_dry_run.py",
     "tests/test_ieee39_static_operating_point_feature_source_dry_run.py",
+    "tests/test_ieee39_relay_threshold_proxy_approval.py",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_block_parameter_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.json",
@@ -4340,6 +4352,140 @@ def main() -> int:
                     failures.append(f"Static operating point docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read static operating point feature source dry-run artifacts: {exc}")
+
+    proxy_approval_dir = ROOT / "results/gcn_search/ieee39_relay_threshold_proxy_approval"
+    proxy_approval_summary = proxy_approval_dir / "relay_threshold_proxy_approval_summary.json"
+    proxy_approval_matrix = proxy_approval_dir / "l01_l34_approved_paper_feature_source_matrix.json"
+    proxy_approval_no_leakage = proxy_approval_dir / "no_leakage_proxy_feature_audit.json"
+    proxy_approval_limitations = proxy_approval_dir / "relay_threshold_proxy_limitations.md"
+    proxy_approval_doc = ROOT / "docs/ieee39_relay_threshold_proxy_approval.md"
+    proxy_approval_required = [
+        proxy_approval_summary,
+        proxy_approval_dir / "relay_threshold_proxy_approval_summary.md",
+        proxy_approval_dir / "relay_threshold_proxy_approval_summary.csv",
+        proxy_approval_matrix,
+        proxy_approval_dir / "l01_l34_approved_paper_feature_source_matrix.md",
+        proxy_approval_dir / "l01_l34_approved_paper_feature_source_matrix.csv",
+        proxy_approval_no_leakage,
+        proxy_approval_dir / "no_leakage_proxy_feature_audit.md",
+        proxy_approval_limitations,
+        proxy_approval_doc,
+    ]
+    existing_proxy_approval_required = [path for path in proxy_approval_required if path.exists()]
+    if existing_proxy_approval_required:
+        missing_proxy_approval_required = [path for path in proxy_approval_required if not path.exists()]
+        if missing_proxy_approval_required:
+            failures.append(
+                "IEEE39 relay threshold proxy approval artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_proxy_approval_required)
+            )
+        try:
+            summary = _read_json_path(proxy_approval_summary)
+            matrix = _read_json_path(proxy_approval_matrix)
+            no_leakage = _read_json_path(proxy_approval_no_leakage)
+            for key, expected in [
+                ("approval_scope", "relay_threshold_proxy_approval"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("simulink_run", False),
+                ("labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("source_static_feature_commit", "a29bc6e209afe764aa8bf57613d66dd53114fba9"),
+                ("relay_threshold_source_ready", False),
+                ("relay_threshold_proxy_approved", True),
+                ("relay_threshold_proxy_allowed_for_audit_only_prototype", True),
+                ("relay_threshold_proxy_allowed_for_production", False),
+                ("proxy_formula", "beta * RATE_A"),
+                ("beta_value", 1.2),
+                ("beta_value_source", "project default beta = 1.2"),
+                ("line_limit_source", "pypower.case39 branch RATE_A"),
+                ("branch_flow_source_ready", True),
+                ("line_limit_source_ready", True),
+                ("bus_load_source_ready", True),
+                ("can_build_required_paper_features_without_proxy", False),
+                ("can_build_required_paper_features_with_approved_proxy", True),
+                ("can_build_l01_l34_paper_feature_matrix_with_proxy", True),
+                ("forbidden_features_detected_in_inputs", []),
+                ("no_leakage_policy_passed", True),
+                ("l12_special_case_preserved", True),
+                ("final_engineering_conclusion", False),
+                ("should_train_gcn_now", False),
+                ("should_rerun_formal_audit_now", False),
+                ("should_retrain_reranker_now", False),
+                ("should_deploy_model", False),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"Relay threshold proxy approval must set {key}={expected!r}.")
+            if summary.get("recommended_next_step") != "prepare paper-style branch vulnerability label generator dry-run for line-trip labels":
+                failures.append("Relay threshold proxy approval recommended next step must be label generator dry-run.")
+            if len(matrix) != 34:
+                failures.append("Approved L01-L34 paper feature source matrix must contain 34 rows.")
+            if not all(row.get("ready_for_lx4_feature_vector_with_proxy") is True for row in matrix):
+                failures.append("Approved L01-L34 matrix must mark all rows ready with proxy.")
+            if not all(row.get("relay_threshold_is_proxy") is True for row in matrix):
+                failures.append("Approved L01-L34 matrix must mark relay_threshold_is_proxy=true.")
+            if any(row.get("proxy_allowed_for_production") is not False for row in matrix):
+                failures.append("Approved L01-L34 matrix must keep proxy_allowed_for_production=false.")
+            if not any(row.get("line_id") == "L12" and row.get("l12_special_case_flag") is True for row in matrix):
+                failures.append("Approved L01-L34 matrix must preserve L12 special case flag.")
+            for key, expected in [
+                ("forbidden_features_detected_in_inputs", []),
+                ("post_fault_dynamic_measurements_used_as_inputs", False),
+                ("static_or_prefault_sources_only", True),
+                ("dynamic_targets_only_used_as_labels", True),
+                ("proxy_not_engineering_relay_setting", True),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if no_leakage.get(key) != expected:
+                    failures.append(f"Proxy no-leakage audit must set {key}={expected!r}.")
+            proxy_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_relay_threshold_proxy_approval.md"),
+                    _read_text("results/gcn_search/ieee39_relay_threshold_proxy_approval/relay_threshold_proxy_approval_summary.md"),
+                    _read_text("results/gcn_search/ieee39_relay_threshold_proxy_approval/relay_threshold_proxy_limitations.md"),
+                    _read_text("results/gcn_search/ieee39_relay_threshold_proxy_approval/no_leakage_proxy_feature_audit.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                    _read_text("docs/ieee39_static_operating_point_feature_source_dry_run.md"),
+                    _read_text("docs/ieee39_paper_aligned_feature_source_dry_run.md"),
+                ]
+            ).lower()
+            normalized_proxy = " ".join(proxy_text.replace("`", "").split())
+            for required in [
+                "relay threshold proxy approval",
+                "did not train gcn",
+                "did not rerun formal audit",
+                "did not run simulink",
+                "did not export labels",
+                "did not retrain the reranker",
+                "audit-only paper-aligned prototype proxy",
+                "beta * rate_a",
+                "beta = 1.2",
+                "not a real relay protection setting",
+                "not an engineering-grade relay threshold",
+                "not allowed for production",
+                "post-fault dynamic measurements are not used as inputs",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "temporary bus-fault injection is not engineering-grade protection",
+            ]:
+                if required not in normalized_proxy:
+                    failures.append(f"Relay threshold proxy approval docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is useless",
+                "formal audit rerun completed",
+                "final engineering conclusion: true",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+                "engineering-grade relay threshold = true",
+                "relay_threshold_proxy_allowed_for_production = true",
+                "production ready",
+            ]:
+                if bad in normalized_proxy:
+                    failures.append(f"Relay threshold proxy approval docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read relay threshold proxy approval artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

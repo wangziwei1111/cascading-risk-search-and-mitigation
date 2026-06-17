@@ -4390,3 +4390,57 @@ label generation.
 This is not deployment and not reranker retraining. `phasor_RMS` is not EMT.
 `generator_speed_proxy` is not direct frequency. Temporary bus-fault injection
 is not engineering-grade protection.
+
+## Round 84: IEEE39 Relay Threshold Proxy Approval
+
+This round approves and records the IEEE39 relay threshold proxy for an
+audit-only paper-aligned prototype. It does not train GCN, does not rerun the
+formal audit, does not run Simulink, does not export labels, does not retrain
+the reranker, and does not save a production model.
+
+Decision: approve `relay_threshold_proxy = beta * RATE_A` only for an
+audit-only paper-aligned prototype. `beta = 1.2` is the project default, and
+`RATE_A` comes from the `pypower.case39` branch `RATE_A` field. This proxy is
+not a real protection setting, not an engineering-grade relay threshold, and
+not allowed for production.
+
+Artifacts:
+
+- `scripts/gcn_search/approve_ieee39_relay_threshold_proxy.py`
+- `docs/ieee39_relay_threshold_proxy_approval.md`
+- `results/gcn_search/ieee39_relay_threshold_proxy_approval/relay_threshold_proxy_approval_summary.json`
+- `results/gcn_search/ieee39_relay_threshold_proxy_approval/l01_l34_approved_paper_feature_source_matrix.json`
+- `results/gcn_search/ieee39_relay_threshold_proxy_approval/no_leakage_proxy_feature_audit.json`
+- `results/gcn_search/ieee39_relay_threshold_proxy_approval/relay_threshold_proxy_limitations.md`
+
+Current result:
+
+- `approval_scope = relay_threshold_proxy_approval`
+- `relay_threshold_source_ready = false`
+- `relay_threshold_proxy_approved = true`
+- `relay_threshold_proxy_allowed_for_audit_only_prototype = true`
+- `relay_threshold_proxy_allowed_for_production = false`
+- `proxy_formula = beta * RATE_A`
+- `beta_value = 1.2`
+- `branch_flow_source_ready = true`
+- `line_limit_source_ready = true`
+- `bus_load_source_ready = true`
+- `can_build_required_paper_features_with_approved_proxy = true`
+- `can_build_l01_l34_paper_feature_matrix_with_proxy = true`
+- `forbidden_features_detected_in_inputs = []`
+- `no_leakage_policy_passed = true`
+- `l12_special_case_preserved = true`
+- `final_engineering_conclusion = false`
+- `should_train_gcn_now = false`
+- `should_rerun_formal_audit_now = false`
+- `should_retrain_reranker_now = false`
+- `should_deploy_model = false`
+
+Interpretation: the L01-L34 paper feature source matrix can now be built with
+the approved audit-only proxy, but branch vulnerability labels have not been
+generated. Any future GCN audit using this proxy must be marked proxy-based.
+
+This is not deployment and not reranker retraining. It provides no GCN
+usefulness conclusion. `phasor_RMS` is not EMT. `generator_speed_proxy` is not
+direct frequency. Temporary bus-fault injection is not engineering-grade
+protection.

@@ -38,3 +38,25 @@ L12 remains a special case.
 `document and approve relay threshold proxy before paper-style label generator`
 
 This is not deployment, not reranker retraining, and not a final engineering conclusion. `phasor_RMS` is not EMT. `generator_speed_proxy` is not direct frequency. Temporary bus-fault injection is not engineering-grade protection.
+
+## Relay Threshold Proxy Approval Follow-Up
+
+A later approval round approved `beta * RATE_A` only as an audit-only
+paper-aligned prototype proxy. The proxy uses project default `beta = 1.2` and
+the `pypower.case39` branch `RATE_A` line limit. It is not a real relay
+protection setting, not an engineering-grade relay threshold, and not allowed
+for production.
+
+After that approval, the L01-L34 paper feature source matrix can be built with
+proxy:
+
+- `relay_threshold_proxy_approved = true`
+- `relay_threshold_proxy_allowed_for_audit_only_prototype = true`
+- `relay_threshold_proxy_allowed_for_production = false`
+- `can_build_required_paper_features_with_approved_proxy = true`
+- `can_build_l01_l34_paper_feature_matrix_with_proxy = true`
+
+The approval still does not train GCN, does not rerun formal audit, does not
+run Simulink, does not export labels, and does not retrain the reranker. The
+next step is a paper-style branch vulnerability label generator dry-run for
+line-trip labels.
