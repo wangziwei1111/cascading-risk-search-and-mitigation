@@ -42,14 +42,13 @@ This round is selected 32 single-outage pilot pair execution approval and eviden
 
 `fix controlled execution environment or run selected pair execution locally, then rerun evidence collection`. If future execution succeeds and produces both positive and negative pilot examples, the next round should request pilot label export approval separately; do not train yet.
 
-## Follow-Up: Backend Diagnosis
+## Follow-Up: Selected 32 Evidence Collection
 
-The backend diagnosis confirmed that the wrapper model and selected-pair mapping were available, but the controlled execution backend was incomplete. The missing parts were the approved two-step line-trip sequence injection, selected-pair batch runner, and selected-pair result parser contract.
+The selected 32 evidence follow-up used explicit approval for the selected 32
+scope only. The full 1056 generation, formal label export, GCN training, and
+reranker retraining remained forbidden.
 
-The diagnosis did not execute any selected pair and did not convert unknown pilot labels into negative examples.
-
-## Follow-Up: Backend Repair Skeleton
-
-The backend repair follow-up adds a selected-32-only runner, MATLAB entrypoint skeleton, compact parser contract, evidence-only writer, manual instruction pack, selected-32-only guard, no-full-1056 guard, no-formal-label-export guard, no-training guard, and no-raw-artifact policy.
-
-The repair follow-up still does not execute selected pairs. `can_execute_selected_32_pairs_after_manual_approval` is true, but `can_execute_selected_32_pairs_now` is false in the repair round because explicit approval and a separate execution round are still required.
+Because the MATLAB entrypoint is still a guarded skeleton, the evidence
+collection produced 32 blocked/null pilot rows. These rows are compact audit
+evidence only; timeout, failed, blocked, and unknown cases were not converted to
+0/1.

@@ -52,3 +52,7 @@ The backend diagnosis found that the selected-pair mapping and wrapper artifacts
 ## Follow-Up: Backend Repair Skeleton
 
 The backend repair follow-up added the selected-32-only runner, MATLAB entrypoint skeleton, parser contract, evidence-only writer, and manual execution instruction pack. It still does not execute selected pairs or create formal labels.
+
+## Follow-Up: Selected 32 Evidence Collection
+
+The selected-32 evidence follow-up used explicit approval for only the 32 selected pilot pairs. Because the MATLAB entrypoint remains a guarded skeleton, all 32 pair rows were written as compact blocked/null evidence rather than formal 0/1 labels.

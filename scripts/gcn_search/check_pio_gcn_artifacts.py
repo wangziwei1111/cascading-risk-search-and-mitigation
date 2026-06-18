@@ -686,6 +686,21 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_controlled_execution_backend_repair/no_leakage_backend_repair_audit.md",
     "results/gcn_search/ieee39_controlled_execution_backend_repair/large_file_safety_backend_repair.json",
     "results/gcn_search/ieee39_controlled_execution_backend_repair/large_file_safety_backend_repair.md",
+    "docs/ieee39_selected_32_pair_controlled_execution_evidence.md",
+    "results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/selected_32_execution_approval.json",
+    "results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/selected_32_execution_approval.md",
+    "results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/selected_32_execution_summary.json",
+    "results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/selected_32_execution_summary.md",
+    "results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/selected_32_execution_summary.csv",
+    "results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/selected_32_execution_results.json",
+    "results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/selected_32_execution_results.md",
+    "results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/selected_32_execution_results.csv",
+    "results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/selected_32_label_distribution.json",
+    "results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/selected_32_label_distribution.md",
+    "results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/no_leakage_selected_32_execution_audit.json",
+    "results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/no_leakage_selected_32_execution_audit.md",
+    "results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/large_file_safety_selected_32_execution.json",
+    "results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/large_file_safety_selected_32_execution.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -5918,6 +5933,214 @@ def main() -> int:
                     failures.append(f"Controlled execution backend repair docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read controlled execution backend repair artifacts: {exc}")
+
+    selected_32_dir = ROOT / "results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence"
+    selected_32_doc = ROOT / "docs/ieee39_selected_32_pair_controlled_execution_evidence.md"
+    selected_32_summary = selected_32_dir / "selected_32_execution_summary.json"
+    selected_32_approval = selected_32_dir / "selected_32_execution_approval.json"
+    selected_32_results = selected_32_dir / "selected_32_execution_results.json"
+    selected_32_distribution = selected_32_dir / "selected_32_label_distribution.json"
+    selected_32_no_leakage = selected_32_dir / "no_leakage_selected_32_execution_audit.json"
+    selected_32_safety = selected_32_dir / "large_file_safety_selected_32_execution.json"
+    selected_32_required = [
+        selected_32_doc,
+        selected_32_approval,
+        selected_32_dir / "selected_32_execution_approval.md",
+        selected_32_summary,
+        selected_32_dir / "selected_32_execution_summary.md",
+        selected_32_dir / "selected_32_execution_summary.csv",
+        selected_32_results,
+        selected_32_dir / "selected_32_execution_results.md",
+        selected_32_dir / "selected_32_execution_results.csv",
+        selected_32_distribution,
+        selected_32_dir / "selected_32_label_distribution.md",
+        selected_32_no_leakage,
+        selected_32_dir / "no_leakage_selected_32_execution_audit.md",
+        selected_32_safety,
+        selected_32_dir / "large_file_safety_selected_32_execution.md",
+    ]
+    existing_selected_32_required = [path for path in selected_32_required if path.exists()]
+    if existing_selected_32_required:
+        missing_selected_32_required = [path for path in selected_32_required if not path.exists()]
+        if missing_selected_32_required:
+            failures.append(
+                "IEEE39 selected 32 controlled execution evidence artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_selected_32_required)
+            )
+        try:
+            approval = _read_json_path(selected_32_approval)
+            summary = _read_json_path(selected_32_summary)
+            results = _read_json_path(selected_32_results)
+            distribution = _read_json_path(selected_32_distribution)
+            no_leakage = _read_json_path(selected_32_no_leakage)
+            safety = _read_json_path(selected_32_safety)
+            for key, expected in [
+                ("approval_scope", "selected_32_controlled_execution_approval"),
+                ("source_backend_repair_commit", "5c15cf88c3d980e3491d7327602a4d318216f2e4"),
+                ("approved_selected_pairs_only", True),
+                ("approved_pair_count", 32),
+                ("full_1056_generation_approved", False),
+                ("formal_label_export_approved", False),
+                ("gcn_training_approved", False),
+                ("reranker_retrain_approved", False),
+                ("raw_trajectory_commit_approved", False),
+                ("explicit_execute_required", True),
+                ("beta_rate_a_proxy_acknowledged", True),
+                ("proxy_allowed_for_audit_only_prototype", True),
+                ("proxy_allowed_for_production", False),
+            ]:
+                if approval.get(key) != expected:
+                    failures.append(f"Selected 32 approval must set {key}={expected!r}.")
+            for key, expected in [
+                ("execution_scope", "selected_32_controlled_execution_evidence"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("full_1056_generation_run", False),
+                ("labels_exported", False),
+                ("formal_labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("source_backend_repair_commit", "5c15cf88c3d980e3491d7327602a4d318216f2e4"),
+                ("selected_pair_count", 32),
+                ("pilot_label_available_count", 0),
+                ("pilot_positive_count", 0),
+                ("pilot_negative_count", 0),
+                ("pilot_unknown_count", 32),
+                ("pilot_blocked_count", 32),
+                ("has_positive_pilot_label", False),
+                ("raw_trajectories_committed", False),
+                ("full_timeseries_committed", False),
+                ("mat_files_committed", False),
+                ("slx_files_committed", False),
+                ("slxc_files_committed", False),
+                ("slprj_committed", False),
+                ("bus_fault_labels_used", False),
+                ("line_trip_labels_first_priority", True),
+                ("l12_special_case_preserved", True),
+                ("nf06_warning_preserved", True),
+                ("forbidden_features_detected_in_inputs", []),
+                ("no_leakage_policy_passed", True),
+                ("pilot_labels_are_formal_training_labels", False),
+                ("final_engineering_conclusion", False),
+                ("should_train_gcn_now", False),
+                ("should_rerun_formal_audit_now", False),
+                ("should_export_formal_labels_now", False),
+                ("should_retrain_reranker_now", False),
+                ("should_deploy_model", False),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"Selected 32 execution summary must set {key}={expected!r}.")
+            if summary.get("blocked_pair_count") != 32:
+                failures.append("Selected 32 execution summary must record blocked_pair_count=32 for skeleton execution.")
+            if summary.get("executed_pair_count") != 0:
+                failures.append("Selected 32 execution summary must record executed_pair_count=0 when the backend is skeleton-blocked.")
+            if "guarded skeleton" not in str(summary.get("blocker_if_any", "")).lower():
+                failures.append("Selected 32 execution summary must explain the guarded skeleton blocker.")
+            if len(results) != 32:
+                failures.append("Selected 32 execution results must contain 32 rows.")
+            for row in results:
+                if row.get("execution_status") != "blocked":
+                    failures.append("Selected 32 execution rows must remain blocked unless real compact evidence exists.")
+                    break
+                if row.get("pilot_label_value") is not None:
+                    failures.append("Selected 32 blocked rows must keep pilot_label_value=null.")
+                    break
+                if row.get("pilot_label_status") != "blocked":
+                    failures.append("Selected 32 blocked rows must keep pilot_label_status=blocked.")
+                    break
+                for artifact_key in ["raw_trajectory_committed", "full_timeseries_committed", "mat_file_committed", "bus_fault_label_used"]:
+                    if row.get(artifact_key) is not False:
+                        failures.append(f"Selected 32 row must keep {artifact_key}=false.")
+                        break
+            for key, expected in [
+                ("selected_pair_count", 32),
+                ("pilot_label_available_count", 0),
+                ("pilot_positive_count", 0),
+                ("pilot_negative_count", 0),
+                ("pilot_unknown_count", 32),
+                ("pilot_blocked_count", 32),
+                ("has_positive_pilot_label", False),
+            ]:
+                if distribution.get(key) != expected:
+                    failures.append(f"Selected 32 label distribution must set {key}={expected!r}.")
+            for key, expected in [
+                ("forbidden_features_detected_in_inputs", []),
+                ("post_fault_dynamic_measurements_used_as_inputs", False),
+                ("dynamic_outputs_used_only_as_labels_or_targets", True),
+                ("label_derived_flags_used_as_inputs", False),
+                ("proxy_relay_threshold_used_only_in_feature_generation", True),
+                ("bus_fault_labels_used", False),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if no_leakage.get(key) != expected:
+                    failures.append(f"Selected 32 no-leakage audit must set {key}={expected!r}.")
+            for key in [
+                "raw_trajectories_committed",
+                "full_timeseries_committed",
+                "mat_files_committed",
+                "slx_files_committed",
+                "slxc_files_committed",
+                "slprj_committed",
+                "venv_committed",
+                "wheel_or_dll_committed",
+                "model_files_committed",
+            ]:
+                if safety.get(key) is not False:
+                    failures.append(f"Selected 32 large-file safety check must keep {key}=false.")
+            if safety.get("safety_check_passed") is not True:
+                failures.append("Selected 32 large-file safety check must pass.")
+            selected_32_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_selected_32_pair_controlled_execution_evidence.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                    _read_text("docs/ieee39_controlled_execution_backend_repair.md"),
+                    _read_text("docs/ieee39_selected_single_outage_pilot_pair_execution.md"),
+                    _read_text("results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/selected_32_execution_summary.md"),
+                    _read_text("results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/selected_32_execution_results.md"),
+                ]
+            ).lower()
+            normalized_selected_32 = " ".join(selected_32_text.replace("`", "").split())
+            for required in [
+                "selected 32 pair controlled execution evidence",
+                "does not train gcn",
+                "does not rerun formal audit",
+                "does not run full 1056 generation",
+                "does not export formal labels",
+                "does not retrain the reranker",
+                "only selected 32 pairs",
+                "compact blocked evidence",
+                "raw trajectories",
+                "full timeseries",
+                "blocked, and unknown results are not converted to 0/1",
+                "beta * rate_a",
+                "audit-only proxy",
+                "not a real relay setting",
+                "bus-fault labels are not used",
+                "l12 remains special/excluded",
+                "nf06 warning is preserved",
+                "pilot labels are not formal training labels",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "temporary bus-fault injection is not engineering-grade protection",
+            ]:
+                if required not in normalized_selected_32:
+                    failures.append(f"Selected 32 execution docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is useless",
+                "formal audit rerun completed",
+                "full 1056 generation completed",
+                "formal labels exported",
+                "proxy is a real relay setting",
+                "emt simulation",
+                "generator_speed_proxy is direct frequency",
+                "final engineering conclusion",
+                "deployment ready",
+            ]:
+                if bad in normalized_selected_32:
+                    failures.append(f"Selected 32 execution docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read selected 32 controlled execution evidence artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

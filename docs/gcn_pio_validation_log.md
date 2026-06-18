@@ -4889,3 +4889,64 @@ Boundary notes:
 
 Recommended next step: approve execution of selected 32 pairs using the repaired
 backend in a separate round.
+
+## Round 92: IEEE39 Selected 32 Pair Controlled Execution Evidence
+
+This round uses the repaired backend after manual approval to collect compact
+evidence for only the selected 32 single-outage pilot pairs. It does not train
+GCN, does not rerun formal audit, does not run full 1056 generation, does not
+export formal labels, does not retrain the reranker, and does not save a
+production model.
+
+Plain-language meaning: this step tried to move from "backend skeleton exists"
+to "selected 32 evidence collection". Because the current MATLAB entrypoint is
+still a guarded skeleton and not a real automatic Simulink execution backend,
+the runner records all 32 pairs as blocked/null evidence. It does not fabricate
+0/1 labels.
+
+Artifacts:
+
+- `docs/ieee39_selected_32_pair_controlled_execution_evidence.md`
+- `results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/selected_32_execution_approval.json`
+- `results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/selected_32_execution_summary.json`
+- `results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/selected_32_execution_results.json`
+- `results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/selected_32_label_distribution.json`
+- `results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/no_leakage_selected_32_execution_audit.json`
+- `results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/large_file_safety_selected_32_execution.json`
+
+Current result:
+
+- `execution_scope = selected_32_controlled_execution_evidence`
+- `selected_pair_count = 32`
+- `executed_pair_count = 0`
+- `succeeded_pair_count = 0`
+- `failed_pair_count = 0`
+- `timeout_pair_count = 0`
+- `blocked_pair_count = 32`
+- `pilot_label_available_count = 0`
+- `pilot_positive_count = 0`
+- `pilot_negative_count = 0`
+- `pilot_unknown_count = 32`
+- `has_positive_pilot_label = false`
+
+Boundary notes:
+
+- Only selected 32 pairs are in scope.
+- Full 1056 generation is not approved and was not run.
+- Formal label export is not approved and was not run.
+- GCN training and reranker retraining were not run.
+- Timeout, failed, blocked, and unknown cases remain null and are not converted
+  to 0/1.
+- Raw trajectories, full timeseries, `.mat`, `.slx`, `.slxc`, `slprj`, venv,
+  wheel, DLL, and model files are not committed.
+- `beta * RATE_A` remains an audit-only proxy, not a real relay setting.
+- Bus-fault labels are not used.
+- L12 remains special/excluded.
+- NF06 warning is preserved.
+- `phasor_RMS` is not EMT.
+- `generator_speed_proxy` is not direct frequency.
+- Temporary bus-fault injection is not engineering-grade protection.
+- No deployment and no GCN usefulness conclusion are claimed.
+
+Recommended next step: inspect the local MATLAB/Simulink execution entrypoint
+and repair it before rerunning selected 32 compact evidence collection.

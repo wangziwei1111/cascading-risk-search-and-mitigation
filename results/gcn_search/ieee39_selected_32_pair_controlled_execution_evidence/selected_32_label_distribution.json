@@ -1,0 +1,14 @@
+{
+  "selected_pair_count": 32,
+  "pilot_label_available_count": 0,
+  "pilot_positive_count": 0,
+  "pilot_negative_count": 0,
+  "pilot_unknown_count": 32,
+  "pilot_timeout_count": 0,
+  "pilot_failed_count": 0,
+  "pilot_blocked_count": 32,
+  "all_available_labels_negative": false,
+  "has_positive_pilot_label": false,
+  "class_balance_warning": "no available pilot labels; all selected pairs are blocked",
+  "training_readiness_recommendation": "do not train; repair execution entrypoint and rerun selected 32 evidence collection"
+}

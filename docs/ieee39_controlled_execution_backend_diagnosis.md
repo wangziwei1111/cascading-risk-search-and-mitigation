@@ -40,3 +40,7 @@ The follow-up repair round added a guarded selected-32-only controlled execution
 This follow-up still does not execute the selected 32 pairs. It also does not train GCN, does not rerun strict no-leakage/formal audit, does not run full 1056 generation, does not export formal labels, does not retrain the reranker, and does not save a production model.
 
 The repaired backend is intentionally conservative: execution remains blocked in this repair round and would require a separately approved local/manual execution round. Unknown, timeout, blocked, or failed pair outcomes remain null and must not be converted into 0/1 labels.
+
+## Follow-Up: Selected 32 Evidence Collection
+
+The selected-32 evidence follow-up used the repaired backend with explicit approval, but the MATLAB entrypoint is still a guarded skeleton. The evidence output therefore records 32 blocked/null pilot rows and does not fabricate formal labels.

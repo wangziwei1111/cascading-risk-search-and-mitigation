@@ -1,0 +1,15 @@
+{
+  "approval_scope": "selected_32_controlled_execution_approval",
+  "source_backend_repair_commit": "5c15cf88c3d980e3491d7327602a4d318216f2e4",
+  "approved_selected_pairs_only": true,
+  "approved_pair_count": 32,
+  "full_1056_generation_approved": false,
+  "formal_label_export_approved": false,
+  "gcn_training_approved": false,
+  "reranker_retrain_approved": false,
+  "raw_trajectory_commit_approved": false,
+  "explicit_execute_required": true,
+  "beta_rate_a_proxy_acknowledged": true,
+  "proxy_allowed_for_audit_only_prototype": true,
+  "proxy_allowed_for_production": false
+}

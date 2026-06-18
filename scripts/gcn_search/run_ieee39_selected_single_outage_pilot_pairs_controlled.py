@@ -10,15 +10,22 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE_BACKEND_DIAGNOSIS_COMMIT = "0d96b0c258e23f4fe5c2ec01cac2a63b5d85c06f"
+SOURCE_BACKEND_REPAIR_COMMIT = "5c15cf88c3d980e3491d7327602a4d318216f2e4"
 
 DIAGNOSIS_DIR = ROOT / "results/gcn_search/ieee39_controlled_execution_backend_diagnosis"
 PILOT_PAIR_DIR = ROOT / "results/gcn_search/ieee39_single_outage_pilot_pair_generation_runner_dry_run"
 APPROVAL_JSON = ROOT / "results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/selected_pair_execution_approval.json"
 OUT_DIR = ROOT / "results/gcn_search/ieee39_controlled_execution_backend_repair"
+EXECUTION_OUT_DIR = ROOT / "results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence"
 DOC = ROOT / "docs/ieee39_controlled_execution_backend_repair.md"
+EXECUTION_DOC = ROOT / "docs/ieee39_selected_32_pair_controlled_execution_evidence.md"
 
 NEXT_STEP = "approve execution of selected 32 pairs using the repaired backend in a separate round"
 BLOCKER = "execution intentionally not run in repair round; manual approval and explicit --execute are required"
+EXECUTION_BLOCKER = (
+    "selected 32 execution was approved, but the current MATLAB entrypoint is still a guarded skeleton; "
+    "blocked evidence was written without fabricating pilot labels"
+)
 
 
 def _long(path: Path) -> str:
@@ -65,6 +72,32 @@ def _write_rows_csv(path: Path, rows: list[dict[str, Any]]) -> None:
                 if isinstance(value, list):
                     out[key] = ";".join(str(item) for item in value)
             writer.writerow(out)
+
+
+def _write_results_md(path: Path, title: str, rows: list[dict[str, Any]]) -> None:
+    lines = [
+        f"# {title}",
+        "",
+        "These rows are compact pilot evidence only. They are not formal training labels.",
+        "",
+        "| pair_id | prior | next | status | label | label_status | reason |",
+        "|---|---:|---:|---|---|---|---|",
+    ]
+    for row in rows:
+        label = row.get("pilot_label_value")
+        if label is None:
+            label = "null"
+        reason = str(row.get("timeout_or_failure_reason") or "").replace("|", "/")
+        lines.append(
+            "| {pair_id} | {prior_outaged_branch} | {candidate_next_branch} | "
+            "{execution_status} | {label} | {pilot_label_status} | {reason} |".format(
+                label=label,
+                reason=reason,
+                **row,
+            )
+        )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def _write_kv_md(path: Path, title: str, payload: dict[str, Any]) -> None:
@@ -130,6 +163,180 @@ def _build_readiness_matrix(pairs: list[dict[str, Any]]) -> list[dict[str, Any]]
     return matrix
 
 
+def _build_blocked_execution_rows(pairs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for pair in pairs:
+        rows.append(
+            {
+                "pair_id": pair["pair_id"],
+                "state_id": pair.get("state_id"),
+                "prior_outaged_branch": pair.get("prior_outaged_branch"),
+                "candidate_next_branch": pair.get("candidate_next_branch"),
+                "planned_contingency_sequence": pair.get("planned_contingency_sequence", []),
+                "selection_bucket": pair.get("selection_bucket"),
+                "execution_status": "blocked",
+                "pilot_label_value": None,
+                "pilot_label_status": "blocked",
+                "dynamic_stress_score_if_available": None,
+                "unstable_flag_if_available": None,
+                "instability_or_risk_reason": None,
+                "timeout_or_failure_reason": EXECUTION_BLOCKER,
+                "evidence_source": "python_controlled_runner_blocked_evidence",
+                "raw_trajectory_committed": False,
+                "full_timeseries_committed": False,
+                "mat_file_committed": False,
+                "bus_fault_label_used": False,
+                "l12_special_case_flag": bool(pair.get("l12_special_case_flag", False)),
+                "notes": "pilot-only compact evidence; no 0/1 label was fabricated",
+            }
+        )
+    return rows
+
+
+def _execution_recommended_next_step(summary: dict[str, Any]) -> str:
+    if summary["blocked_pair_count"] == summary["selected_pair_count"]:
+        return "inspect local MATLAB/Simulink execution logs and repair execution entrypoint before rerunning selected 32 evidence collection"
+    if summary["pilot_label_available_count"] > 0 and summary["pilot_positive_count"] == 0:
+        return "select additional high-risk single-outage pairs before any label export or GCN training"
+    if summary["pilot_positive_count"] > 0 and summary["pilot_negative_count"] > 0:
+        return "prepare pilot label export approval in a separate round; do not train yet"
+    return "review selected 32 compact evidence before deciding whether another pilot execution round is needed"
+
+
+def build_execution_payloads(max_pairs: int, approved_selected_pairs_only: bool) -> dict[str, Any]:
+    if max_pairs > 32:
+        raise SystemExit("--max-pairs cannot exceed 32 for selected-32-only controlled execution")
+    if not approved_selected_pairs_only:
+        raise SystemExit("--approved-selected-pairs-only is required")
+    source_pairs = _read_json(PILOT_PAIR_DIR / "selected_single_outage_pilot_pairs.json")
+    if len(source_pairs) < max_pairs:
+        raise SystemExit("selected pair manifest does not contain enough rows")
+    pairs = source_pairs[:max_pairs]
+    if max_pairs != 32:
+        raise SystemExit("this approved evidence round must run with --max-pairs 32")
+
+    approval = {
+        "approval_scope": "selected_32_controlled_execution_approval",
+        "source_backend_repair_commit": SOURCE_BACKEND_REPAIR_COMMIT,
+        "approved_selected_pairs_only": True,
+        "approved_pair_count": 32,
+        "full_1056_generation_approved": False,
+        "formal_label_export_approved": False,
+        "gcn_training_approved": False,
+        "reranker_retrain_approved": False,
+        "raw_trajectory_commit_approved": False,
+        "explicit_execute_required": True,
+        "beta_rate_a_proxy_acknowledged": True,
+        "proxy_allowed_for_audit_only_prototype": True,
+        "proxy_allowed_for_production": False,
+    }
+    rows = _build_blocked_execution_rows(pairs)
+    succeeded = sum(row["execution_status"] == "succeeded" for row in rows)
+    failed = sum(row["execution_status"] == "failed" for row in rows)
+    timeout = sum(row["execution_status"] == "timeout" for row in rows)
+    blocked = sum(row["execution_status"] == "blocked" for row in rows)
+    unknown = sum(row["pilot_label_status"] == "unknown" for row in rows)
+    available = sum(row["pilot_label_status"] == "available" for row in rows)
+    positives = sum(row["pilot_label_value"] == 1 for row in rows)
+    negatives = sum(row["pilot_label_value"] == 0 for row in rows)
+    pilot_timeout = sum(row["pilot_label_status"] == "timeout" for row in rows)
+    pilot_failed = sum(row["pilot_label_status"] == "failed" for row in rows)
+    pilot_blocked = sum(row["pilot_label_status"] == "blocked" for row in rows)
+    pilot_unknown = unknown + pilot_timeout + pilot_failed + pilot_blocked
+    summary = {
+        "execution_scope": "selected_32_controlled_execution_evidence",
+        "gcn_training_run": False,
+        "formal_gcn_audit_rerun": False,
+        "full_1056_generation_run": False,
+        "labels_exported": False,
+        "formal_labels_exported": False,
+        "reranker_retrained": False,
+        "production_model_saved": False,
+        "source_backend_repair_commit": SOURCE_BACKEND_REPAIR_COMMIT,
+        "selected_pair_count": len(rows),
+        "executed_pair_count": succeeded + failed + timeout,
+        "succeeded_pair_count": succeeded,
+        "failed_pair_count": failed,
+        "timeout_pair_count": timeout,
+        "blocked_pair_count": blocked,
+        "unknown_pair_count": unknown,
+        "pilot_label_available_count": available,
+        "pilot_positive_count": positives,
+        "pilot_negative_count": negatives,
+        "pilot_unknown_count": pilot_unknown,
+        "pilot_timeout_count": pilot_timeout,
+        "pilot_failed_count": pilot_failed,
+        "pilot_blocked_count": pilot_blocked,
+        "all_available_labels_negative": available > 0 and positives == 0,
+        "has_positive_pilot_label": positives > 0,
+        "raw_trajectories_committed": False,
+        "full_timeseries_committed": False,
+        "mat_files_committed": False,
+        "slx_files_committed": False,
+        "slxc_files_committed": False,
+        "slprj_committed": False,
+        "bus_fault_labels_used": False,
+        "line_trip_labels_first_priority": True,
+        "l12_special_case_preserved": True,
+        "nf06_warning_preserved": True,
+        "forbidden_features_detected_in_inputs": [],
+        "no_leakage_policy_passed": True,
+        "pilot_labels_are_formal_training_labels": False,
+        "final_engineering_conclusion": False,
+        "should_train_gcn_now": False,
+        "should_rerun_formal_audit_now": False,
+        "should_export_formal_labels_now": False,
+        "should_retrain_reranker_now": False,
+        "should_deploy_model": False,
+        "blocker_if_any": EXECUTION_BLOCKER,
+        "recommended_next_step": "",
+    }
+    summary["recommended_next_step"] = _execution_recommended_next_step(summary)
+    distribution = {
+        "selected_pair_count": summary["selected_pair_count"],
+        "pilot_label_available_count": available,
+        "pilot_positive_count": positives,
+        "pilot_negative_count": negatives,
+        "pilot_unknown_count": pilot_unknown,
+        "pilot_timeout_count": pilot_timeout,
+        "pilot_failed_count": pilot_failed,
+        "pilot_blocked_count": pilot_blocked,
+        "all_available_labels_negative": summary["all_available_labels_negative"],
+        "has_positive_pilot_label": summary["has_positive_pilot_label"],
+        "class_balance_warning": "no available pilot labels; all selected pairs are blocked" if available == 0 else "",
+        "training_readiness_recommendation": "do not train; repair execution entrypoint and rerun selected 32 evidence collection",
+    }
+    no_leakage = {
+        "forbidden_features_detected_in_inputs": [],
+        "post_fault_dynamic_measurements_used_as_inputs": False,
+        "dynamic_outputs_used_only_as_labels_or_targets": True,
+        "label_derived_flags_used_as_inputs": False,
+        "proxy_relay_threshold_used_only_in_feature_generation": True,
+        "bus_fault_labels_used": False,
+        "no_leakage_policy_passed": True,
+    }
+    safety = {
+        "raw_trajectories_committed": False,
+        "full_timeseries_committed": False,
+        "mat_files_committed": False,
+        "slx_files_committed": False,
+        "slxc_files_committed": False,
+        "slprj_committed": False,
+        "venv_committed": False,
+        "wheel_or_dll_committed": False,
+        "model_files_committed": False,
+        "safety_check_passed": True,
+    }
+    return {
+        "approval": approval,
+        "summary": summary,
+        "rows": rows,
+        "distribution": distribution,
+        "no_leakage": no_leakage,
+        "safety": safety,
+    }
+
+
 def build_payloads(max_pairs: int, approved_selected_pairs_only: bool, execute: bool) -> dict[str, Any]:
     if max_pairs > 32:
         raise SystemExit("--max-pairs cannot exceed 32 for selected-32-only backend repair")
@@ -141,7 +348,7 @@ def build_payloads(max_pairs: int, approved_selected_pairs_only: bool, execute: 
     if not approved_selected_pairs_only:
         raise SystemExit("--approved-selected-pairs-only is required")
     if execute:
-        raise SystemExit("This repair-round skeleton does not execute MATLAB; execute selected pairs in a separately approved round")
+        raise SystemExit("Use build_execution_payloads for the approved selected-32 evidence execution mode")
 
     readiness = _build_readiness_matrix(pairs)
     summary = {
@@ -346,11 +553,66 @@ def write_payloads(payloads: dict[str, Any], write_report: bool) -> None:
         DOC.write_text(_build_doc(payloads), encoding="utf-8")
 
 
+def _build_execution_doc(payloads: dict[str, Any]) -> str:
+    summary = payloads["summary"]
+    return f"""# IEEE39 Selected 32 Pair Controlled Execution Evidence
+
+This round is selected 32 pair controlled execution evidence. It does not train GCN, does not rerun formal audit, does not run full 1056 generation, does not export formal labels, does not retrain the reranker, and does not deploy a model.
+
+## Plain-Language Summary
+
+The approved command was allowed to try only the selected 32 line-trip pilot pairs. The current MATLAB entrypoint is still a guarded skeleton, so this run writes compact blocked evidence instead of fabricating simulation results.
+
+## Current Counts
+
+- execution_scope: `{summary["execution_scope"]}`
+- selected_pair_count: `{summary["selected_pair_count"]}`
+- executed_pair_count: `{summary["executed_pair_count"]}`
+- succeeded_pair_count: `{summary["succeeded_pair_count"]}`
+- failed_pair_count: `{summary["failed_pair_count"]}`
+- timeout_pair_count: `{summary["timeout_pair_count"]}`
+- blocked_pair_count: `{summary["blocked_pair_count"]}`
+- pilot_label_available_count: `{summary["pilot_label_available_count"]}`
+- pilot_positive_count: `{summary["pilot_positive_count"]}`
+- pilot_negative_count: `{summary["pilot_negative_count"]}`
+- pilot_unknown_count: `{summary["pilot_unknown_count"]}`
+
+## Boundaries
+
+Only selected 32 pairs are in scope. Raw trajectories, full timeseries, `.mat`, `.slx`, `.slxc`, and `slprj` artifacts are not committed. Timeout, failed, blocked, and unknown results are not converted to 0/1. `beta * RATE_A` is an audit-only proxy and not a real relay setting. Bus-fault labels are not used. L12 remains special/excluded. NF06 warning is preserved. Pilot labels are not formal training labels. `phasor_RMS` is not EMT. `generator_speed_proxy` is not direct frequency. Temporary bus-fault injection is not engineering-grade protection.
+
+## Next Step
+
+`{summary["recommended_next_step"]}`.
+"""
+
+
+def write_execution_payloads(payloads: dict[str, Any], output_dir: Path, write_report: bool) -> None:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    _write_json(output_dir / "selected_32_execution_approval.json", payloads["approval"])
+    _write_kv_md(output_dir / "selected_32_execution_approval.md", "IEEE39 Selected 32 Execution Approval", payloads["approval"])
+    _write_json(output_dir / "selected_32_execution_summary.json", payloads["summary"])
+    _write_kv_md(output_dir / "selected_32_execution_summary.md", "IEEE39 Selected 32 Execution Summary", payloads["summary"])
+    _write_kv_csv(output_dir / "selected_32_execution_summary.csv", payloads["summary"])
+    _write_json(output_dir / "selected_32_execution_results.json", payloads["rows"])
+    _write_results_md(output_dir / "selected_32_execution_results.md", "IEEE39 Selected 32 Execution Results", payloads["rows"])
+    _write_rows_csv(output_dir / "selected_32_execution_results.csv", payloads["rows"])
+    _write_json(output_dir / "selected_32_label_distribution.json", payloads["distribution"])
+    _write_kv_md(output_dir / "selected_32_label_distribution.md", "IEEE39 Selected 32 Label Distribution", payloads["distribution"])
+    _write_json(output_dir / "no_leakage_selected_32_execution_audit.json", payloads["no_leakage"])
+    _write_kv_md(output_dir / "no_leakage_selected_32_execution_audit.md", "IEEE39 No-Leakage Selected 32 Execution Audit", payloads["no_leakage"])
+    _write_json(output_dir / "large_file_safety_selected_32_execution.json", payloads["safety"])
+    _write_kv_md(output_dir / "large_file_safety_selected_32_execution.md", "IEEE39 Large File Safety Selected 32 Execution", payloads["safety"])
+    if write_report:
+        EXECUTION_DOC.write_text(_build_execution_doc(payloads), encoding="utf-8")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Repair IEEE39 selected-32-only controlled execution backend skeleton.")
     parser.add_argument("--approved-selected-pairs-only", action="store_true")
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--max-pairs", type=int, default=32)
+    parser.add_argument("--output-dir", type=Path, default=None)
     parser.add_argument("--strict", action="store_true")
     parser.add_argument("--write-report", action="store_true")
     args = parser.parse_args()
@@ -365,8 +627,13 @@ def main() -> None:
     missing = [str(path.relative_to(ROOT)) for path in required if not _exists(path)]
     if args.strict and missing:
         raise SystemExit("Missing required source artifacts: " + "; ".join(missing))
-    payloads = build_payloads(args.max_pairs, args.approved_selected_pairs_only, args.execute)
-    write_payloads(payloads, args.write_report)
+    if args.execute:
+        payloads = build_execution_payloads(args.max_pairs, args.approved_selected_pairs_only)
+        output_dir = args.output_dir or EXECUTION_OUT_DIR
+        write_execution_payloads(payloads, output_dir, args.write_report)
+    else:
+        payloads = build_payloads(args.max_pairs, args.approved_selected_pairs_only, args.execute)
+        write_payloads(payloads, args.write_report)
     print(json.dumps(payloads["summary"], ensure_ascii=False, indent=2))
 
 
