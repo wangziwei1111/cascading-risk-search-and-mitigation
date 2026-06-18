@@ -1,0 +1,25 @@
+{
+  "pair_id": "SPP001",
+  "state_id": "single_outage_state_L15",
+  "prior_outaged_branch": "L15",
+  "candidate_next_branch": "L04",
+  "planned_contingency_sequence": [
+    "L15",
+    "L04"
+  ],
+  "selection_bucket": "high_relay_ratio_pairs",
+  "execution_status": "failed",
+  "pilot_label_value": null,
+  "pilot_label_status": "failed",
+  "dynamic_stress_score_if_available": null,
+  "unstable_flag_if_available": null,
+  "instability_or_risk_reason": "",
+  "timeout_or_failure_reason": "single-pair smoke failed: Simulink 对象名称无效: 'IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Grid/L15_TripCommand'。",
+  "evidence_source": "matlab_single_pair_smoke_failed",
+  "raw_trajectory_committed": false,
+  "full_timeseries_committed": false,
+  "mat_file_committed": false,
+  "bus_fault_label_used": false,
+  "l12_special_case_flag": false,
+  "notes": "single-pair compact evidence only; not a formal training label"
+}

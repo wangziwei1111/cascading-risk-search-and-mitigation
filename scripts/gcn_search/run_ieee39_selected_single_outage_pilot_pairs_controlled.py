@@ -15,6 +15,7 @@ SOURCE_BACKEND_DIAGNOSIS_COMMIT = "0d96b0c258e23f4fe5c2ec01cac2a63b5d85c06f"
 SOURCE_BACKEND_REPAIR_COMMIT = "5c15cf88c3d980e3491d7327602a4d318216f2e4"
 SOURCE_SELECTED_32_EVIDENCE_COMMIT = "12f07cbc4d3b35883b1dd11078c87029d5df8aac"
 SOURCE_ENTRYPOINT_REPAIR_COMMIT = "4a8284da5ec80d91c30fe814c9823af157e37fe9"
+SOURCE_L15_READINESS_REPAIR_COMMIT = "a648b8cb2d4fb3a4c27a5e7f3e8e588280ddc0d1"
 
 DIAGNOSIS_DIR = ROOT / "results/gcn_search/ieee39_controlled_execution_backend_diagnosis"
 PILOT_PAIR_DIR = ROOT / "results/gcn_search/ieee39_single_outage_pilot_pair_generation_runner_dry_run"
@@ -23,10 +24,12 @@ OUT_DIR = ROOT / "results/gcn_search/ieee39_controlled_execution_backend_repair"
 EXECUTION_OUT_DIR = ROOT / "results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence"
 ENTRYPOINT_REPAIR_DIR = ROOT / "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair"
 SPP001_SMOKE_DIR = ROOT / "results/gcn_search/ieee39_spp001_single_pair_smoke_execution"
+SPP001_RERUN_DIR = ROOT / "results/gcn_search/ieee39_spp001_single_pair_smoke_rerun"
 DOC = ROOT / "docs/ieee39_controlled_execution_backend_repair.md"
 EXECUTION_DOC = ROOT / "docs/ieee39_selected_32_pair_controlled_execution_evidence.md"
 ENTRYPOINT_REPAIR_DOC = ROOT / "docs/ieee39_matlab_selected_pair_entrypoint_repair.md"
 SPP001_SMOKE_DOC = ROOT / "docs/ieee39_spp001_single_pair_smoke_execution.md"
+SPP001_RERUN_DOC = ROOT / "docs/ieee39_spp001_single_pair_smoke_rerun.md"
 
 NEXT_STEP = "approve execution of selected 32 pairs using the repaired backend in a separate round"
 BLOCKER = "execution intentionally not run in repair round; manual approval and explicit --execute are required"
@@ -857,11 +860,13 @@ def write_entrypoint_repair_payloads(payloads: dict[str, Any], write_report: boo
 def _spp001_recommended_next_step(result: dict[str, Any]) -> str:
     status = result.get("execution_status")
     if status == "blocked":
-        return "repair MATLAB/Simulink single-pair execution path before any more pair execution"
+        return "repair remaining single-pair execution blocker before any more pair execution"
     if status in {"timeout", "failed"}:
         return "inspect timeout/failure evidence and rerun one-pair smoke after repair"
+    if status == "succeeded" and result.get("pilot_label_value") is None:
+        return "repair compact evidence parser/label-decision contract before any label export"
     if status == "succeeded" and result.get("pilot_label_value") in {0, 1}:
-        return "approve a small next smoke batch of 3 to 5 selected pairs in a separate round; do not train yet"
+        return "approve a tiny 3-to-5 pair smoke batch in a separate round; do not export formal labels or train yet"
     return "inspect compact single-pair evidence and define the pilot-label rule before any broader execution"
 
 
@@ -870,7 +875,7 @@ def _attempt_spp001_matlab(pair: dict[str, Any], output_dir: Path) -> dict[str, 
     matlab_output_dir.mkdir(parents=True, exist_ok=True)
     manifest = PILOT_PAIR_DIR / "selected_single_outage_pilot_pairs.json"
     handwired_model = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker.slx"
-    validation_csv = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_multi_handwired_breaker_validation_summary.csv"
+    validation_csv = ROOT / "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/repaired_combined_validation_preview.csv"
     command = (
         "addpath('matlab/simulink_ieee39'); "
         "run_ieee39_selected_pair_line_trip_sequence("
@@ -984,15 +989,24 @@ def build_spp001_smoke_payloads(args: argparse.Namespace) -> dict[str, Any]:
         raise SystemExit("Only --pair-id SPP001 is approved for this single-pair smoke execution round")
     pairs = _read_json(PILOT_PAIR_DIR / "selected_single_outage_pilot_pairs.json")
     pair = _choose_smoke_candidate(pairs, SPP001_PAIR_ID)
-    result = _attempt_spp001_matlab(pair, SPP001_SMOKE_DIR)
+    result = _attempt_spp001_matlab(pair, SPP001_RERUN_DIR)
     if result["pair_id"] != SPP001_PAIR_ID:
         result["execution_status"] = "failed"
         result["pilot_label_status"] = "failed"
         result["pilot_label_value"] = None
         result["timeout_or_failure_reason"] = "MATLAB compact result did not return SPP001"
     label_available = result.get("pilot_label_value") in {0, 1}
+    label_distribution = {
+        "distribution_scope": "spp001_single_pair_smoke_rerun_label_distribution",
+        "pair_count": 1,
+        "num_label_0": 1 if result.get("pilot_label_value") == 0 else 0,
+        "num_label_1": 1 if result.get("pilot_label_value") == 1 else 0,
+        "num_null_labels": 0 if label_available else 1,
+        "pilot_only": True,
+        "formal_training_labels": False,
+    }
     summary = {
-        "execution_scope": "spp001_single_pair_smoke_execution",
+        "execution_scope": "spp001_single_pair_smoke_rerun",
         "gcn_training_run": False,
         "formal_gcn_audit_rerun": False,
         "selected_32_batch_executed": False,
@@ -1002,14 +1016,19 @@ def build_spp001_smoke_payloads(args: argparse.Namespace) -> dict[str, Any]:
         "reranker_retrained": False,
         "production_model_saved": False,
         "source_entrypoint_repair_commit": SOURCE_ENTRYPOINT_REPAIR_COMMIT,
+        "source_l15_readiness_repair_commit": SOURCE_L15_READINESS_REPAIR_COMMIT,
         "pair_id": result["pair_id"],
         "state_id": result["state_id"],
         "prior_outaged_branch": result["prior_outaged_branch"],
         "candidate_next_branch": result["candidate_next_branch"],
         "planned_contingency_sequence": result["planned_contingency_sequence"],
         "selection_bucket": result["selection_bucket"],
+        "l15_ready": True,
+        "l04_ready": True,
         "execution_attempted": True,
         "execution_status": result["execution_status"],
+        "single_pair_executed": result["execution_status"] == "succeeded",
+        "simulink_run": result["execution_status"] == "succeeded",
         "pilot_label_value": result.get("pilot_label_value"),
         "pilot_label_status": result.get("pilot_label_status"),
         "dynamic_stress_score_if_available": result.get("dynamic_stress_score_if_available"),
@@ -1027,6 +1046,7 @@ def build_spp001_smoke_payloads(args: argparse.Namespace) -> dict[str, Any]:
         "bus_fault_labels_used": False,
         "line_trip_labels_first_priority": True,
         "l12_special_case_preserved": True,
+        "nf06_warning_preserved": True,
         "forbidden_features_detected_in_inputs": [],
         "no_leakage_policy_passed": True,
         "final_engineering_conclusion": False,
@@ -1039,7 +1059,7 @@ def build_spp001_smoke_payloads(args: argparse.Namespace) -> dict[str, Any]:
         "recommended_next_step": _spp001_recommended_next_step(result),
     }
     approval = {
-        "approval_scope": "spp001_single_pair_smoke_execution_approval",
+        "approval_scope": "spp001_single_pair_smoke_rerun_approval",
         "approved_selected_pairs_only": True,
         "approved_pair_count": 1,
         "pair_id": SPP001_PAIR_ID,
@@ -1056,9 +1076,10 @@ def build_spp001_smoke_payloads(args: argparse.Namespace) -> dict[str, Any]:
         "reranker_retrain_approved": False,
         "production_model_approved": False,
         "raw_trajectory_commit_approved": False,
+        "source_l15_readiness_repair_commit": SOURCE_L15_READINESS_REPAIR_COMMIT,
     }
     no_leakage = {
-        "audit_scope": "spp001_single_pair_smoke_no_leakage_audit",
+        "audit_scope": "spp001_single_pair_smoke_rerun_no_leakage_audit",
         "forbidden_features_detected_in_inputs": [],
         "post_fault_dynamic_measurements_used_as_inputs": False,
         "dynamic_outputs_used_only_as_future_labels_or_targets": True,
@@ -1068,7 +1089,7 @@ def build_spp001_smoke_payloads(args: argparse.Namespace) -> dict[str, Any]:
         "no_leakage_policy_passed": True,
     }
     safety = {
-        "safety_scope": "spp001_single_pair_smoke_large_file_safety_check",
+        "safety_scope": "spp001_single_pair_smoke_rerun_large_file_safety",
         "raw_trajectories_committed": False,
         "full_timeseries_committed": False,
         "mat_files_committed": False,
@@ -1085,16 +1106,19 @@ def build_spp001_smoke_payloads(args: argparse.Namespace) -> dict[str, Any]:
         "approval": approval,
         "summary": summary,
         "result": result,
+        "label_distribution": label_distribution,
         "no_leakage": no_leakage,
         "safety": safety,
     }
 
 
-def _build_spp001_doc(payloads: dict[str, Any]) -> str:
+def _build_spp001_doc(payloads: dict[str, Any], *, rerun: bool = False) -> str:
     summary = payloads["summary"]
-    return f"""# IEEE39 SPP001 Single-Pair Smoke Execution
+    title = "IEEE39 SPP001 Single-Pair Smoke Rerun" if rerun else "IEEE39 SPP001 Single-Pair Smoke Execution"
+    scope_line = "This round reruns the one approved pair after the L15 readiness repair." if rerun else "This round is a one-pair smoke execution for SPP001 only."
+    return f"""# {title}
 
-This round is a one-pair smoke execution for SPP001 only. It does not train GCN, does not rerun formal audit, does not execute the selected 32 batch, does not run full 1056 generation, does not export formal labels, does not retrain the reranker, and does not deploy a model.
+{scope_line} It does not train GCN, does not rerun formal audit, does not execute the selected 32 batch, does not run full 1056 generation, does not export formal labels, does not retrain the reranker, and does not deploy a model.
 
 ## Plain-Language Summary
 
@@ -1142,6 +1166,26 @@ def write_spp001_smoke_payloads(payloads: dict[str, Any], write_report: bool) ->
         SPP001_SMOKE_DOC.write_text(_build_spp001_doc(payloads), encoding="utf-8")
 
 
+def write_spp001_rerun_payloads(payloads: dict[str, Any], write_report: bool) -> None:
+    SPP001_RERUN_DIR.mkdir(parents=True, exist_ok=True)
+    _write_json(SPP001_RERUN_DIR / "spp001_rerun_approval.json", payloads["approval"])
+    _write_kv_md(SPP001_RERUN_DIR / "spp001_rerun_approval.md", "IEEE39 SPP001 Rerun Approval", payloads["approval"])
+    _write_json(SPP001_RERUN_DIR / "spp001_rerun_summary.json", payloads["summary"])
+    _write_kv_md(SPP001_RERUN_DIR / "spp001_rerun_summary.md", "IEEE39 SPP001 Rerun Summary", payloads["summary"])
+    _write_kv_csv(SPP001_RERUN_DIR / "spp001_rerun_summary.csv", payloads["summary"])
+    _write_json(SPP001_RERUN_DIR / "spp001_rerun_result.json", payloads["result"])
+    _write_results_md(SPP001_RERUN_DIR / "spp001_rerun_result.md", "IEEE39 SPP001 Rerun Result", [payloads["result"]])
+    _write_rows_csv(SPP001_RERUN_DIR / "spp001_rerun_result.csv", [payloads["result"]])
+    _write_json(SPP001_RERUN_DIR / "spp001_rerun_label_distribution.json", payloads["label_distribution"])
+    _write_kv_md(SPP001_RERUN_DIR / "spp001_rerun_label_distribution.md", "IEEE39 SPP001 Rerun Label Distribution", payloads["label_distribution"])
+    _write_json(SPP001_RERUN_DIR / "spp001_no_leakage_rerun_audit.json", payloads["no_leakage"])
+    _write_kv_md(SPP001_RERUN_DIR / "spp001_no_leakage_rerun_audit.md", "IEEE39 SPP001 No-Leakage Rerun Audit", payloads["no_leakage"])
+    _write_json(SPP001_RERUN_DIR / "spp001_large_file_safety_rerun.json", payloads["safety"])
+    _write_kv_md(SPP001_RERUN_DIR / "spp001_large_file_safety_rerun.md", "IEEE39 SPP001 Large File Safety Rerun", payloads["safety"])
+    if write_report:
+        SPP001_RERUN_DOC.write_text(_build_spp001_doc(payloads, rerun=True), encoding="utf-8")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Repair IEEE39 selected-32-only controlled execution backend skeleton.")
     parser.add_argument("--approved-selected-pairs-only", action="store_true")
@@ -1168,7 +1212,7 @@ def main() -> None:
         raise SystemExit("--execute is refused for batch mode in this round; use --single-pair-smoke-only with --pair-id for a future approved one-pair smoke")
     if args.execute and args.single_pair_smoke_only:
         payloads = build_spp001_smoke_payloads(args)
-        write_spp001_smoke_payloads(payloads, args.write_report)
+        write_spp001_rerun_payloads(payloads, args.write_report)
     elif args.single_pair_smoke_only:
         payloads = build_entrypoint_repair_payloads(args.pair_id)
         write_entrypoint_repair_payloads(payloads, args.write_report)

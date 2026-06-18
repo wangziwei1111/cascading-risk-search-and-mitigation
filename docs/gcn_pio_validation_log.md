@@ -5120,3 +5120,66 @@ Boundary notes:
 
 Recommended next step: approve rerun of SPP001 single-pair smoke in a separate
 round. Do not train yet.
+
+## Round 96: IEEE39 SPP001 Single-Pair Smoke Rerun
+
+This round reruns only the manually approved SPP001 pair `L15 -> L04` after the
+L15 readiness repair. It does not train GCN, does not rerun formal audit, does
+not execute the selected 32 batch, does not run full 1056 generation, does not
+export formal labels, does not retrain the reranker, and does not save a
+production model.
+
+Plain-language meaning: the previous blocker was that the selected-pair runner
+could not see L15 readiness. This round uses the repaired readiness preview, so
+both L15 and L04 pass the readiness gate. The one-pair execution then fails at
+the model path stage because the L15 trip command still points to the clean-lab
+model path, while the execution wrapper loads the handwired breaker model. The
+result remains a null pilot label and is not converted into a 0/1 label.
+
+Artifacts:
+
+- `docs/ieee39_spp001_single_pair_smoke_rerun.md`
+- `results/gcn_search/ieee39_spp001_single_pair_smoke_rerun/spp001_rerun_approval.json`
+- `results/gcn_search/ieee39_spp001_single_pair_smoke_rerun/spp001_rerun_summary.json`
+- `results/gcn_search/ieee39_spp001_single_pair_smoke_rerun/spp001_rerun_result.json`
+- `results/gcn_search/ieee39_spp001_single_pair_smoke_rerun/spp001_rerun_label_distribution.json`
+- `results/gcn_search/ieee39_spp001_single_pair_smoke_rerun/spp001_no_leakage_rerun_audit.json`
+- `results/gcn_search/ieee39_spp001_single_pair_smoke_rerun/spp001_large_file_safety_rerun.json`
+
+Current result:
+
+- `execution_scope = spp001_single_pair_smoke_rerun`
+- `pair_id = SPP001`
+- `prior_outaged_branch = L15`
+- `candidate_next_branch = L04`
+- `l15_ready = true`
+- `l04_ready = true`
+- `execution_attempted = true`
+- `execution_status = failed`
+- `single_pair_executed = false`
+- `simulink_run = false`
+- `pilot_label_value = null`
+- `pilot_label_status = failed`
+- `blocker_if_any = L15 TripCommand path belongs to the clean-lab L15 model, not the loaded handwired breaker wrapper`
+
+Boundary notes:
+
+- Selected 32 batch was not executed.
+- Full 1056 generation was not run.
+- Formal labels were not exported.
+- GCN and reranker were not trained.
+- Pilot labels are not formal training labels.
+- Raw trajectories, full timeseries, `.mat`, `.slx`, `.slxc`, `slprj`, venv,
+  wheel, DLL, and model files are not committed.
+- The source `.slx` is not modified.
+- Bus-fault labels are not used.
+- Line-trip labels remain first priority.
+- L12 remains special/excluded.
+- `phasor_RMS` is not EMT.
+- `generator_speed_proxy` is not direct frequency.
+- Temporary bus-fault injection is not engineering-grade protection.
+
+Recommended next step: repair the remaining single-pair execution blocker by
+placing L15 and L04 trip command paths in one executable wrapper, or by creating
+an approved one-pair model provenance bridge. Do not run broader pair execution,
+export labels, train GCN, or retrain the reranker yet.

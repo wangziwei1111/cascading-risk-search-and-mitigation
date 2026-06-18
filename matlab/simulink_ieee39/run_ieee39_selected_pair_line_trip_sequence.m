@@ -170,12 +170,25 @@ if isempty(validation) || height(validation) == 0 || ~any(validation.line_id == 
 end
 match = validation(validation.line_id == lineId, :);
 commandPath = string(match.trip_command_path(1));
-ready = logical(match.validation_passed(1)) && strlength(commandPath) > 0;
+ready = boolFromValidationValue(match.validation_passed(1)) && strlength(commandPath) > 0;
 if ready
     reason = lineId + " validation passed";
 else
     reason = lineId + " validation failed: " + string(match.validation_failure_reason(1));
 end
+end
+
+function value = boolFromValidationValue(rawValue)
+if islogical(rawValue)
+    value = rawValue;
+    return;
+end
+if isnumeric(rawValue)
+    value = rawValue ~= 0;
+    return;
+end
+textValue = lower(strtrim(string(rawValue)));
+value = any(textValue == ["true", "1", "yes", "y"]);
 end
 
 function row = buildBaseRow(pair)
