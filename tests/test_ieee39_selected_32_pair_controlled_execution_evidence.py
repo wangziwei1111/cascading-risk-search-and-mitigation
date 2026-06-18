@@ -30,8 +30,8 @@ def _read_text(path: Path) -> str:
         return handle.read()
 
 
-def test_selected_32_execution_runner_writes_blocked_evidence() -> None:
-    subprocess.run(
+def test_selected_32_execution_runner_rejects_batch_execute_after_entrypoint_repair() -> None:
+    result = subprocess.run(
         [
             sys.executable,
             "scripts/gcn_search/run_ieee39_selected_single_outage_pilot_pairs_controlled.py",
@@ -43,9 +43,11 @@ def test_selected_32_execution_runner_writes_blocked_evidence() -> None:
             "--write-report",
         ],
         cwd=ROOT,
-        check=True,
         text=True,
+        capture_output=True,
     )
+    assert result.returncode != 0
+    assert "batch mode" in (result.stderr + result.stdout).lower()
 
 
 def test_selected_32_execution_artifacts_exist() -> None:

@@ -32,6 +32,9 @@ def _write_rows_csv(path: Path, rows: list[dict[str, Any]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fieldnames = list(rows[0].keys()) if rows else [
         "pair_id",
+        "state_id",
+        "prior_outaged_branch",
+        "candidate_next_branch",
         "execution_status",
         "pilot_label_value",
         "pilot_label_status",
@@ -60,6 +63,9 @@ def _coerce_row(row: dict[str, Any]) -> dict[str, Any]:
         label_value = None
     return {
         "pair_id": row.get("pair_id"),
+        "state_id": row.get("state_id"),
+        "prior_outaged_branch": row.get("prior_outaged_branch"),
+        "candidate_next_branch": row.get("candidate_next_branch"),
         "execution_status": status,
         "pilot_label_value": label_value,
         "pilot_label_status": label_status,
@@ -70,6 +76,8 @@ def _coerce_row(row: dict[str, Any]) -> dict[str, Any]:
         "raw_trajectory_committed": False,
         "full_timeseries_committed": False,
         "mat_file_committed": False,
+        "bus_fault_label_used": False,
+        "single_pair_smoke_evidence": bool(row.get("single_pair_smoke_evidence", False) or row.get("evidence_source") == "matlab_single_pair_smoke_compact_simulation"),
     }
 
 
@@ -81,6 +89,8 @@ def parse_compact_evidence(input_json: Path) -> list[dict[str, Any]]:
         raw_rows = payload["rows"]
     elif isinstance(payload, dict) and isinstance(payload.get("results"), list):
         raw_rows = payload["results"]
+    elif isinstance(payload, dict) and isinstance(payload.get("row"), dict):
+        raw_rows = [payload["row"]]
     else:
         raw_rows = []
     return [_coerce_row(dict(row)) for row in raw_rows]

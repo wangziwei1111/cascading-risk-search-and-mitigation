@@ -27,3 +27,13 @@ Only selected 32 pairs are in scope. Raw trajectories, full timeseries, `.mat`, 
 ## Next Step
 
 `inspect local MATLAB/Simulink execution logs and repair execution entrypoint before rerunning selected 32 evidence collection`.
+
+## Follow-Up: MATLAB Selected-Pair Entrypoint Repair
+
+The follow-up repair round updates the MATLAB selected-pair entrypoint from a
+guarded skeleton to a single-pair smoke-ready backend. It still does not execute
+the selected 32 pairs, does not run full 1056 generation, and does not export
+formal labels.
+
+The next approved action should be at most one selected pair smoke execution,
+using compact evidence only.

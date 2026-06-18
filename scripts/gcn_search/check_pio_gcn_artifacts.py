@@ -701,6 +701,20 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/no_leakage_selected_32_execution_audit.md",
     "results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/large_file_safety_selected_32_execution.json",
     "results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/large_file_safety_selected_32_execution.md",
+    "docs/ieee39_matlab_selected_pair_entrypoint_repair.md",
+    "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/matlab_entrypoint_repair_summary.json",
+    "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/matlab_entrypoint_repair_summary.md",
+    "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/matlab_entrypoint_repair_summary.csv",
+    "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/single_pair_smoke_execution_contract.json",
+    "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/single_pair_smoke_execution_contract.md",
+    "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/entrypoint_component_reuse_report.json",
+    "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/entrypoint_component_reuse_report.md",
+    "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/single_pair_smoke_candidate.json",
+    "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/single_pair_smoke_candidate.md",
+    "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/no_leakage_entrypoint_repair_audit.json",
+    "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/no_leakage_entrypoint_repair_audit.md",
+    "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/large_file_safety_entrypoint_repair.json",
+    "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/large_file_safety_entrypoint_repair.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -6141,6 +6155,183 @@ def main() -> int:
                     failures.append(f"Selected 32 execution docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read selected 32 controlled execution evidence artifacts: {exc}")
+
+    entrypoint_repair_dir = ROOT / "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair"
+    entrypoint_repair_doc = ROOT / "docs/ieee39_matlab_selected_pair_entrypoint_repair.md"
+    entrypoint_repair_summary = entrypoint_repair_dir / "matlab_entrypoint_repair_summary.json"
+    entrypoint_repair_contract = entrypoint_repair_dir / "single_pair_smoke_execution_contract.json"
+    entrypoint_repair_reuse = entrypoint_repair_dir / "entrypoint_component_reuse_report.json"
+    entrypoint_repair_candidate = entrypoint_repair_dir / "single_pair_smoke_candidate.json"
+    entrypoint_repair_no_leakage = entrypoint_repair_dir / "no_leakage_entrypoint_repair_audit.json"
+    entrypoint_repair_safety = entrypoint_repair_dir / "large_file_safety_entrypoint_repair.json"
+    entrypoint_repair_required = [
+        entrypoint_repair_doc,
+        entrypoint_repair_summary,
+        entrypoint_repair_dir / "matlab_entrypoint_repair_summary.md",
+        entrypoint_repair_dir / "matlab_entrypoint_repair_summary.csv",
+        entrypoint_repair_contract,
+        entrypoint_repair_dir / "single_pair_smoke_execution_contract.md",
+        entrypoint_repair_reuse,
+        entrypoint_repair_dir / "entrypoint_component_reuse_report.md",
+        entrypoint_repair_candidate,
+        entrypoint_repair_dir / "single_pair_smoke_candidate.md",
+        entrypoint_repair_no_leakage,
+        entrypoint_repair_dir / "no_leakage_entrypoint_repair_audit.md",
+        entrypoint_repair_safety,
+        entrypoint_repair_dir / "large_file_safety_entrypoint_repair.md",
+    ]
+    existing_entrypoint_repair_required = [path for path in entrypoint_repair_required if path.exists()]
+    if existing_entrypoint_repair_required:
+        missing_entrypoint_repair_required = [path for path in entrypoint_repair_required if not path.exists()]
+        if missing_entrypoint_repair_required:
+            failures.append(
+                "IEEE39 MATLAB selected-pair entrypoint repair artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_entrypoint_repair_required)
+            )
+        try:
+            summary = _read_json_path(entrypoint_repair_summary)
+            contract = _read_json_path(entrypoint_repair_contract)
+            reuse = _read_json_path(entrypoint_repair_reuse)
+            candidate = _read_json_path(entrypoint_repair_candidate)
+            no_leakage = _read_json_path(entrypoint_repair_no_leakage)
+            safety = _read_json_path(entrypoint_repair_safety)
+            for key, expected in [
+                ("repair_scope", "matlab_selected_pair_entrypoint_repair"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("selected_32_pairs_executed", False),
+                ("full_1056_generation_run", False),
+                ("labels_exported", False),
+                ("formal_labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("source_selected_32_evidence_commit", "12f07cbc4d3b35883b1dd11078c87029d5df8aac"),
+                ("matlab_entrypoint_updated", True),
+                ("python_runner_updated", True),
+                ("parser_contract_updated", True),
+                ("selected_32_guard_preserved", True),
+                ("single_pair_smoke_mode_added", True),
+                ("batch_32_execution_allowed_now", False),
+                ("full_1056_execution_allowed_now", False),
+                ("can_attempt_single_pair_smoke_after_manual_approval", True),
+                ("can_attempt_selected_32_after_single_pair_smoke", False),
+                ("raw_trajectory_policy_preserved", True),
+                ("formal_label_export_guard_preserved", True),
+                ("no_training_guard_preserved", True),
+                ("recommended_next_step", "approve one selected pair smoke execution in a separate round"),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"MATLAB selected-pair entrypoint repair summary must set {key}={expected!r}.")
+            if "separate manual approval" not in str(summary.get("blocker_if_any", "")).lower():
+                failures.append("MATLAB selected-pair entrypoint repair summary must require separate manual approval.")
+            for key, expected in [
+                ("contract_scope", "single_pair_smoke_execution_contract"),
+                ("allowed_pair_count", 1),
+                ("selected_32_batch_execution_allowed", False),
+                ("full_1056_generation_allowed", False),
+                ("requires_manual_approval", True),
+                ("requires_explicit_execute", True),
+                ("compact_evidence_only", True),
+            ]:
+                if contract.get(key) != expected:
+                    failures.append(f"Single-pair smoke contract must set {key}={expected!r}.")
+            if candidate.get("approved_for_execution_now") is not False:
+                failures.append("Single-pair smoke candidate must not be approved for execution now.")
+            if candidate.get("requires_next_round_approval") is not True:
+                failures.append("Single-pair smoke candidate must require next-round approval.")
+            if candidate.get("l12_special_case_flag") is not False:
+                failures.append("Single-pair smoke candidate must preserve L12 exclusion.")
+            if reuse.get("source_slx_modified") is not False:
+                failures.append("Entrypoint reuse report must set source_slx_modified=false.")
+            if not reuse.get("reused_matlab_components"):
+                failures.append("Entrypoint reuse report must list reused MATLAB components.")
+            if not reuse.get("reused_python_components"):
+                failures.append("Entrypoint reuse report must list reused Python components.")
+            for key, expected in [
+                ("forbidden_features_detected_in_inputs", []),
+                ("post_fault_dynamic_measurements_used_as_inputs", False),
+                ("dynamic_outputs_used_only_as_future_labels_or_targets", True),
+                ("label_derived_flags_used_as_inputs", False),
+                ("proxy_relay_threshold_used_only_in_feature_generation", True),
+                ("bus_fault_labels_used", False),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if no_leakage.get(key) != expected:
+                    failures.append(f"Entrypoint repair no-leakage audit must set {key}={expected!r}.")
+            for key in [
+                "raw_trajectories_committed",
+                "full_timeseries_committed",
+                "mat_files_committed",
+                "slx_files_committed",
+                "slxc_files_committed",
+                "slprj_committed",
+                "source_slx_modified",
+                "venv_committed",
+                "wheel_or_dll_committed",
+                "model_files_committed",
+            ]:
+                if safety.get(key) is not False:
+                    failures.append(f"Entrypoint repair large-file safety check must keep {key}=false.")
+            if safety.get("safety_check_passed") is not True:
+                failures.append("Entrypoint repair large-file safety check must pass.")
+            matlab_entrypoint_text = _read_text("matlab/simulink_ieee39/run_ieee39_selected_pair_line_trip_sequence.m").lower()
+            for required in ["execute_single_pair", "dry_run_only", "pair_id", "batch execution is refused"]:
+                if required not in matlab_entrypoint_text:
+                    failures.append(f"MATLAB selected-pair entrypoint missing guard text: {required}")
+            entrypoint_repair_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_matlab_selected_pair_entrypoint_repair.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                    _read_text("docs/ieee39_selected_32_pair_controlled_execution_evidence.md"),
+                    _read_text("docs/ieee39_controlled_execution_backend_repair.md"),
+                    _read_text("results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/matlab_entrypoint_repair_summary.md"),
+                    _read_text("results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/single_pair_smoke_execution_contract.md"),
+                ]
+            ).lower()
+            normalized_entrypoint_repair = " ".join(entrypoint_repair_text.replace("`", "").split())
+            for required in [
+                "matlab selected-pair entrypoint repair",
+                "does not train gcn",
+                "does not rerun formal audit",
+                "does not execute selected 32 pairs",
+                "does not run full 1056 generation",
+                "does not export formal labels",
+                "does not retrain the reranker",
+                "single-pair smoke",
+                "at most one selected pair",
+                "raw trajectory",
+                "full timeseries",
+                "source .slx",
+                "beta * rate_a",
+                "audit-only proxy",
+                "not a real relay setting",
+                "bus-fault labels are not used",
+                "l12 remains special/excluded",
+                "nf06 warning is preserved",
+                "pilot labels are not formal training labels",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "temporary bus-fault injection is not engineering-grade protection",
+            ]:
+                if required not in normalized_entrypoint_repair:
+                    failures.append(f"MATLAB selected-pair entrypoint repair docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is useless",
+                "formal audit rerun completed",
+                "selected 32 pairs executed",
+                "full 1056 generation completed",
+                "formal labels exported",
+                "proxy is a real relay setting",
+                "emt simulation",
+                "generator_speed_proxy is direct frequency",
+                "final engineering conclusion",
+                "deployment ready",
+            ]:
+                if bad in normalized_entrypoint_repair:
+                    failures.append(f"MATLAB selected-pair entrypoint repair docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read MATLAB selected-pair entrypoint repair artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

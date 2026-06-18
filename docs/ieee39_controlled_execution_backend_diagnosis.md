@@ -43,4 +43,8 @@ The repaired backend is intentionally conservative: execution remains blocked in
 
 ## Follow-Up: Selected 32 Evidence Collection
 
-The selected-32 evidence follow-up used the repaired backend with explicit approval, but the MATLAB entrypoint is still a guarded skeleton. The evidence output therefore records 32 blocked/null pilot rows and does not fabricate formal labels.
+The selected-32 evidence follow-up used the repaired backend with explicit approval, but the MATLAB entrypoint was still a guarded skeleton. The evidence output therefore records 32 blocked/null pilot rows and does not fabricate formal labels.
+
+## Follow-Up: MATLAB Selected-Pair Entrypoint Repair
+
+The MATLAB selected-pair entrypoint repair follow-up adds single-pair smoke mode. It still does not execute selected 32 pairs, does not run full 1056 generation, and does not export formal labels.

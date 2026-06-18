@@ -4950,3 +4950,60 @@ Boundary notes:
 
 Recommended next step: inspect the local MATLAB/Simulink execution entrypoint
 and repair it before rerunning selected 32 compact evidence collection.
+
+## Round 93: IEEE39 MATLAB Selected-Pair Entrypoint Repair
+
+This round repairs the MATLAB selected-pair execution entrypoint. It does not
+train GCN, does not rerun formal audit, does not execute selected 32 pairs, does
+not run full 1056 generation, does not export formal labels, does not retrain
+the reranker, and does not save a production model.
+
+Plain-language meaning: the previous selected-32 evidence round produced 32
+blocked/null rows because the MATLAB entrypoint was still a guarded skeleton.
+This round adds a single-pair smoke mode so a future separately approved round
+can try at most one selected pair, such as SPP001, without opening the door to
+batch 32 or full 1056 execution.
+
+Artifacts:
+
+- `matlab/simulink_ieee39/run_ieee39_selected_pair_line_trip_sequence.m`
+- `docs/ieee39_matlab_selected_pair_entrypoint_repair.md`
+- `results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/matlab_entrypoint_repair_summary.json`
+- `results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/single_pair_smoke_execution_contract.json`
+- `results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/entrypoint_component_reuse_report.json`
+- `results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/single_pair_smoke_candidate.json`
+- `results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/no_leakage_entrypoint_repair_audit.json`
+- `results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/large_file_safety_entrypoint_repair.json`
+
+Current result:
+
+- `repair_scope = matlab_selected_pair_entrypoint_repair`
+- `matlab_entrypoint_updated = true`
+- `python_runner_updated = true`
+- `parser_contract_updated = true`
+- `selected_32_guard_preserved = true`
+- `single_pair_smoke_mode_added = true`
+- `batch_32_execution_allowed_now = false`
+- `full_1056_execution_allowed_now = false`
+- `can_attempt_single_pair_smoke_after_manual_approval = true`
+- `can_attempt_selected_32_after_single_pair_smoke = false`
+
+Boundary notes:
+
+- This round does not execute selected 32 pairs.
+- The next round may approve at most one selected pair smoke execution.
+- Raw trajectory, full timeseries, `.mat`, `.slx`, `.slxc`, `slprj`, venv,
+  wheel, DLL, and model files are not committed.
+- The source `.slx` is not modified.
+- `beta * RATE_A` remains an audit-only proxy, not a real relay setting.
+- Bus-fault labels are not used.
+- L12 remains special/excluded.
+- NF06 warning is preserved.
+- Pilot labels are not formal training labels.
+- `phasor_RMS` is not EMT.
+- `generator_speed_proxy` is not direct frequency.
+- Temporary bus-fault injection is not engineering-grade protection.
+- No deployment and no GCN usefulness conclusion are claimed.
+
+Recommended next step: approve one selected pair smoke execution in a separate
+round.

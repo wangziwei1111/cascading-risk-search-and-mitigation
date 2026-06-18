@@ -1,0 +1,28 @@
+# IEEE39 MATLAB Entrypoint Repair Summary
+
+- `repair_scope`: matlab_selected_pair_entrypoint_repair
+- `gcn_training_run`: False
+- `formal_gcn_audit_rerun`: False
+- `selected_32_pairs_executed`: False
+- `full_1056_generation_run`: False
+- `labels_exported`: False
+- `formal_labels_exported`: False
+- `reranker_retrained`: False
+- `production_model_saved`: False
+- `source_selected_32_evidence_commit`: 12f07cbc4d3b35883b1dd11078c87029d5df8aac
+- `matlab_entrypoint_updated`: True
+- `python_runner_updated`: True
+- `parser_contract_updated`: True
+- `selected_32_guard_preserved`: True
+- `single_pair_smoke_mode_added`: True
+- `batch_32_execution_allowed_now`: False
+- `full_1056_execution_allowed_now`: False
+- `can_attempt_single_pair_smoke_after_manual_approval`: True
+- `can_attempt_selected_32_after_single_pair_smoke`: False
+- `raw_trajectory_policy_preserved`: True
+- `formal_label_export_guard_preserved`: True
+- `no_training_guard_preserved`: True
+- `blocker_if_any`: single-pair smoke mode prepared; actual execution requires separate manual approval
+- `recommended_next_step`: approve one selected pair smoke execution in a separate round
+- `previous_selected_32_blocked_pair_count`: 32
+- `previous_pilot_label_available_count`: 0

@@ -34,7 +34,7 @@ Execution of selected 32 pairs still requires the next round of manual approval.
 ## Follow-Up: Selected 32 Evidence Collection
 
 The follow-up selected-32 evidence round used the repaired Python runner with
-explicit `--execute` approval, but the MATLAB entrypoint remains a guarded
+explicit `--execute` approval, but the MATLAB entrypoint remained a guarded
 skeleton. Therefore all 32 selected pairs were recorded as blocked/null compact
 evidence. No selected-pair 0/1 labels were fabricated, and no formal labels were
 exported.
@@ -42,3 +42,9 @@ exported.
 This follow-up still does not train GCN, does not rerun formal audit, does not
 run full 1056 generation, does not retrain the reranker, and does not commit raw
 trajectory, full timeseries, `.mat`, `.slx`, `.slxc`, or `slprj` artifacts.
+
+## Follow-Up: MATLAB Selected-Pair Entrypoint Repair
+
+The next repair round updates the MATLAB selected-pair entrypoint to add
+single-pair smoke mode. Batch selected-32 execution remains disallowed for now,
+and full 1056 generation remains disallowed.

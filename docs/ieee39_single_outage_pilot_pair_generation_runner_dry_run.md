@@ -55,4 +55,8 @@ The backend repair follow-up added the selected-32-only runner, MATLAB entrypoin
 
 ## Follow-Up: Selected 32 Evidence Collection
 
-The selected-32 evidence follow-up used explicit approval for only the 32 selected pilot pairs. Because the MATLAB entrypoint remains a guarded skeleton, all 32 pair rows were written as compact blocked/null evidence rather than formal 0/1 labels.
+The selected-32 evidence follow-up used explicit approval for only the 32 selected pilot pairs. Because the MATLAB entrypoint remained a guarded skeleton, all 32 pair rows were written as compact blocked/null evidence rather than formal 0/1 labels.
+
+## Follow-Up: MATLAB Selected-Pair Entrypoint Repair
+
+The MATLAB selected-pair entrypoint repair follow-up adds single-pair smoke mode and keeps batch 32 execution disallowed until a later approval round.

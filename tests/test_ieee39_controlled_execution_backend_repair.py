@@ -47,8 +47,8 @@ def test_backend_repair_runner_runs_in_dry_run_mode() -> None:
     )
 
 
-def test_backend_repair_runner_execute_writes_selected_32_blocked_evidence() -> None:
-    subprocess.run(
+def test_backend_repair_runner_rejects_batch_execute_after_entrypoint_repair() -> None:
+    result = subprocess.run(
         [
             sys.executable,
             "scripts/gcn_search/run_ieee39_selected_single_outage_pilot_pairs_controlled.py",
@@ -59,17 +59,11 @@ def test_backend_repair_runner_execute_writes_selected_32_blocked_evidence() -> 
             "--write-report",
         ],
         cwd=ROOT,
-        check=True,
         text=True,
+        capture_output=True,
     )
-    execution_summary = _read_json(
-        ROOT
-        / "results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence/selected_32_execution_summary.json"
-    )
-    assert execution_summary["execution_scope"] == "selected_32_controlled_execution_evidence"
-    assert execution_summary["selected_pair_count"] == 32
-    assert execution_summary["blocked_pair_count"] == 32
-    assert execution_summary["pilot_label_available_count"] == 0
+    assert result.returncode != 0
+    assert "batch mode" in (result.stderr + result.stdout).lower()
 
 
 def test_backend_repair_runner_rejects_more_than_32() -> None:
