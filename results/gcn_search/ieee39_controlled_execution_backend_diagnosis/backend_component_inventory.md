@@ -22,6 +22,7 @@
   "matlab/simulink_ieee39/probe_ieee39_breaker_insertion_standalone.m",
   "matlab/simulink_ieee39/run_ieee39_fault_test_suite.m",
   "matlab/simulink_ieee39/run_ieee39_multi_handwired_line_trip_suite.m",
+  "matlab/simulink_ieee39/run_ieee39_selected_pair_line_trip_sequence.m",
   "matlab/simulink_ieee39/setup_ieee39_dynamic_experiment_wrapper.m",
   "matlab/simulink_ieee39/validate_ieee39_clean_breaker_lab_line.m",
   "matlab/simulink_ieee39/validate_ieee39_clean_breaker_lab_lines_batch.m",
@@ -64,6 +65,7 @@
   "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py",
   "scripts/gcn_search/run_ieee39_multi_handwired_line_trip_isolated.py",
   "scripts/gcn_search/run_ieee39_non_line_trip_fault_smoke_tests.py",
+  "scripts/gcn_search/run_ieee39_selected_single_outage_pilot_pairs_controlled.py",
   "scripts/gcn_search/update_ieee39_line_breaker_map_from_inventory.py"
 ]
 ```
