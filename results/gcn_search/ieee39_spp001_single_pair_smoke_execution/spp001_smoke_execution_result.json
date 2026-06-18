@@ -1,0 +1,25 @@
+{
+  "pair_id": "SPP001",
+  "state_id": "single_outage_state_L15",
+  "prior_outaged_branch": "L15",
+  "candidate_next_branch": "L04",
+  "planned_contingency_sequence": [
+    "L15",
+    "L04"
+  ],
+  "selection_bucket": "high_relay_ratio_pairs",
+  "execution_status": "blocked",
+  "pilot_label_value": null,
+  "pilot_label_status": "blocked",
+  "dynamic_stress_score_if_available": null,
+  "unstable_flag_if_available": null,
+  "instability_or_risk_reason": "",
+  "timeout_or_failure_reason": "single-pair smoke not ready: validation missing for L15; L04 validation passed",
+  "evidence_source": "matlab_selected_pair_entrypoint_readiness_blocked",
+  "raw_trajectory_committed": false,
+  "full_timeseries_committed": false,
+  "mat_file_committed": false,
+  "bus_fault_label_used": false,
+  "l12_special_case_flag": false,
+  "notes": "single-pair compact evidence only; not a formal training label"
+}

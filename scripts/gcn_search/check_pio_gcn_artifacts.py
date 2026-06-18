@@ -715,6 +715,19 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/no_leakage_entrypoint_repair_audit.md",
     "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/large_file_safety_entrypoint_repair.json",
     "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/large_file_safety_entrypoint_repair.md",
+    "docs/ieee39_spp001_single_pair_smoke_execution.md",
+    "results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_smoke_execution_approval.json",
+    "results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_smoke_execution_approval.md",
+    "results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_smoke_execution_summary.json",
+    "results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_smoke_execution_summary.md",
+    "results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_smoke_execution_summary.csv",
+    "results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_smoke_execution_result.json",
+    "results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_smoke_execution_result.md",
+    "results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_smoke_execution_result.csv",
+    "results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_no_leakage_smoke_audit.json",
+    "results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_no_leakage_smoke_audit.md",
+    "results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_large_file_safety_check.json",
+    "results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_large_file_safety_check.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -6332,6 +6345,170 @@ def main() -> int:
                     failures.append(f"MATLAB selected-pair entrypoint repair docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read MATLAB selected-pair entrypoint repair artifacts: {exc}")
+
+    spp001_dir = ROOT / "results/gcn_search/ieee39_spp001_single_pair_smoke_execution"
+    spp001_doc = ROOT / "docs/ieee39_spp001_single_pair_smoke_execution.md"
+    spp001_approval = spp001_dir / "spp001_smoke_execution_approval.json"
+    spp001_summary = spp001_dir / "spp001_smoke_execution_summary.json"
+    spp001_result = spp001_dir / "spp001_smoke_execution_result.json"
+    spp001_no_leakage = spp001_dir / "spp001_no_leakage_smoke_audit.json"
+    spp001_safety = spp001_dir / "spp001_large_file_safety_check.json"
+    spp001_required = [
+        spp001_doc,
+        spp001_approval,
+        spp001_dir / "spp001_smoke_execution_approval.md",
+        spp001_summary,
+        spp001_dir / "spp001_smoke_execution_summary.md",
+        spp001_dir / "spp001_smoke_execution_summary.csv",
+        spp001_result,
+        spp001_dir / "spp001_smoke_execution_result.md",
+        spp001_dir / "spp001_smoke_execution_result.csv",
+        spp001_no_leakage,
+        spp001_dir / "spp001_no_leakage_smoke_audit.md",
+        spp001_safety,
+        spp001_dir / "spp001_large_file_safety_check.md",
+    ]
+    existing_spp001_required = [path for path in spp001_required if path.exists()]
+    if existing_spp001_required:
+        missing_spp001_required = [path for path in spp001_required if not path.exists()]
+        if missing_spp001_required:
+            failures.append(
+                "IEEE39 SPP001 single-pair smoke artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_spp001_required)
+            )
+        try:
+            approval = _read_json_path(spp001_approval)
+            summary = _read_json_path(spp001_summary)
+            result = _read_json_path(spp001_result)
+            no_leakage = _read_json_path(spp001_no_leakage)
+            safety = _read_json_path(spp001_safety)
+            for key, expected in [
+                ("approval_scope", "spp001_single_pair_smoke_execution_approval"),
+                ("approved_selected_pairs_only", True),
+                ("approved_pair_count", 1),
+                ("pair_id", "SPP001"),
+                ("prior_outaged_branch", "L15"),
+                ("candidate_next_branch", "L04"),
+                ("source_entrypoint_repair_commit", "4a8284da5ec80d91c30fe814c9823af157e37fe9"),
+                ("selected_32_batch_execution_approved", False),
+                ("full_1056_generation_approved", False),
+                ("formal_label_export_approved", False),
+                ("gcn_training_approved", False),
+                ("reranker_retrain_approved", False),
+                ("production_model_approved", False),
+            ]:
+                if approval.get(key) != expected:
+                    failures.append(f"SPP001 approval must set {key}={expected!r}.")
+            for key, expected in [
+                ("execution_scope", "spp001_single_pair_smoke_execution"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("selected_32_batch_executed", False),
+                ("full_1056_generation_run", False),
+                ("labels_exported", False),
+                ("formal_labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("source_entrypoint_repair_commit", "4a8284da5ec80d91c30fe814c9823af157e37fe9"),
+                ("pair_id", "SPP001"),
+                ("state_id", "single_outage_state_L15"),
+                ("prior_outaged_branch", "L15"),
+                ("candidate_next_branch", "L04"),
+                ("selection_bucket", "high_relay_ratio_pairs"),
+                ("execution_attempted", True),
+                ("pilot_labels_are_formal_training_labels", False),
+                ("source_slx_modified", False),
+                ("bus_fault_labels_used", False),
+                ("line_trip_labels_first_priority", True),
+                ("l12_special_case_preserved", True),
+                ("forbidden_features_detected_in_inputs", []),
+                ("no_leakage_policy_passed", True),
+                ("final_engineering_conclusion", False),
+                ("should_train_gcn_now", False),
+                ("should_rerun_formal_audit_now", False),
+                ("should_export_formal_labels_now", False),
+                ("should_retrain_reranker_now", False),
+                ("should_deploy_model", False),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"SPP001 summary must set {key}={expected!r}.")
+            if summary.get("execution_status") not in {"succeeded", "failed", "timeout", "blocked"}:
+                failures.append("SPP001 summary execution_status must be succeeded/failed/timeout/blocked.")
+            if summary.get("pilot_label_value") not in {0, 1, None}:
+                failures.append("SPP001 pilot_label_value must be 0, 1, or null.")
+            if summary.get("execution_status") != "succeeded" and summary.get("pilot_label_value") is not None:
+                failures.append("SPP001 non-succeeded result must not fabricate a pilot label.")
+            if result.get("pair_id") != "SPP001":
+                failures.append("SPP001 result must be for SPP001.")
+            if result.get("prior_outaged_branch") != "L15" or result.get("candidate_next_branch") != "L04":
+                failures.append("SPP001 result must preserve L15 -> L04.")
+            for key, expected in [
+                ("forbidden_features_detected_in_inputs", []),
+                ("post_fault_dynamic_measurements_used_as_inputs", False),
+                ("dynamic_outputs_used_only_as_future_labels_or_targets", True),
+                ("label_derived_flags_used_as_inputs", False),
+                ("bus_fault_labels_used", False),
+                ("line_trip_labels_first_priority", True),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if no_leakage.get(key) != expected:
+                    failures.append(f"SPP001 no-leakage audit must set {key}={expected!r}.")
+            for key in [
+                "raw_trajectories_committed",
+                "full_timeseries_committed",
+                "mat_files_committed",
+                "slx_files_committed",
+                "slxc_files_committed",
+                "slprj_committed",
+                "source_slx_modified",
+                "venv_committed",
+                "wheel_or_dll_committed",
+                "model_files_committed",
+            ]:
+                if safety.get(key) is not False:
+                    failures.append(f"SPP001 safety check must keep {key}=false.")
+            if safety.get("safety_check_passed") is not True:
+                failures.append("SPP001 large-file safety check must pass.")
+            spp001_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_spp001_single_pair_smoke_execution.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                    _read_text("results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_smoke_execution_summary.md"),
+                    _read_text("results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_smoke_execution_result.md"),
+                ]
+            ).lower()
+            normalized_spp001 = " ".join(spp001_text.replace("`", "").split())
+            for required in [
+                "spp001 single-pair smoke execution",
+                "does not train gcn",
+                "does not rerun formal audit",
+                "does not execute the selected 32 batch",
+                "does not run full 1056 generation",
+                "does not export formal labels",
+                "does not retrain the reranker",
+                "l15 -> l04",
+                "pilot labels are not formal training labels",
+                "not a final project conclusion",
+                "bus-fault labels are not used",
+                "line-trip labels remain first priority",
+                "l12 remains special/excluded",
+                "raw trajectories",
+                "full timeseries",
+            ]:
+                if required not in normalized_spp001:
+                    failures.append(f"SPP001 docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is useless",
+                "formal labels exported",
+                "selected 32 batch executed",
+                "full 1056 generation completed",
+                "deployment ready",
+            ]:
+                if bad in normalized_spp001:
+                    failures.append(f"SPP001 docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read SPP001 single-pair smoke artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

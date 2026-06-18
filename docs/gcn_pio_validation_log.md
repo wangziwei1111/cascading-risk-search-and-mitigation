@@ -5007,3 +5007,56 @@ Boundary notes:
 
 Recommended next step: approve one selected pair smoke execution in a separate
 round.
+
+## Round 94: IEEE39 SPP001 Single-Pair Smoke Execution
+
+This round executes only the manually approved SPP001 smoke path. It does not
+train GCN, does not rerun formal audit, does not execute the selected 32 batch,
+does not run full 1056 generation, does not export formal labels, does not
+retrain the reranker, and does not save a production model.
+
+Plain-language meaning: this is a one-pair channel check for `L15 -> L04`. The
+run is allowed to try the repaired MATLAB/Simulink single-pair path, but any
+blocked, failed, timeout, or unknown result remains null and is not converted to
+a 0/1 training label.
+
+Artifacts:
+
+- `docs/ieee39_spp001_single_pair_smoke_execution.md`
+- `results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_smoke_execution_approval.json`
+- `results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_smoke_execution_summary.json`
+- `results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_smoke_execution_result.json`
+- `results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_no_leakage_smoke_audit.json`
+- `results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_large_file_safety_check.json`
+
+Current result:
+
+- `execution_scope = spp001_single_pair_smoke_execution`
+- `pair_id = SPP001`
+- `prior_outaged_branch = L15`
+- `candidate_next_branch = L04`
+- `execution_attempted = true`
+- `execution_status = blocked`
+- `pilot_label_value = null`
+- `pilot_label_status = blocked`
+- `blocker_if_any = single-pair smoke not ready: validation missing for L15; L04 validation passed`
+
+Boundary notes:
+
+- SPP001 is the only approved pair in this round.
+- The selected 32 batch is not executed.
+- Full 1056 generation is not approved and was not run.
+- Formal label export is not approved and was not run.
+- GCN training and reranker retraining were not run.
+- Pilot labels are not formal training labels.
+- Raw trajectories, full timeseries, `.mat`, `.slx`, `.slxc`, `slprj`, venv,
+  wheel, DLL, and model files are not committed.
+- The source `.slx` is not modified.
+- Bus-fault labels are not used.
+- Line-trip labels remain first priority.
+- L12 remains special/excluded.
+- This is not a final project conclusion.
+
+Recommended next step: repair the MATLAB/Simulink single-pair readiness path for
+L15 in the combined handwired validation evidence, then rerun one-pair smoke
+after repair. Do not train yet.

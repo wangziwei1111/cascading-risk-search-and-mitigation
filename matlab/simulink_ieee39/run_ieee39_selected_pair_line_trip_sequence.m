@@ -150,7 +150,8 @@ validationPath = char(validationSummaryCsv);
 if isfile(validationPath)
     validation = readtable(validationPath, "TextType", "string", "VariableNamingRule", "preserve", "Delimiter", ",");
 else
-    validation = table(string.empty(0, 1), zeros(0, 1) > 0, string.empty(0, 1), string.empty(0, 1), ...
+    validation = table( ...
+        strings(0, 1), false(0, 1), strings(0, 1), strings(0, 1), ...
         "VariableNames", {'line_id', 'validation_passed', 'trip_command_path', 'validation_failure_reason'});
 end
 end

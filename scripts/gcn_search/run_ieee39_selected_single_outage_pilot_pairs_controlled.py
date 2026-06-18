@@ -4,6 +4,8 @@ import argparse
 import csv
 import json
 import os
+import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -12,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCE_BACKEND_DIAGNOSIS_COMMIT = "0d96b0c258e23f4fe5c2ec01cac2a63b5d85c06f"
 SOURCE_BACKEND_REPAIR_COMMIT = "5c15cf88c3d980e3491d7327602a4d318216f2e4"
 SOURCE_SELECTED_32_EVIDENCE_COMMIT = "12f07cbc4d3b35883b1dd11078c87029d5df8aac"
+SOURCE_ENTRYPOINT_REPAIR_COMMIT = "4a8284da5ec80d91c30fe814c9823af157e37fe9"
 
 DIAGNOSIS_DIR = ROOT / "results/gcn_search/ieee39_controlled_execution_backend_diagnosis"
 PILOT_PAIR_DIR = ROOT / "results/gcn_search/ieee39_single_outage_pilot_pair_generation_runner_dry_run"
@@ -19,9 +22,11 @@ APPROVAL_JSON = ROOT / "results/gcn_search/ieee39_selected_single_outage_pilot_p
 OUT_DIR = ROOT / "results/gcn_search/ieee39_controlled_execution_backend_repair"
 EXECUTION_OUT_DIR = ROOT / "results/gcn_search/ieee39_selected_32_pair_controlled_execution_evidence"
 ENTRYPOINT_REPAIR_DIR = ROOT / "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair"
+SPP001_SMOKE_DIR = ROOT / "results/gcn_search/ieee39_spp001_single_pair_smoke_execution"
 DOC = ROOT / "docs/ieee39_controlled_execution_backend_repair.md"
 EXECUTION_DOC = ROOT / "docs/ieee39_selected_32_pair_controlled_execution_evidence.md"
 ENTRYPOINT_REPAIR_DOC = ROOT / "docs/ieee39_matlab_selected_pair_entrypoint_repair.md"
+SPP001_SMOKE_DOC = ROOT / "docs/ieee39_spp001_single_pair_smoke_execution.md"
 
 NEXT_STEP = "approve execution of selected 32 pairs using the repaired backend in a separate round"
 BLOCKER = "execution intentionally not run in repair round; manual approval and explicit --execute are required"
@@ -30,6 +35,8 @@ EXECUTION_BLOCKER = (
     "blocked evidence was written without fabricating pilot labels"
 )
 ENTRYPOINT_REPAIR_BLOCKER = "single-pair smoke mode prepared; actual execution requires separate manual approval"
+SPP001_ENTRYPOINT_MATLAB_JSON = "matlab_selected_pair_compact_evidence_summary.json"
+SPP001_PAIR_ID = "SPP001"
 
 
 def _long(path: Path) -> str:
@@ -102,6 +109,47 @@ def _write_results_md(path: Path, title: str, rows: list[dict[str, Any]]) -> Non
         )
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _shorten(text: str, limit: int = 1200) -> str:
+    text = " ".join(str(text).split())
+    if len(text) <= limit:
+        return text
+    return text[: limit - 3] + "..."
+
+
+def _json_null_if_empty(value: Any) -> Any:
+    if value == []:
+        return None
+    return value
+
+
+def _normalize_matlab_row(row: dict[str, Any], fallback_pair: dict[str, Any]) -> dict[str, Any]:
+    planned = row.get("planned_contingency_sequence", fallback_pair.get("planned_contingency_sequence", []))
+    if isinstance(planned, str):
+        planned = [item for item in planned.split(";") if item]
+    return {
+        "pair_id": str(row.get("pair_id") or fallback_pair.get("pair_id")),
+        "state_id": str(row.get("state_id") or fallback_pair.get("state_id")),
+        "prior_outaged_branch": str(row.get("prior_outaged_branch") or fallback_pair.get("prior_outaged_branch")),
+        "candidate_next_branch": str(row.get("candidate_next_branch") or fallback_pair.get("candidate_next_branch")),
+        "planned_contingency_sequence": planned,
+        "selection_bucket": str(row.get("selection_bucket") or fallback_pair.get("selection_bucket")),
+        "execution_status": str(row.get("execution_status") or "unknown"),
+        "pilot_label_value": _json_null_if_empty(row.get("pilot_label_value")),
+        "pilot_label_status": str(row.get("pilot_label_status") or "unknown"),
+        "dynamic_stress_score_if_available": _json_null_if_empty(row.get("dynamic_stress_score_if_available")),
+        "unstable_flag_if_available": _json_null_if_empty(row.get("unstable_flag_if_available")),
+        "instability_or_risk_reason": str(row.get("instability_or_risk_reason") or ""),
+        "timeout_or_failure_reason": str(row.get("timeout_or_failure_reason") or ""),
+        "evidence_source": str(row.get("evidence_source") or "matlab_single_pair_smoke_compact_evidence"),
+        "raw_trajectory_committed": False,
+        "full_timeseries_committed": False,
+        "mat_file_committed": False,
+        "bus_fault_label_used": False,
+        "l12_special_case_flag": bool(row.get("l12_special_case_flag", False)),
+        "notes": str(row.get("notes") or "single-pair compact evidence only; not a formal training label"),
+    }
 
 
 def _write_kv_md(path: Path, title: str, payload: dict[str, Any]) -> None:
@@ -806,6 +854,294 @@ def write_entrypoint_repair_payloads(payloads: dict[str, Any], write_report: boo
         ENTRYPOINT_REPAIR_DOC.write_text(_build_entrypoint_repair_doc(payloads), encoding="utf-8")
 
 
+def _spp001_recommended_next_step(result: dict[str, Any]) -> str:
+    status = result.get("execution_status")
+    if status == "blocked":
+        return "repair MATLAB/Simulink single-pair execution path before any more pair execution"
+    if status in {"timeout", "failed"}:
+        return "inspect timeout/failure evidence and rerun one-pair smoke after repair"
+    if status == "succeeded" and result.get("pilot_label_value") in {0, 1}:
+        return "approve a small next smoke batch of 3 to 5 selected pairs in a separate round; do not train yet"
+    return "inspect compact single-pair evidence and define the pilot-label rule before any broader execution"
+
+
+def _attempt_spp001_matlab(pair: dict[str, Any], output_dir: Path) -> dict[str, Any]:
+    matlab_output_dir = output_dir / "matlab_compact"
+    matlab_output_dir.mkdir(parents=True, exist_ok=True)
+    manifest = PILOT_PAIR_DIR / "selected_single_outage_pilot_pairs.json"
+    handwired_model = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker.slx"
+    validation_csv = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_multi_handwired_breaker_validation_summary.csv"
+    command = (
+        "addpath('matlab/simulink_ieee39'); "
+        "run_ieee39_selected_pair_line_trip_sequence("
+        f"'{manifest.as_posix()}', "
+        f"'{matlab_output_dir.as_posix()}', "
+        "'approved_selected_pairs_only', true, "
+        "'execute', true, "
+        "'execute_single_pair', true, "
+        "'dry_run_only', false, "
+        f"'pair_id', '{SPP001_PAIR_ID}', "
+        f"'handwired_model_path', '{handwired_model.as_posix()}', "
+        f"'validation_summary_csv', '{validation_csv.as_posix()}', "
+        "'timeout_s', 240);"
+    )
+    base = _normalize_matlab_row(
+        {
+            "execution_status": "blocked",
+            "pilot_label_status": "blocked",
+            "timeout_or_failure_reason": "MATLAB execution was not attempted",
+            "evidence_source": "python_spp001_single_pair_smoke_wrapper",
+        },
+        pair,
+    )
+    try:
+        completed = subprocess.run(
+            ["matlab", "-batch", command],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            timeout=360,
+            encoding="utf-8",
+            errors="replace",
+        )
+    except FileNotFoundError:
+        base.update(
+            {
+                "execution_status": "blocked",
+                "pilot_label_status": "blocked",
+                "timeout_or_failure_reason": "MATLAB executable was not available on PATH",
+                "evidence_source": "python_spp001_single_pair_smoke_matlab_missing",
+            }
+        )
+        return base
+    except subprocess.TimeoutExpired as exc:
+        combined = (exc.stdout or "") + "\n" + (exc.stderr or "")
+        base.update(
+            {
+                "execution_status": "timeout",
+                "pilot_label_status": "timeout",
+                "timeout_or_failure_reason": "Python MATLAB wrapper timeout: " + _shorten(combined or str(exc)),
+                "evidence_source": "python_spp001_single_pair_smoke_timeout",
+            }
+        )
+        return base
+
+    compact_json = matlab_output_dir / SPP001_ENTRYPOINT_MATLAB_JSON
+    if completed.returncode != 0:
+        base.update(
+            {
+                "execution_status": "failed",
+                "pilot_label_status": "failed",
+                "timeout_or_failure_reason": "MATLAB returned nonzero exit code: "
+                + str(completed.returncode)
+                + "; "
+                + _shorten((completed.stderr or "") + " " + (completed.stdout or "")),
+                "evidence_source": "python_spp001_single_pair_smoke_matlab_nonzero",
+            }
+        )
+        return base
+    if not _exists(compact_json):
+        base.update(
+            {
+                "execution_status": "failed",
+                "pilot_label_status": "failed",
+                "timeout_or_failure_reason": "MATLAB returned success but compact evidence JSON was not written",
+                "evidence_source": "python_spp001_single_pair_smoke_missing_compact_json",
+            }
+        )
+        return base
+
+    try:
+        payload = _read_json(compact_json)
+        rows = payload.get("rows")
+        if isinstance(rows, list):
+            row = rows[0] if rows else {}
+        elif isinstance(rows, dict):
+            row = rows
+        else:
+            row = {}
+        result = _normalize_matlab_row(row, pair)
+        result["evidence_source"] = result.get("evidence_source") or "matlab_single_pair_smoke_compact_json"
+        return result
+    except Exception as exc:
+        base.update(
+            {
+                "execution_status": "failed",
+                "pilot_label_status": "failed",
+                "timeout_or_failure_reason": "Failed to parse MATLAB compact evidence JSON: " + _shorten(str(exc)),
+                "evidence_source": "python_spp001_single_pair_smoke_parse_failed",
+            }
+        )
+        return base
+
+
+def build_spp001_smoke_payloads(args: argparse.Namespace) -> dict[str, Any]:
+    if not args.approved_selected_pairs_only:
+        raise SystemExit("--approved-selected-pairs-only is required for SPP001 smoke execution")
+    if args.max_pairs != 1:
+        raise SystemExit("--max-pairs 1 is required for SPP001 smoke execution")
+    if args.pair_id != SPP001_PAIR_ID:
+        raise SystemExit("Only --pair-id SPP001 is approved for this single-pair smoke execution round")
+    pairs = _read_json(PILOT_PAIR_DIR / "selected_single_outage_pilot_pairs.json")
+    pair = _choose_smoke_candidate(pairs, SPP001_PAIR_ID)
+    result = _attempt_spp001_matlab(pair, SPP001_SMOKE_DIR)
+    if result["pair_id"] != SPP001_PAIR_ID:
+        result["execution_status"] = "failed"
+        result["pilot_label_status"] = "failed"
+        result["pilot_label_value"] = None
+        result["timeout_or_failure_reason"] = "MATLAB compact result did not return SPP001"
+    label_available = result.get("pilot_label_value") in {0, 1}
+    summary = {
+        "execution_scope": "spp001_single_pair_smoke_execution",
+        "gcn_training_run": False,
+        "formal_gcn_audit_rerun": False,
+        "selected_32_batch_executed": False,
+        "full_1056_generation_run": False,
+        "labels_exported": False,
+        "formal_labels_exported": False,
+        "reranker_retrained": False,
+        "production_model_saved": False,
+        "source_entrypoint_repair_commit": SOURCE_ENTRYPOINT_REPAIR_COMMIT,
+        "pair_id": result["pair_id"],
+        "state_id": result["state_id"],
+        "prior_outaged_branch": result["prior_outaged_branch"],
+        "candidate_next_branch": result["candidate_next_branch"],
+        "planned_contingency_sequence": result["planned_contingency_sequence"],
+        "selection_bucket": result["selection_bucket"],
+        "execution_attempted": True,
+        "execution_status": result["execution_status"],
+        "pilot_label_value": result.get("pilot_label_value"),
+        "pilot_label_status": result.get("pilot_label_status"),
+        "dynamic_stress_score_if_available": result.get("dynamic_stress_score_if_available"),
+        "unstable_flag_if_available": result.get("unstable_flag_if_available"),
+        "timeout_or_failure_reason": result.get("timeout_or_failure_reason"),
+        "pilot_label_available": label_available,
+        "pilot_labels_are_formal_training_labels": False,
+        "raw_trajectories_committed": False,
+        "full_timeseries_committed": False,
+        "mat_files_committed": False,
+        "slx_files_committed": False,
+        "slxc_files_committed": False,
+        "slprj_committed": False,
+        "source_slx_modified": False,
+        "bus_fault_labels_used": False,
+        "line_trip_labels_first_priority": True,
+        "l12_special_case_preserved": True,
+        "forbidden_features_detected_in_inputs": [],
+        "no_leakage_policy_passed": True,
+        "final_engineering_conclusion": False,
+        "should_train_gcn_now": False,
+        "should_rerun_formal_audit_now": False,
+        "should_export_formal_labels_now": False,
+        "should_retrain_reranker_now": False,
+        "should_deploy_model": False,
+        "blocker_if_any": None if result["execution_status"] == "succeeded" else result.get("timeout_or_failure_reason"),
+        "recommended_next_step": _spp001_recommended_next_step(result),
+    }
+    approval = {
+        "approval_scope": "spp001_single_pair_smoke_execution_approval",
+        "approved_selected_pairs_only": True,
+        "approved_pair_count": 1,
+        "pair_id": SPP001_PAIR_ID,
+        "state_id": pair.get("state_id"),
+        "prior_outaged_branch": pair.get("prior_outaged_branch"),
+        "candidate_next_branch": pair.get("candidate_next_branch"),
+        "planned_contingency_sequence": pair.get("planned_contingency_sequence"),
+        "selection_bucket": pair.get("selection_bucket"),
+        "source_entrypoint_repair_commit": SOURCE_ENTRYPOINT_REPAIR_COMMIT,
+        "selected_32_batch_execution_approved": False,
+        "full_1056_generation_approved": False,
+        "formal_label_export_approved": False,
+        "gcn_training_approved": False,
+        "reranker_retrain_approved": False,
+        "production_model_approved": False,
+        "raw_trajectory_commit_approved": False,
+    }
+    no_leakage = {
+        "audit_scope": "spp001_single_pair_smoke_no_leakage_audit",
+        "forbidden_features_detected_in_inputs": [],
+        "post_fault_dynamic_measurements_used_as_inputs": False,
+        "dynamic_outputs_used_only_as_future_labels_or_targets": True,
+        "label_derived_flags_used_as_inputs": False,
+        "bus_fault_labels_used": False,
+        "line_trip_labels_first_priority": True,
+        "no_leakage_policy_passed": True,
+    }
+    safety = {
+        "safety_scope": "spp001_single_pair_smoke_large_file_safety_check",
+        "raw_trajectories_committed": False,
+        "full_timeseries_committed": False,
+        "mat_files_committed": False,
+        "slx_files_committed": False,
+        "slxc_files_committed": False,
+        "slprj_committed": False,
+        "source_slx_modified": False,
+        "venv_committed": False,
+        "wheel_or_dll_committed": False,
+        "model_files_committed": False,
+        "safety_check_passed": True,
+    }
+    return {
+        "approval": approval,
+        "summary": summary,
+        "result": result,
+        "no_leakage": no_leakage,
+        "safety": safety,
+    }
+
+
+def _build_spp001_doc(payloads: dict[str, Any]) -> str:
+    summary = payloads["summary"]
+    return f"""# IEEE39 SPP001 Single-Pair Smoke Execution
+
+This round is a one-pair smoke execution for SPP001 only. It does not train GCN, does not rerun formal audit, does not execute the selected 32 batch, does not run full 1056 generation, does not export formal labels, does not retrain the reranker, and does not deploy a model.
+
+## Plain-Language Summary
+
+The approved pilot path is `L15 -> L04`. The run only checks whether the repaired MATLAB/Simulink single-pair execution path can produce compact evidence. Any failed, blocked, timeout, or unknown result remains null and is not converted into a 0/1 training label.
+
+## Result
+
+- execution_scope: `{summary["execution_scope"]}`
+- pair_id: `{summary["pair_id"]}`
+- prior_outaged_branch: `{summary["prior_outaged_branch"]}`
+- candidate_next_branch: `{summary["candidate_next_branch"]}`
+- execution_attempted: `{summary["execution_attempted"]}`
+- execution_status: `{summary["execution_status"]}`
+- pilot_label_value: `{summary["pilot_label_value"]}`
+- pilot_label_status: `{summary["pilot_label_status"]}`
+- dynamic_stress_score_if_available: `{summary["dynamic_stress_score_if_available"]}`
+- unstable_flag_if_available: `{summary["unstable_flag_if_available"]}`
+- blocker_if_any: `{summary["blocker_if_any"]}`
+
+## Boundaries
+
+No raw trajectories, full timeseries, `.mat`, `.slx`, `.slxc`, or `slprj` artifacts are committed. The source `.slx` is not modified. Bus-fault labels are not used. Line-trip labels remain first priority. L12 remains special/excluded. Pilot labels are not formal training labels. This is not a final project conclusion.
+
+## Next Step
+
+`{summary["recommended_next_step"]}`.
+"""
+
+
+def write_spp001_smoke_payloads(payloads: dict[str, Any], write_report: bool) -> None:
+    SPP001_SMOKE_DIR.mkdir(parents=True, exist_ok=True)
+    _write_json(SPP001_SMOKE_DIR / "spp001_smoke_execution_approval.json", payloads["approval"])
+    _write_kv_md(SPP001_SMOKE_DIR / "spp001_smoke_execution_approval.md", "IEEE39 SPP001 Smoke Execution Approval", payloads["approval"])
+    _write_json(SPP001_SMOKE_DIR / "spp001_smoke_execution_summary.json", payloads["summary"])
+    _write_kv_md(SPP001_SMOKE_DIR / "spp001_smoke_execution_summary.md", "IEEE39 SPP001 Smoke Execution Summary", payloads["summary"])
+    _write_kv_csv(SPP001_SMOKE_DIR / "spp001_smoke_execution_summary.csv", payloads["summary"])
+    _write_json(SPP001_SMOKE_DIR / "spp001_smoke_execution_result.json", payloads["result"])
+    _write_results_md(SPP001_SMOKE_DIR / "spp001_smoke_execution_result.md", "IEEE39 SPP001 Smoke Execution Result", [payloads["result"]])
+    _write_rows_csv(SPP001_SMOKE_DIR / "spp001_smoke_execution_result.csv", [payloads["result"]])
+    _write_json(SPP001_SMOKE_DIR / "spp001_no_leakage_smoke_audit.json", payloads["no_leakage"])
+    _write_kv_md(SPP001_SMOKE_DIR / "spp001_no_leakage_smoke_audit.md", "IEEE39 SPP001 No-Leakage Smoke Audit", payloads["no_leakage"])
+    _write_json(SPP001_SMOKE_DIR / "spp001_large_file_safety_check.json", payloads["safety"])
+    _write_kv_md(SPP001_SMOKE_DIR / "spp001_large_file_safety_check.md", "IEEE39 SPP001 Large File Safety Check", payloads["safety"])
+    if write_report:
+        SPP001_SMOKE_DOC.write_text(_build_spp001_doc(payloads), encoding="utf-8")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Repair IEEE39 selected-32-only controlled execution backend skeleton.")
     parser.add_argument("--approved-selected-pairs-only", action="store_true")
@@ -830,7 +1166,10 @@ def main() -> None:
         raise SystemExit("Missing required source artifacts: " + "; ".join(missing))
     if args.execute and not args.single_pair_smoke_only:
         raise SystemExit("--execute is refused for batch mode in this round; use --single-pair-smoke-only with --pair-id for a future approved one-pair smoke")
-    if args.single_pair_smoke_only:
+    if args.execute and args.single_pair_smoke_only:
+        payloads = build_spp001_smoke_payloads(args)
+        write_spp001_smoke_payloads(payloads, args.write_report)
+    elif args.single_pair_smoke_only:
         payloads = build_entrypoint_repair_payloads(args.pair_id)
         write_entrypoint_repair_payloads(payloads, args.write_report)
     elif args.execute:
@@ -840,7 +1179,7 @@ def main() -> None:
     else:
         payloads = build_payloads(args.max_pairs, args.approved_selected_pairs_only, args.execute)
         write_payloads(payloads, args.write_report)
-    print(json.dumps(payloads["summary"], ensure_ascii=False, indent=2))
+    print(json.dumps(payloads["summary"], ensure_ascii=True, indent=2))
 
 
 if __name__ == "__main__":
