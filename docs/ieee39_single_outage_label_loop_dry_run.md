@@ -55,3 +55,18 @@ No post-fault dynamic measurement features are used as inputs. Dynamic outputs c
 ## Recommended Next Step
 
 `implement controlled generation runner for selected single-outage pilot pairs in a separate round`
+
+## Follow-Up: Selected Pilot Pair Runner Dry-Run
+
+The follow-up selected pilot pair runner dry-run chooses a small subset from the
+1056 eligible non-L12 `single_outage_state x next_branch` pairs. It does not
+run all 1056 pairs, does not train GCN, does not rerun formal audit, does not
+run new Simulink, does not export formal labels, and does not retrain the
+reranker.
+
+The selected subset covers high relay ratio pairs, shared bus neighbor pairs,
+and non-neighbor control pairs. All selected rows keep `label_value = null` and
+`label_status = planned`. L12 remains special/excluded, NF06 warning is
+preserved, bus-fault labels are not used, and the `beta * RATE_A` value remains
+an audit-only proxy rather than a real relay setting. Manual approval is
+required before executing selected pair generation.

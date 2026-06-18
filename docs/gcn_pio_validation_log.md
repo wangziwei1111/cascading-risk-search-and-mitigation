@@ -4632,3 +4632,60 @@ Boundary notes:
 
 Recommended next step: implement a controlled generation runner for selected
 single-outage pilot pairs in a separate round.
+
+## Round 88: IEEE39 Selected Single-Outage Pilot Pair Runner Dry-Run
+
+This round prepares a selected single-outage pilot pair generation runner
+dry-run. It does not train GCN, does not rerun formal audit, does not run new
+Simulink, does not export formal labels, does not retrain the reranker, and
+does not save a production model.
+
+Plain-language meaning: the previous loop planned 1056 eligible non-L12
+`single_outage_state x next_branch` pairs. This round does not run all 1056
+pairs. It selects a small pilot set and writes a future run plan that still
+requires manual approval before execution.
+
+Artifacts:
+
+- `scripts/gcn_search/prepare_ieee39_single_outage_pilot_pair_generation_runner_dry_run.py`
+- `docs/ieee39_single_outage_pilot_pair_generation_runner_dry_run.md`
+- `results/gcn_search/ieee39_single_outage_pilot_pair_generation_runner_dry_run/pilot_pair_selection_summary.json`
+- `results/gcn_search/ieee39_single_outage_pilot_pair_generation_runner_dry_run/selected_single_outage_pilot_pairs.json`
+- `results/gcn_search/ieee39_single_outage_pilot_pair_generation_runner_dry_run/future_controlled_generation_run_plan.json`
+- `results/gcn_search/ieee39_single_outage_pilot_pair_generation_runner_dry_run/no_leakage_pilot_pair_runner_audit.json`
+- `results/gcn_search/ieee39_single_outage_pilot_pair_generation_runner_dry_run/single_outage_pilot_pair_runner_dry_run_summary.json`
+
+Current result:
+
+- `dry_run_scope = single_outage_pilot_pair_runner_dry_run`
+- `num_candidate_pairs_available = 1056`
+- `num_pilot_pairs_selected = 32`
+- `num_high_relay_ratio_pairs = 10`
+- `num_shared_bus_neighbor_pairs = 10`
+- `num_non_neighbor_control_pairs = 12`
+- `label_values_fabricated = false`
+- `selected_pairs_label_status = planned`
+- `can_execute_future_generation_runner_after_approval = true`
+- `bus_fault_labels_used = false`
+- `line_trip_labels_first_priority = true`
+- `l12_special_case_preserved = true`
+- `nf06_warning_preserved = true`
+- `forbidden_features_detected_in_inputs = []`
+- `no_leakage_policy_passed = true`
+- `final_engineering_conclusion = false`
+- `should_train_gcn_now = false`
+- `should_rerun_formal_audit_now = false`
+- `should_run_simulink_now = false`
+- `should_export_formal_labels_now = false`
+- `should_retrain_reranker_now = false`
+- `should_deploy_model = false`
+
+Selection strategy: high relay ratio pairs, shared bus neighbor pairs, and
+non-neighbor control pairs. `beta * RATE_A` remains an audit-only proxy, not a
+real relay setting. Bus-fault labels are not used. L12 remains
+special/excluded. NF06 warning is preserved. `phasor_RMS` is not EMT.
+`generator_speed_proxy` is not direct frequency. Temporary bus-fault injection
+is not engineering-grade protection.
+
+Recommended next step: approve and execute selected single-outage pilot pair
+generation in a separate round.

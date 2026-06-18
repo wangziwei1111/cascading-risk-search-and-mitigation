@@ -90,3 +90,12 @@ train GCN, does not rerun formal audit, does not run new Simulink, does not
 export formal labels, and does not retrain the reranker. Bus-fault labels are
 unused, line-trip labels remain first priority, L12 stays special/excluded,
 NF06 warning is preserved, and no 0/1 label is fabricated.
+
+## Selected Pilot Pair Runner Follow-Up
+
+The selected pilot pair runner dry-run still uses `beta * RATE_A` only as an
+audit-only proxy. It selects a small subset of high relay ratio pairs, shared
+bus neighbor pairs, and non-neighbor control pairs from the 1056 eligible
+single-outage branch pairs. It does not run all 1056 pairs, does not run new
+Simulink, does not export formal labels, and keeps selected labels planned/null
+until a separately approved execution round.

@@ -1,0 +1,13 @@
+key,value
+selection_scope,single_outage_pilot_pair_selection
+source_single_outage_loop_commit,b5e98d4fd27f438b2d46e6ec0ec60b46e21bcda9
+max_pairs_requested,32
+num_pairs_selected,32
+num_high_relay_ratio_pairs,10
+num_shared_bus_neighbor_pairs,10
+num_non_neighbor_control_pairs,12
+num_l12_pairs_excluded,66
+bus_fault_labels_used,False
+label_values_fabricated,False
+ready_for_future_controlled_generation,True
+selection_policy,"[""high_relay_ratio_pairs: choose high prior/next x_p_relay_ratio combinations"", ""shared_bus_neighbor_pairs: choose branch pairs sharing a bus"", ""non_neighbor_control_pairs: choose non-neighbor control pairs"", ""known_special_exclusion: exclude L12 prior or next branch"", ""diversity: limit repeated branch concentration while filling buckets""]"
