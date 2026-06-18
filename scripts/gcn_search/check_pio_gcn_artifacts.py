@@ -672,6 +672,20 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_controlled_execution_backend_diagnosis/no_leakage_backend_diagnosis_audit.md",
     "results/gcn_search/ieee39_controlled_execution_backend_diagnosis/large_file_safety_backend_diagnosis.json",
     "results/gcn_search/ieee39_controlled_execution_backend_diagnosis/large_file_safety_backend_diagnosis.md",
+    "docs/ieee39_controlled_execution_backend_repair.md",
+    "results/gcn_search/ieee39_controlled_execution_backend_repair/backend_repair_summary.json",
+    "results/gcn_search/ieee39_controlled_execution_backend_repair/backend_repair_summary.md",
+    "results/gcn_search/ieee39_controlled_execution_backend_repair/backend_repair_summary.csv",
+    "results/gcn_search/ieee39_controlled_execution_backend_repair/backend_execution_contract.json",
+    "results/gcn_search/ieee39_controlled_execution_backend_repair/backend_execution_contract.md",
+    "results/gcn_search/ieee39_controlled_execution_backend_repair/manual_execution_instruction_pack.md",
+    "results/gcn_search/ieee39_controlled_execution_backend_repair/selected_pair_backend_readiness_matrix.json",
+    "results/gcn_search/ieee39_controlled_execution_backend_repair/selected_pair_backend_readiness_matrix.md",
+    "results/gcn_search/ieee39_controlled_execution_backend_repair/selected_pair_backend_readiness_matrix.csv",
+    "results/gcn_search/ieee39_controlled_execution_backend_repair/no_leakage_backend_repair_audit.json",
+    "results/gcn_search/ieee39_controlled_execution_backend_repair/no_leakage_backend_repair_audit.md",
+    "results/gcn_search/ieee39_controlled_execution_backend_repair/large_file_safety_backend_repair.json",
+    "results/gcn_search/ieee39_controlled_execution_backend_repair/large_file_safety_backend_repair.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -697,6 +711,9 @@ REQUIRED_FILES = [
     "scripts/gcn_search/prepare_ieee39_single_outage_pilot_pair_generation_runner_dry_run.py",
     "scripts/gcn_search/execute_ieee39_selected_single_outage_pilot_pairs.py",
     "scripts/gcn_search/diagnose_ieee39_controlled_execution_backend.py",
+    "scripts/gcn_search/run_ieee39_selected_single_outage_pilot_pairs_controlled.py",
+    "scripts/gcn_search/parse_ieee39_selected_pair_execution_evidence.py",
+    "matlab/simulink_ieee39/run_ieee39_selected_pair_line_trip_sequence.m",
     "tests/test_ieee39_v2_plus_all_bus_fault_preview_no_leakage.py",
     "tests/test_ieee39_gcn_usefulness_audit_plan.py",
     "tests/test_ieee39_gcn_usefulness_audit_dry_run_validator.py",
@@ -713,6 +730,7 @@ REQUIRED_FILES = [
     "tests/test_ieee39_single_outage_pilot_pair_generation_runner_dry_run.py",
     "tests/test_ieee39_selected_single_outage_pilot_pair_execution.py",
     "tests/test_ieee39_controlled_execution_backend_diagnosis.py",
+    "tests/test_ieee39_controlled_execution_backend_repair.py",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_block_parameter_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.json",
@@ -5720,6 +5738,186 @@ def main() -> int:
                     failures.append(f"Controlled execution backend diagnosis docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read controlled execution backend diagnosis artifacts: {exc}")
+
+    backend_repair_dir = ROOT / "results/gcn_search/ieee39_controlled_execution_backend_repair"
+    backend_repair_summary = backend_repair_dir / "backend_repair_summary.json"
+    backend_repair_contract = backend_repair_dir / "backend_execution_contract.json"
+    backend_repair_matrix = backend_repair_dir / "selected_pair_backend_readiness_matrix.json"
+    backend_repair_no_leakage = backend_repair_dir / "no_leakage_backend_repair_audit.json"
+    backend_repair_safety = backend_repair_dir / "large_file_safety_backend_repair.json"
+    backend_repair_doc = ROOT / "docs/ieee39_controlled_execution_backend_repair.md"
+    backend_repair_required = [
+        backend_repair_summary,
+        backend_repair_dir / "backend_repair_summary.md",
+        backend_repair_dir / "backend_repair_summary.csv",
+        backend_repair_contract,
+        backend_repair_dir / "backend_execution_contract.md",
+        backend_repair_dir / "manual_execution_instruction_pack.md",
+        backend_repair_matrix,
+        backend_repair_dir / "selected_pair_backend_readiness_matrix.md",
+        backend_repair_dir / "selected_pair_backend_readiness_matrix.csv",
+        backend_repair_no_leakage,
+        backend_repair_dir / "no_leakage_backend_repair_audit.md",
+        backend_repair_safety,
+        backend_repair_dir / "large_file_safety_backend_repair.md",
+        backend_repair_doc,
+        ROOT / "scripts/gcn_search/run_ieee39_selected_single_outage_pilot_pairs_controlled.py",
+        ROOT / "scripts/gcn_search/parse_ieee39_selected_pair_execution_evidence.py",
+        ROOT / "matlab/simulink_ieee39/run_ieee39_selected_pair_line_trip_sequence.m",
+    ]
+    existing_backend_repair_required = [path for path in backend_repair_required if path.exists()]
+    if existing_backend_repair_required:
+        missing_backend_repair_required = [path for path in backend_repair_required if not path.exists()]
+        if missing_backend_repair_required:
+            failures.append(
+                "IEEE39 controlled execution backend repair artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_backend_repair_required)
+            )
+        try:
+            summary = _read_json_path(backend_repair_summary)
+            contract = _read_json_path(backend_repair_contract)
+            matrix = _read_json_path(backend_repair_matrix)
+            no_leakage = _read_json_path(backend_repair_no_leakage)
+            safety = _read_json_path(backend_repair_safety)
+            for key, expected in [
+                ("repair_scope", "controlled_execution_backend_repair"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("selected_pairs_executed", False),
+                ("simulink_run", False),
+                ("full_1056_generation_run", False),
+                ("labels_exported", False),
+                ("formal_labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("source_backend_diagnosis_commit", "0d96b0c258e23f4fe5c2ec01cac2a63b5d85c06f"),
+                ("selected_pair_count", 32),
+                ("python_runner_added", True),
+                ("matlab_entrypoint_added", True),
+                ("result_parser_contract_added", True),
+                ("evidence_writer_added", True),
+                ("manual_instruction_pack_added", True),
+                ("selected_32_only_guard_added", True),
+                ("full_1056_guard_added", True),
+                ("no_formal_label_export_guard_added", True),
+                ("no_training_guard_added", True),
+                ("no_raw_artifact_policy_added", True),
+                ("graceful_blocked_mode_available", True),
+                ("can_execute_selected_32_pairs_after_manual_approval", True),
+                ("can_execute_selected_32_pairs_now", False),
+                ("recommended_next_step", "approve execution of selected 32 pairs using the repaired backend in a separate round"),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"Controlled execution backend repair summary must set {key}={expected!r}.")
+            if "manual approval" not in str(summary.get("blocker_if_any")):
+                failures.append("Controlled execution backend repair summary must require manual approval.")
+            for key, expected in [
+                ("contract_scope", "selected_pair_execution_contract"),
+                ("allowed_pair_count", 32),
+                ("full_1056_generation_allowed", False),
+                ("requires_approved_selected_pairs_only", True),
+                ("requires_explicit_execute_flag", True),
+                ("default_mode", "dry_run_or_blocked"),
+                ("formal_label_export_policy", False),
+            ]:
+                if contract.get(key) != expected:
+                    failures.append(f"Backend execution contract must set {key}={expected!r}.")
+            if len(matrix) != summary.get("selected_pair_count"):
+                failures.append("Backend repair readiness matrix count must match selected_pair_count.")
+            else:
+                for key in [
+                    "mapping_ready",
+                    "selected_32_guard_passed",
+                    "execution_contract_ready",
+                    "matlab_entrypoint_ready",
+                    "parser_contract_ready",
+                    "future_execution_ready",
+                ]:
+                    if any(row.get(key) is not True for row in matrix):
+                        failures.append(f"Backend repair readiness matrix must set {key}=true for selected rows.")
+                if any(row.get("l12_special_case_flag") is not False for row in matrix):
+                    failures.append("Backend repair readiness matrix must preserve L12 exclusion.")
+                if any(row.get("current_status") != "ready_for_manual_approval" for row in matrix):
+                    failures.append("Backend repair readiness matrix rows must be ready_for_manual_approval.")
+            for key, expected in [
+                ("forbidden_features_detected_in_inputs", []),
+                ("post_fault_dynamic_measurements_used_as_inputs", False),
+                ("dynamic_outputs_used_only_as_future_labels_or_targets", True),
+                ("label_derived_flags_used_as_inputs", False),
+                ("proxy_relay_threshold_used_only_in_feature_generation", True),
+                ("bus_fault_labels_used", False),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if no_leakage.get(key) != expected:
+                    failures.append(f"Backend repair no-leakage audit must set {key}={expected!r}.")
+            for key in [
+                "raw_trajectories_committed",
+                "full_timeseries_committed",
+                "mat_files_committed",
+                "slx_files_committed",
+                "slxc_files_committed",
+                "slprj_committed",
+                "venv_committed",
+                "wheel_or_dll_committed",
+                "model_files_committed",
+            ]:
+                if safety.get(key) is not False:
+                    failures.append(f"Backend repair large-file safety check must keep {key}=false.")
+            if safety.get("safety_check_passed") is not True:
+                failures.append("Backend repair large-file safety check must pass.")
+            backend_repair_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_controlled_execution_backend_repair.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                    _read_text("docs/ieee39_controlled_execution_backend_diagnosis.md"),
+                    _read_text("docs/ieee39_selected_single_outage_pilot_pair_execution.md"),
+                    _read_text("results/gcn_search/ieee39_controlled_execution_backend_repair/backend_repair_summary.md"),
+                    _read_text("results/gcn_search/ieee39_controlled_execution_backend_repair/backend_execution_contract.md"),
+                    _read_text("results/gcn_search/ieee39_controlled_execution_backend_repair/manual_execution_instruction_pack.md"),
+                ]
+            ).lower()
+            normalized_backend_repair = " ".join(backend_repair_text.replace("`", "").split())
+            for required in [
+                "controlled execution backend repair",
+                "does not train gcn",
+                "does not rerun formal audit",
+                "does not execute selected 32 pairs",
+                "does not run full 1056 generation",
+                "does not export formal labels",
+                "does not retrain the reranker",
+                "selected-32-only python runner",
+                "matlab two-step line-trip entrypoint skeleton",
+                "result parser contract",
+                "manual instruction pack",
+                "raw trajectory, full timeseries, or .mat",
+                "beta * rate_a",
+                "audit-only proxy",
+                "not a real relay setting",
+                "bus-fault labels are not used",
+                "l12 remains special/excluded",
+                "nf06 warning is preserved",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "temporary bus-fault injection is not engineering-grade protection",
+            ]:
+                if required not in normalized_backend_repair:
+                    failures.append(f"Controlled execution backend repair docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is useless",
+                "formal audit rerun completed",
+                "selected 32 pairs executed",
+                "full 1056 generation completed",
+                "formal labels exported",
+                "proxy is a real relay setting",
+                "emt simulation",
+                "generator_speed_proxy is direct frequency",
+                "deployment ready",
+            ]:
+                if bad in normalized_backend_repair:
+                    failures.append(f"Controlled execution backend repair docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read controlled execution backend repair artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

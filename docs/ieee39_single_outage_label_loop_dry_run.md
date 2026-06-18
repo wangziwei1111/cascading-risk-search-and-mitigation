@@ -58,34 +58,12 @@ No post-fault dynamic measurement features are used as inputs. Dynamic outputs c
 
 ## Follow-Up: Selected Pilot Pair Runner Dry-Run
 
-The follow-up selected pilot pair runner dry-run chooses a small subset from the
-1056 eligible non-L12 `single_outage_state x next_branch` pairs. It does not
-run all 1056 pairs, does not train GCN, does not rerun formal audit, does not
-run new Simulink, does not export formal labels, and does not retrain the
-reranker.
-
-The selected subset covers high relay ratio pairs, shared bus neighbor pairs,
-and non-neighbor control pairs. All selected rows keep `label_value = null` and
-`label_status = planned`. L12 remains special/excluded, NF06 warning is
-preserved, bus-fault labels are not used, and the `beta * RATE_A` value remains
-an audit-only proxy rather than a real relay setting. Manual approval is
-required before executing selected pair generation.
+The selected pilot pair runner dry-run chooses a 32-row subset from the 1056 planned `single_outage_state x next_branch` candidates. It is a planning artifact only: it does not run all 1056 pairs, does not run Simulink, and leaves all future label values as null.
 
 ## Follow-Up: Selected Pair Execution Approval
 
-A later round approved selected 32 single-outage pilot pair execution. That
-follow-up is still conservative: it does not train GCN, does not rerun formal
-audit, does not export formal labels, does not retrain the reranker, and is not
-full 1056 generation.
+The selected pair execution approval round approved the 32-row pilot scope but did not execute it because the safe controlled backend was not available. Blocked, timeout, failed, or unknown cases were not converted into 0/1 labels.
 
-The execution evidence currently remains blocked because the audit runner has no
-safe controlled Simulink execution backend for these selected pair rows. The
-blocked rows keep `pilot_label_value = null`; timeout, unknown, blocked, or
-failed cases are not converted to 0/1. Pilot labels are not formal training
-labels.
+## Follow-Up: Backend Repair Skeleton
 
-The original boundaries remain active: `beta * RATE_A` is an audit-only proxy,
-not a real relay setting; bus-fault labels are not used; L12 remains
-special/excluded; NF06 warning is preserved; `phasor_RMS` is not EMT;
-`generator_speed_proxy` is not direct frequency; temporary bus-fault injection
-is not engineering-grade protection; no deployment is claimed.
+The backend repair follow-up adds the selected-32-only controlled runner and supporting contracts needed for a later manually approved execution round. It still does not train GCN, does not export formal labels, and does not rerun any audit.

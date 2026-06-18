@@ -43,31 +43,12 @@ Manual approval is required before executing the selected pair generation runner
 
 ## Follow-Up: Selected Pair Execution Approval
 
-The selected 32 single-outage pilot pair execution was approved in a later
-round. That follow-up does not train GCN, does not rerun formal audit, does not
-export formal labels, does not retrain the reranker, and is not full 1056
-generation.
-
-The controlled execution runner currently records the selected 32 rows as
-`blocked` because no safe controlled Simulink execution backend is available in
-the audit runner. Timeout, unknown, blocked, or failed cases are not converted
-to 0/1, and pilot labels are not formal training labels.
-
-Boundary notes remain unchanged: `beta * RATE_A` is an audit-only proxy, not a
-real relay setting; bus-fault labels are not used; L12 remains special/excluded;
-NF06 warning is preserved; `phasor_RMS` is not EMT; `generator_speed_proxy` is
-not direct frequency; temporary bus-fault injection is not engineering-grade
-protection; no deployment is claimed.
+The follow-up approval round approved a selected 32-pair pilot execution scope, not the full 1056 state-branch grid. Because there was no safe controlled Simulink execution backend at that time, all selected pair labels remained blocked/null and were not exported as formal labels.
 
 ## Follow-Up: Backend Diagnosis
 
-A later controlled execution backend diagnosis checks why the selected pair
-execution remained blocked. It does not train GCN, does not rerun formal audit,
-does not execute selected 32 pairs, does not run full 1056 generation, does not
-export formal labels, and does not retrain the reranker.
+The backend diagnosis found that the selected-pair mapping and wrapper artifacts existed, but execution was blocked by missing controlled two-step line-trip injection, a selected-32-only batch runner, and a result parser contract.
 
-The diagnosis confirms that selected-pair branch mapping exists, but an approved
-two-step line-trip sequence injection, a selected-32-only batch runner, and a
-selected-pair result parser contract are still missing. The next step is to add
-that safe backend or write local manual execution instructions before rerunning
-evidence collection.
+## Follow-Up: Backend Repair Skeleton
+
+The backend repair follow-up added the selected-32-only runner, MATLAB entrypoint skeleton, parser contract, evidence-only writer, and manual execution instruction pack. It still does not execute selected pairs or create formal labels.

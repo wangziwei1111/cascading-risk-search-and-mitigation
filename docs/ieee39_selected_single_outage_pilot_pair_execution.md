@@ -44,19 +44,12 @@ This round is selected 32 single-outage pilot pair execution approval and eviden
 
 ## Follow-Up: Backend Diagnosis
 
-A later controlled execution backend diagnosis confirms that the selected pair
-execution was blocked by a missing safe callable controlled Simulink execution
-backend. It does not train GCN, does not rerun formal audit, does not execute
-selected 32 pairs, does not run full 1056 generation, does not export formal
-labels, and does not retrain the reranker.
+The backend diagnosis confirmed that the wrapper model and selected-pair mapping were available, but the controlled execution backend was incomplete. The missing parts were the approved two-step line-trip sequence injection, selected-pair batch runner, and selected-pair result parser contract.
 
-The diagnosis found that the IEEE39 wrapper model and selected-pair branch
-mapping are available, but the backend is still incomplete because the approved
-two-step line-trip sequence injection, selected-32-only batch runner, and
-selected-pair result parser contract are missing.
+The diagnosis did not execute any selected pair and did not convert unknown pilot labels into negative examples.
 
-The same boundaries remain active: `beta * RATE_A` is an audit-only proxy, not a
-real relay setting; bus-fault labels are not used; L12 remains
-special/excluded; NF06 warning is preserved; `phasor_RMS` is not EMT;
-`generator_speed_proxy` is not direct frequency; temporary bus-fault injection
-is not engineering-grade protection; no deployment is claimed.
+## Follow-Up: Backend Repair Skeleton
+
+The backend repair follow-up adds a selected-32-only runner, MATLAB entrypoint skeleton, compact parser contract, evidence-only writer, manual instruction pack, selected-32-only guard, no-full-1056 guard, no-formal-label-export guard, no-training guard, and no-raw-artifact policy.
+
+The repair follow-up still does not execute selected pairs. `can_execute_selected_32_pairs_after_manual_approval` is true, but `can_execute_selected_32_pairs_now` is false in the repair round because explicit approval and a separate execution round are still required.

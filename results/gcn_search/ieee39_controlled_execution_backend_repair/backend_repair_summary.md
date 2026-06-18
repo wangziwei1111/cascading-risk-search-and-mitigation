@@ -1,0 +1,31 @@
+# IEEE39 Backend Repair Summary
+
+- `repair_scope`: controlled_execution_backend_repair
+- `gcn_training_run`: False
+- `formal_gcn_audit_rerun`: False
+- `selected_pairs_executed`: False
+- `simulink_run`: False
+- `full_1056_generation_run`: False
+- `labels_exported`: False
+- `formal_labels_exported`: False
+- `reranker_retrained`: False
+- `production_model_saved`: False
+- `source_backend_diagnosis_commit`: 0d96b0c258e23f4fe5c2ec01cac2a63b5d85c06f
+- `selected_pair_count`: 32
+- `python_runner_added`: True
+- `matlab_entrypoint_added`: True
+- `result_parser_contract_added`: True
+- `evidence_writer_added`: True
+- `manual_instruction_pack_added`: True
+- `selected_32_only_guard_added`: True
+- `full_1056_guard_added`: True
+- `no_formal_label_export_guard_added`: True
+- `no_training_guard_added`: True
+- `no_raw_artifact_policy_added`: True
+- `graceful_blocked_mode_available`: True
+- `can_execute_selected_32_pairs_after_manual_approval`: True
+- `can_execute_selected_32_pairs_now`: False
+- `blocker_if_any`: execution intentionally not run in repair round; manual approval and explicit --execute are required
+- `recommended_next_step`: approve execution of selected 32 pairs using the repaired backend in a separate round
+- `source_diagnosis_scope`: controlled_execution_backend_diagnosis
+- `approval_scope`: selected_single_outage_pilot_pair_execution_approval

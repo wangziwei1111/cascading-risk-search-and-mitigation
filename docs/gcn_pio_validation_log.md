@@ -4826,3 +4826,66 @@ Boundary notes:
 
 Recommended next step: add a selected-32-only controlled execution backend or
 write local manual execution instructions before rerunning evidence collection.
+
+## Round 91: IEEE39 Controlled Execution Backend Repair Skeleton
+
+This round repairs the controlled execution backend skeleton. It does not train
+GCN, does not rerun formal audit, does not execute selected 32 pairs, does not
+run full 1056 generation, does not export formal labels, does not retrain the
+reranker, and does not save a production model.
+
+Plain-language meaning: the previous diagnosis found that selected-pair branch
+mapping exists, but the backend lacked a safe two-step execution path. This
+round adds the guarded pieces needed for a future approved run: a selected-32-only
+Python runner, a MATLAB two-step line-trip entrypoint skeleton, a compact result
+parser contract, an evidence-only writer, and a manual instruction pack.
+
+Artifacts:
+
+- `scripts/gcn_search/run_ieee39_selected_single_outage_pilot_pairs_controlled.py`
+- `matlab/simulink_ieee39/run_ieee39_selected_pair_line_trip_sequence.m`
+- `scripts/gcn_search/parse_ieee39_selected_pair_execution_evidence.py`
+- `docs/ieee39_controlled_execution_backend_repair.md`
+- `results/gcn_search/ieee39_controlled_execution_backend_repair/backend_repair_summary.json`
+- `results/gcn_search/ieee39_controlled_execution_backend_repair/backend_execution_contract.json`
+- `results/gcn_search/ieee39_controlled_execution_backend_repair/manual_execution_instruction_pack.md`
+- `results/gcn_search/ieee39_controlled_execution_backend_repair/selected_pair_backend_readiness_matrix.json`
+- `results/gcn_search/ieee39_controlled_execution_backend_repair/no_leakage_backend_repair_audit.json`
+- `results/gcn_search/ieee39_controlled_execution_backend_repair/large_file_safety_backend_repair.json`
+
+Current result:
+
+- `repair_scope = controlled_execution_backend_repair`
+- `python_runner_added = true`
+- `matlab_entrypoint_added = true`
+- `result_parser_contract_added = true`
+- `evidence_writer_added = true`
+- `manual_instruction_pack_added = true`
+- `selected_32_only_guard_added = true`
+- `full_1056_guard_added = true`
+- `no_formal_label_export_guard_added = true`
+- `no_training_guard_added = true`
+- `no_raw_artifact_policy_added = true`
+- `can_execute_selected_32_pairs_after_manual_approval = true`
+- `can_execute_selected_32_pairs_now = false`
+
+Boundary notes:
+
+- This round does not execute selected 32 pairs.
+- The new runner rejects `--max-pairs > 32`.
+- The new runner rejects `--execute` in this repair round.
+- The MATLAB entrypoint is a guarded skeleton, not an automatic full-generation
+  runner.
+- Raw trajectory, full timeseries, `.mat`, `.slx`, `.slxc`, `slprj`, venv,
+  wheel, DLL, and model files are not committed.
+- `beta * RATE_A` remains an audit-only proxy, not a real relay setting.
+- Bus-fault labels are not used.
+- L12 remains special/excluded.
+- NF06 warning is preserved.
+- `phasor_RMS` is not EMT.
+- `generator_speed_proxy` is not direct frequency.
+- Temporary bus-fault injection is not engineering-grade protection.
+- No deployment and no GCN usefulness conclusion are claimed.
+
+Recommended next step: approve execution of selected 32 pairs using the repaired
+backend in a separate round.

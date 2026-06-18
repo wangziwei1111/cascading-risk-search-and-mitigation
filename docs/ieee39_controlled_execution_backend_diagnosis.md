@@ -32,3 +32,11 @@ This round does not commit raw trajectory, full timeseries, or `.mat` files. `be
 ## Next Step
 
 `add a selected-32-only controlled execution backend or write local manual execution instructions before rerunning evidence collection`.
+
+## Follow-Up: Backend Repair Skeleton
+
+The follow-up repair round added a guarded selected-32-only controlled execution backend skeleton. It adds the Python runner, MATLAB line-trip sequence entrypoint skeleton, compact evidence parser contract, evidence-only output writer, and local manual execution instruction pack.
+
+This follow-up still does not execute the selected 32 pairs. It also does not train GCN, does not rerun strict no-leakage/formal audit, does not run full 1056 generation, does not export formal labels, does not retrain the reranker, and does not save a production model.
+
+The repaired backend is intentionally conservative: execution remains blocked in this repair round and would require a separately approved local/manual execution round. Unknown, timeout, blocked, or failed pair outcomes remain null and must not be converted into 0/1 labels.
