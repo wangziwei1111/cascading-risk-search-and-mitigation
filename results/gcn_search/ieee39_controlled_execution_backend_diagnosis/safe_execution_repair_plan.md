@@ -1,0 +1,32 @@
+# IEEE39 Safe Execution Repair Plan
+
+- `repair_plan_scope`: controlled_execution_backend_repair_plan
+## required_components_to_add
+```json
+[
+  "approved selected-pair two-step line-trip sequence injection",
+  "selected-32-only batch runner",
+  "selected-pair dynamic result parser contract",
+  "local/manual execution instruction pack"
+]
+```
+
+- `proposed_runner_entrypoint`: scripts/gcn_search/run_ieee39_selected_single_outage_pilot_pairs_controlled.py
+- `proposed_matlab_entrypoint`: matlab/simulink_ieee39/run_ieee39_selected_pair_line_trip_sequence.m
+## proposed_output_contract
+```json
+[
+  "one compact row per selected pair",
+  "execution_status in succeeded/failed/timeout/blocked",
+  "pilot_label_value remains null unless approved evidence can decide 0/1",
+  "dynamic_stress_score and unstable_flag are outputs only, not inputs"
+]
+```
+
+- `proposed_timeout_policy`: per-pair timeout remains timeout/unknown and is not converted to 0/1
+- `proposed_unknown_policy`: blocked, missing, failed, timeout, and unknown cases keep null pilot labels
+- `proposed_large_file_policy`: commit only summary JSON/MD/CSV; do not commit raw trajectories, full timeseries, .mat, .slx, .slxc, or slprj
+- `proposed_selected_32_only_guard`: runner must require --approved-selected-pairs-only and reject full 1056 generation
+- `proposed_no_formal_label_export_guard`: formal label export must stay false until separately approved
+- `proposed_no_training_guard`: GCN/reranker training must stay disabled in backend repair and evidence collection rounds
+- `manual_approval_required_before_execution`: True

@@ -1,0 +1,179 @@
+# IEEE39 Backend Component Inventory
+
+## candidate_matlab_scripts
+```json
+[
+  "matlab/simulink_ieee39/add_ieee39_basic_relay_proxy.m",
+  "matlab/simulink_ieee39/check_ieee39_model_toolboxes.m",
+  "matlab/simulink_ieee39/configure_ieee39_pilot_line_trip_case.m",
+  "matlab/simulink_ieee39/configure_ieee39_short_filegen_paths.m",
+  "matlab/simulink_ieee39/configure_ieee39_three_phase_fault_case.m",
+  "matlab/simulink_ieee39/extract_ieee39_signal_summary.m",
+  "matlab/simulink_ieee39/find_compatible_ieee39_breaker_blocks.m",
+  "matlab/simulink_ieee39/insert_ieee39_timed_line_switch.m",
+  "matlab/simulink_ieee39/inspect_ieee39_line_ports.m",
+  "matlab/simulink_ieee39/inspect_ieee39_wrapper_grid_line_blocks.m",
+  "matlab/simulink_ieee39/inventory_ieee39_simlog_tree.m",
+  "matlab/simulink_ieee39/map_ieee39_lines_and_breakers.m",
+  "matlab/simulink_ieee39/prepare_ieee39_bus_fault_temp_lab_copy.m",
+  "matlab/simulink_ieee39/prepare_ieee39_clean_handwired_breaker_lab.m",
+  "matlab/simulink_ieee39/prepare_ieee39_clean_handwired_breaker_lab_for_line.m",
+  "matlab/simulink_ieee39/prepare_ieee39_clean_handwired_breaker_labs_for_lines.m",
+  "matlab/simulink_ieee39/probe_ieee39_breaker_insertion_standalone.m",
+  "matlab/simulink_ieee39/run_ieee39_fault_test_suite.m",
+  "matlab/simulink_ieee39/run_ieee39_multi_handwired_line_trip_suite.m",
+  "matlab/simulink_ieee39/setup_ieee39_dynamic_experiment_wrapper.m",
+  "matlab/simulink_ieee39/validate_ieee39_clean_breaker_lab_line.m",
+  "matlab/simulink_ieee39/validate_ieee39_clean_breaker_lab_lines_batch.m",
+  "matlab/simulink_ieee39/validate_ieee39_handwired_breaker_model.m",
+  "matlab/simulink_ieee39/validate_ieee39_multi_handwired_breakers.m",
+  "matlab/simulink_rts79/apply_security_redispatch_approx.m",
+  "matlab/simulink_rts79/build_rts79_swing_simulink_model.m",
+  "matlab/simulink_rts79/calibrate_event_driven_dynamic_scales.m",
+  "matlab/simulink_rts79/calibrate_post_fault_dynamic_response.m",
+  "matlab/simulink_rts79/calibrate_rts79_swing_scales.m",
+  "matlab/simulink_rts79/check_rts79_swing_model_sanity.m",
+  "matlab/simulink_rts79/initialize_swing_equilibrium.m",
+  "matlab/simulink_rts79/run_dynamic_method_comparison_batch.m",
+  "matlab/simulink_rts79/run_dynamic_negative_control_batch.m",
+  "matlab/simulink_rts79/run_mild_overload_security_demo.m",
+  "matlab/simulink_rts79/run_post_fault_sanity_ladder.m",
+  "matlab/simulink_rts79/run_real_topk_dynamic_validation.m",
+  "matlab/simulink_rts79/run_real_topk_event_driven_dynamic_validation.m",
+  "matlab/simulink_rts79/run_rts79_dynamic_batch.m",
+  "matlab/simulink_rts79/run_rts79_dynamic_path_case.m",
+  "matlab/simulink_rts79/run_severe_overload_relay_demo.m",
+  "matlab/simulink_rts79/run_swing_equilibrium_sanity_demo.m",
+  "matlab/simulink_rts79/simulate_rts79_swing_case.m",
+  "matlab/simulink_rts79/update_swing_power_after_load_shed.m"
+]
+```
+
+## candidate_python_wrappers
+```json
+[
+  "scripts/gcn_search/execute_ieee39_selected_single_outage_pilot_pairs.py",
+  "scripts/gcn_search/export_ieee39_non_line_trip_dynamic_labels.py",
+  "scripts/gcn_search/prepare_ieee39_non_line_trip_fault_expansion.py",
+  "scripts/gcn_search/print_ieee39_clean_breaker_lab_batch_checklist.py",
+  "scripts/gcn_search/print_ieee39_clean_breaker_lab_checklist.py",
+  "scripts/gcn_search/print_ieee39_clean_breaker_lab_per_line_checklist.py",
+  "scripts/gcn_search/print_ieee39_handwired_breaker_checklist.py",
+  "scripts/gcn_search/print_ieee39_multi_handwired_breaker_checklist.py",
+  "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trip_isolated.py",
+  "scripts/gcn_search/run_ieee39_clean_breaker_lab_line_trips_batch_isolated.py",
+  "scripts/gcn_search/run_ieee39_multi_handwired_line_trip_isolated.py",
+  "scripts/gcn_search/run_ieee39_non_line_trip_fault_smoke_tests.py",
+  "scripts/gcn_search/update_ieee39_line_breaker_map_from_inventory.py"
+]
+```
+
+## candidate_simulink_models
+```json
+[
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L03.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L05.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L06.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L07.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L08.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L09.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L10.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L11.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L12.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L13.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L14.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L16.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L17.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L18.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L19.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L20.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L21.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L22.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L23.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L24.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L25.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L26.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L27.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L28.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L29.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L30.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L31.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L32.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L33.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L34.slx",
+  "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker.slx"
+]
+```
+
+## candidate_fault_injection_maps
+```json
+[
+  "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map.csv",
+  "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_extended.csv",
+  "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_full.csv",
+  "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv"
+]
+```
+
+## candidate_line_trip_maps
+```json
+[
+  "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_line_breaker_map_full.csv"
+]
+```
+
+## candidate_result_parsers
+```json
+[
+  "scripts/gcn_search/collect_ieee39_all_remaining_bus_fault_manual_evidence.py",
+  "scripts/gcn_search/collect_ieee39_bus_fault_manual_review.py",
+  "scripts/gcn_search/compare_ieee39_dynamic_aware_preview_runs.py",
+  "scripts/gcn_search/compare_ieee39_dynamic_aware_v2_preview_runs.py",
+  "scripts/gcn_search/review_ieee39_all_remaining_bus_fault_batch_smoke_quality.py",
+  "scripts/gcn_search/review_ieee39_v2_plus_all_bus_fault_composition.py",
+  "scripts/gcn_search/train_ieee39_dynamic_aware_reranker_preview.py",
+  "scripts/gcn_search/train_ieee39_dynamic_aware_reranker_v2_plus_b39_b26_preview.py",
+  "scripts/gcn_search/train_ieee39_dynamic_aware_reranker_v2_plus_b39_preview.py",
+  "scripts/gcn_search/train_ieee39_dynamic_aware_reranker_v2_preview.py",
+  "scripts/gcn_search/train_ieee39_v2_plus_all_bus_fault_preview.py"
+]
+```
+
+## candidate_evidence_writers
+```json
+[
+  "scripts/gcn_search/execute_ieee39_selected_single_outage_pilot_pairs.py",
+  "scripts/gcn_search/prepare_ieee39_single_outage_pilot_pair_generation_runner_dry_run.py"
+]
+```
+
+## missing_components
+```json
+[
+  "approved selected-pair two-step line-trip sequence injection",
+  "selected-32-only batch runner",
+  "selected-pair dynamic result parser contract",
+  "local/manual execution instruction pack"
+]
+```
+
+## unsafe_components
+```json
+[]
+```
+
+## reusable_components
+```json
+[
+  "IEEE39 wrapper model path",
+  "L01-L34 line map",
+  "selected 32 pair manifest",
+  "blocked evidence writer from previous round",
+  "timeout/unknown/null safety policy",
+  "no-raw-artifact policy"
+]
+```

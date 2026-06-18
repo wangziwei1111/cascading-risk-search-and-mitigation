@@ -58,3 +58,16 @@ real relay setting; bus-fault labels are not used; L12 remains special/excluded;
 NF06 warning is preserved; `phasor_RMS` is not EMT; `generator_speed_proxy` is
 not direct frequency; temporary bus-fault injection is not engineering-grade
 protection; no deployment is claimed.
+
+## Follow-Up: Backend Diagnosis
+
+A later controlled execution backend diagnosis checks why the selected pair
+execution remained blocked. It does not train GCN, does not rerun formal audit,
+does not execute selected 32 pairs, does not run full 1056 generation, does not
+export formal labels, and does not retrain the reranker.
+
+The diagnosis confirms that selected-pair branch mapping exists, but an approved
+two-step line-trip sequence injection, a selected-32-only batch runner, and a
+selected-pair result parser contract are still missing. The next step is to add
+that safe backend or write local manual execution instructions before rerunning
+evidence collection.

@@ -41,3 +41,22 @@ This round is selected 32 single-outage pilot pair execution approval and eviden
 ## Next Step
 
 `fix controlled execution environment or run selected pair execution locally, then rerun evidence collection`. If future execution succeeds and produces both positive and negative pilot examples, the next round should request pilot label export approval separately; do not train yet.
+
+## Follow-Up: Backend Diagnosis
+
+A later controlled execution backend diagnosis confirms that the selected pair
+execution was blocked by a missing safe callable controlled Simulink execution
+backend. It does not train GCN, does not rerun formal audit, does not execute
+selected 32 pairs, does not run full 1056 generation, does not export formal
+labels, and does not retrain the reranker.
+
+The diagnosis found that the IEEE39 wrapper model and selected-pair branch
+mapping are available, but the backend is still incomplete because the approved
+two-step line-trip sequence injection, selected-32-only batch runner, and
+selected-pair result parser contract are missing.
+
+The same boundaries remain active: `beta * RATE_A` is an audit-only proxy, not a
+real relay setting; bus-fault labels are not used; L12 remains
+special/excluded; NF06 warning is preserved; `phasor_RMS` is not EMT;
+`generator_speed_proxy` is not direct frequency; temporary bus-fault injection
+is not engineering-grade protection; no deployment is claimed.

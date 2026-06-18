@@ -4764,3 +4764,65 @@ runner; no pilot labels were generated.
 
 Recommended next step: fix controlled execution environment or run selected
 pair execution locally, then rerun evidence collection.
+
+## Round 90: IEEE39 Controlled Execution Backend Diagnosis
+
+This round diagnoses the controlled execution backend blocker. It does not train
+GCN, does not rerun formal audit, does not execute selected 32 pairs, does not
+run full 1056 generation, does not export formal labels, does not retrain the
+reranker, and does not save a production model.
+
+Plain-language meaning: the previous selected pair execution was blocked because
+there was no safe callable controlled Simulink execution backend. This round
+checks what pieces already exist and what pieces are missing. It does not try to
+run the selected pairs.
+
+Artifacts:
+
+- `scripts/gcn_search/diagnose_ieee39_controlled_execution_backend.py`
+- `docs/ieee39_controlled_execution_backend_diagnosis.md`
+- `results/gcn_search/ieee39_controlled_execution_backend_diagnosis/backend_readiness_summary.json`
+- `results/gcn_search/ieee39_controlled_execution_backend_diagnosis/backend_component_inventory.json`
+- `results/gcn_search/ieee39_controlled_execution_backend_diagnosis/selected_pair_execution_mapping_diagnosis.json`
+- `results/gcn_search/ieee39_controlled_execution_backend_diagnosis/safe_execution_repair_plan.json`
+- `results/gcn_search/ieee39_controlled_execution_backend_diagnosis/no_leakage_backend_diagnosis_audit.json`
+- `results/gcn_search/ieee39_controlled_execution_backend_diagnosis/large_file_safety_backend_diagnosis.json`
+
+Current diagnosis:
+
+- `diagnosis_scope = controlled_execution_backend_diagnosis`
+- `matlab_available = true`
+- `simulink_available = unknown`
+- `ieee39_wrapper_model_found = true`
+- `selected_pair_mapping_found = true`
+- `two_step_line_trip_injection_supported = false`
+- `batch_runner_found = false`
+- `timeout_policy_found = true`
+- `result_parser_found = false`
+- `evidence_writer_found = true`
+- `safe_no_raw_artifact_policy_found = true`
+- `can_execute_selected_32_pairs_now = false`
+- `can_execute_without_full_1056 = true`
+- `graceful_blocked_mode_available = true`
+
+Blocker: selected-pair controlled execution backend is incomplete; the missing
+pieces are an approved two-step line-trip sequence injection, a selected-32-only
+batch runner, and a selected-pair result parser contract.
+
+Boundary notes:
+
+- This round does not execute selected 32 pairs.
+- This round does not run full 1056 generation.
+- This round does not commit raw trajectory, full timeseries, `.mat`, `.slx`,
+  `.slxc`, `slprj`, venv, wheel, DLL, or model files.
+- `beta * RATE_A` remains an audit-only proxy, not a real relay setting.
+- Bus-fault labels are not used.
+- L12 remains special/excluded.
+- NF06 warning is preserved.
+- `phasor_RMS` is not EMT.
+- `generator_speed_proxy` is not direct frequency.
+- Temporary bus-fault injection is not engineering-grade protection.
+- No deployment and no GCN usefulness conclusion are claimed.
+
+Recommended next step: add a selected-32-only controlled execution backend or
+write local manual execution instructions before rerunning evidence collection.

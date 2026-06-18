@@ -657,6 +657,21 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/no_leakage_selected_pair_execution_audit.md",
     "results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/large_file_and_artifact_safety_check.json",
     "results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/large_file_and_artifact_safety_check.md",
+    "docs/ieee39_controlled_execution_backend_diagnosis.md",
+    "results/gcn_search/ieee39_controlled_execution_backend_diagnosis/backend_readiness_summary.json",
+    "results/gcn_search/ieee39_controlled_execution_backend_diagnosis/backend_readiness_summary.md",
+    "results/gcn_search/ieee39_controlled_execution_backend_diagnosis/backend_readiness_summary.csv",
+    "results/gcn_search/ieee39_controlled_execution_backend_diagnosis/backend_component_inventory.json",
+    "results/gcn_search/ieee39_controlled_execution_backend_diagnosis/backend_component_inventory.md",
+    "results/gcn_search/ieee39_controlled_execution_backend_diagnosis/selected_pair_execution_mapping_diagnosis.json",
+    "results/gcn_search/ieee39_controlled_execution_backend_diagnosis/selected_pair_execution_mapping_diagnosis.md",
+    "results/gcn_search/ieee39_controlled_execution_backend_diagnosis/selected_pair_execution_mapping_diagnosis.csv",
+    "results/gcn_search/ieee39_controlled_execution_backend_diagnosis/safe_execution_repair_plan.json",
+    "results/gcn_search/ieee39_controlled_execution_backend_diagnosis/safe_execution_repair_plan.md",
+    "results/gcn_search/ieee39_controlled_execution_backend_diagnosis/no_leakage_backend_diagnosis_audit.json",
+    "results/gcn_search/ieee39_controlled_execution_backend_diagnosis/no_leakage_backend_diagnosis_audit.md",
+    "results/gcn_search/ieee39_controlled_execution_backend_diagnosis/large_file_safety_backend_diagnosis.json",
+    "results/gcn_search/ieee39_controlled_execution_backend_diagnosis/large_file_safety_backend_diagnosis.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -681,6 +696,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/prepare_ieee39_single_outage_label_loop_dry_run.py",
     "scripts/gcn_search/prepare_ieee39_single_outage_pilot_pair_generation_runner_dry_run.py",
     "scripts/gcn_search/execute_ieee39_selected_single_outage_pilot_pairs.py",
+    "scripts/gcn_search/diagnose_ieee39_controlled_execution_backend.py",
     "tests/test_ieee39_v2_plus_all_bus_fault_preview_no_leakage.py",
     "tests/test_ieee39_gcn_usefulness_audit_plan.py",
     "tests/test_ieee39_gcn_usefulness_audit_dry_run_validator.py",
@@ -696,6 +712,7 @@ REQUIRED_FILES = [
     "tests/test_ieee39_single_outage_label_loop_dry_run.py",
     "tests/test_ieee39_single_outage_pilot_pair_generation_runner_dry_run.py",
     "tests/test_ieee39_selected_single_outage_pilot_pair_execution.py",
+    "tests/test_ieee39_controlled_execution_backend_diagnosis.py",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_block_parameter_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.json",
@@ -5527,6 +5544,182 @@ def main() -> int:
                     failures.append(f"Selected pair execution docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read selected single-outage pilot pair execution artifacts: {exc}")
+
+    backend_diag_dir = ROOT / "results/gcn_search/ieee39_controlled_execution_backend_diagnosis"
+    backend_diag_summary = backend_diag_dir / "backend_readiness_summary.json"
+    backend_diag_inventory = backend_diag_dir / "backend_component_inventory.json"
+    backend_diag_mapping = backend_diag_dir / "selected_pair_execution_mapping_diagnosis.json"
+    backend_diag_repair = backend_diag_dir / "safe_execution_repair_plan.json"
+    backend_diag_no_leakage = backend_diag_dir / "no_leakage_backend_diagnosis_audit.json"
+    backend_diag_safety = backend_diag_dir / "large_file_safety_backend_diagnosis.json"
+    backend_diag_doc = ROOT / "docs/ieee39_controlled_execution_backend_diagnosis.md"
+    backend_diag_required = [
+        backend_diag_summary,
+        backend_diag_dir / "backend_readiness_summary.md",
+        backend_diag_dir / "backend_readiness_summary.csv",
+        backend_diag_inventory,
+        backend_diag_dir / "backend_component_inventory.md",
+        backend_diag_mapping,
+        backend_diag_dir / "selected_pair_execution_mapping_diagnosis.md",
+        backend_diag_dir / "selected_pair_execution_mapping_diagnosis.csv",
+        backend_diag_repair,
+        backend_diag_dir / "safe_execution_repair_plan.md",
+        backend_diag_no_leakage,
+        backend_diag_dir / "no_leakage_backend_diagnosis_audit.md",
+        backend_diag_safety,
+        backend_diag_dir / "large_file_safety_backend_diagnosis.md",
+        backend_diag_doc,
+    ]
+    existing_backend_diag_required = [path for path in backend_diag_required if path.exists()]
+    if existing_backend_diag_required:
+        missing_backend_diag_required = [path for path in backend_diag_required if not path.exists()]
+        if missing_backend_diag_required:
+            failures.append(
+                "IEEE39 controlled execution backend diagnosis artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_backend_diag_required)
+            )
+        try:
+            summary = _read_json_path(backend_diag_summary)
+            inventory = _read_json_path(backend_diag_inventory)
+            mapping = _read_json_path(backend_diag_mapping)
+            repair = _read_json_path(backend_diag_repair)
+            no_leakage = _read_json_path(backend_diag_no_leakage)
+            safety = _read_json_path(backend_diag_safety)
+            for key, expected in [
+                ("diagnosis_scope", "controlled_execution_backend_diagnosis"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("simulink_run", False),
+                ("selected_pairs_executed", False),
+                ("labels_exported", False),
+                ("formal_labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("source_execution_commit", "606eba793b3895c333ab0c632369bfadde413dca"),
+                ("selected_pair_count", 32),
+                ("ieee39_wrapper_model_found", True),
+                ("selected_pair_mapping_found", True),
+                ("two_step_line_trip_injection_supported", False),
+                ("batch_runner_found", False),
+                ("timeout_policy_found", True),
+                ("result_parser_found", False),
+                ("evidence_writer_found", True),
+                ("safe_no_raw_artifact_policy_found", True),
+                ("can_execute_selected_32_pairs_now", False),
+                ("can_execute_without_full_1056", True),
+                ("graceful_blocked_mode_available", True),
+                (
+                    "recommended_next_step",
+                    "add a selected-32-only controlled execution backend or write local manual execution instructions before rerunning evidence collection",
+                ),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"Controlled execution backend diagnosis summary must set {key}={expected!r}.")
+            if "missing approved two-step line-trip sequence injection" not in str(summary.get("blocker_if_any")):
+                failures.append("Controlled execution backend diagnosis must record the selected-pair backend blocker.")
+            for required_component in [
+                "approved selected-pair two-step line-trip sequence injection",
+                "selected-32-only batch runner",
+                "selected-pair dynamic result parser contract",
+            ]:
+                if required_component not in inventory.get("missing_components", []):
+                    failures.append(f"Backend inventory missing component diagnosis: {required_component}")
+            if "IEEE39 wrapper model path" not in inventory.get("reusable_components", []):
+                failures.append("Backend inventory must record the reusable IEEE39 wrapper model path.")
+            if len(mapping) != summary.get("selected_pair_count"):
+                failures.append("Backend mapping diagnosis count must match selected_pair_count.")
+            else:
+                if any(row.get("prior_branch_mapping_available") is not True for row in mapping):
+                    failures.append("Backend mapping diagnosis must have prior branch mappings for selected pairs.")
+                if any(row.get("next_branch_mapping_available") is not True for row in mapping):
+                    failures.append("Backend mapping diagnosis must have next branch mappings for selected pairs.")
+                if any(row.get("sequence_injection_supported") is not False for row in mapping):
+                    failures.append("Backend mapping diagnosis must not claim sequence injection support.")
+                if any(row.get("execution_ready") is not False for row in mapping):
+                    failures.append("Backend mapping diagnosis must not mark rows execution ready.")
+                if any(row.get("l12_special_case_flag") is not False for row in mapping):
+                    failures.append("Backend mapping diagnosis must preserve L12 exclusion.")
+            if repair.get("repair_plan_scope") != "controlled_execution_backend_repair_plan":
+                failures.append("Backend repair plan must use controlled_execution_backend_repair_plan scope.")
+            if repair.get("manual_approval_required_before_execution") is not True:
+                failures.append("Backend repair plan must require manual approval before execution.")
+            for key, expected in [
+                ("forbidden_features_detected_in_inputs", []),
+                ("post_fault_dynamic_measurements_used_as_inputs", False),
+                ("dynamic_outputs_used_only_as_future_labels_or_targets", True),
+                ("label_derived_flags_used_as_inputs", False),
+                ("proxy_relay_threshold_used_only_in_feature_generation", True),
+                ("bus_fault_labels_used", False),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if no_leakage.get(key) != expected:
+                    failures.append(f"Backend no-leakage audit must set {key}={expected!r}.")
+            for key in [
+                "raw_trajectories_committed",
+                "full_timeseries_committed",
+                "mat_files_committed",
+                "slx_files_committed",
+                "slxc_files_committed",
+                "slprj_committed",
+                "venv_committed",
+                "wheel_or_dll_committed",
+                "model_files_committed",
+            ]:
+                if safety.get(key) is not False:
+                    failures.append(f"Backend large-file safety check must keep {key}=false.")
+            if safety.get("safety_check_passed") is not True:
+                failures.append("Backend large-file safety check must pass.")
+            backend_diag_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_controlled_execution_backend_diagnosis.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                    _read_text("docs/ieee39_selected_single_outage_pilot_pair_execution.md"),
+                    _read_text("docs/ieee39_single_outage_pilot_pair_generation_runner_dry_run.md"),
+                    _read_text("results/gcn_search/ieee39_controlled_execution_backend_diagnosis/backend_readiness_summary.md"),
+                    _read_text("results/gcn_search/ieee39_controlled_execution_backend_diagnosis/safe_execution_repair_plan.md"),
+                    _read_text("results/gcn_search/ieee39_controlled_execution_backend_diagnosis/no_leakage_backend_diagnosis_audit.md"),
+                ]
+            ).lower()
+            normalized_backend_diag = " ".join(backend_diag_text.replace("`", "").split())
+            for required in [
+                "controlled execution backend diagnosis",
+                "does not train gcn",
+                "does not rerun formal audit",
+                "does not execute selected 32 pairs",
+                "does not run full 1056 generation",
+                "does not export formal labels",
+                "does not retrain the reranker",
+                "selected pair execution was blocked",
+                "controlled simulink execution backend",
+                "beta * rate_a",
+                "audit-only proxy",
+                "not a real relay setting",
+                "bus-fault labels are not used",
+                "l12 remains special/excluded",
+                "nf06 warning is preserved",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "temporary bus-fault injection is not engineering-grade protection",
+            ]:
+                if required not in normalized_backend_diag:
+                    failures.append(f"Controlled execution backend diagnosis docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is useless",
+                "formal audit rerun completed",
+                "selected 32 pairs executed",
+                "full 1056 generation completed",
+                "formal labels exported",
+                "proxy is a real relay setting",
+                "final engineering conclusion: true",
+                "emt simulation",
+                "generator_speed_proxy is direct frequency",
+                "deployment ready",
+            ]:
+                if bad in normalized_backend_diag:
+                    failures.append(f"Controlled execution backend diagnosis docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read controlled execution backend diagnosis artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

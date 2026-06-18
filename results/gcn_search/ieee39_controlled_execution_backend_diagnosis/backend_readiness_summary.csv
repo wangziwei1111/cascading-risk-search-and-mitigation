@@ -1,0 +1,27 @@
+key,value
+diagnosis_scope,controlled_execution_backend_diagnosis
+gcn_training_run,False
+formal_gcn_audit_rerun,False
+simulink_run,False
+selected_pairs_executed,False
+labels_exported,False
+formal_labels_exported,False
+reranker_retrained,False
+production_model_saved,False
+source_execution_commit,606eba793b3895c333ab0c632369bfadde413dca
+selected_pair_count,32
+matlab_available,True
+simulink_available,unknown
+ieee39_wrapper_model_found,True
+selected_pair_mapping_found,True
+two_step_line_trip_injection_supported,False
+batch_runner_found,False
+timeout_policy_found,True
+result_parser_found,False
+evidence_writer_found,True
+safe_no_raw_artifact_policy_found,True
+can_execute_selected_32_pairs_now,False
+can_execute_without_full_1056,True
+graceful_blocked_mode_available,True
+blocker_if_any,"selected-pair controlled execution backend is incomplete: missing approved two-step line-trip sequence injection, selected-pair batch runner, and selected-pair result parser contract"
+recommended_next_step,add a selected-32-only controlled execution backend or write local manual execution instructions before rerunning evidence collection
