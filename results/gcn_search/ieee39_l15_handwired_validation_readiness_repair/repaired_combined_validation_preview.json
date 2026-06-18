@@ -1,0 +1,20 @@
+[
+  {
+    "line_id": "L04",
+    "validation_passed": true,
+    "trip_command_path": "IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Grid/L04_TripCommand",
+    "validation_failure_reason": "",
+    "source_artifact": "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_multi_handwired_breaker_validation_summary.csv",
+    "readiness_status": "ready",
+    "provenance": "existing evidence; no Simulink run in this repair round"
+  },
+  {
+    "line_id": "L15",
+    "validation_passed": true,
+    "trip_command_path": "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Grid/L15_TripCommand",
+    "validation_failure_reason": "",
+    "source_artifact": "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_batch_validation_summary.csv",
+    "readiness_status": "ready",
+    "provenance": "existing evidence; no Simulink run in this repair round"
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "gate_scope": "spp001_rerun_readiness_gate",
+  "pair_id": "SPP001",
+  "prior_outaged_branch": "L15",
+  "candidate_next_branch": "L04",
+  "l15_ready": true,
+  "l04_ready": true,
+  "both_lines_ready": true,
+  "selected_32_batch_allowed": false,
+  "full_1056_allowed": false,
+  "formal_label_export_allowed": false,
+  "gcn_training_allowed": false,
+  "can_request_spp001_rerun_approval": true,
+  "blocker_if_any": null
+}

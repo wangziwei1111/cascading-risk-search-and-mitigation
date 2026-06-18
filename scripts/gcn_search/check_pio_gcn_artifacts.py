@@ -728,6 +728,21 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_no_leakage_smoke_audit.md",
     "results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_large_file_safety_check.json",
     "results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_large_file_safety_check.md",
+    "docs/ieee39_l15_handwired_validation_readiness_repair.md",
+    "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/l15_readiness_repair_summary.json",
+    "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/l15_readiness_repair_summary.md",
+    "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/l15_readiness_repair_summary.csv",
+    "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/l15_evidence_inventory.json",
+    "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/l15_evidence_inventory.md",
+    "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/repaired_combined_validation_preview.json",
+    "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/repaired_combined_validation_preview.md",
+    "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/repaired_combined_validation_preview.csv",
+    "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/spp001_rerun_readiness_gate.json",
+    "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/spp001_rerun_readiness_gate.md",
+    "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/no_leakage_l15_readiness_repair_audit.json",
+    "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/no_leakage_l15_readiness_repair_audit.md",
+    "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/large_file_safety_l15_readiness_repair.json",
+    "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/large_file_safety_l15_readiness_repair.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -754,6 +769,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/execute_ieee39_selected_single_outage_pilot_pairs.py",
     "scripts/gcn_search/diagnose_ieee39_controlled_execution_backend.py",
     "scripts/gcn_search/run_ieee39_selected_single_outage_pilot_pairs_controlled.py",
+    "scripts/gcn_search/repair_ieee39_l15_handwired_validation_readiness.py",
     "scripts/gcn_search/parse_ieee39_selected_pair_execution_evidence.py",
     "matlab/simulink_ieee39/run_ieee39_selected_pair_line_trip_sequence.m",
     "tests/test_ieee39_v2_plus_all_bus_fault_preview_no_leakage.py",
@@ -6509,6 +6525,194 @@ def main() -> int:
                     failures.append(f"SPP001 docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read SPP001 single-pair smoke artifacts: {exc}")
+
+    l15_repair_dir = ROOT / "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair"
+    l15_repair_doc = ROOT / "docs/ieee39_l15_handwired_validation_readiness_repair.md"
+    l15_summary = l15_repair_dir / "l15_readiness_repair_summary.json"
+    l15_inventory = l15_repair_dir / "l15_evidence_inventory.json"
+    l15_preview = l15_repair_dir / "repaired_combined_validation_preview.json"
+    l15_gate = l15_repair_dir / "spp001_rerun_readiness_gate.json"
+    l15_no_leakage = l15_repair_dir / "no_leakage_l15_readiness_repair_audit.json"
+    l15_safety = l15_repair_dir / "large_file_safety_l15_readiness_repair.json"
+    l15_required = [
+        l15_repair_doc,
+        l15_summary,
+        l15_repair_dir / "l15_readiness_repair_summary.md",
+        l15_repair_dir / "l15_readiness_repair_summary.csv",
+        l15_inventory,
+        l15_repair_dir / "l15_evidence_inventory.md",
+        l15_preview,
+        l15_repair_dir / "repaired_combined_validation_preview.md",
+        l15_repair_dir / "repaired_combined_validation_preview.csv",
+        l15_gate,
+        l15_repair_dir / "spp001_rerun_readiness_gate.md",
+        l15_no_leakage,
+        l15_repair_dir / "no_leakage_l15_readiness_repair_audit.md",
+        l15_safety,
+        l15_repair_dir / "large_file_safety_l15_readiness_repair.md",
+    ]
+    existing_l15_required = [path for path in l15_required if path.exists()]
+    if existing_l15_required:
+        missing_l15_required = [path for path in l15_required if not path.exists()]
+        if missing_l15_required:
+            failures.append(
+                "IEEE39 L15 readiness repair artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_l15_required)
+            )
+        try:
+            summary = _read_json_path(l15_summary)
+            inventory = _read_json_path(l15_inventory)
+            preview = _read_json_path(l15_preview)
+            gate = _read_json_path(l15_gate)
+            no_leakage = _read_json_path(l15_no_leakage)
+            safety = _read_json_path(l15_safety)
+            for key, expected in [
+                ("repair_scope", "l15_handwired_validation_readiness_repair"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("spp001_smoke_executed", False),
+                ("selected_32_batch_executed", False),
+                ("full_1056_generation_run", False),
+                ("simulink_run", False),
+                ("labels_exported", False),
+                ("formal_labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("source_spp001_smoke_commit", "4c9e18b9aab9dce3d968ed3b47271372d60f78b2"),
+                ("target_line_id", "L15"),
+                ("paired_next_line_id", "L04"),
+                ("previous_blocker", "single-pair smoke not ready: validation missing for L15; L04 validation passed"),
+                ("l15_existing_evidence_found", True),
+                ("l15_trip_command_path_found", True),
+                ("l15_validation_passed", True),
+                ("l15_readiness_status", "ready"),
+                ("l04_validation_still_passed", True),
+                ("repaired_combined_validation_written", True),
+                ("can_rerun_spp001_smoke_after_manual_approval", True),
+                ("no_label_value_generated", True),
+                ("raw_trajectories_committed", False),
+                ("full_timeseries_committed", False),
+                ("mat_files_committed", False),
+                ("slx_files_committed", False),
+                ("source_slx_modified", False),
+                ("forbidden_features_detected_in_inputs", []),
+                ("no_leakage_policy_passed", True),
+                ("final_engineering_conclusion", False),
+                ("should_train_gcn_now", False),
+                ("should_rerun_formal_audit_now", False),
+                ("should_export_formal_labels_now", False),
+                ("should_retrain_reranker_now", False),
+                ("should_deploy_model", False),
+                ("blocker_if_any", None),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"L15 readiness repair summary must set {key}={expected!r}.")
+            if not inventory.get("l15_rows_found"):
+                failures.append("L15 readiness inventory must contain l15_rows_found.")
+            if not inventory.get("l15_trip_command_candidates"):
+                failures.append("L15 readiness inventory must contain trip command candidates.")
+            if not inventory.get("selected_source_if_any"):
+                failures.append("L15 readiness inventory must select a source artifact.")
+            by_line = {row.get("line_id"): row for row in preview}
+            for line_id in ["L04", "L15"]:
+                if line_id not in by_line:
+                    failures.append(f"L15 repaired validation preview missing {line_id}.")
+            if by_line.get("L15", {}).get("readiness_status") != "ready":
+                failures.append("L15 repaired validation preview must mark L15 ready.")
+            if "L15_TripCommand" not in str(by_line.get("L15", {}).get("trip_command_path", "")):
+                failures.append("L15 repaired validation preview must preserve L15 trip_command_path.")
+            for key, expected in [
+                ("gate_scope", "spp001_rerun_readiness_gate"),
+                ("pair_id", "SPP001"),
+                ("prior_outaged_branch", "L15"),
+                ("candidate_next_branch", "L04"),
+                ("l15_ready", True),
+                ("l04_ready", True),
+                ("both_lines_ready", True),
+                ("selected_32_batch_allowed", False),
+                ("full_1056_allowed", False),
+                ("formal_label_export_allowed", False),
+                ("gcn_training_allowed", False),
+                ("can_request_spp001_rerun_approval", True),
+                ("blocker_if_any", None),
+            ]:
+                if gate.get(key) != expected:
+                    failures.append(f"L15 SPP001 rerun readiness gate must set {key}={expected!r}.")
+            for key, expected in [
+                ("forbidden_features_detected_in_inputs", []),
+                ("post_fault_dynamic_measurements_used_as_inputs", False),
+                ("dynamic_outputs_used_only_as_future_labels_or_targets", True),
+                ("label_derived_flags_used_as_inputs", False),
+                ("bus_fault_labels_used", False),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if no_leakage.get(key) != expected:
+                    failures.append(f"L15 no-leakage audit must set {key}={expected!r}.")
+            for key in [
+                "raw_trajectories_committed",
+                "full_timeseries_committed",
+                "mat_files_committed",
+                "slx_files_committed",
+                "slxc_files_committed",
+                "slprj_committed",
+                "source_slx_modified",
+                "venv_committed",
+                "wheel_or_dll_committed",
+                "model_files_committed",
+            ]:
+                if safety.get(key) is not False:
+                    failures.append(f"L15 large-file safety check must keep {key}=false.")
+            if safety.get("safety_check_passed") is not True:
+                failures.append("L15 large-file safety check must pass.")
+            l15_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_l15_handwired_validation_readiness_repair.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                    _read_text("docs/ieee39_spp001_single_pair_smoke_execution.md"),
+                    _read_text("docs/ieee39_matlab_selected_pair_entrypoint_repair.md"),
+                    _read_text("results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/l15_readiness_repair_summary.md"),
+                    _read_text("results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/spp001_rerun_readiness_gate.md"),
+                ]
+            ).lower()
+            normalized_l15 = " ".join(l15_text.replace("`", "").split())
+            for required in [
+                "l15 handwired validation readiness repair",
+                "does not train gcn",
+                "does not rerun formal audit",
+                "does not run spp001 smoke",
+                "does not execute selected 32 batch",
+                "does not run full 1056 generation",
+                "does not export formal labels",
+                "does not retrain the reranker",
+                "does not create an spp001 0/1 label",
+                "raw trajectory",
+                "full timeseries",
+                "source .slx is not modified",
+                "bus-fault labels are not used",
+                "l12 remains special/excluded",
+                "pilot labels are not formal training labels",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "temporary bus-fault injection is not engineering-grade protection",
+            ]:
+                if required not in normalized_l15:
+                    failures.append(f"L15 readiness repair docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is useless",
+                "rerun formal audit completed",
+                "spp001 smoke completed",
+                "selected 32 batch execution completed",
+                "full 1056 generation completed",
+                "formal labels exported",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+                "deployment ready",
+            ]:
+                if bad in normalized_l15:
+                    failures.append(f"L15 readiness repair docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read L15 readiness repair artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"

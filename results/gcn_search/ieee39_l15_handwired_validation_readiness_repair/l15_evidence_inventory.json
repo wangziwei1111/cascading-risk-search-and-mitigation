@@ -1,0 +1,157 @@
+{
+  "searched_artifacts": [
+    "results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_smoke_execution_summary.json",
+    "results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_smoke_execution_result.json",
+    "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/single_pair_smoke_candidate.json",
+    "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/entrypoint_component_reuse_report.json",
+    "results/gcn_search/ieee39_controlled_execution_backend_repair/selected_pair_backend_readiness_matrix.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_multi_handwired_breaker_validation_summary.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_batch_validation_summary.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05_l06_l07_l08_l09_l10_l11_to_l34.csv",
+    "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_batch_line_trip_summary.csv",
+    "results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot/base_state_branch_vulnerability_label_matrix.json"
+  ],
+  "missing_artifacts": [],
+  "l15_rows_found": [
+    {
+      "source_artifact": "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_batch_validation_summary.csv",
+      "row": {
+        "line_id": "L15",
+        "line_block_path": "IEEE39BusSystem_dynamic_experiment_wrapper/Grid/B21 to B22",
+        "clean_lab_model_path": "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15.slx",
+        "clean_lab_model_found": "1",
+        "clean_lab_model_loadable": "1",
+        "breaker_block_name": "L15_HandwiredTimedBreaker",
+        "breaker_block_found": "1",
+        "breaker_block_path": "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Grid/L15_HandwiredTimedBreaker",
+        "trip_command_name": "L15_TripCommand",
+        "trip_command_found": "1",
+        "trip_command_path": "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Grid/L15_TripCommand",
+        "breaker_near_line": "1",
+        "trip_time_s": "0.5",
+        "validation_passed": "1",
+        "validation_failure_reason": "",
+        "clean_lab_model_committed": "0"
+      }
+    },
+    {
+      "source_artifact": "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05_l06_l07_l08_l09_l10_l11_to_l34.csv",
+      "row": {
+        "test_case": "clean_lab_handwired_line_trip_L15",
+        "simulation_success": "1",
+        "physical_fault_or_breaker_action_executed": "1",
+        "schema_only": "0",
+        "simulation_mode": "graphical_simulink_phasor_RMS",
+        "trip_implementation": "handwired_timed_breaker",
+        "fault_configuration_status": "not_applicable",
+        "measurement_extraction_status": "voltage_speed_angle",
+        "training_ready_candidate": "True",
+        "timeout_or_error_message": "",
+        "fault_type": "pilot_line_trip",
+        "fault_start_s": "0.5",
+        "fault_clear_s": "0.0",
+        "tripped_line": "L15",
+        "relay_operated": "0",
+        "breaker_opened": "1",
+        "min_voltage_pu": "0.975274091315294",
+        "max_voltage_pu": "1.07200703481588",
+        "min_frequency_hz": "49.7620754674203",
+        "max_frequency_hz": "50.1543139831542",
+        "max_speed_deviation": "0.0047584906515939",
+        "max_rotor_angle_separation_deg": "65.7711381468674",
+        "signal_source_summary": "voltage=generator_terminal_voltage_pu;speed=generator_rotor_velocity_pu;frequency=generator_speed_proxy;rotor_angle=generator_rotor_electrical_angle",
+        "unstable_flag": "0",
+        "trip_time_s": "0.5",
+        "note": "handwired timed breaker validated and compact simulation completed",
+        "source_model": "clean_breaker_lab_L15"
+      }
+    },
+    {
+      "source_artifact": "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_batch_line_trip_summary.csv",
+      "row": {
+        "test_case": "clean_lab_handwired_line_trip_L15",
+        "simulation_success": "1",
+        "physical_fault_or_breaker_action_executed": "1",
+        "schema_only": "0",
+        "simulation_mode": "graphical_simulink_phasor_RMS",
+        "trip_implementation": "handwired_timed_breaker",
+        "fault_configuration_status": "not_applicable",
+        "measurement_extraction_status": "voltage_speed_angle",
+        "training_ready_candidate": "True",
+        "timeout_or_error_message": "",
+        "fault_type": "pilot_line_trip",
+        "fault_start_s": "0.5",
+        "fault_clear_s": "0.0",
+        "tripped_line": "L15",
+        "relay_operated": "0",
+        "breaker_opened": "1",
+        "min_voltage_pu": "0.975274091315294",
+        "max_voltage_pu": "1.07200703481588",
+        "min_frequency_hz": "49.7620754674203",
+        "max_frequency_hz": "50.1543139831542",
+        "max_speed_deviation": "0.0047584906515939",
+        "max_rotor_angle_separation_deg": "65.7711381468674",
+        "signal_source_summary": "voltage=generator_terminal_voltage_pu;speed=generator_rotor_velocity_pu;frequency=generator_speed_proxy;rotor_angle=generator_rotor_electrical_angle",
+        "unstable_flag": "0",
+        "trip_time_s": "0.5",
+        "note": "handwired timed breaker validated and compact simulation completed",
+        "source_model": "clean_breaker_lab_L15"
+      }
+    }
+  ],
+  "l15_rows_missing": [
+    "results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_smoke_execution_summary.json",
+    "results/gcn_search/ieee39_spp001_single_pair_smoke_execution/spp001_smoke_execution_result.json",
+    "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/single_pair_smoke_candidate.json",
+    "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair/entrypoint_component_reuse_report.json",
+    "results/gcn_search/ieee39_controlled_execution_backend_repair/selected_pair_backend_readiness_matrix.json",
+    "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_multi_handwired_breaker_validation_summary.csv",
+    "results/gcn_search/ieee39_base_state_branch_vulnerability_label_pilot/base_state_branch_vulnerability_label_matrix.json"
+  ],
+  "l15_trip_command_candidates": [
+    {
+      "trip_command_path": "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Grid/L15_TripCommand",
+      "trip_command_found": true,
+      "source_artifact": "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_batch_validation_summary.csv",
+      "provenance": "existing evidence; no Simulink run in this repair round"
+    },
+    {
+      "trip_command_path": "",
+      "trip_command_found": false,
+      "source_artifact": "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05_l06_l07_l08_l09_l10_l11_to_l34.csv",
+      "provenance": "existing evidence; no Simulink run in this repair round"
+    },
+    {
+      "trip_command_path": "",
+      "trip_command_found": false,
+      "source_artifact": "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_batch_line_trip_summary.csv",
+      "provenance": "existing evidence; no Simulink run in this repair round"
+    }
+  ],
+  "l15_validation_candidates": [
+    {
+      "validation_passed": true,
+      "validation_failure_reason": "",
+      "source_artifact": "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_batch_validation_summary.csv",
+      "source_model": "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15.slx",
+      "provenance": "existing evidence; no Simulink run in this repair round"
+    },
+    {
+      "validation_passed": true,
+      "validation_failure_reason": "",
+      "source_artifact": "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_fault_test_summary_with_clean_lab_l02_l03_l04_l05_l06_l07_l08_l09_l10_l11_to_l34.csv",
+      "source_model": "clean_breaker_lab_L15",
+      "provenance": "existing evidence; no Simulink run in this repair round"
+    },
+    {
+      "validation_passed": true,
+      "validation_failure_reason": "",
+      "source_artifact": "results/gcn_search/ieee39_graphical_dynamic_model/fault_tests/ieee39_clean_breaker_lab_batch_line_trip_summary.csv",
+      "source_model": "clean_breaker_lab_L15",
+      "provenance": "existing evidence; no Simulink run in this repair round"
+    }
+  ],
+  "selected_source_if_any": "results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_clean_breaker_lab_batch_validation_summary.csv",
+  "provenance": "existing evidence; no Simulink run in this repair round",
+  "reason_not_selected_if_any": null
+}

@@ -5060,3 +5060,63 @@ Boundary notes:
 Recommended next step: repair the MATLAB/Simulink single-pair readiness path for
 L15 in the combined handwired validation evidence, then rerun one-pair smoke
 after repair. Do not train yet.
+
+## Round 95: IEEE39 L15 Handwired Validation Readiness Repair
+
+This round repairs the L15 handwired validation readiness path using existing
+evidence only. It does not train GCN, does not rerun formal audit, does not run
+SPP001 smoke, does not execute selected 32 batch, does not run full 1056
+generation, does not export formal labels, does not retrain the reranker, and
+does not save a production model.
+
+Plain-language meaning: the previous SPP001 smoke was blocked because the
+single-pair runner saw `L15` as missing while `L04` had passed. This round
+searched existing line-trip, handwired, and clean breaker artifacts and found
+that L15 already has clean-lab handwired validation evidence with a trip command
+path. The result is a repaired readiness preview, not a pilot 0/1 label.
+
+Artifacts:
+
+- `scripts/gcn_search/repair_ieee39_l15_handwired_validation_readiness.py`
+- `docs/ieee39_l15_handwired_validation_readiness_repair.md`
+- `results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/l15_readiness_repair_summary.json`
+- `results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/l15_evidence_inventory.json`
+- `results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/repaired_combined_validation_preview.csv`
+- `results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/spp001_rerun_readiness_gate.json`
+- `results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/no_leakage_l15_readiness_repair_audit.json`
+- `results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/large_file_safety_l15_readiness_repair.json`
+
+Current result:
+
+- `repair_scope = l15_handwired_validation_readiness_repair`
+- `target_line_id = L15`
+- `paired_next_line_id = L04`
+- `l15_existing_evidence_found = true`
+- `l15_trip_command_path_found = true`
+- `l15_validation_passed = true`
+- `l15_readiness_status = ready`
+- `l04_validation_still_passed = true`
+- `repaired_combined_validation_written = true`
+- `can_rerun_spp001_smoke_after_manual_approval = true`
+- `no_label_value_generated = true`
+
+Boundary notes:
+
+- This round only repairs readiness evidence.
+- SPP001 smoke was not rerun.
+- Selected 32 batch was not executed.
+- Full 1056 generation was not run.
+- Formal labels were not exported.
+- GCN and reranker were not trained.
+- Bus-fault labels are not used.
+- L12 remains special/excluded.
+- Pilot labels are not formal training labels.
+- Raw trajectory, full timeseries, `.mat`, `.slx`, `.slxc`, `slprj`, venv,
+  wheel, DLL, and model files are not committed.
+- The source `.slx` is not modified.
+- `phasor_RMS` is not EMT.
+- `generator_speed_proxy` is not direct frequency.
+- Temporary bus-fault injection is not engineering-grade protection.
+
+Recommended next step: approve rerun of SPP001 single-pair smoke in a separate
+round. Do not train yet.
