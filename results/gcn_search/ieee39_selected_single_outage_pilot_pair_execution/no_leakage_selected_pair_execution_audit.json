@@ -1,0 +1,9 @@
+{
+  "forbidden_features_detected_in_inputs": [],
+  "post_fault_dynamic_measurements_used_as_inputs": false,
+  "dynamic_outputs_used_only_as_labels_or_targets": true,
+  "label_derived_flags_used_as_inputs": false,
+  "proxy_relay_threshold_used_only_in_feature_generation": true,
+  "bus_fault_labels_used": false,
+  "no_leakage_policy_passed": true
+}

@@ -40,3 +40,21 @@ Dynamic outputs such as `dynamic_stress_score` and `unstable_flag` can only be f
 `approve and execute selected single-outage pilot pair generation in a separate round`
 
 Manual approval is required before executing the selected pair generation runner.
+
+## Follow-Up: Selected Pair Execution Approval
+
+The selected 32 single-outage pilot pair execution was approved in a later
+round. That follow-up does not train GCN, does not rerun formal audit, does not
+export formal labels, does not retrain the reranker, and is not full 1056
+generation.
+
+The controlled execution runner currently records the selected 32 rows as
+`blocked` because no safe controlled Simulink execution backend is available in
+the audit runner. Timeout, unknown, blocked, or failed cases are not converted
+to 0/1, and pilot labels are not formal training labels.
+
+Boundary notes remain unchanged: `beta * RATE_A` is an audit-only proxy, not a
+real relay setting; bus-fault labels are not used; L12 remains special/excluded;
+NF06 warning is preserved; `phasor_RMS` is not EMT; `generator_speed_proxy` is
+not direct frequency; temporary bus-fault injection is not engineering-grade
+protection; no deployment is claimed.

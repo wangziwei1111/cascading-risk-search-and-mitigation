@@ -1,0 +1,14 @@
+{
+  "approval_scope": "selected_single_outage_pilot_pair_execution_approval",
+  "source_dry_run_commit": "07d4f7b3a6d40f4695312ff8c9b8e9704b2facac",
+  "approved_pair_count": 32,
+  "approved_selected_pairs_only": true,
+  "full_1056_generation_approved": false,
+  "formal_label_export_approved": false,
+  "gcn_training_approved": false,
+  "reranker_retrain_approved": false,
+  "raw_trajectory_commit_approved": false,
+  "beta_rate_a_proxy_acknowledged": true,
+  "proxy_allowed_for_audit_only_prototype": true,
+  "proxy_allowed_for_production": false
+}

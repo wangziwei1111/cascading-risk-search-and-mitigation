@@ -70,3 +70,22 @@ and non-neighbor control pairs. All selected rows keep `label_value = null` and
 preserved, bus-fault labels are not used, and the `beta * RATE_A` value remains
 an audit-only proxy rather than a real relay setting. Manual approval is
 required before executing selected pair generation.
+
+## Follow-Up: Selected Pair Execution Approval
+
+A later round approved selected 32 single-outage pilot pair execution. That
+follow-up is still conservative: it does not train GCN, does not rerun formal
+audit, does not export formal labels, does not retrain the reranker, and is not
+full 1056 generation.
+
+The execution evidence currently remains blocked because the audit runner has no
+safe controlled Simulink execution backend for these selected pair rows. The
+blocked rows keep `pilot_label_value = null`; timeout, unknown, blocked, or
+failed cases are not converted to 0/1. Pilot labels are not formal training
+labels.
+
+The original boundaries remain active: `beta * RATE_A` is an audit-only proxy,
+not a real relay setting; bus-fault labels are not used; L12 remains
+special/excluded; NF06 warning is preserved; `phasor_RMS` is not EMT;
+`generator_speed_proxy` is not direct frequency; temporary bus-fault injection
+is not engineering-grade protection; no deployment is claimed.

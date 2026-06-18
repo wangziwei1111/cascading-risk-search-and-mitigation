@@ -4689,3 +4689,78 @@ is not engineering-grade protection.
 
 Recommended next step: approve and execute selected single-outage pilot pair
 generation in a separate round.
+
+## Round 89: IEEE39 Selected Single-Outage Pilot Pair Execution
+
+This round approves selected 32 single-outage pilot pair execution and writes
+audit-level evidence. It does not train GCN, does not rerun formal audit, does
+not export formal labels, does not retrain the reranker, and does not save a
+production model.
+
+Plain-language meaning: the previous dry-run selected 32
+`single_outage_state x next_branch` rows. This round tried to move from a plan
+to controlled evidence collection, but the repository currently has no safe
+controlled Simulink execution backend for these selected pair rows. Therefore
+all rows are recorded as `blocked`, and no 0/1 `pilot_label_value` is
+fabricated.
+
+Artifacts:
+
+- `scripts/gcn_search/execute_ieee39_selected_single_outage_pilot_pairs.py`
+- `docs/ieee39_selected_single_outage_pilot_pair_execution.md`
+- `results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/selected_pair_execution_approval.json`
+- `results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/selected_pair_execution_summary.json`
+- `results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/selected_pair_execution_results.json`
+- `results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/selected_pair_label_distribution.json`
+- `results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/no_leakage_selected_pair_execution_audit.json`
+- `results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/large_file_and_artifact_safety_check.json`
+
+Current result:
+
+- `execution_scope = selected_single_outage_pilot_pair_execution`
+- `selected_pair_count = 32`
+- `executed_pair_count = 0`
+- `succeeded_pair_count = 0`
+- `failed_pair_count = 0`
+- `timeout_pair_count = 0`
+- `unknown_pair_count = 32`
+- `pilot_label_available_count = 0`
+- `pilot_positive_count = 0`
+- `pilot_negative_count = 0`
+- `pilot_unknown_count = 32`
+- `pilot_blocked_count = 32`
+- `gcn_training_run = false`
+- `formal_gcn_audit_rerun = false`
+- `simulink_run = false`
+- `new_simulink_run = false`
+- `formal_labels_exported = false`
+- `reranker_retrained = false`
+- `bus_fault_labels_used = false`
+- `line_trip_labels_first_priority = true`
+- `l12_special_case_preserved = true`
+- `nf06_warning_preserved = true`
+- `forbidden_features_detected_in_inputs = []`
+- `no_leakage_policy_passed = true`
+- `pilot_labels_are_formal_training_labels = false`
+- `final_engineering_conclusion = false`
+
+Boundary notes:
+
+- This is not full 1056 generation.
+- Raw trajectories, full timeseries, `.mat`, `.slx`, `.slxc`, `slprj`, venv,
+  wheel, DLL, and model files are not committed.
+- Timeout, unknown, blocked, and failed cases are not converted to 0/1.
+- `beta * RATE_A` remains an audit-only proxy, not a real relay setting.
+- Bus-fault labels are not used.
+- L12 remains special/excluded.
+- NF06 warning is preserved.
+- `phasor_RMS` is not EMT.
+- `generator_speed_proxy` is not direct frequency.
+- Temporary bus-fault injection is not engineering-grade protection.
+- No deployment is claimed.
+
+Blocker: controlled Simulink execution backend is not available in this audit
+runner; no pilot labels were generated.
+
+Recommended next step: fix controlled execution environment or run selected
+pair execution locally, then rerun evidence collection.

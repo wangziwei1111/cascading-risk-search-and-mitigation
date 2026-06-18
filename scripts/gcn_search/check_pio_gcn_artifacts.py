@@ -642,6 +642,21 @@ REQUIRED_FILES = [
     "results/gcn_search/ieee39_single_outage_pilot_pair_generation_runner_dry_run/single_outage_pilot_pair_runner_dry_run_summary.json",
     "results/gcn_search/ieee39_single_outage_pilot_pair_generation_runner_dry_run/single_outage_pilot_pair_runner_dry_run_summary.md",
     "results/gcn_search/ieee39_single_outage_pilot_pair_generation_runner_dry_run/single_outage_pilot_pair_runner_dry_run_summary.csv",
+    "docs/ieee39_selected_single_outage_pilot_pair_execution.md",
+    "results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/selected_pair_execution_approval.json",
+    "results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/selected_pair_execution_approval.md",
+    "results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/selected_pair_execution_summary.json",
+    "results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/selected_pair_execution_summary.md",
+    "results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/selected_pair_execution_summary.csv",
+    "results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/selected_pair_execution_results.json",
+    "results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/selected_pair_execution_results.md",
+    "results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/selected_pair_execution_results.csv",
+    "results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/selected_pair_label_distribution.json",
+    "results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/selected_pair_label_distribution.md",
+    "results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/no_leakage_selected_pair_execution_audit.json",
+    "results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/no_leakage_selected_pair_execution_audit.md",
+    "results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/large_file_and_artifact_safety_check.json",
+    "results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/large_file_and_artifact_safety_check.md",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_build_summary.json",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_block_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_wrapper_signal_map.csv",
@@ -665,6 +680,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/generate_ieee39_base_state_branch_vulnerability_label_pilot.py",
     "scripts/gcn_search/prepare_ieee39_single_outage_label_loop_dry_run.py",
     "scripts/gcn_search/prepare_ieee39_single_outage_pilot_pair_generation_runner_dry_run.py",
+    "scripts/gcn_search/execute_ieee39_selected_single_outage_pilot_pairs.py",
     "tests/test_ieee39_v2_plus_all_bus_fault_preview_no_leakage.py",
     "tests/test_ieee39_gcn_usefulness_audit_plan.py",
     "tests/test_ieee39_gcn_usefulness_audit_dry_run_validator.py",
@@ -679,6 +695,7 @@ REQUIRED_FILES = [
     "tests/test_ieee39_base_state_branch_vulnerability_label_pilot.py",
     "tests/test_ieee39_single_outage_label_loop_dry_run.py",
     "tests/test_ieee39_single_outage_pilot_pair_generation_runner_dry_run.py",
+    "tests/test_ieee39_selected_single_outage_pilot_pair_execution.py",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_block_parameter_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.json",
@@ -5299,6 +5316,217 @@ def main() -> int:
                     failures.append(f"Single-outage pilot pair runner docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read single-outage pilot pair runner dry-run artifacts: {exc}")
+
+    selected_pair_exec_dir = ROOT / "results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution"
+    selected_pair_exec_summary = selected_pair_exec_dir / "selected_pair_execution_summary.json"
+    selected_pair_exec_approval = selected_pair_exec_dir / "selected_pair_execution_approval.json"
+    selected_pair_exec_results = selected_pair_exec_dir / "selected_pair_execution_results.json"
+    selected_pair_exec_distribution = selected_pair_exec_dir / "selected_pair_label_distribution.json"
+    selected_pair_exec_no_leakage = selected_pair_exec_dir / "no_leakage_selected_pair_execution_audit.json"
+    selected_pair_exec_safety = selected_pair_exec_dir / "large_file_and_artifact_safety_check.json"
+    selected_pair_exec_doc = ROOT / "docs/ieee39_selected_single_outage_pilot_pair_execution.md"
+    selected_pair_exec_required = [
+        selected_pair_exec_approval,
+        selected_pair_exec_dir / "selected_pair_execution_approval.md",
+        selected_pair_exec_summary,
+        selected_pair_exec_dir / "selected_pair_execution_summary.md",
+        selected_pair_exec_dir / "selected_pair_execution_summary.csv",
+        selected_pair_exec_results,
+        selected_pair_exec_dir / "selected_pair_execution_results.md",
+        selected_pair_exec_dir / "selected_pair_execution_results.csv",
+        selected_pair_exec_distribution,
+        selected_pair_exec_dir / "selected_pair_label_distribution.md",
+        selected_pair_exec_no_leakage,
+        selected_pair_exec_dir / "no_leakage_selected_pair_execution_audit.md",
+        selected_pair_exec_safety,
+        selected_pair_exec_dir / "large_file_and_artifact_safety_check.md",
+        selected_pair_exec_doc,
+    ]
+    existing_selected_pair_exec_required = [path for path in selected_pair_exec_required if path.exists()]
+    if existing_selected_pair_exec_required:
+        missing_selected_pair_exec_required = [path for path in selected_pair_exec_required if not path.exists()]
+        if missing_selected_pair_exec_required:
+            failures.append(
+                "IEEE39 selected single-outage pilot pair execution artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_selected_pair_exec_required)
+            )
+        try:
+            approval = _read_json_path(selected_pair_exec_approval)
+            summary = _read_json_path(selected_pair_exec_summary)
+            results = _read_json_path(selected_pair_exec_results)
+            distribution = _read_json_path(selected_pair_exec_distribution)
+            no_leakage = _read_json_path(selected_pair_exec_no_leakage)
+            safety = _read_json_path(selected_pair_exec_safety)
+            for key, expected in [
+                ("approval_scope", "selected_single_outage_pilot_pair_execution_approval"),
+                ("source_dry_run_commit", "07d4f7b3a6d40f4695312ff8c9b8e9704b2facac"),
+                ("approved_pair_count", 32),
+                ("approved_selected_pairs_only", True),
+                ("full_1056_generation_approved", False),
+                ("formal_label_export_approved", False),
+                ("gcn_training_approved", False),
+                ("reranker_retrain_approved", False),
+                ("raw_trajectory_commit_approved", False),
+                ("beta_rate_a_proxy_acknowledged", True),
+                ("proxy_allowed_for_audit_only_prototype", True),
+                ("proxy_allowed_for_production", False),
+            ]:
+                if approval.get(key) != expected:
+                    failures.append(f"Selected pair execution approval must set {key}={expected!r}.")
+            for key, expected in [
+                ("execution_scope", "selected_single_outage_pilot_pair_execution"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("simulink_run", False),
+                ("new_simulink_run", False),
+                ("labels_exported", False),
+                ("formal_labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("source_dry_run_commit", "07d4f7b3a6d40f4695312ff8c9b8e9704b2facac"),
+                ("selected_pair_count", 32),
+                ("executed_pair_count", 0),
+                ("succeeded_pair_count", 0),
+                ("failed_pair_count", 0),
+                ("timeout_pair_count", 0),
+                ("unknown_pair_count", 32),
+                ("pilot_label_available_count", 0),
+                ("pilot_positive_count", 0),
+                ("pilot_negative_count", 0),
+                ("pilot_unknown_count", 32),
+                ("pilot_excluded_count", 0),
+                ("raw_trajectories_committed", False),
+                ("full_timeseries_committed", False),
+                ("mat_files_committed", False),
+                ("bus_fault_labels_used", False),
+                ("line_trip_labels_first_priority", True),
+                ("l12_special_case_preserved", True),
+                ("nf06_warning_preserved", True),
+                ("forbidden_features_detected_in_inputs", []),
+                ("no_leakage_policy_passed", True),
+                ("pilot_labels_are_formal_training_labels", False),
+                ("final_engineering_conclusion", False),
+                ("should_train_gcn_now", False),
+                ("should_rerun_formal_audit_now", False),
+                ("should_export_formal_labels_now", False),
+                ("should_retrain_reranker_now", False),
+                ("should_deploy_model", False),
+                (
+                    "recommended_next_step",
+                    "fix controlled execution environment or run selected pair execution locally, then rerun evidence collection",
+                ),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"Selected pair execution summary must set {key}={expected!r}.")
+            if "controlled Simulink execution backend is not available" not in str(summary.get("blocker_if_any")):
+                failures.append("Selected pair execution summary must record the controlled execution backend blocker.")
+            if len(results) != summary.get("selected_pair_count"):
+                failures.append("Selected pair execution results count must match selected_pair_count.")
+            else:
+                if any(row.get("execution_status") != "blocked" for row in results):
+                    failures.append("Selected pair execution results must keep blocked rows blocked in this audit runner.")
+                if any(row.get("pilot_label_value") is not None for row in results):
+                    failures.append("Selected pair execution must not fabricate pilot_label_value.")
+                if any(row.get("pilot_label_status") != "blocked" for row in results):
+                    failures.append("Selected pair execution pilot_label_status must be blocked.")
+                if any(row.get("bus_fault_label_used") is not False for row in results):
+                    failures.append("Selected pair execution must not use bus-fault labels.")
+                if any(row.get("l12_special_case_flag") is not False for row in results):
+                    failures.append("Selected pair execution must preserve L12 exclusion.")
+                if any(
+                    "L12" in {row.get("prior_outaged_branch"), row.get("candidate_next_branch")}
+                    for row in results
+                ):
+                    failures.append("Selected pair execution must not include L12 rows.")
+            for key, expected in [
+                ("selected_pair_count", 32),
+                ("pilot_label_available_count", 0),
+                ("pilot_positive_count", 0),
+                ("pilot_negative_count", 0),
+                ("pilot_unknown_count", 32),
+                ("pilot_timeout_count", 0),
+                ("pilot_failed_count", 0),
+                ("pilot_blocked_count", 32),
+                ("all_available_labels_negative", False),
+                ("has_positive_pilot_label", False),
+            ]:
+                if distribution.get(key) != expected:
+                    failures.append(f"Selected pair label distribution must set {key}={expected!r}.")
+            for key, expected in [
+                ("forbidden_features_detected_in_inputs", []),
+                ("post_fault_dynamic_measurements_used_as_inputs", False),
+                ("dynamic_outputs_used_only_as_labels_or_targets", True),
+                ("label_derived_flags_used_as_inputs", False),
+                ("proxy_relay_threshold_used_only_in_feature_generation", True),
+                ("bus_fault_labels_used", False),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if no_leakage.get(key) != expected:
+                    failures.append(f"Selected pair no-leakage audit must set {key}={expected!r}.")
+            for key in [
+                "raw_trajectories_committed",
+                "full_timeseries_committed",
+                "mat_files_committed",
+                "slx_files_committed",
+                "slxc_files_committed",
+                "slprj_committed",
+                "venv_committed",
+                "wheel_or_dll_committed",
+                "model_files_committed",
+            ]:
+                if safety.get(key) is not False:
+                    failures.append(f"Selected pair safety check must keep {key}=false.")
+            if safety.get("safety_check_passed") is not True:
+                failures.append("Selected pair safety check must pass.")
+            selected_pair_exec_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_selected_single_outage_pilot_pair_execution.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                    _read_text("docs/ieee39_single_outage_pilot_pair_generation_runner_dry_run.md"),
+                    _read_text("docs/ieee39_single_outage_label_loop_dry_run.md"),
+                    _read_text("results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/selected_pair_execution_summary.md"),
+                    _read_text("results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/selected_pair_label_distribution.md"),
+                    _read_text("results/gcn_search/ieee39_selected_single_outage_pilot_pair_execution/no_leakage_selected_pair_execution_audit.md"),
+                ]
+            ).lower()
+            normalized_selected_pair_exec = " ".join(selected_pair_exec_text.replace("`", "").split())
+            for required in [
+                "selected 32 single-outage pilot pair execution",
+                "does not train gcn",
+                "does not rerun formal audit",
+                "does not export formal labels",
+                "does not retrain the reranker",
+                "not full 1056 generation",
+                "timeout, unknown, blocked, or failed cases are not converted to 0/1",
+                "beta * rate_a",
+                "audit-only proxy",
+                "not a real relay setting",
+                "bus-fault labels are not used",
+                "l12 remains special/excluded",
+                "nf06 warning is preserved",
+                "pilot labels are not formal training labels",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "temporary bus-fault injection is not engineering-grade protection",
+            ]:
+                if required not in normalized_selected_pair_exec:
+                    failures.append(f"Selected pair execution docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is useless",
+                "formal audit rerun completed",
+                "formal labels exported",
+                "full 1056 generation completed",
+                "proxy is a real relay setting",
+                "final engineering conclusion: true",
+                "emt simulation",
+                "generator_speed_proxy is direct frequency",
+                "deployment ready",
+            ]:
+                if bad in normalized_selected_pair_exec:
+                    failures.append(f"Selected pair execution docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read selected single-outage pilot pair execution artifacts: {exc}")
 
     b39_review_dir = b39_export_dir / "no_training_composition_review"
     b39_review_json = b39_review_dir / "ieee39_v2_plus_b39_composition_review.json"
