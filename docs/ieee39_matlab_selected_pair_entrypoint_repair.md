@@ -32,3 +32,7 @@ The next round may approve at most one selected pair smoke execution. This round
 ## Next Step
 
 `approve one selected pair smoke execution in a separate round`.
+
+## Follow-Up Provenance Guard
+
+The SPP001 model provenance bridge repair adds a same-wrapper provenance guard to the MATLAB selected-pair entrypoint. Before setting trip command times, the entrypoint checks that prior and next trip command paths belong to the loaded wrapper model. If the L15 and L04 command paths do not share the same wrapper, the entrypoint must return compact failed evidence and keep `pilot_label_value = null`. This does not execute SPP001 smoke, does not export formal labels, does not train GCN, and does not modify the source `.slx`.

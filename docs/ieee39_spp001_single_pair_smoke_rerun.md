@@ -18,7 +18,7 @@ The approved pilot path is `L15 -> L04`. The run only checks whether the repaire
 - pilot_label_status: `failed`
 - dynamic_stress_score_if_available: `None`
 - unstable_flag_if_available: `None`
-- blocker_if_any: `single-pair smoke failed: Simulink 对象名称无效: 'IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Grid/L15_TripCommand'。`
+- blocker_if_any: `SPP001 provenance manifest does not confirm same-wrapper commands: L15 TripCommand path belongs to the clean-lab L15 model, not the loaded handwired breaker wrapper`
 
 ## Boundaries
 

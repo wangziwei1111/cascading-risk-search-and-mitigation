@@ -5183,3 +5183,63 @@ Recommended next step: repair the remaining single-pair execution blocker by
 placing L15 and L04 trip command paths in one executable wrapper, or by creating
 an approved one-pair model provenance bridge. Do not run broader pair execution,
 export labels, train GCN, or retrain the reranker yet.
+
+## Round 97: IEEE39 SPP001 Model Provenance Bridge Repair
+
+This round diagnoses and repairs the SPP001 model provenance bridge evidence
+only. It does not train GCN, does not rerun formal audit, does not execute
+SPP001 smoke, does not execute selected 32 batch, does not run full 1056
+generation, does not export formal labels, does not retrain the reranker, and
+does not save a production model.
+
+Plain-language meaning: the previous SPP001 rerun showed that L15 readiness is
+available, but the L15 trip command belongs to the clean-lab L15 model while L04
+belongs to the handwired breaker wrapper. The same-wrapper check therefore
+fails. This round writes a provenance manifest and rerun gate, but it does not
+fabricate a trip command path and does not create an SPP001 0/1 label.
+
+Artifacts:
+
+- `scripts/gcn_search/repair_ieee39_spp001_model_provenance_bridge.py`
+- `docs/ieee39_spp001_model_provenance_bridge_repair.md`
+- `results/gcn_search/ieee39_spp001_model_provenance_bridge_repair/spp001_provenance_bridge_repair_summary.json`
+- `results/gcn_search/ieee39_spp001_model_provenance_bridge_repair/spp001_trip_command_provenance_inventory.json`
+- `results/gcn_search/ieee39_spp001_model_provenance_bridge_repair/spp001_repaired_provenance_manifest.json`
+- `results/gcn_search/ieee39_spp001_model_provenance_bridge_repair/spp001_rerun_provenance_gate.json`
+- `results/gcn_search/ieee39_spp001_model_provenance_bridge_repair/no_leakage_spp001_provenance_bridge_audit.json`
+- `results/gcn_search/ieee39_spp001_model_provenance_bridge_repair/large_file_safety_spp001_provenance_bridge.json`
+
+Current result:
+
+- `repair_scope = spp001_model_provenance_bridge_repair`
+- `pair_id = SPP001`
+- `prior_outaged_branch = L15`
+- `candidate_next_branch = L04`
+- `l15_trip_command_model_source = IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15`
+- `l04_trip_command_model_source = IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker`
+- `loaded_execution_wrapper_source = results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker.slx`
+- `same_wrapper_trip_commands_available = false`
+- `repaired_provenance_manifest_written = true`
+- `can_rerun_spp001_after_manual_approval = false`
+- `no_label_value_generated = true`
+
+Boundary notes:
+
+- SPP001 smoke was not executed.
+- Selected 32 batch was not executed.
+- Full 1056 generation was not run.
+- Formal labels were not exported.
+- GCN and reranker were not trained.
+- Raw trajectory, full timeseries, `.mat`, `.slx`, `.slxc`, `slprj`, venv,
+  wheel, DLL, and model files are not committed.
+- The source `.slx` is not modified.
+- Bus-fault labels are not used.
+- L12 remains special/excluded.
+- Pilot labels are not formal training labels.
+- `phasor_RMS` is not EMT.
+- `generator_speed_proxy` is not direct frequency.
+- Temporary bus-fault injection is not engineering-grade protection.
+
+Recommended next step: build or validate an SPP001-only same-wrapper bridge
+locally before any rerun. Do not execute broader pair smoke, export labels,
+train GCN, or retrain the reranker yet.

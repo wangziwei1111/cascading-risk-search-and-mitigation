@@ -1,0 +1,45 @@
+# IEEE39 SPP001 Provenance Bridge Repair Summary
+
+- `repair_scope`: spp001_model_provenance_bridge_repair
+- `gcn_training_run`: False
+- `formal_gcn_audit_rerun`: False
+- `spp001_smoke_executed`: False
+- `selected_32_batch_executed`: False
+- `full_1056_generation_run`: False
+- `simulink_run`: False
+- `labels_exported`: False
+- `formal_labels_exported`: False
+- `reranker_retrained`: False
+- `production_model_saved`: False
+- `source_spp001_rerun_commit`: f33eb97790a2bcc232a17ecd79be6c5153407f3b
+- `pair_id`: SPP001
+- `prior_outaged_branch`: L15
+- `candidate_next_branch`: L04
+- `previous_execution_status`: failed
+- `previous_blocker`: L15 TripCommand path belongs to the clean-lab L15 model, not the loaded handwired breaker wrapper
+- `l15_trip_command_model_source`: IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15
+- `l04_trip_command_model_source`: IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker
+- `loaded_execution_wrapper_source`: results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker.slx
+- `same_wrapper_trip_commands_available`: False
+- `repaired_provenance_manifest_written`: True
+- `can_rerun_spp001_after_manual_approval`: False
+- `no_label_value_generated`: True
+- `raw_trajectories_committed`: False
+- `full_timeseries_committed`: False
+- `mat_files_committed`: False
+- `slx_files_committed`: False
+- `source_slx_modified`: False
+## forbidden_features_detected_in_inputs
+```json
+[]
+```
+
+- `no_leakage_policy_passed`: True
+- `final_engineering_conclusion`: False
+- `should_train_gcn_now`: False
+- `should_rerun_formal_audit_now`: False
+- `should_export_formal_labels_now`: False
+- `should_retrain_reranker_now`: False
+- `should_deploy_model`: False
+- `blocker_if_any`: L15 TripCommand path belongs to the clean-lab L15 model, not the loaded handwired breaker wrapper
+- `recommended_next_step`: build or validate an SPP001-only same-wrapper bridge locally before any rerun

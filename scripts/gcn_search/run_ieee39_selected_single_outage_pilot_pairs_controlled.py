@@ -25,6 +25,7 @@ EXECUTION_OUT_DIR = ROOT / "results/gcn_search/ieee39_selected_32_pair_controlle
 ENTRYPOINT_REPAIR_DIR = ROOT / "results/gcn_search/ieee39_matlab_selected_pair_entrypoint_repair"
 SPP001_SMOKE_DIR = ROOT / "results/gcn_search/ieee39_spp001_single_pair_smoke_execution"
 SPP001_RERUN_DIR = ROOT / "results/gcn_search/ieee39_spp001_single_pair_smoke_rerun"
+SPP001_PROVENANCE_MANIFEST = ROOT / "results/gcn_search/ieee39_spp001_model_provenance_bridge_repair/spp001_repaired_provenance_manifest.json"
 DOC = ROOT / "docs/ieee39_controlled_execution_backend_repair.md"
 EXECUTION_DOC = ROOT / "docs/ieee39_selected_32_pair_controlled_execution_evidence.md"
 ENTRYPOINT_REPAIR_DOC = ROOT / "docs/ieee39_matlab_selected_pair_entrypoint_repair.md"
@@ -876,6 +877,7 @@ def _attempt_spp001_matlab(pair: dict[str, Any], output_dir: Path) -> dict[str, 
     manifest = PILOT_PAIR_DIR / "selected_single_outage_pilot_pairs.json"
     handwired_model = ROOT / "results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker.slx"
     validation_csv = ROOT / "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair/repaired_combined_validation_preview.csv"
+    provenance_manifest = SPP001_PROVENANCE_MANIFEST
     command = (
         "addpath('matlab/simulink_ieee39'); "
         "run_ieee39_selected_pair_line_trip_sequence("
@@ -888,6 +890,7 @@ def _attempt_spp001_matlab(pair: dict[str, Any], output_dir: Path) -> dict[str, 
         f"'pair_id', '{SPP001_PAIR_ID}', "
         f"'handwired_model_path', '{handwired_model.as_posix()}', "
         f"'validation_summary_csv', '{validation_csv.as_posix()}', "
+        f"'provenance_manifest_path', '{provenance_manifest.as_posix()}', "
         "'timeout_s', 240);"
     )
     base = _normalize_matlab_row(
@@ -899,6 +902,19 @@ def _attempt_spp001_matlab(pair: dict[str, Any], output_dir: Path) -> dict[str, 
         },
         pair,
     )
+    if _exists(provenance_manifest):
+        manifest = _read_json(provenance_manifest)
+        if not manifest.get("same_wrapper_confirmed", False):
+            base.update(
+                {
+                    "execution_status": "failed",
+                    "pilot_label_status": "failed",
+                    "timeout_or_failure_reason": "SPP001 provenance manifest does not confirm same-wrapper commands: "
+                    + str(manifest.get("blocker_if_any")),
+                    "evidence_source": "python_spp001_single_pair_smoke_provenance_mismatch",
+                }
+            )
+            return base
     try:
         completed = subprocess.run(
             ["matlab", "-batch", command],

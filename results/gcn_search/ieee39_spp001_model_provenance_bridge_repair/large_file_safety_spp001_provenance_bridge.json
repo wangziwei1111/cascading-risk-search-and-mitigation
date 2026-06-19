@@ -1,0 +1,14 @@
+{
+  "safety_scope": "spp001_model_provenance_bridge_large_file_safety",
+  "raw_trajectories_committed": false,
+  "full_timeseries_committed": false,
+  "mat_files_committed": false,
+  "slx_files_committed": false,
+  "slxc_files_committed": false,
+  "slprj_committed": false,
+  "source_slx_modified": false,
+  "venv_committed": false,
+  "wheel_or_dll_committed": false,
+  "model_files_committed": false,
+  "safety_check_passed": true
+}

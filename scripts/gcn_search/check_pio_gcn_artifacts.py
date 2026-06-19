@@ -6701,6 +6701,182 @@ def main() -> int:
         except Exception as exc:
             failures.append(f"Failed to read SPP001 rerun artifacts: {exc}")
 
+    spp001_bridge_dir = ROOT / "results/gcn_search/ieee39_spp001_model_provenance_bridge_repair"
+    spp001_bridge_doc = ROOT / "docs/ieee39_spp001_model_provenance_bridge_repair.md"
+    spp001_bridge_summary = spp001_bridge_dir / "spp001_provenance_bridge_repair_summary.json"
+    spp001_bridge_inventory = spp001_bridge_dir / "spp001_trip_command_provenance_inventory.json"
+    spp001_bridge_manifest = spp001_bridge_dir / "spp001_repaired_provenance_manifest.json"
+    spp001_bridge_gate = spp001_bridge_dir / "spp001_rerun_provenance_gate.json"
+    spp001_bridge_no_leakage = spp001_bridge_dir / "no_leakage_spp001_provenance_bridge_audit.json"
+    spp001_bridge_safety = spp001_bridge_dir / "large_file_safety_spp001_provenance_bridge.json"
+    spp001_bridge_required = [
+        spp001_bridge_doc,
+        spp001_bridge_summary,
+        spp001_bridge_dir / "spp001_provenance_bridge_repair_summary.md",
+        spp001_bridge_dir / "spp001_provenance_bridge_repair_summary.csv",
+        spp001_bridge_inventory,
+        spp001_bridge_dir / "spp001_trip_command_provenance_inventory.md",
+        spp001_bridge_manifest,
+        spp001_bridge_dir / "spp001_repaired_provenance_manifest.md",
+        spp001_bridge_gate,
+        spp001_bridge_dir / "spp001_rerun_provenance_gate.md",
+        spp001_bridge_no_leakage,
+        spp001_bridge_dir / "no_leakage_spp001_provenance_bridge_audit.md",
+        spp001_bridge_safety,
+        spp001_bridge_dir / "large_file_safety_spp001_provenance_bridge.md",
+    ]
+    existing_spp001_bridge_required = [path for path in spp001_bridge_required if path.exists()]
+    if existing_spp001_bridge_required:
+        missing_spp001_bridge_required = [path for path in spp001_bridge_required if not path.exists()]
+        if missing_spp001_bridge_required:
+            failures.append(
+                "IEEE39 SPP001 model provenance bridge repair artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_spp001_bridge_required)
+            )
+        try:
+            summary = _read_json_path(spp001_bridge_summary)
+            inventory = _read_json_path(spp001_bridge_inventory)
+            manifest = _read_json_path(spp001_bridge_manifest)
+            gate = _read_json_path(spp001_bridge_gate)
+            no_leakage = _read_json_path(spp001_bridge_no_leakage)
+            safety = _read_json_path(spp001_bridge_safety)
+            for key, expected in [
+                ("repair_scope", "spp001_model_provenance_bridge_repair"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("spp001_smoke_executed", False),
+                ("selected_32_batch_executed", False),
+                ("full_1056_generation_run", False),
+                ("simulink_run", False),
+                ("labels_exported", False),
+                ("formal_labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("source_spp001_rerun_commit", "f33eb97790a2bcc232a17ecd79be6c5153407f3b"),
+                ("pair_id", "SPP001"),
+                ("prior_outaged_branch", "L15"),
+                ("candidate_next_branch", "L04"),
+                ("previous_execution_status", "failed"),
+                ("l15_trip_command_model_source", "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15"),
+                ("l04_trip_command_model_source", "IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker"),
+                ("same_wrapper_trip_commands_available", False),
+                ("repaired_provenance_manifest_written", True),
+                ("can_rerun_spp001_after_manual_approval", False),
+                ("no_label_value_generated", True),
+                ("raw_trajectories_committed", False),
+                ("full_timeseries_committed", False),
+                ("mat_files_committed", False),
+                ("slx_files_committed", False),
+                ("source_slx_modified", False),
+                ("forbidden_features_detected_in_inputs", []),
+                ("no_leakage_policy_passed", True),
+                ("final_engineering_conclusion", False),
+                ("should_train_gcn_now", False),
+                ("should_rerun_formal_audit_now", False),
+                ("should_export_formal_labels_now", False),
+                ("should_retrain_reranker_now", False),
+                ("should_deploy_model", False),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"SPP001 provenance bridge summary must set {key}={expected!r}.")
+            if not summary.get("blocker_if_any"):
+                failures.append("SPP001 provenance bridge summary must preserve a blocker.")
+            if manifest.get("manifest_scope") != "spp001_same_wrapper_provenance_manifest":
+                failures.append("SPP001 provenance manifest has wrong scope.")
+            if manifest.get("same_wrapper_confirmed") is not False:
+                failures.append("SPP001 provenance manifest must not confirm same-wrapper without evidence.")
+            if manifest.get("approved_for_execution_now") is not False or manifest.get("requires_next_round_approval") is not True:
+                failures.append("SPP001 provenance manifest must require a separate approval round.")
+            if gate.get("gate_scope") != "spp001_rerun_provenance_gate":
+                failures.append("SPP001 provenance gate has wrong scope.")
+            if gate.get("l15_ready") is not True or gate.get("l04_ready") is not True:
+                failures.append("SPP001 provenance gate must preserve L15/L04 readiness.")
+            if gate.get("same_wrapper_confirmed") is not False or gate.get("provenance_bridge_ready") is not False:
+                failures.append("SPP001 provenance gate must block rerun when same-wrapper is not confirmed.")
+            if gate.get("can_request_spp001_rerun_approval") is not False:
+                failures.append("SPP001 provenance gate must not allow rerun approval yet.")
+            if not inventory.get("l15_trip_command_candidates") or not inventory.get("l04_trip_command_candidates"):
+                failures.append("SPP001 provenance inventory must contain L15 and L04 candidates.")
+            if inventory.get("selected_candidate_if_any") is not None:
+                failures.append("SPP001 provenance inventory must not select a candidate without same-wrapper proof.")
+            for key, expected in [
+                ("forbidden_features_detected_in_inputs", []),
+                ("post_fault_dynamic_measurements_used_as_inputs", False),
+                ("dynamic_outputs_used_only_as_future_labels_or_targets", True),
+                ("label_derived_flags_used_as_inputs", False),
+                ("bus_fault_labels_used", False),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if no_leakage.get(key) != expected:
+                    failures.append(f"SPP001 provenance no-leakage audit must set {key}={expected!r}.")
+            for key in [
+                "raw_trajectories_committed",
+                "full_timeseries_committed",
+                "mat_files_committed",
+                "slx_files_committed",
+                "slxc_files_committed",
+                "slprj_committed",
+                "source_slx_modified",
+                "venv_committed",
+                "wheel_or_dll_committed",
+                "model_files_committed",
+            ]:
+                if safety.get(key) is not False:
+                    failures.append(f"SPP001 provenance safety check must keep {key}=false.")
+            if safety.get("safety_check_passed") is not True:
+                failures.append("SPP001 provenance large-file safety check must pass.")
+            bridge_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_spp001_model_provenance_bridge_repair.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                    _read_text("docs/ieee39_spp001_single_pair_smoke_rerun.md"),
+                    _read_text("docs/ieee39_l15_handwired_validation_readiness_repair.md"),
+                    _read_text("docs/ieee39_matlab_selected_pair_entrypoint_repair.md"),
+                    _read_text("results/gcn_search/ieee39_spp001_model_provenance_bridge_repair/spp001_provenance_bridge_repair_summary.md"),
+                ]
+            ).lower()
+            normalized_bridge = " ".join(bridge_text.replace("`", "").split())
+            for required in [
+                "spp001 model provenance bridge repair",
+                "does not train gcn",
+                "does not rerun formal audit",
+                "does not execute spp001 smoke",
+                "does not execute selected 32 batch",
+                "does not run full 1056 generation",
+                "does not export formal labels",
+                "does not retrain the reranker",
+                "clean-lab l15",
+                "same wrapper",
+                "no spp001 0/1 label",
+                "raw trajectory",
+                "full timeseries",
+                "source .slx is not modified",
+                "bus-fault labels are not used",
+                "l12 remains special/excluded",
+                "pilot labels are not formal training labels",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "temporary bus-fault injection is not engineering-grade protection",
+            ]:
+                if required not in normalized_bridge:
+                    failures.append(f"SPP001 provenance bridge docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is useless",
+                "rerun formal audit completed",
+                "spp001 smoke completed",
+                "selected 32 batch execution completed",
+                "full 1056 generation completed",
+                "formal labels exported",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+                "deployment ready",
+            ]:
+                if bad in normalized_bridge:
+                    failures.append(f"SPP001 provenance bridge docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read SPP001 provenance bridge repair artifacts: {exc}")
+
     l15_repair_dir = ROOT / "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair"
     l15_repair_doc = ROOT / "docs/ieee39_l15_handwired_validation_readiness_repair.md"
     l15_summary = l15_repair_dir / "l15_readiness_repair_summary.json"

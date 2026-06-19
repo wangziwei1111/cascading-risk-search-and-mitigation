@@ -28,3 +28,7 @@ No raw trajectory, full timeseries, `.mat`, `.slx`, `.slxc`, or `slprj` artifact
 ## Next Step
 
 `approve rerun of SPP001 single-pair smoke in a separate round`.
+
+## Follow-Up Provenance Note
+
+The later SPP001 model provenance bridge repair shows that L15 readiness alone is not enough for execution: L15's trip command path belongs to the clean-lab L15 model, while L04's path belongs to the handwired breaker wrapper. Same-wrapper provenance is therefore not confirmed. This readiness repair still does not run SPP001 smoke, does not export formal labels, does not train GCN, and does not create an SPP001 0/1 label.

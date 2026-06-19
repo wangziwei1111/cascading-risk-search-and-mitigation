@@ -1,0 +1,14 @@
+{
+  "manifest_scope": "spp001_same_wrapper_provenance_manifest",
+  "pair_id": "SPP001",
+  "prior_outaged_branch": "L15",
+  "candidate_next_branch": "L04",
+  "selected_wrapper_model": null,
+  "prior_trip_command_path": null,
+  "next_trip_command_path": null,
+  "same_wrapper_confirmed": false,
+  "source_slx_modified": false,
+  "approved_for_execution_now": false,
+  "requires_next_round_approval": true,
+  "blocker_if_any": "L15 TripCommand path belongs to the clean-lab L15 model, not the loaded handwired breaker wrapper"
+}

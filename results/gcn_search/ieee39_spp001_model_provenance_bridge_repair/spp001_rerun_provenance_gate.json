@@ -1,0 +1,14 @@
+{
+  "gate_scope": "spp001_rerun_provenance_gate",
+  "pair_id": "SPP001",
+  "l15_ready": true,
+  "l04_ready": true,
+  "same_wrapper_confirmed": false,
+  "provenance_bridge_ready": false,
+  "selected_32_batch_allowed": false,
+  "full_1056_allowed": false,
+  "formal_label_export_allowed": false,
+  "gcn_training_allowed": false,
+  "can_request_spp001_rerun_approval": false,
+  "blocker_if_any": "L15 TripCommand path belongs to the clean-lab L15 model, not the loaded handwired breaker wrapper"
+}
