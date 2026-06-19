@@ -34,7 +34,7 @@
 - `pilot_label_status`: failed
 - `dynamic_stress_score_if_available`: None
 - `unstable_flag_if_available`: None
-- `timeout_or_failure_reason`: single-pair smoke failed: Simulink 对象名称无效: 'IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Grid/L15_TripCommand'。
+- `timeout_or_failure_reason`: SPP001 provenance manifest does not confirm same-wrapper commands: L15 TripCommand path belongs to the clean-lab L15 model, not the loaded handwired breaker wrapper
 - `pilot_label_available`: False
 - `pilot_labels_are_formal_training_labels`: False
 - `raw_trajectories_committed`: False
@@ -60,5 +60,5 @@
 - `should_export_formal_labels_now`: False
 - `should_retrain_reranker_now`: False
 - `should_deploy_model`: False
-- `blocker_if_any`: single-pair smoke failed: Simulink 对象名称无效: 'IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Grid/L15_TripCommand'。
-- `recommended_next_step`: inspect timeout/failure evidence and rerun one-pair smoke after repair
+- `blocker_if_any`: SPP001 provenance manifest does not confirm same-wrapper commands: L15 TripCommand path belongs to the clean-lab L15 model, not the loaded handwired breaker wrapper
+- `recommended_next_step`: build or validate an SPP001-only same-wrapper bridge locally before any rerun

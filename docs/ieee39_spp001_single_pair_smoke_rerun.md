@@ -26,4 +26,4 @@ No raw trajectories, full timeseries, `.mat`, `.slx`, `.slxc`, or `slprj` artifa
 
 ## Next Step
 
-`inspect timeout/failure evidence and rerun one-pair smoke after repair`.
+`build or validate an SPP001-only same-wrapper bridge locally before any rerun`.

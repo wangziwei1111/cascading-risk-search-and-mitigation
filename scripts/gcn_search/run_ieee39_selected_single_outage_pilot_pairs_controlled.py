@@ -860,6 +860,9 @@ def write_entrypoint_repair_payloads(payloads: dict[str, Any], write_report: boo
 
 def _spp001_recommended_next_step(result: dict[str, Any]) -> str:
     status = result.get("execution_status")
+    reason = str(result.get("timeout_or_failure_reason") or "").lower()
+    if "provenance manifest does not confirm same-wrapper" in reason or "provenance mismatch" in reason:
+        return "build or validate an SPP001-only same-wrapper bridge locally before any rerun"
     if status == "blocked":
         return "repair remaining single-pair execution blocker before any more pair execution"
     if status in {"timeout", "failed"}:
