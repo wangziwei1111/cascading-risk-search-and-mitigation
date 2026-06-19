@@ -1,0 +1,14 @@
+{
+  "gate_scope": "spp001_local_bridge_rerun_gate",
+  "pair_id": "SPP001",
+  "l15_ready": true,
+  "l04_ready": true,
+  "local_bridge_built": false,
+  "same_wrapper_confirmed": false,
+  "selected_32_batch_allowed": false,
+  "full_1056_allowed": false,
+  "formal_label_export_allowed": false,
+  "gcn_training_allowed": false,
+  "can_request_spp001_smoke_rerun_approval": false,
+  "blocker_if_any": "L15_TripCommand is not present in the local bridge copy"
+}

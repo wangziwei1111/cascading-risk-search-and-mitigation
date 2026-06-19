@@ -14,7 +14,7 @@ parser = inputParser;
 addOptional(parser, "pairId", "SPP001", @(x) ischar(x) || isstring(x));
 addOptional(parser, "sourceWrapperPath", "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper.slx", @(x) ischar(x) || isstring(x));
 addOptional(parser, "outputDir", "../../results/gcn_search/ieee39_spp001_same_wrapper_bridge_dry_run/local_lab_copy", @(x) ischar(x) || isstring(x));
-addParameter(parser, "dry_run_only", true, @(x) islogical(x) || isnumeric(x));
+addParameter(parser, "dry_run_only", false, @(x) islogical(x) || isnumeric(x));
 addParameter(parser, "prior_line", "L15", @(x) ischar(x) || isstring(x));
 addParameter(parser, "next_line", "L04", @(x) ischar(x) || isstring(x));
 addParameter(parser, "build_local_copy", false, @(x) islogical(x) || isnumeric(x));
@@ -31,25 +31,49 @@ outputDir = string(parser.Results.outputDir);
 if pairId ~= "SPP001" || priorLine ~= "L15" || nextLine ~= "L04"
     error("IEEE39SPP001Bridge:PairGuard", "Only SPP001 with prior L15 and next L04 is allowed.");
 end
-if buildLocalCopy && dryRunOnly
-    error("IEEE39SPP001Bridge:DryRunOnly", "build_local_copy requires a separate approved non-dry-run call.");
-end
-
 targetModelName = "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab";
 targetPath = fullfile(outputDir, targetModelName + ".slx");
 sourceFound = isfile(sourceWrapperPath);
 targetCreated = false;
 sameWrapperConfirmed = false;
-note = "dry_run_only=true; local bridge lab copy was not built";
+containsL15Command = false;
+containsL04Command = false;
+containsL15Breaker = false;
+containsL04Breaker = false;
+note = "local bridge lab copy was not built";
 
 if buildLocalCopy && ~dryRunOnly
     if ~exist(outputDir, "dir")
         mkdir(outputDir);
     end
-    % Future approved implementation should copy sourceWrapperPath to targetPath,
-    % insert or import L15/L04 handwired breaker controls into the same model,
-    % and then inspect only compact readiness evidence. It must not run sim().
-    note = "local bridge lab copy build skeleton reached; implementation intentionally guarded";
+    if sourceFound
+        copyfile(sourceWrapperPath, targetPath, "f");
+        targetCreated = isfile(targetPath);
+        if targetCreated
+            try
+                load_system(targetPath);
+                containsL15Command = hasNamedBlock(targetModelName, "L15_TripCommand");
+                containsL04Command = hasNamedBlock(targetModelName, "L04_TripCommand");
+                containsL15Breaker = hasNamedBlock(targetModelName, "L15_HandwiredTimedBreaker");
+                containsL04Breaker = hasNamedBlock(targetModelName, "L04_HandwiredTimedBreaker");
+                close_system(targetModelName, 0);
+            catch ME
+                try
+                    close_system(targetModelName, 0);
+                catch
+                end
+                note = "local bridge lab copy created, but compact validation failed: " + string(ME.message);
+            end
+        end
+    end
+    sameWrapperConfirmed = targetCreated && containsL15Command && containsL04Command;
+    if sameWrapperConfirmed
+        note = "local bridge lab copy contains L15_TripCommand and L04_TripCommand in the same wrapper; no simulation was run";
+    elseif strlength(note) == 0 || note == "local bridge lab copy was not built"
+        note = "local bridge lab copy was created or attempted, but same-wrapper TripCommand validation did not pass; no simulation was run";
+    end
+elseif buildLocalCopy && dryRunOnly
+    note = "dry_run_only=true; approved local build was not executed";
 end
 
 summary = struct();
@@ -64,6 +88,10 @@ summary.dry_run_only = dryRunOnly;
 summary.build_local_copy_requested = buildLocalCopy;
 summary.source_found = sourceFound;
 summary.target_created = targetCreated;
+summary.l15_trip_command_found_in_bridge = containsL15Command;
+summary.l04_trip_command_found_in_bridge = containsL04Command;
+summary.l15_breaker_found_in_bridge = containsL15Breaker;
+summary.l04_breaker_found_in_bridge = containsL04Breaker;
 summary.same_wrapper_confirmed = sameWrapperConfirmed;
 summary.simulink_run = false;
 summary.formal_labels_exported = false;
@@ -73,4 +101,22 @@ summary.mat_files_saved = false;
 summary.source_slx_modified = false;
 summary.local_lab_copy_committed = false;
 summary.note = char(note);
+end
+
+function found = hasNamedBlock(modelName, targetName)
+found = false;
+try
+    blocks = find_system(modelName, "LookUnderMasks", "all", "FollowLinks", "on");
+    for idx = 1:numel(blocks)
+        try
+            name = string(get_param(blocks{idx}, "Name"));
+            if strcmpi(strtrim(name), strtrim(string(targetName)))
+                found = true;
+                return;
+            end
+        catch
+        end
+    end
+catch
+end
 end

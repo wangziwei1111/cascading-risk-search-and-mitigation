@@ -7056,6 +7056,189 @@ def main() -> int:
         except Exception as exc:
             failures.append(f"Failed to read SPP001 same-wrapper bridge dry-run artifacts: {exc}")
 
+    spp001_local_dir = ROOT / "results/gcn_search/ieee39_spp001_same_wrapper_bridge_local_validation"
+    spp001_local_doc = ROOT / "docs/ieee39_spp001_same_wrapper_bridge_local_validation.md"
+    spp001_local_summary = spp001_local_dir / "spp001_local_bridge_validation_summary.json"
+    spp001_local_build = spp001_local_dir / "spp001_local_bridge_build_report.json"
+    spp001_local_manifest = spp001_local_dir / "spp001_validated_same_wrapper_manifest.json"
+    spp001_local_gate = spp001_local_dir / "spp001_local_bridge_rerun_gate.json"
+    spp001_local_no_leakage = spp001_local_dir / "no_leakage_spp001_local_bridge_validation_audit.json"
+    spp001_local_safety = spp001_local_dir / "large_file_safety_spp001_local_bridge_validation.json"
+    spp001_local_required = [
+        spp001_local_doc,
+        spp001_local_summary,
+        spp001_local_dir / "spp001_local_bridge_validation_summary.md",
+        spp001_local_dir / "spp001_local_bridge_validation_summary.csv",
+        spp001_local_build,
+        spp001_local_dir / "spp001_local_bridge_build_report.md",
+        spp001_local_manifest,
+        spp001_local_dir / "spp001_validated_same_wrapper_manifest.md",
+        spp001_local_gate,
+        spp001_local_dir / "spp001_local_bridge_rerun_gate.md",
+        spp001_local_no_leakage,
+        spp001_local_dir / "no_leakage_spp001_local_bridge_validation_audit.md",
+        spp001_local_safety,
+        spp001_local_dir / "large_file_safety_spp001_local_bridge_validation.md",
+    ]
+    existing_spp001_local_required = [path for path in spp001_local_required if path.exists()]
+    if existing_spp001_local_required:
+        missing_spp001_local_required = [path for path in spp001_local_required if not path.exists()]
+        if missing_spp001_local_required:
+            failures.append(
+                "IEEE39 SPP001 same-wrapper bridge local validation artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_spp001_local_required)
+            )
+        try:
+            summary = _read_json_path(spp001_local_summary)
+            build = _read_json_path(spp001_local_build)
+            manifest = _read_json_path(spp001_local_manifest)
+            gate = _read_json_path(spp001_local_gate)
+            no_leakage = _read_json_path(spp001_local_no_leakage)
+            safety = _read_json_path(spp001_local_safety)
+            for key, expected in [
+                ("validation_scope", "spp001_same_wrapper_bridge_local_validation"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("spp001_smoke_executed", False),
+                ("selected_32_batch_executed", False),
+                ("full_1056_generation_run", False),
+                ("simulink_run", False),
+                ("labels_exported", False),
+                ("formal_labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("source_bridge_dry_run_commit", "dbd79482a0bc78fefdb95fb7d87c69af7ba092e6"),
+                ("pair_id", "SPP001"),
+                ("prior_outaged_branch", "L15"),
+                ("candidate_next_branch", "L04"),
+                ("local_bridge_build_attempted", True),
+                ("local_bridge_validation_attempted", True),
+                ("local_bridge_committed", False),
+                ("source_slx_modified", False),
+                ("l04_trip_command_found_in_bridge", True),
+                ("same_wrapper_confirmed", False),
+                ("repaired_provenance_manifest_written", True),
+                ("can_rerun_spp001_after_manual_approval", False),
+                ("no_label_value_generated", True),
+                ("raw_trajectories_committed", False),
+                ("full_timeseries_committed", False),
+                ("mat_files_committed", False),
+                ("slx_files_committed", False),
+                ("forbidden_features_detected_in_inputs", []),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"SPP001 bridge local validation summary must set {key}={expected!r}.")
+            if summary.get("l15_trip_command_found_in_bridge") is not False:
+                failures.append("SPP001 local validation must not claim L15 is in the bridge without evidence.")
+            if summary.get("local_bridge_built") is not False:
+                failures.append("SPP001 local validation must keep local_bridge_built=false until same-wrapper is confirmed.")
+            if "L15_TripCommand is not present" not in str(summary.get("blocker_if_any")):
+                failures.append("SPP001 local validation must preserve the L15 missing blocker.")
+            if summary.get("recommended_next_step") != "repair local same-wrapper bridge builder before any SPP001 smoke rerun":
+                failures.append("SPP001 local validation must recommend repairing the local bridge builder.")
+            if build.get("local_bridge_build_attempted") is not True or build.get("local_bridge_copy_created") is not True:
+                failures.append("SPP001 local build report must record the local copy attempt and creation.")
+            if build.get("local_bridge_built") is not False or build.get("source_slx_modified") is not False:
+                failures.append("SPP001 local build report must not claim a complete bridge or source SLX modification.")
+            if manifest.get("manifest_scope") != "spp001_validated_same_wrapper_manifest":
+                failures.append("SPP001 local same-wrapper manifest has wrong scope.")
+            if manifest.get("same_wrapper_confirmed") is not False:
+                failures.append("SPP001 local manifest must keep same_wrapper_confirmed=false.")
+            if manifest.get("l15_trip_command_found_in_bridge") is not False or manifest.get("l04_trip_command_found_in_bridge") is not True:
+                failures.append("SPP001 local manifest must show L04 present and L15 absent in the local copy.")
+            if manifest.get("approved_for_execution_now") is not False or manifest.get("requires_next_round_approval") is not True:
+                failures.append("SPP001 local manifest must not approve execution now.")
+            if gate.get("gate_scope") != "spp001_local_bridge_rerun_gate":
+                failures.append("SPP001 local bridge rerun gate has wrong scope.")
+            for key, expected in [
+                ("l15_ready", True),
+                ("l04_ready", True),
+                ("local_bridge_built", False),
+                ("same_wrapper_confirmed", False),
+                ("selected_32_batch_allowed", False),
+                ("full_1056_allowed", False),
+                ("formal_label_export_allowed", False),
+                ("gcn_training_allowed", False),
+                ("can_request_spp001_smoke_rerun_approval", False),
+            ]:
+                if gate.get(key) != expected:
+                    failures.append(f"SPP001 local bridge rerun gate must set {key}={expected!r}.")
+            for key, expected in [
+                ("forbidden_features_detected_in_inputs", []),
+                ("post_fault_dynamic_measurements_used_as_inputs", False),
+                ("dynamic_outputs_used_only_as_future_labels_or_targets", True),
+                ("label_derived_flags_used_as_inputs", False),
+                ("bus_fault_labels_used", False),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if no_leakage.get(key) != expected:
+                    failures.append(f"SPP001 local bridge no-leakage audit must set {key}={expected!r}.")
+            for key in [
+                "raw_trajectories_committed",
+                "full_timeseries_committed",
+                "mat_files_committed",
+                "slx_files_committed",
+                "slxc_files_committed",
+                "slprj_committed",
+                "local_bridge_committed",
+                "local_lab_copy_committed",
+                "source_slx_modified",
+                "venv_committed",
+                "wheel_or_dll_committed",
+                "model_files_committed",
+            ]:
+                if safety.get(key) is not False:
+                    failures.append(f"SPP001 local bridge safety check must keep {key}=false.")
+            if safety.get("safety_check_passed") is not True:
+                failures.append("SPP001 local bridge large-file safety check must pass.")
+            local_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_spp001_same_wrapper_bridge_local_validation.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                    _read_text("results/gcn_search/ieee39_spp001_same_wrapper_bridge_local_validation/spp001_local_bridge_validation_summary.md"),
+                    _read_text("results/gcn_search/ieee39_spp001_same_wrapper_bridge_local_validation/spp001_local_bridge_rerun_gate.md"),
+                ]
+            ).lower()
+            normalized_local = " ".join(local_text.replace("`", "").split())
+            for required in [
+                "spp001 same-wrapper bridge local validation",
+                "does not train gcn",
+                "does not rerun formal audit",
+                "does not execute spp001 smoke",
+                "does not execute selected 32 batch",
+                "does not run full 1056 generation",
+                "does not export formal labels",
+                "l15_tripcommand and l04_tripcommand",
+                "local bridge .slx",
+                "does not generate a 0/1 label",
+                "raw trajectory",
+                "full timeseries",
+                "source .slx is not modified",
+                "bus-fault labels are not used",
+                "l12 remains special/excluded",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "temporary bus-fault injection is not engineering-grade protection",
+            ]:
+                if required not in normalized_local:
+                    failures.append(f"SPP001 local bridge docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is useless",
+                "spp001 smoke completed",
+                "selected 32 batch execution completed",
+                "full 1056 generation completed",
+                "formal labels exported",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+                "deployment ready",
+            ]:
+                if bad in normalized_local:
+                    failures.append(f"SPP001 local bridge docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read SPP001 same-wrapper bridge local validation artifacts: {exc}")
+
     l15_repair_dir = ROOT / "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair"
     l15_repair_doc = ROOT / "docs/ieee39_l15_handwired_validation_readiness_repair.md"
     l15_summary = l15_repair_dir / "l15_readiness_repair_summary.json"

@@ -1,0 +1,67 @@
+# IEEE39 SPP001 Local Bridge Validation Summary
+
+- `validation_scope`: spp001_same_wrapper_bridge_local_validation
+- `gcn_training_run`: False
+- `formal_gcn_audit_rerun`: False
+- `spp001_smoke_executed`: False
+- `selected_32_batch_executed`: False
+- `full_1056_generation_run`: False
+- `simulink_run`: False
+- `labels_exported`: False
+- `formal_labels_exported`: False
+- `reranker_retrained`: False
+- `production_model_saved`: False
+- `source_bridge_dry_run_commit`: dbd79482a0bc78fefdb95fb7d87c69af7ba092e6
+- `pair_id`: SPP001
+- `prior_outaged_branch`: L15
+- `candidate_next_branch`: L04
+- `local_bridge_build_attempted`: True
+- `local_bridge_validation_attempted`: True
+- `local_bridge_built`: False
+- `local_bridge_committed`: False
+- `source_slx_modified`: False
+- `l15_trip_command_found_in_bridge`: False
+- `l04_trip_command_found_in_bridge`: True
+- `same_wrapper_confirmed`: False
+- `repaired_provenance_manifest_written`: True
+- `can_rerun_spp001_after_manual_approval`: False
+- `no_label_value_generated`: True
+- `raw_trajectories_committed`: False
+- `full_timeseries_committed`: False
+- `mat_files_committed`: False
+- `slx_files_committed`: False
+## forbidden_features_detected_in_inputs
+```json
+[]
+```
+
+- `no_leakage_policy_passed`: True
+- `blocker_if_any`: L15_TripCommand is not present in the local bridge copy
+- `recommended_next_step`: repair local same-wrapper bridge builder before any SPP001 smoke rerun
+## local_bridge_validation_detail
+```json
+{
+  "local_bridge_path": "results\\gcn_search\\ieee39_spp001_same_wrapper_bridge_local_validation\\local_lab_copy\\IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab.slx",
+  "local_bridge_file_exists": true,
+  "local_bridge_model_name": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab",
+  "l15_trip_command_found_in_bridge": false,
+  "l04_trip_command_found_in_bridge": true,
+  "l15_breaker_found_in_bridge": false,
+  "l04_breaker_found_in_bridge": true,
+  "l15_trip_command_path_in_bridge": null,
+  "l04_trip_command_path_in_bridge": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab/Grid/L04_TripCommand",
+  "trip_command_model_source_l15": null,
+  "trip_command_model_source_l04": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab",
+  "same_wrapper_confirmed": false,
+  "blocker_if_any": "L15_TripCommand is not present in the local bridge copy"
+}
+```
+
+## dry_run_inputs
+```json
+{
+  "dry_run_summary_scope": "spp001_same_wrapper_bridge_dry_run",
+  "dry_run_can_build_same_wrapper_bridge_locally": true,
+  "dry_run_component_plan_scope": "spp001_same_wrapper_bridge_component_plan"
+}
+```

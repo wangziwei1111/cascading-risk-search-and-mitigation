@@ -5302,3 +5302,43 @@ Boundary notes:
 
 Recommended next step: approve local SPP001 same-wrapper bridge build/validation
 in a separate round. Do not run SPP001 smoke yet.
+
+## Round 99: IEEE39 SPP001 Same-Wrapper Bridge Local Validation
+
+This round performed SPP001 same-wrapper bridge local validation only. It does not train GCN, does not rerun formal audit, does not execute SPP001 smoke, does not execute selected 32 batch, does not run full 1056 generation, does not export formal labels, does not retrain the reranker, and does not deploy a model.
+
+Plain-language result: a local bridge `.slx` copy was created for inspection, but only `L04_TripCommand` was found in that copy. `L15_TripCommand` was still not present, so L15 and L04 are not yet validated in the same local wrapper. Therefore this round does not generate a 0/1 label and does not allow an SPP001 smoke rerun yet.
+
+Artifacts:
+
+- `scripts/gcn_search/validate_ieee39_spp001_same_wrapper_bridge_local.py`
+- `docs/ieee39_spp001_same_wrapper_bridge_local_validation.md`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_local_validation/spp001_local_bridge_validation_summary.json`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_local_validation/spp001_local_bridge_build_report.json`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_local_validation/spp001_validated_same_wrapper_manifest.json`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_local_validation/spp001_local_bridge_rerun_gate.json`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_local_validation/no_leakage_spp001_local_bridge_validation_audit.json`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_local_validation/large_file_safety_spp001_local_bridge_validation.json`
+
+Key fields:
+
+- `validation_scope = spp001_same_wrapper_bridge_local_validation`
+- `pair_id = SPP001`
+- `local_bridge_build_attempted = true`
+- `local_bridge_validation_attempted = true`
+- `local_bridge_built = false`
+- `local_bridge_committed = false`
+- `source_slx_modified = false`
+- `l15_trip_command_found_in_bridge = false`
+- `l04_trip_command_found_in_bridge = true`
+- `same_wrapper_confirmed = false`
+- `repaired_provenance_manifest_written = true`
+- `can_rerun_spp001_after_manual_approval = false`
+- `no_label_value_generated = true`
+- `forbidden_features_detected_in_inputs = []`
+- `no_leakage_policy_passed = true`
+- `blocker_if_any = L15_TripCommand is not present in the local bridge copy`
+
+Boundary notes: no raw trajectory, full timeseries, `.mat`, `.slx`, `.slxc`, `slprj`, production model, venv, wheel, DLL, or local bridge `.slx` file is committed. Bus-fault labels are not used. L12 remains special/excluded. `phasor_RMS` is not EMT. `generator_speed_proxy` is not direct frequency. Temporary bus-fault injection is not engineering-grade protection.
+
+Next step: repair local same-wrapper bridge builder before any SPP001 smoke rerun.
