@@ -1,0 +1,37 @@
+key,value
+dry_run_scope,spp001_same_wrapper_bridge_dry_run
+gcn_training_run,False
+formal_gcn_audit_rerun,False
+spp001_smoke_executed,False
+selected_32_batch_executed,False
+full_1056_generation_run,False
+simulink_run,False
+labels_exported,False
+formal_labels_exported,False
+reranker_retrained,False
+production_model_saved,False
+source_provenance_bridge_commit,5ad76acea5fb0e8c1f887ce868d2e1ce5dc08c27
+pair_id,SPP001
+prior_outaged_branch,L15
+candidate_next_branch,L04
+same_wrapper_bridge_planned,True
+same_wrapper_bridge_built_this_round,False
+local_lab_copy_required,True
+local_lab_copy_committed,False
+source_slx_modified,False
+can_build_same_wrapper_bridge_locally,True
+can_confirm_same_wrapper_now,False
+can_rerun_spp001_after_manual_approval,False
+no_label_value_generated,True
+raw_trajectories_committed,False
+full_timeseries_committed,False
+mat_files_committed,False
+slx_files_committed,False
+forbidden_features_detected_in_inputs,[]
+no_leakage_policy_passed,True
+blocker_if_any,
+recommended_next_step,approve local SPP001 same-wrapper bridge build/validation in a separate round; do not run smoke yet
+l15_trip_command_candidates,"[{""line_id"": ""L15"", ""trip_command_name"": ""L15_TripCommand"", ""trip_command_path"": ""IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Grid/L15_TripCommand"", ""trip_command_model_source"": ""IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15"", ""validation_passed"": true, ""source_artifact"": ""results\\gcn_search\\ieee39_graphical_dynamic_model\\handwired_breaker_validation\\ieee39_clean_breaker_lab_batch_validation_summary.csv""}]"
+l04_trip_command_candidates,"[{""line_id"": ""L04"", ""trip_command_name"": ""L04_TripCommand"", ""trip_command_path"": ""IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Grid/L04_TripCommand"", ""trip_command_model_source"": ""IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker"", ""validation_passed"": true, ""source_artifact"": ""results\\gcn_search\\ieee39_graphical_dynamic_model\\handwired_breaker_validation\\ieee39_multi_handwired_breaker_validation_summary.csv""}]"
+previous_provenance_summary,"{""same_wrapper_trip_commands_available"": false, ""blocker_if_any"": ""L15 TripCommand path belongs to the clean-lab L15 model, not the loaded handwired breaker wrapper""}"
+previous_provenance_gate,"{""provenance_bridge_ready"": false, ""can_request_spp001_rerun_approval"": false}"

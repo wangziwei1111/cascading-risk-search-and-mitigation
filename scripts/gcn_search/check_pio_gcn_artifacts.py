@@ -6877,6 +6877,185 @@ def main() -> int:
         except Exception as exc:
             failures.append(f"Failed to read SPP001 provenance bridge repair artifacts: {exc}")
 
+    spp001_dry_dir = ROOT / "results/gcn_search/ieee39_spp001_same_wrapper_bridge_dry_run"
+    spp001_dry_doc = ROOT / "docs/ieee39_spp001_same_wrapper_bridge_dry_run.md"
+    spp001_dry_summary = spp001_dry_dir / "spp001_same_wrapper_bridge_dry_run_summary.json"
+    spp001_dry_plan = spp001_dry_dir / "spp001_bridge_component_plan.json"
+    spp001_dry_manifest = spp001_dry_dir / "spp001_same_wrapper_candidate_manifest.json"
+    spp001_dry_gate = spp001_dry_dir / "spp001_bridge_readiness_gate.json"
+    spp001_dry_no_leakage = spp001_dry_dir / "no_leakage_spp001_bridge_dry_run_audit.json"
+    spp001_dry_safety = spp001_dry_dir / "large_file_safety_spp001_bridge_dry_run.json"
+    spp001_dry_required = [
+        spp001_dry_doc,
+        spp001_dry_summary,
+        spp001_dry_dir / "spp001_same_wrapper_bridge_dry_run_summary.md",
+        spp001_dry_dir / "spp001_same_wrapper_bridge_dry_run_summary.csv",
+        spp001_dry_plan,
+        spp001_dry_dir / "spp001_bridge_component_plan.md",
+        spp001_dry_manifest,
+        spp001_dry_dir / "spp001_same_wrapper_candidate_manifest.md",
+        spp001_dry_dir / "spp001_bridge_local_execution_checklist.md",
+        spp001_dry_gate,
+        spp001_dry_dir / "spp001_bridge_readiness_gate.md",
+        spp001_dry_no_leakage,
+        spp001_dry_dir / "no_leakage_spp001_bridge_dry_run_audit.md",
+        spp001_dry_safety,
+        spp001_dry_dir / "large_file_safety_spp001_bridge_dry_run.md",
+    ]
+    existing_spp001_dry_required = [path for path in spp001_dry_required if path.exists()]
+    if existing_spp001_dry_required:
+        missing_spp001_dry_required = [path for path in spp001_dry_required if not path.exists()]
+        if missing_spp001_dry_required:
+            failures.append(
+                "IEEE39 SPP001 same-wrapper bridge dry-run artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_spp001_dry_required)
+            )
+        try:
+            summary = _read_json_path(spp001_dry_summary)
+            plan = _read_json_path(spp001_dry_plan)
+            manifest = _read_json_path(spp001_dry_manifest)
+            gate = _read_json_path(spp001_dry_gate)
+            no_leakage = _read_json_path(spp001_dry_no_leakage)
+            safety = _read_json_path(spp001_dry_safety)
+            for key, expected in [
+                ("dry_run_scope", "spp001_same_wrapper_bridge_dry_run"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("spp001_smoke_executed", False),
+                ("selected_32_batch_executed", False),
+                ("full_1056_generation_run", False),
+                ("simulink_run", False),
+                ("labels_exported", False),
+                ("formal_labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("source_provenance_bridge_commit", "5ad76acea5fb0e8c1f887ce868d2e1ce5dc08c27"),
+                ("pair_id", "SPP001"),
+                ("prior_outaged_branch", "L15"),
+                ("candidate_next_branch", "L04"),
+                ("same_wrapper_bridge_planned", True),
+                ("same_wrapper_bridge_built_this_round", False),
+                ("local_lab_copy_required", True),
+                ("local_lab_copy_committed", False),
+                ("source_slx_modified", False),
+                ("can_build_same_wrapper_bridge_locally", True),
+                ("can_confirm_same_wrapper_now", False),
+                ("can_rerun_spp001_after_manual_approval", False),
+                ("no_label_value_generated", True),
+                ("raw_trajectories_committed", False),
+                ("full_timeseries_committed", False),
+                ("mat_files_committed", False),
+                ("slx_files_committed", False),
+                ("forbidden_features_detected_in_inputs", []),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"SPP001 bridge dry-run summary must set {key}={expected!r}.")
+            if "approve local SPP001 same-wrapper bridge build/validation" not in str(summary.get("recommended_next_step")):
+                failures.append("SPP001 bridge dry-run must recommend local bridge build/validation approval.")
+            if plan.get("plan_scope") != "spp001_same_wrapper_bridge_component_plan":
+                failures.append("SPP001 bridge component plan has wrong scope.")
+            if plan.get("local_lab_copy_only") is not True or plan.get("source_slx_modified") is not False:
+                failures.append("SPP001 bridge component plan must be local-copy only and not modify source SLX.")
+            if manifest.get("manifest_scope") != "spp001_same_wrapper_candidate_manifest":
+                failures.append("SPP001 same-wrapper candidate manifest has wrong scope.")
+            if manifest.get("same_wrapper_confirmed_now") is not False:
+                failures.append("SPP001 dry-run manifest must not confirm same-wrapper before local build.")
+            if manifest.get("same_wrapper_bridge_built_this_round") is not False:
+                failures.append("SPP001 dry-run manifest must not claim bridge was built.")
+            if manifest.get("approved_for_execution_now") is not False or manifest.get("requires_next_round_approval") is not True:
+                failures.append("SPP001 dry-run manifest must require a separate approval round.")
+            if gate.get("gate_scope") != "spp001_same_wrapper_bridge_readiness_gate":
+                failures.append("SPP001 bridge readiness gate has wrong scope.")
+            for key, expected in [
+                ("l15_ready", True),
+                ("l04_ready", True),
+                ("same_wrapper_confirmed_now", False),
+                ("local_bridge_build_required", True),
+                ("selected_32_batch_allowed", False),
+                ("full_1056_allowed", False),
+                ("formal_label_export_allowed", False),
+                ("gcn_training_allowed", False),
+                ("can_request_local_bridge_build_approval", True),
+                ("can_request_spp001_smoke_rerun_approval", False),
+            ]:
+                if gate.get(key) != expected:
+                    failures.append(f"SPP001 bridge readiness gate must set {key}={expected!r}.")
+            for key, expected in [
+                ("forbidden_features_detected_in_inputs", []),
+                ("post_fault_dynamic_measurements_used_as_inputs", False),
+                ("dynamic_outputs_used_only_as_future_labels_or_targets", True),
+                ("label_derived_flags_used_as_inputs", False),
+                ("bus_fault_labels_used", False),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if no_leakage.get(key) != expected:
+                    failures.append(f"SPP001 bridge dry-run no-leakage audit must set {key}={expected!r}.")
+            for key in [
+                "raw_trajectories_committed",
+                "full_timeseries_committed",
+                "mat_files_committed",
+                "slx_files_committed",
+                "slxc_files_committed",
+                "slprj_committed",
+                "local_lab_copy_committed",
+                "source_slx_modified",
+                "venv_committed",
+                "wheel_or_dll_committed",
+                "model_files_committed",
+            ]:
+                if safety.get(key) is not False:
+                    failures.append(f"SPP001 bridge dry-run safety check must keep {key}=false.")
+            if safety.get("safety_check_passed") is not True:
+                failures.append("SPP001 bridge dry-run large-file safety check must pass.")
+            dry_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_spp001_same_wrapper_bridge_dry_run.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                    _read_text("results/gcn_search/ieee39_spp001_same_wrapper_bridge_dry_run/spp001_same_wrapper_bridge_dry_run_summary.md"),
+                    _read_text("results/gcn_search/ieee39_spp001_same_wrapper_bridge_dry_run/spp001_bridge_local_execution_checklist.md"),
+                ]
+            ).lower()
+            normalized_dry = " ".join(dry_text.replace("`", "").split())
+            for required in [
+                "spp001 same-wrapper bridge dry-run",
+                "does not train gcn",
+                "does not rerun formal audit",
+                "does not execute spp001 smoke",
+                "does not execute selected 32 batch",
+                "does not run full 1056 generation",
+                "does not export formal labels",
+                "l15 and l04 tripcommand paths are not in the same wrapper",
+                "one-pair same-wrapper bridge",
+                "local lab copy",
+                "does not generate a 0/1 label",
+                "raw trajectory",
+                "full timeseries",
+                "source .slx is not modified",
+                "bus-fault labels are not used",
+                "l12 remains special/excluded",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "temporary bus-fault injection is not engineering-grade protection",
+            ]:
+                if required not in normalized_dry:
+                    failures.append(f"SPP001 bridge dry-run docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is useless",
+                "spp001 smoke completed",
+                "selected 32 batch execution completed",
+                "full 1056 generation completed",
+                "formal labels exported",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+                "deployment ready",
+            ]:
+                if bad in normalized_dry:
+                    failures.append(f"SPP001 bridge dry-run docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read SPP001 same-wrapper bridge dry-run artifacts: {exc}")
+
     l15_repair_dir = ROOT / "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair"
     l15_repair_doc = ROOT / "docs/ieee39_l15_handwired_validation_readiness_repair.md"
     l15_summary = l15_repair_dir / "l15_readiness_repair_summary.json"

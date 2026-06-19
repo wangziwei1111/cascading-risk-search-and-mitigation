@@ -5243,3 +5243,62 @@ Boundary notes:
 Recommended next step: build or validate an SPP001-only same-wrapper bridge
 locally before any rerun. Do not execute broader pair smoke, export labels,
 train GCN, or retrain the reranker yet.
+
+## Round 98: IEEE39 SPP001 Same-Wrapper Bridge Dry-Run
+
+This round prepares an SPP001-only same-wrapper bridge dry-run for `L15 -> L04`.
+It does not train GCN, does not rerun formal audit, does not execute SPP001
+smoke, does not execute selected 32 batch, does not run full 1056 generation,
+does not export formal labels, does not retrain the reranker, and does not save
+a production model.
+
+Plain-language meaning: the previous round proved that the current L15 and L04
+TripCommand paths are not in the same wrapper. This round does not build a
+bridge `.slx`; it only prepares a guarded local-lab-copy plan, a candidate
+manifest, and a readiness gate. If a bridge `.slx` is built later, it must be a
+local lab copy and must not be committed.
+
+Artifacts:
+
+- `scripts/gcn_search/prepare_ieee39_spp001_same_wrapper_bridge_dry_run.py`
+- `matlab/simulink_ieee39/prepare_ieee39_spp001_same_wrapper_bridge_lab.m`
+- `docs/ieee39_spp001_same_wrapper_bridge_dry_run.md`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_dry_run/spp001_same_wrapper_bridge_dry_run_summary.json`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_dry_run/spp001_bridge_component_plan.json`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_dry_run/spp001_same_wrapper_candidate_manifest.json`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_dry_run/spp001_bridge_readiness_gate.json`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_dry_run/no_leakage_spp001_bridge_dry_run_audit.json`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_dry_run/large_file_safety_spp001_bridge_dry_run.json`
+
+Current result:
+
+- `dry_run_scope = spp001_same_wrapper_bridge_dry_run`
+- `pair_id = SPP001`
+- `same_wrapper_bridge_planned = true`
+- `same_wrapper_bridge_built_this_round = false`
+- `local_lab_copy_required = true`
+- `local_lab_copy_committed = false`
+- `source_slx_modified = false`
+- `can_build_same_wrapper_bridge_locally = true`
+- `can_confirm_same_wrapper_now = false`
+- `can_rerun_spp001_after_manual_approval = false`
+- `no_label_value_generated = true`
+
+Boundary notes:
+
+- SPP001 smoke was not executed.
+- Selected 32 batch was not executed.
+- Full 1056 generation was not run.
+- Formal labels were not exported.
+- GCN and reranker were not trained.
+- Raw trajectory, full timeseries, `.mat`, `.slx`, `.slxc`, `slprj`, venv,
+  wheel, DLL, and model files are not committed.
+- The source `.slx` is not modified.
+- Bus-fault labels are not used.
+- L12 remains special/excluded.
+- `phasor_RMS` is not EMT.
+- `generator_speed_proxy` is not direct frequency.
+- Temporary bus-fault injection is not engineering-grade protection.
+
+Recommended next step: approve local SPP001 same-wrapper bridge build/validation
+in a separate round. Do not run SPP001 smoke yet.
