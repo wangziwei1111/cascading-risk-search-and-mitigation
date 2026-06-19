@@ -20,6 +20,7 @@ addParameter(parser, "execute", false, @(x) islogical(x) || isnumeric(x));
 addParameter(parser, "execute_single_pair", false, @(x) islogical(x) || isnumeric(x));
 addParameter(parser, "dry_run_only", true, @(x) islogical(x) || isnumeric(x));
 addParameter(parser, "diagnostic_only", false, @(x) islogical(x) || isnumeric(x));
+addParameter(parser, "sim_stage_diagnostic_only", false, @(x) islogical(x) || isnumeric(x));
 addParameter(parser, "pair_id", "", @(x) ischar(x) || isstring(x));
 addParameter(parser, "handwired_model_path", "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker.slx", @(x) ischar(x) || isstring(x));
 addParameter(parser, "validation_summary_csv", "../../results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_multi_handwired_breaker_validation_summary.csv", @(x) ischar(x) || isstring(x));
@@ -35,6 +36,7 @@ executeRequested = logical(parser.Results.execute);
 executeSinglePair = logical(parser.Results.execute_single_pair);
 dryRunOnly = logical(parser.Results.dry_run_only);
 diagnosticOnly = logical(parser.Results.diagnostic_only);
+simStageDiagnosticOnly = logical(parser.Results.sim_stage_diagnostic_only);
 manifestPath = char(parser.Results.manifestPath);
 outputDir = char(parser.Results.outputDir);
 pairId = string(parser.Results.pair_id);
@@ -59,6 +61,9 @@ if executeRequested && ~executeSinglePair
 end
 if executeSinglePair && strlength(pairId) == 0
     error("IEEE39SelectedPair:PairIdRequired", "execute_single_pair requires pair_id.");
+end
+if simStageDiagnosticOnly && pairId ~= "SPP001"
+    error("IEEE39SelectedPair:SimStageDiagnosticPairRefused", "sim_stage_diagnostic_only is only approved for SPP001.");
 end
 
 if ~exist(outputDir, "dir")
@@ -128,6 +133,7 @@ summary.execute_requested = executeRequested;
 summary.execute_single_pair = executeSinglePair;
 summary.dry_run_only = dryRunOnly;
 summary.diagnostic_only = diagnosticOnly;
+summary.sim_stage_diagnostic_only = simStageDiagnosticOnly;
 summary.selected_pair_count = pairCount;
 summary.pair_id = row.pair_id;
 summary.selected_32_pairs_executed = false;
@@ -274,6 +280,11 @@ row.unstable_flag_if_available = [];
 row.instability_or_risk_reason = "";
 row.timeout_or_failure_reason = "not executed";
 row.evidence_source = "matlab_selected_pair_entrypoint";
+row.sim_stage_diagnostic_only = false;
+row.phase_sim_start_seen = false;
+row.phase_sim_done_seen = false;
+row.sim_elapsed_seconds_if_available = [];
+row.matlab_timeout_seconds_if_available = [];
 row.raw_trajectory_committed = false;
 row.full_timeseries_committed = false;
 row.mat_file_committed = false;
@@ -322,9 +333,15 @@ try
         phaseTiming = markPhase(phaseTiming, phaseClock, outputDir, "phase_cleanup_done");
         return;
     end
+    row.sim_stage_diagnostic_only = logical(options.sim_stage_diagnostic_only);
+    row.matlab_timeout_seconds_if_available = options.timeout_s;
     phaseTiming = markPhase(phaseTiming, phaseClock, outputDir, "phase_sim_start");
+    row.phase_sim_start_seen = true;
+    simClock = tic;
     simOut = sim(modelName, "StopTime", num2str(options.simulation_stop_time), "TimeOut", options.timeout_s);
+    row.sim_elapsed_seconds_if_available = toc(simClock);
     phaseTiming = markPhase(phaseTiming, phaseClock, outputDir, "phase_sim_done");
+    row.phase_sim_done_seen = true;
     signalSummary = extract_ieee39_signal_summary(simOut, "selected_pair_" + row.pair_id, outputDir);
     row.execution_status = "succeeded";
     row.pilot_label_status = "unknown";

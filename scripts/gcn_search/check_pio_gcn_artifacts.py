@@ -769,6 +769,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/execute_ieee39_selected_single_outage_pilot_pairs.py",
     "scripts/gcn_search/diagnose_ieee39_controlled_execution_backend.py",
     "scripts/gcn_search/run_ieee39_selected_single_outage_pilot_pairs_controlled.py",
+    "scripts/gcn_search/run_ieee39_spp001_sim_stage_diagnostic_retry.py",
     "scripts/gcn_search/repair_ieee39_l15_handwired_validation_readiness.py",
     "scripts/gcn_search/parse_ieee39_selected_pair_execution_evidence.py",
     "matlab/simulink_ieee39/run_ieee39_selected_pair_line_trip_sequence.m",
@@ -789,6 +790,7 @@ REQUIRED_FILES = [
     "tests/test_ieee39_selected_single_outage_pilot_pair_execution.py",
     "tests/test_ieee39_controlled_execution_backend_diagnosis.py",
     "tests/test_ieee39_controlled_execution_backend_repair.py",
+    "tests/test_ieee39_spp001_sim_stage_diagnostic_retry.py",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_block_parameter_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.json",
@@ -7768,6 +7770,185 @@ def main() -> int:
                     failures.append(f"SPP001 timeout docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read SPP001 bridge smoke timeout diagnosis artifacts: {exc}")
+
+    spp001_sim_stage_dir = ROOT / "results/gcn_search/ieee39_spp001_sim_stage_diagnostic_retry"
+    spp001_sim_stage_doc = ROOT / "docs/ieee39_spp001_sim_stage_diagnostic_retry.md"
+    spp001_sim_summary = spp001_sim_stage_dir / "spp001_sim_stage_diagnostic_summary.json"
+    spp001_sim_result = spp001_sim_stage_dir / "spp001_sim_stage_diagnostic_result.json"
+    spp001_sim_trace = spp001_sim_stage_dir / "spp001_sim_stage_phase_trace.json"
+    spp001_sim_excerpt = spp001_sim_stage_dir / "spp001_sim_stage_stdout_stderr_excerpt.json"
+    spp001_sim_gate = spp001_sim_stage_dir / "spp001_sim_stage_diagnostic_gate.json"
+    spp001_sim_no_leakage = spp001_sim_stage_dir / "no_leakage_spp001_sim_stage_diagnostic_audit.json"
+    spp001_sim_safety = spp001_sim_stage_dir / "large_file_safety_spp001_sim_stage_diagnostic.json"
+    spp001_sim_required = [
+        spp001_sim_stage_doc,
+        spp001_sim_summary,
+        spp001_sim_stage_dir / "spp001_sim_stage_diagnostic_summary.md",
+        spp001_sim_stage_dir / "spp001_sim_stage_diagnostic_summary.csv",
+        spp001_sim_result,
+        spp001_sim_stage_dir / "spp001_sim_stage_diagnostic_result.md",
+        spp001_sim_stage_dir / "spp001_sim_stage_diagnostic_result.csv",
+        spp001_sim_trace,
+        spp001_sim_stage_dir / "spp001_sim_stage_phase_trace.md",
+        spp001_sim_excerpt,
+        spp001_sim_stage_dir / "spp001_sim_stage_stdout_stderr_excerpt.md",
+        spp001_sim_gate,
+        spp001_sim_stage_dir / "spp001_sim_stage_diagnostic_gate.md",
+        spp001_sim_no_leakage,
+        spp001_sim_stage_dir / "no_leakage_spp001_sim_stage_diagnostic_audit.md",
+        spp001_sim_safety,
+        spp001_sim_stage_dir / "large_file_safety_spp001_sim_stage_diagnostic.md",
+    ]
+    existing_spp001_sim_required = [path for path in spp001_sim_required if path.exists()]
+    if existing_spp001_sim_required:
+        missing_spp001_sim_required = [path for path in spp001_sim_required if not path.exists()]
+        if missing_spp001_sim_required:
+            failures.append(
+                "IEEE39 SPP001 sim-stage diagnostic retry artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_spp001_sim_required)
+            )
+        try:
+            summary = _read_json_path(spp001_sim_summary)
+            result = _read_json_path(spp001_sim_result)
+            trace = _read_json_path(spp001_sim_trace)
+            excerpt = _read_json_path(spp001_sim_excerpt)
+            gate = _read_json_path(spp001_sim_gate)
+            no_leakage = _read_json_path(spp001_sim_no_leakage)
+            safety = _read_json_path(spp001_sim_safety)
+            for key, expected in [
+                ("diagnosis_scope", "spp001_sim_stage_diagnostic_retry"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("selected_32_batch_executed", False),
+                ("full_1056_generation_run", False),
+                ("labels_exported", False),
+                ("formal_labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("source_timeout_diagnosis_commit", "b858bbf5085324ebee6e7d96f1a0216d8f1aca60"),
+                ("pair_id", "SPP001"),
+                ("same_wrapper_confirmed", True),
+                ("previous_likely_timeout_stage", "phase_sim_start"),
+                ("sim_stage_diagnostic_attempted", True),
+                ("pilot_labels_are_formal_training_labels", False),
+                ("raw_trajectories_committed", False),
+                ("full_timeseries_committed", False),
+                ("mat_files_committed", False),
+                ("slx_files_committed", False),
+                ("slxc_files_committed", False),
+                ("slprj_committed", False),
+                ("local_bridge_committed", False),
+                ("source_slx_modified", False),
+                ("bus_fault_labels_used", False),
+                ("line_trip_labels_first_priority", True),
+                ("l12_special_case_preserved", True),
+                ("nf06_warning_preserved", True),
+                ("forbidden_features_detected_in_inputs", []),
+                ("no_leakage_policy_passed", True),
+                ("should_train_gcn_now", False),
+                ("should_export_formal_labels_now", False),
+                ("should_retrain_reranker_now", False),
+                ("should_deploy_model", False),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"SPP001 sim-stage diagnostic summary must set {key}={expected!r}.")
+            if summary.get("execution_status") not in {"succeeded", "failed", "timeout", "blocked"}:
+                failures.append("SPP001 sim-stage diagnostic execution_status has an invalid value.")
+            if summary.get("execution_status") != "succeeded" and summary.get("pilot_label_value") is not None:
+                failures.append("SPP001 sim-stage diagnostic must keep pilot_label_value=null unless execution succeeded.")
+            if result.get("pair_id") != "SPP001":
+                failures.append("SPP001 sim-stage diagnostic result must be for SPP001 only.")
+            if trace.get("trace_scope") != "spp001_sim_stage_phase_trace":
+                failures.append("SPP001 sim-stage phase trace has wrong scope.")
+            if excerpt.get("excerpt_scope") != "spp001_sim_stage_stdout_stderr_excerpt":
+                failures.append("SPP001 sim-stage stdout/stderr excerpt has wrong scope.")
+            for key, expected in [
+                ("gate_scope", "spp001_sim_stage_diagnostic_gate"),
+                ("pair_id", "SPP001"),
+                ("same_wrapper_confirmed", True),
+                ("selected_32_batch_allowed", False),
+                ("full_1056_allowed", False),
+                ("formal_label_export_allowed", False),
+                ("gcn_training_allowed", False),
+                ("can_request_selected_32_batch", False),
+                ("can_request_formal_label_export", False),
+                ("can_request_gcn_training", False),
+            ]:
+                if gate.get(key) != expected:
+                    failures.append(f"SPP001 sim-stage diagnostic gate must set {key}={expected!r}.")
+            for key, expected in [
+                ("forbidden_features_detected_in_inputs", []),
+                ("post_fault_dynamic_measurements_used_as_inputs", False),
+                ("dynamic_outputs_used_only_as_future_labels_or_targets", True),
+                ("label_derived_flags_used_as_inputs", False),
+                ("bus_fault_labels_used", False),
+                ("line_trip_labels_first_priority", True),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if no_leakage.get(key) != expected:
+                    failures.append(f"SPP001 sim-stage no-leakage audit must set {key}={expected!r}.")
+            for key in [
+                "raw_trajectories_committed",
+                "full_timeseries_committed",
+                "mat_files_committed",
+                "slx_files_committed",
+                "slxc_files_committed",
+                "slprj_committed",
+                "local_bridge_committed",
+                "local_lab_copy_committed",
+                "source_slx_modified",
+                "venv_committed",
+                "wheel_or_dll_committed",
+                "model_files_committed",
+            ]:
+                if safety.get(key) is not False:
+                    failures.append(f"SPP001 sim-stage safety check must keep {key}=false.")
+            if safety.get("safety_check_passed") is not True:
+                failures.append("SPP001 sim-stage large-file safety check must pass.")
+            sim_stage_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_spp001_sim_stage_diagnostic_retry.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                    _read_text("results/gcn_search/ieee39_spp001_sim_stage_diagnostic_retry/spp001_sim_stage_diagnostic_summary.md"),
+                    _read_text("results/gcn_search/ieee39_spp001_sim_stage_diagnostic_retry/spp001_sim_stage_diagnostic_result.md"),
+                ]
+            ).lower()
+            normalized_sim_stage = " ".join(sim_stage_text.replace("`", "").split())
+            for required in [
+                "spp001 sim-stage diagnostic retry",
+                "does not train gcn",
+                "does not rerun formal audit",
+                "does not execute selected 32 batch",
+                "does not run full 1056 generation",
+                "does not export formal labels",
+                "previous round reached phase_sim_start",
+                "only checks the sim() stage",
+                "cannot become a 0/1 label",
+                "not a formal training label",
+                "raw trajectory",
+                "full timeseries",
+                "source .slx is not modified",
+                "bus-fault labels are not used",
+                "l12 remains special/excluded",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "temporary bus-fault injection is not engineering-grade protection",
+            ]:
+                if required not in normalized_sim_stage:
+                    failures.append(f"SPP001 sim-stage diagnostic docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is useless",
+                "selected 32 batch executed",
+                "full 1056 generation completed",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+                "deployment ready",
+            ]:
+                if bad in normalized_sim_stage:
+                    failures.append(f"SPP001 sim-stage diagnostic docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read SPP001 sim-stage diagnostic retry artifacts: {exc}")
 
     l15_repair_dir = ROOT / "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair"
     l15_repair_doc = ROOT / "docs/ieee39_l15_handwired_validation_readiness_repair.md"

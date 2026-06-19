@@ -5479,3 +5479,63 @@ Key fields:
 Boundary notes: no raw trajectory, full timeseries, `.mat`, `.slx`, `.slxc`, `slprj`, production model, venv, wheel, DLL, or local bridge `.slx` file is committed. The source `.slx` is not modified. Bus-fault labels are not used. L12 remains special/excluded. `phasor_RMS` is not EMT. `generator_speed_proxy` is not direct frequency. Temporary bus-fault injection is not engineering-grade protection.
 
 Next step: approve one SPP001 diagnostic retry focused on the `sim()` stage, or approve one longer-timeout SPP001 smoke retry in a separate round. Do not execute selected 32, export formal labels, or train GCN from this timeout result.
+
+## Round 103: IEEE39 SPP001 Sim-Stage Diagnostic Retry
+
+This round is an SPP001 sim-stage diagnostic retry for the manually approved `L15 -> L04` path only. It does not train GCN, does not rerun formal audit, does not execute selected 32 batch, does not run full 1056 generation, does not export formal labels, does not retrain the reranker, and does not deploy a model.
+
+Plain-language result: the previous round reached `phase_sim_start`, so the wrapper load, trip command setting, and update diagram phases were not the current blocker. This round only checks the `sim()` stage with a longer guarded Python timeout. The run again reached `phase_sim_start`, but did not reach `phase_sim_done` within 600 seconds. MATLAB stdout also reported that the first solve for initial conditions failed to converge and Simulink retried with relaxed priorities. Therefore the current blocker is still inside the simulation solve/runtime stage, not in the Python wrapper, same-wrapper provenance, L15/L04 command paths, or update diagram stage. Timeout remains null and cannot become a 0/1 label.
+
+Artifacts:
+
+- `scripts/gcn_search/run_ieee39_spp001_sim_stage_diagnostic_retry.py`
+- `docs/ieee39_spp001_sim_stage_diagnostic_retry.md`
+- `results/gcn_search/ieee39_spp001_sim_stage_diagnostic_retry/spp001_sim_stage_diagnostic_summary.json`
+- `results/gcn_search/ieee39_spp001_sim_stage_diagnostic_retry/spp001_sim_stage_diagnostic_result.json`
+- `results/gcn_search/ieee39_spp001_sim_stage_diagnostic_retry/spp001_sim_stage_phase_trace.json`
+- `results/gcn_search/ieee39_spp001_sim_stage_diagnostic_retry/spp001_sim_stage_stdout_stderr_excerpt.json`
+- `results/gcn_search/ieee39_spp001_sim_stage_diagnostic_retry/spp001_sim_stage_diagnostic_gate.json`
+- `results/gcn_search/ieee39_spp001_sim_stage_diagnostic_retry/no_leakage_spp001_sim_stage_diagnostic_audit.json`
+- `results/gcn_search/ieee39_spp001_sim_stage_diagnostic_retry/large_file_safety_spp001_sim_stage_diagnostic.json`
+
+Key fields:
+
+- `diagnosis_scope = spp001_sim_stage_diagnostic_retry`
+- `pair_id = SPP001`
+- `prior_outaged_branch = L15`
+- `candidate_next_branch = L04`
+- `same_wrapper_confirmed = true`
+- `previous_likely_timeout_stage = phase_sim_start`
+- `sim_stage_diagnostic_attempted = true`
+- `execution_status = timeout`
+- `single_pair_executed = false`
+- `simulink_run = true`
+- `phase_sim_start_seen = true`
+- `phase_sim_done_seen = false`
+- `last_seen_phase_if_available = phase_sim_start`
+- `python_timeout_seconds = 600`
+- `matlab_timeout_seconds_if_available = 540`
+- `pilot_label_value = null`
+- `pilot_label_status = timeout`
+- `pilot_labels_are_formal_training_labels = false`
+- `selected_32_batch_executed = false`
+- `full_1056_generation_run = false`
+- `labels_exported = false`
+- `formal_labels_exported = false`
+- `gcn_training_run = false`
+- `formal_gcn_audit_rerun = false`
+- `reranker_retrained = false`
+- `production_model_saved = false`
+- `raw_trajectories_committed = false`
+- `full_timeseries_committed = false`
+- `mat_files_committed = false`
+- `slx_files_committed = false`
+- `local_bridge_committed = false`
+- `source_slx_modified = false`
+- `bus_fault_labels_used = false`
+- `forbidden_features_detected_in_inputs = []`
+- `no_leakage_policy_passed = true`
+
+Boundary notes: no raw trajectory, full timeseries, `.mat`, `.slx`, `.slxc`, `slprj`, production model, venv, wheel, DLL, or local bridge `.slx` file is committed. The source `.slx` is not modified. Bus-fault labels are not used. Line-trip labels remain first priority. L12 remains special/excluded. `phasor_RMS` is not EMT. `generator_speed_proxy` is not direct frequency. Temporary bus-fault injection is not engineering-grade protection.
+
+Next step: inspect Simulink solver/runtime settings for the SPP001 bridge before any broader execution. Do not execute selected 32, export formal labels, or train GCN from this timeout result.

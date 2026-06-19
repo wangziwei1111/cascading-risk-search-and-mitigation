@@ -150,6 +150,13 @@ def _normalize_matlab_row(row: dict[str, Any], fallback_pair: dict[str, Any]) ->
         "instability_or_risk_reason": str(row.get("instability_or_risk_reason") or ""),
         "timeout_or_failure_reason": str(row.get("timeout_or_failure_reason") or ""),
         "evidence_source": str(row.get("evidence_source") or "matlab_single_pair_smoke_compact_evidence"),
+        "sim_stage_diagnostic_only": bool(row.get("sim_stage_diagnostic_only", False)),
+        "phase_sim_start_seen": bool(row.get("phase_sim_start_seen", False)),
+        "phase_sim_done_seen": bool(row.get("phase_sim_done_seen", False)),
+        "last_seen_phase_if_available": _json_null_if_empty(row.get("last_seen_phase_if_available")),
+        "sim_elapsed_seconds_if_available": _json_null_if_empty(row.get("sim_elapsed_seconds_if_available")),
+        "python_timeout_seconds": _json_null_if_empty(row.get("python_timeout_seconds")),
+        "matlab_timeout_seconds_if_available": _json_null_if_empty(row.get("matlab_timeout_seconds_if_available")),
         "raw_trajectory_committed": False,
         "full_timeseries_committed": False,
         "mat_file_committed": False,
@@ -173,6 +180,25 @@ def _extract_last_phase(stdout: str, stderr: str) -> str | None:
             fragment = line.split(marker, 1)[1]
             last_phase = fragment.split(":", 1)[0].strip()
     return last_phase
+
+
+def _extract_phase_trace(stdout: str, stderr: str) -> list[dict[str, Any]]:
+    combined = "\n".join([stdout or "", stderr or ""])
+    marker = "IEEE39_SELECTED_PAIR_PHASE:"
+    trace: list[dict[str, Any]] = []
+    for line in combined.splitlines():
+        if marker not in line:
+            continue
+        fragment = line.split(marker, 1)[1].strip()
+        parts = fragment.split(":", 1)
+        elapsed: float | None = None
+        if len(parts) > 1:
+            try:
+                elapsed = float(parts[1].strip())
+            except ValueError:
+                elapsed = None
+        trace.append({"phase": parts[0].strip(), "elapsed_seconds": elapsed})
+    return trace
 
 
 def _run_matlab_batch(command: str, timeout_s: int) -> tuple[int | None, str, str, bool]:
@@ -939,7 +965,9 @@ def _attempt_spp001_matlab(
     provenance_manifest: Path | None = None,
     *,
     python_timeout_s: int = 300,
+    matlab_timeout_s: int = 240,
     diagnostic_only: bool = False,
+    sim_stage_diagnostic_only: bool = False,
 ) -> dict[str, Any]:
     matlab_output_dir = output_dir / "matlab_compact"
     matlab_output_dir.mkdir(parents=True, exist_ok=True)
@@ -958,11 +986,12 @@ def _attempt_spp001_matlab(
         "'execute_single_pair', true, "
         "'dry_run_only', false, "
         f"'diagnostic_only', {str(bool(diagnostic_only)).lower()}, "
+        f"'sim_stage_diagnostic_only', {str(bool(sim_stage_diagnostic_only)).lower()}, "
         f"'pair_id', '{SPP001_PAIR_ID}', "
         f"'handwired_model_path', '{handwired_model.as_posix()}', "
         f"'validation_summary_csv', '{validation_csv.as_posix()}', "
         f"'provenance_manifest_path', '{provenance_manifest.as_posix()}', "
-        "'timeout_s', 240);"
+        f"'timeout_s', {int(matlab_timeout_s)});"
     )
     base = _normalize_matlab_row(
         {
@@ -1011,6 +1040,7 @@ def _attempt_spp001_matlab(
     if timed_out:
         combined = stdout + "\n" + stderr
         last_phase = _extract_last_phase(stdout, stderr)
+        phase_trace = _extract_phase_trace(stdout, stderr)
         base.update(
             {
                 "execution_status": "timeout",
@@ -1018,7 +1048,13 @@ def _attempt_spp001_matlab(
                 "timeout_or_failure_reason": f"Python MATLAB wrapper timeout after {python_timeout_s}s: "
                 + _shorten(combined or "MATLAB did not return before timeout"),
                 "evidence_source": "python_spp001_single_pair_smoke_timeout",
+                "sim_stage_diagnostic_only": bool(sim_stage_diagnostic_only),
                 "last_seen_phase_if_available": last_phase,
+                "phase_trace": phase_trace,
+                "phase_sim_start_seen": any(item["phase"] == "phase_sim_start" for item in phase_trace),
+                "phase_sim_done_seen": any(item["phase"] == "phase_sim_done" for item in phase_trace),
+                "python_timeout_seconds": python_timeout_s,
+                "matlab_timeout_seconds_if_available": matlab_timeout_s,
                 "matlab_stdout_tail": _tail_lines(stdout),
                 "matlab_stderr_tail": _tail_lines(stderr),
             }
@@ -1061,6 +1097,10 @@ def _attempt_spp001_matlab(
             row = {}
         result = _normalize_matlab_row(row, pair)
         result["evidence_source"] = result.get("evidence_source") or "matlab_single_pair_smoke_compact_json"
+        result["python_timeout_seconds"] = python_timeout_s
+        result["matlab_timeout_seconds_if_available"] = result.get("matlab_timeout_seconds_if_available") or matlab_timeout_s
+        if result.get("phase_sim_done_seen"):
+            result["last_seen_phase_if_available"] = "phase_sim_done"
         return result
     except Exception as exc:
         base.update(
