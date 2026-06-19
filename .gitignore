@@ -23,6 +23,7 @@ results/**/*.pdf
 results/gcn_search/**/*.pt
 results/gcn_search/**/*.npz
 results/gcn_search/**/*.slx
+results/gcn_search/**/*.slx.autosave
 results/gcn_search/**/*.slxc
 results/gcn_search/**/*.mat
 results/gcn_search/**/*.mdl

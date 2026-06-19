@@ -5439,3 +5439,43 @@ Key fields:
 Boundary notes: no raw trajectory, full timeseries, `.mat`, `.slx`, `.slxc`, `slprj`, production model, venv, wheel, DLL, or local bridge `.slx` file is committed. Bus-fault labels are not used. Line-trip labels remain first priority. L12 remains special/excluded. `phasor_RMS` is not EMT. `generator_speed_proxy` is not direct frequency. Temporary bus-fault injection is not engineering-grade protection.
 
 Next step: inspect the SPP001 bridge smoke timeout before any broader selected-pair execution. Do not export formal labels or train GCN from this timeout result.
+
+## Round 102: IEEE39 SPP001 Bridge Smoke Timeout Diagnosis
+
+This round diagnoses the previous SPP001 same-wrapper bridge smoke timeout only. It does not train GCN, does not rerun formal audit, does not execute full SPP001 smoke, does not execute selected 32 batch, does not run full 1056 generation, does not export formal labels, does not retrain the reranker, and does not deploy a model.
+
+Plain-language result: same-wrapper provenance for `L15 -> L04` is confirmed, so this is no longer an L15/L04 provenance problem. After adding phase timing/progress marker hooks, the controlled SPP001 evidence reaches `phase_sim_start`: MATLAB startup, manifest read, local bridge model load, TripCommand `set_param`, and update diagram all complete before the timeout. The remaining blocker is therefore localized to `sim()` starting or running longer than the 180 second Python timeout window. This diagnosis still does not generate a 0/1 label.
+
+Artifacts:
+
+- `scripts/gcn_search/diagnose_ieee39_spp001_bridge_smoke_timeout.py`
+- `docs/ieee39_spp001_bridge_smoke_timeout_diagnosis.md`
+- `results/gcn_search/ieee39_spp001_bridge_smoke_timeout_diagnosis/spp001_timeout_diagnosis_summary.json`
+- `results/gcn_search/ieee39_spp001_bridge_smoke_timeout_diagnosis/spp001_timeout_phase_plan.json`
+- `results/gcn_search/ieee39_spp001_bridge_smoke_timeout_diagnosis/spp001_timeout_stdout_stderr_excerpt.json`
+- `results/gcn_search/ieee39_spp001_bridge_smoke_timeout_diagnosis/spp001_timeout_diagnostic_gate.json`
+- `results/gcn_search/ieee39_spp001_bridge_smoke_timeout_diagnosis/no_leakage_spp001_timeout_diagnosis_audit.json`
+- `results/gcn_search/ieee39_spp001_bridge_smoke_timeout_diagnosis/large_file_safety_spp001_timeout_diagnosis.json`
+
+Key fields:
+
+- `diagnosis_scope = spp001_bridge_smoke_timeout_diagnosis`
+- `pair_id = SPP001`
+- `previous_execution_status = timeout`
+- `previous_timeout_seconds = 180`
+- `previous_same_wrapper_confirmed = true`
+- `diagnostic_only = true`
+- `sim_run_attempted = false`
+- `phase_timing_added_to_matlab_entrypoint = true`
+- `phase_timing_added_to_python_runner = true`
+- `last_seen_phase_if_available = phase_sim_start`
+- `repeated_codegen_folder_messages_detected = true`
+- `likely_timeout_stage = phase_sim_start`
+- `can_request_selected_32_batch = false`
+- `no_label_value_generated = true`
+- `forbidden_features_detected_in_inputs = []`
+- `no_leakage_policy_passed = true`
+
+Boundary notes: no raw trajectory, full timeseries, `.mat`, `.slx`, `.slxc`, `slprj`, production model, venv, wheel, DLL, or local bridge `.slx` file is committed. The source `.slx` is not modified. Bus-fault labels are not used. L12 remains special/excluded. `phasor_RMS` is not EMT. `generator_speed_proxy` is not direct frequency. Temporary bus-fault injection is not engineering-grade protection.
+
+Next step: approve one SPP001 diagnostic retry focused on the `sim()` stage, or approve one longer-timeout SPP001 smoke retry in a separate round. Do not execute selected 32, export formal labels, or train GCN from this timeout result.

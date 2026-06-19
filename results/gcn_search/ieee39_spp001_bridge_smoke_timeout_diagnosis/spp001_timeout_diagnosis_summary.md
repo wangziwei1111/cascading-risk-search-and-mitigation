@@ -1,0 +1,46 @@
+# IEEE39 SPP001 Timeout Diagnosis Summary
+
+- `diagnosis_scope`: spp001_bridge_smoke_timeout_diagnosis
+- `gcn_training_run`: False
+- `formal_gcn_audit_rerun`: False
+- `spp001_smoke_rerun_executed`: False
+- `selected_32_batch_executed`: False
+- `full_1056_generation_run`: False
+- `labels_exported`: False
+- `formal_labels_exported`: False
+- `reranker_retrained`: False
+- `production_model_saved`: False
+- `source_bridge_smoke_rerun_commit`: 71e48fed4fb3e2dd2244023ad539e9db275a1b84
+- `pair_id`: SPP001
+- `previous_execution_status`: timeout
+- `previous_timeout_seconds`: 180
+- `previous_same_wrapper_confirmed`: True
+- `diagnostic_only`: True
+- `sim_run_attempted`: False
+- `phase_timing_added_to_matlab_entrypoint`: True
+- `phase_timing_added_to_python_runner`: True
+- `last_seen_phase_if_available`: phase_sim_start
+- `repeated_codegen_folder_messages_detected`: True
+- `repeated_codegen_folder_message_count`: 4
+- `likely_timeout_stage`: phase_sim_start
+- `timeout_root_cause_hypothesis`: Previous evidence contains a phase marker; timeout likely occurred at or after phase_sim_start.
+- `can_retry_spp001_with_phase_timing_after_manual_approval`: True
+- `can_retry_spp001_with_longer_timeout_after_manual_approval`: True
+- `can_request_selected_32_batch`: False
+- `no_label_value_generated`: True
+- `raw_trajectories_committed`: False
+- `full_timeseries_committed`: False
+- `mat_files_committed`: False
+- `slx_files_committed`: False
+- `slxc_files_committed`: False
+- `slprj_committed`: False
+- `local_bridge_committed`: False
+- `source_slx_modified`: False
+## forbidden_features_detected_in_inputs
+```json
+[]
+```
+
+- `no_leakage_policy_passed`: True
+- `blocker_if_any`: Python MATLAB wrapper timeout after 180s: IEEE39_SELECTED_PAIR_PHASE:phase_start_matlab_entrypoint:0.032 IEEE39_SELECTED_PAIR_PHASE:phase_manifest_loaded:1.213 IEEE39 Simulink file-generation folders: cache: C:\ieee39_codegen\cache codegen: C:\ieee39_codegen\codegen IEEE39_SELECTED_PAIR_PHASE:phase_file_generation_folder_configured:4.345 IEEE39_SELECTED_PAIR_PHASE:phase_model_load_start:4.349 IEEE39 Simulink file-generation folders: cache: C:\ieee39_codegen\cache codegen: C:\ieee39_codegen\codegen IEEE39_SELECTED_PAIR_PHASE:phase_model_load_done:6.842 IEEE39_SELECTED_PAIR_PHASE:phase_trip_command_set_start:6.848 IEEE39_SELECTED_PAIR_PHASE:phase_trip_command_set_done:6.892 IEEE39_SELECTED_PAIR_PHASE:phase_update_diagram_start:6.894 IEEE39 Simulink file-generation folders: cache: C:\ieee39_codegen\cache codegen: C:\ieee39_codegen\codegen IEEE39_SELECTED_PAIR_PHASE:phase_update_diagram_done:71.980 IEEE39_SELECTED_PAIR_PHASE:phase_sim_start:71.983 IEEE39 Simulink file-generation folders: cache: C:\ieee39_codegen\cache codegen: C:\ieee39_codegen\codegen
+- `recommended_next_step`: approve one SPP001 diagnostic retry with phase timing focused on that stage; do not export labels or train

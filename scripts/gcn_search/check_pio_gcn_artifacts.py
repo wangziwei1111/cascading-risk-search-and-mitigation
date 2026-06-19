@@ -7600,6 +7600,175 @@ def main() -> int:
         except Exception as exc:
             failures.append(f"Failed to read SPP001 same-wrapper bridge smoke rerun artifacts: {exc}")
 
+    spp001_timeout_dir = ROOT / "results/gcn_search/ieee39_spp001_bridge_smoke_timeout_diagnosis"
+    spp001_timeout_doc = ROOT / "docs/ieee39_spp001_bridge_smoke_timeout_diagnosis.md"
+    spp001_timeout_summary = spp001_timeout_dir / "spp001_timeout_diagnosis_summary.json"
+    spp001_timeout_plan = spp001_timeout_dir / "spp001_timeout_phase_plan.json"
+    spp001_timeout_excerpt = spp001_timeout_dir / "spp001_timeout_stdout_stderr_excerpt.json"
+    spp001_timeout_gate = spp001_timeout_dir / "spp001_timeout_diagnostic_gate.json"
+    spp001_timeout_no_leakage = spp001_timeout_dir / "no_leakage_spp001_timeout_diagnosis_audit.json"
+    spp001_timeout_safety = spp001_timeout_dir / "large_file_safety_spp001_timeout_diagnosis.json"
+    spp001_timeout_required = [
+        spp001_timeout_doc,
+        spp001_timeout_summary,
+        spp001_timeout_dir / "spp001_timeout_diagnosis_summary.md",
+        spp001_timeout_dir / "spp001_timeout_diagnosis_summary.csv",
+        spp001_timeout_plan,
+        spp001_timeout_dir / "spp001_timeout_phase_plan.md",
+        spp001_timeout_excerpt,
+        spp001_timeout_dir / "spp001_timeout_stdout_stderr_excerpt.md",
+        spp001_timeout_gate,
+        spp001_timeout_dir / "spp001_timeout_diagnostic_gate.md",
+        spp001_timeout_no_leakage,
+        spp001_timeout_dir / "no_leakage_spp001_timeout_diagnosis_audit.md",
+        spp001_timeout_safety,
+        spp001_timeout_dir / "large_file_safety_spp001_timeout_diagnosis.md",
+    ]
+    existing_spp001_timeout_required = [path for path in spp001_timeout_required if path.exists()]
+    if existing_spp001_timeout_required:
+        missing_spp001_timeout_required = [path for path in spp001_timeout_required if not path.exists()]
+        if missing_spp001_timeout_required:
+            failures.append(
+                "IEEE39 SPP001 bridge smoke timeout diagnosis artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_spp001_timeout_required)
+            )
+        try:
+            summary = _read_json_path(spp001_timeout_summary)
+            plan = _read_json_path(spp001_timeout_plan)
+            excerpt = _read_json_path(spp001_timeout_excerpt)
+            gate = _read_json_path(spp001_timeout_gate)
+            no_leakage = _read_json_path(spp001_timeout_no_leakage)
+            safety = _read_json_path(spp001_timeout_safety)
+            for key, expected in [
+                ("diagnosis_scope", "spp001_bridge_smoke_timeout_diagnosis"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("spp001_smoke_rerun_executed", False),
+                ("selected_32_batch_executed", False),
+                ("full_1056_generation_run", False),
+                ("labels_exported", False),
+                ("formal_labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("source_bridge_smoke_rerun_commit", "71e48fed4fb3e2dd2244023ad539e9db275a1b84"),
+                ("pair_id", "SPP001"),
+                ("previous_execution_status", "timeout"),
+                ("previous_timeout_seconds", 180),
+                ("previous_same_wrapper_confirmed", True),
+                ("diagnostic_only", True),
+                ("sim_run_attempted", False),
+                ("phase_timing_added_to_matlab_entrypoint", True),
+                ("phase_timing_added_to_python_runner", True),
+                ("repeated_codegen_folder_messages_detected", True),
+                ("can_request_selected_32_batch", False),
+                ("no_label_value_generated", True),
+                ("raw_trajectories_committed", False),
+                ("full_timeseries_committed", False),
+                ("mat_files_committed", False),
+                ("slx_files_committed", False),
+                ("slxc_files_committed", False),
+                ("slprj_committed", False),
+                ("local_bridge_committed", False),
+                ("source_slx_modified", False),
+                ("forbidden_features_detected_in_inputs", []),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"SPP001 timeout diagnosis summary must set {key}={expected!r}.")
+            if plan.get("plan_scope") != "spp001_timeout_phase_plan" or plan.get("sim_run_planned") is not False:
+                failures.append("SPP001 timeout phase plan must be diagnostic-only and not plan sim().")
+            if excerpt.get("excerpt_scope") != "spp001_timeout_stdout_stderr_excerpt":
+                failures.append("SPP001 timeout stdout/stderr excerpt has wrong scope.")
+            if gate.get("gate_scope") != "spp001_timeout_diagnostic_gate":
+                failures.append("SPP001 timeout diagnostic gate has wrong scope.")
+            for key, expected in [
+                ("same_wrapper_confirmed", True),
+                ("previous_status", "timeout"),
+                ("diagnostic_only", True),
+                ("selected_32_batch_allowed", False),
+                ("full_1056_allowed", False),
+                ("formal_label_export_allowed", False),
+                ("gcn_training_allowed", False),
+                ("can_request_spp001_diagnostic_retry", True),
+                ("can_request_spp001_full_smoke_rerun", False),
+            ]:
+                if gate.get(key) != expected:
+                    failures.append(f"SPP001 timeout diagnostic gate must set {key}={expected!r}.")
+            for key, expected in [
+                ("forbidden_features_detected_in_inputs", []),
+                ("post_fault_dynamic_measurements_used_as_inputs", False),
+                ("dynamic_outputs_used_only_as_future_labels_or_targets", True),
+                ("label_derived_flags_used_as_inputs", False),
+                ("bus_fault_labels_used", False),
+                ("line_trip_labels_first_priority", True),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if no_leakage.get(key) != expected:
+                    failures.append(f"SPP001 timeout no-leakage audit must set {key}={expected!r}.")
+            for key in [
+                "raw_trajectories_committed",
+                "full_timeseries_committed",
+                "mat_files_committed",
+                "slx_files_committed",
+                "slxc_files_committed",
+                "slprj_committed",
+                "local_bridge_committed",
+                "local_lab_copy_committed",
+                "source_slx_modified",
+                "venv_committed",
+                "wheel_or_dll_committed",
+                "model_files_committed",
+            ]:
+                if safety.get(key) is not False:
+                    failures.append(f"SPP001 timeout safety check must keep {key}=false.")
+            if safety.get("safety_check_passed") is not True:
+                failures.append("SPP001 timeout large-file safety check must pass.")
+            timeout_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_spp001_bridge_smoke_timeout_diagnosis.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                    _read_text("results/gcn_search/ieee39_spp001_bridge_smoke_timeout_diagnosis/spp001_timeout_diagnosis_summary.md"),
+                    _read_text("results/gcn_search/ieee39_spp001_bridge_smoke_timeout_diagnosis/spp001_timeout_phase_plan.md"),
+                ]
+            ).lower()
+            normalized_timeout = " ".join(timeout_text.replace("`", "").split())
+            for required in [
+                "spp001 bridge smoke timeout diagnosis",
+                "does not train gcn",
+                "does not rerun formal audit",
+                "does not execute full spp001 smoke",
+                "does not execute selected 32 batch",
+                "does not run full 1056 generation",
+                "does not export formal labels",
+                "previous round confirmed the same-wrapper bridge",
+                "timeout cannot become a 0/1 label",
+                "raw trajectory",
+                "full timeseries",
+                "source .slx is not modified",
+                "bus-fault labels are not used",
+                "l12 remains special/excluded",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "temporary bus-fault injection is not engineering-grade protection",
+            ]:
+                if required not in normalized_timeout:
+                    failures.append(f"SPP001 timeout docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is useless",
+                "full spp001 smoke completed",
+                "selected 32 batch executed",
+                "full 1056 generation completed",
+                "formal labels exported",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+                "deployment ready",
+            ]:
+                if bad in normalized_timeout:
+                    failures.append(f"SPP001 timeout docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read SPP001 bridge smoke timeout diagnosis artifacts: {exc}")
+
     l15_repair_dir = ROOT / "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair"
     l15_repair_doc = ROOT / "docs/ieee39_l15_handwired_validation_readiness_repair.md"
     l15_summary = l15_repair_dir / "l15_readiness_repair_summary.json"

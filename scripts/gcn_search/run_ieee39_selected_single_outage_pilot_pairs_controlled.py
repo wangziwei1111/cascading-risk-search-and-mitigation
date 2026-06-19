@@ -159,6 +159,22 @@ def _normalize_matlab_row(row: dict[str, Any], fallback_pair: dict[str, Any]) ->
     }
 
 
+def _tail_lines(text: str, line_count: int = 40) -> list[str]:
+    lines = str(text or "").splitlines()
+    return lines[-line_count:]
+
+
+def _extract_last_phase(stdout: str, stderr: str) -> str | None:
+    combined = "\n".join([stdout or "", stderr or ""])
+    last_phase = None
+    marker = "IEEE39_SELECTED_PAIR_PHASE:"
+    for line in combined.splitlines():
+        if marker in line:
+            fragment = line.split(marker, 1)[1]
+            last_phase = fragment.split(":", 1)[0].strip()
+    return last_phase
+
+
 def _run_matlab_batch(command: str, timeout_s: int) -> tuple[int | None, str, str, bool]:
     process = subprocess.Popen(
         ["matlab", "-batch", command],
@@ -923,6 +939,7 @@ def _attempt_spp001_matlab(
     provenance_manifest: Path | None = None,
     *,
     python_timeout_s: int = 300,
+    diagnostic_only: bool = False,
 ) -> dict[str, Any]:
     matlab_output_dir = output_dir / "matlab_compact"
     matlab_output_dir.mkdir(parents=True, exist_ok=True)
@@ -940,6 +957,7 @@ def _attempt_spp001_matlab(
         "'execute', true, "
         "'execute_single_pair', true, "
         "'dry_run_only', false, "
+        f"'diagnostic_only', {str(bool(diagnostic_only)).lower()}, "
         f"'pair_id', '{SPP001_PAIR_ID}', "
         f"'handwired_model_path', '{handwired_model.as_posix()}', "
         f"'validation_summary_csv', '{validation_csv.as_posix()}', "
@@ -992,6 +1010,7 @@ def _attempt_spp001_matlab(
         return base
     if timed_out:
         combined = stdout + "\n" + stderr
+        last_phase = _extract_last_phase(stdout, stderr)
         base.update(
             {
                 "execution_status": "timeout",
@@ -999,6 +1018,9 @@ def _attempt_spp001_matlab(
                 "timeout_or_failure_reason": f"Python MATLAB wrapper timeout after {python_timeout_s}s: "
                 + _shorten(combined or "MATLAB did not return before timeout"),
                 "evidence_source": "python_spp001_single_pair_smoke_timeout",
+                "last_seen_phase_if_available": last_phase,
+                "matlab_stdout_tail": _tail_lines(stdout),
+                "matlab_stderr_tail": _tail_lines(stderr),
             }
         )
         return base
@@ -1198,7 +1220,13 @@ def build_spp001_bridge_smoke_rerun_payloads(args: argparse.Namespace) -> dict[s
     pair = _choose_smoke_candidate(pairs, SPP001_PAIR_ID)
     manifest = _read_json(provenance_manifest) if _exists(provenance_manifest) else {}
     same_wrapper_confirmed = bool(manifest.get("same_wrapper_confirmed", False))
-    result = _attempt_spp001_matlab(pair, SPP001_BRIDGE_SMOKE_RERUN_DIR, provenance_manifest, python_timeout_s=180)
+    result = _attempt_spp001_matlab(
+        pair,
+        SPP001_BRIDGE_SMOKE_RERUN_DIR,
+        provenance_manifest,
+        python_timeout_s=180,
+        diagnostic_only=bool(getattr(args, "diagnostic_only", False)),
+    )
     if result["pair_id"] != SPP001_PAIR_ID:
         result["execution_status"] = "failed"
         result["pilot_label_status"] = "failed"
@@ -1472,6 +1500,8 @@ def main() -> None:
     parser.add_argument("--max-pairs", type=int, default=32)
     parser.add_argument("--output-dir", type=Path, default=None)
     parser.add_argument("--provenance-manifest", type=Path, default=None)
+    parser.add_argument("--diagnostic-only", action="store_true")
+    parser.add_argument("--phase-timeout-report", action="store_true")
     parser.add_argument("--strict", action="store_true")
     parser.add_argument("--write-report", action="store_true")
     args = parser.parse_args()

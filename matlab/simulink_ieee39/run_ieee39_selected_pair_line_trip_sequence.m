@@ -19,6 +19,7 @@ addParameter(parser, "approved_selected_pairs_only", false, @(x) islogical(x) ||
 addParameter(parser, "execute", false, @(x) islogical(x) || isnumeric(x));
 addParameter(parser, "execute_single_pair", false, @(x) islogical(x) || isnumeric(x));
 addParameter(parser, "dry_run_only", true, @(x) islogical(x) || isnumeric(x));
+addParameter(parser, "diagnostic_only", false, @(x) islogical(x) || isnumeric(x));
 addParameter(parser, "pair_id", "", @(x) ischar(x) || isstring(x));
 addParameter(parser, "handwired_model_path", "../../results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker.slx", @(x) ischar(x) || isstring(x));
 addParameter(parser, "validation_summary_csv", "../../results/gcn_search/ieee39_graphical_dynamic_model/handwired_breaker_validation/ieee39_multi_handwired_breaker_validation_summary.csv", @(x) ischar(x) || isstring(x));
@@ -33,9 +34,12 @@ approvedSelectedPairsOnly = logical(parser.Results.approved_selected_pairs_only)
 executeRequested = logical(parser.Results.execute);
 executeSinglePair = logical(parser.Results.execute_single_pair);
 dryRunOnly = logical(parser.Results.dry_run_only);
+diagnosticOnly = logical(parser.Results.diagnostic_only);
 manifestPath = char(parser.Results.manifestPath);
 outputDir = char(parser.Results.outputDir);
 pairId = string(parser.Results.pair_id);
+phaseClock = tic;
+phaseTiming = struct('phase', {}, 'elapsed_seconds', {});
 
 if ~isfile(manifestPath)
     error("IEEE39SelectedPair:MissingManifest", "Selected pair manifest does not exist: %s", manifestPath);
@@ -60,6 +64,7 @@ end
 if ~exist(outputDir, "dir")
     mkdir(outputDir);
 end
+phaseTiming = markPhase(phaseTiming, phaseClock, outputDir, "phase_start_matlab_entrypoint");
 
 selectedPair = struct([]);
 if strlength(pairId) > 0
@@ -77,6 +82,7 @@ row = buildBaseRow(selectedPair);
 [nextReady, nextReason, nextCommand] = lineReady(validation, string(selectedPair.candidate_next_branch));
 entrypointReady = priorReady && nextReady && ~row.l12_special_case_flag;
 [manifestReady, manifestReason, manifestPriorCommand, manifestNextCommand, manifestModel] = readProvenanceManifest(parser.Results.provenance_manifest_path);
+phaseTiming = markPhase(phaseTiming, phaseClock, outputDir, "phase_manifest_loaded");
 if manifestReady
     priorCommand = manifestPriorCommand;
     nextCommand = manifestNextCommand;
@@ -99,7 +105,7 @@ if executeSinglePair
         row.timeout_or_failure_reason = "single-pair smoke failed provenance check before set_param: " + manifestReason + "; prior model=" + commandModelName(priorCommand) + "; next model=" + commandModelName(nextCommand);
         row.evidence_source = "matlab_selected_pair_entrypoint_provenance_mismatch";
     else
-        row = executeOnePair(row, parser.Results.handwired_model_path, outputDir, validation, priorCommand, nextCommand, parser.Results);
+        [row, phaseTiming] = executeOnePair(row, parser.Results.handwired_model_path, outputDir, validation, priorCommand, nextCommand, parser.Results, phaseTiming, phaseClock);
     end
 else
     if entrypointReady
@@ -121,6 +127,7 @@ summary.approved_selected_pairs_only = approvedSelectedPairsOnly;
 summary.execute_requested = executeRequested;
 summary.execute_single_pair = executeSinglePair;
 summary.dry_run_only = dryRunOnly;
+summary.diagnostic_only = diagnosticOnly;
 summary.selected_pair_count = pairCount;
 summary.pair_id = row.pair_id;
 summary.selected_32_pairs_executed = false;
@@ -134,6 +141,7 @@ summary.mat_files_saved = false;
 summary.source_slx_modified = false;
 summary.timeout_policy = "timeout remains timeout/unknown and is not converted to 0/1";
 summary.unknown_policy = "blocked, failed, timeout, and unknown remain null";
+summary.phase_timing = phaseTiming;
 summary.rows = row;
 
 summaryPath = fullfile(outputDir, "matlab_selected_pair_compact_evidence_summary.json");
@@ -274,14 +282,18 @@ row.l12_special_case_flag = row.prior_outaged_branch == "L12" || row.candidate_n
 row.notes = "single-pair compact evidence only; not a formal training label";
 end
 
-function row = executeOnePair(row, handwiredModelPath, outputDir, validation, priorCommand, nextCommand, options)
+function [row, phaseTiming] = executeOnePair(row, handwiredModelPath, outputDir, validation, priorCommand, nextCommand, options, phaseTiming, phaseClock)
 try
     configure_ieee39_short_filegen_paths();
+    phaseTiming = markPhase(phaseTiming, phaseClock, outputDir, "phase_file_generation_folder_configured");
 catch
 end
 try
+    phaseTiming = markPhase(phaseTiming, phaseClock, outputDir, "phase_model_load_start");
     load_system(handwiredModelPath);
     [~, modelName, ~] = fileparts(handwiredModelPath);
+    phaseTiming = markPhase(phaseTiming, phaseClock, outputDir, "phase_model_load_done");
+    phaseTiming = markPhase(phaseTiming, phaseClock, outputDir, "phase_trip_command_set_start");
     for idx = 1:height(validation)
         commandPath = string(validation.trip_command_path(idx));
         if strlength(commandPath) > 0
@@ -293,7 +305,26 @@ try
     end
     set_param(priorCommand, "Time", num2str(options.prior_trip_time));
     set_param(nextCommand, "Time", num2str(options.next_trip_time));
+    phaseTiming = markPhase(phaseTiming, phaseClock, outputDir, "phase_trip_command_set_done");
+    phaseTiming = markPhase(phaseTiming, phaseClock, outputDir, "phase_update_diagram_start");
+    set_param(modelName, "SimulationCommand", "update");
+    phaseTiming = markPhase(phaseTiming, phaseClock, outputDir, "phase_update_diagram_done");
+    if logical(options.diagnostic_only)
+        row.execution_status = "diagnostic_only_complete";
+        row.pilot_label_status = "unknown";
+        row.timeout_or_failure_reason = "diagnostic_only=true; sim() was intentionally not called";
+        row.evidence_source = "matlab_single_pair_phase_timing_diagnostic";
+        row.dynamic_stress_score_if_available = [];
+        row.unstable_flag_if_available = [];
+        row.instability_or_risk_reason = "diagnostic-only phase timing completed before sim";
+        phaseTiming = markPhase(phaseTiming, phaseClock, outputDir, "phase_cleanup_start");
+        close_system(modelName, 0);
+        phaseTiming = markPhase(phaseTiming, phaseClock, outputDir, "phase_cleanup_done");
+        return;
+    end
+    phaseTiming = markPhase(phaseTiming, phaseClock, outputDir, "phase_sim_start");
     simOut = sim(modelName, "StopTime", num2str(options.simulation_stop_time), "TimeOut", options.timeout_s);
+    phaseTiming = markPhase(phaseTiming, phaseClock, outputDir, "phase_sim_done");
     signalSummary = extract_ieee39_signal_summary(simOut, "selected_pair_" + row.pair_id, outputDir);
     row.execution_status = "succeeded";
     row.pilot_label_status = "unknown";
@@ -302,7 +333,9 @@ try
     row.dynamic_stress_score_if_available = [];
     row.unstable_flag_if_available = [];
     row.instability_or_risk_reason = "compact signal status: " + string(signalSummary.measurement_extraction_status);
+    phaseTiming = markPhase(phaseTiming, phaseClock, outputDir, "phase_cleanup_start");
     close_system(modelName, 0);
+    phaseTiming = markPhase(phaseTiming, phaseClock, outputDir, "phase_cleanup_done");
 catch ME
     row.pilot_label_value = [];
     row.evidence_source = "matlab_single_pair_smoke_failed";
@@ -317,8 +350,32 @@ catch ME
     end
     try
         [~, modelName, ~] = fileparts(handwiredModelPath);
+        phaseTiming = markPhase(phaseTiming, phaseClock, outputDir, "phase_cleanup_start");
         close_system(modelName, 0);
+        phaseTiming = markPhase(phaseTiming, phaseClock, outputDir, "phase_cleanup_done");
     catch
     end
+end
+end
+
+function phaseTiming = markPhase(phaseTiming, phaseClock, outputDir, phaseName)
+elapsedSeconds = toc(phaseClock);
+next = numel(phaseTiming) + 1;
+phaseTiming(next).phase = string(phaseName);
+phaseTiming(next).elapsed_seconds = elapsedSeconds;
+fprintf("IEEE39_SELECTED_PAIR_PHASE:%s:%.3f\n", phaseName, elapsedSeconds);
+try
+    marker = struct();
+    marker.last_seen_phase = string(phaseName);
+    marker.phase_timing = phaseTiming;
+    marker.diagnostic_note = "compact progress marker only; no raw trajectories, full timeseries, or MAT files";
+    markerPath = fullfile(outputDir, "matlab_selected_pair_progress_marker.json");
+    fid = fopen(markerPath, "w");
+    if fid >= 0
+        cleanup = onCleanup(@() fclose(fid));
+        fprintf(fid, "%s", jsonencode(marker, PrettyPrint=true));
+        clear cleanup;
+    end
+catch
 end
 end
