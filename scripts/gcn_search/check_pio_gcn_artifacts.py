@@ -770,6 +770,7 @@ REQUIRED_FILES = [
     "scripts/gcn_search/diagnose_ieee39_controlled_execution_backend.py",
     "scripts/gcn_search/run_ieee39_selected_single_outage_pilot_pairs_controlled.py",
     "scripts/gcn_search/run_ieee39_spp001_sim_stage_diagnostic_retry.py",
+    "scripts/gcn_search/diagnose_ieee39_spp001_solver_runtime.py",
     "scripts/gcn_search/repair_ieee39_l15_handwired_validation_readiness.py",
     "scripts/gcn_search/parse_ieee39_selected_pair_execution_evidence.py",
     "matlab/simulink_ieee39/run_ieee39_selected_pair_line_trip_sequence.m",
@@ -791,6 +792,7 @@ REQUIRED_FILES = [
     "tests/test_ieee39_controlled_execution_backend_diagnosis.py",
     "tests/test_ieee39_controlled_execution_backend_repair.py",
     "tests/test_ieee39_spp001_sim_stage_diagnostic_retry.py",
+    "tests/test_ieee39_spp001_solver_runtime_diagnosis.py",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_block_parameter_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.json",
@@ -7949,6 +7951,189 @@ def main() -> int:
                     failures.append(f"SPP001 sim-stage diagnostic docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read SPP001 sim-stage diagnostic retry artifacts: {exc}")
+
+    spp001_solver_dir = ROOT / "results/gcn_search/ieee39_spp001_solver_runtime_diagnosis"
+    spp001_solver_doc = ROOT / "docs/ieee39_spp001_solver_runtime_diagnosis.md"
+    spp001_solver_summary = spp001_solver_dir / "spp001_solver_runtime_diagnosis_summary.json"
+    spp001_solver_config = spp001_solver_dir / "spp001_solver_runtime_config_inventory.json"
+    spp001_solver_warning = spp001_solver_dir / "spp001_initial_condition_warning_review.json"
+    spp001_solver_plan = spp001_solver_dir / "spp001_short_stop_solver_profile_plan.json"
+    spp001_solver_gate = spp001_solver_dir / "spp001_solver_runtime_diagnostic_gate.json"
+    spp001_solver_no_leakage = spp001_solver_dir / "no_leakage_spp001_solver_runtime_diagnosis_audit.json"
+    spp001_solver_safety = spp001_solver_dir / "large_file_safety_spp001_solver_runtime_diagnosis.json"
+    spp001_solver_required = [
+        spp001_solver_doc,
+        spp001_solver_summary,
+        spp001_solver_dir / "spp001_solver_runtime_diagnosis_summary.md",
+        spp001_solver_dir / "spp001_solver_runtime_diagnosis_summary.csv",
+        spp001_solver_config,
+        spp001_solver_dir / "spp001_solver_runtime_config_inventory.md",
+        spp001_solver_warning,
+        spp001_solver_dir / "spp001_initial_condition_warning_review.md",
+        spp001_solver_plan,
+        spp001_solver_dir / "spp001_short_stop_solver_profile_plan.md",
+        spp001_solver_gate,
+        spp001_solver_dir / "spp001_solver_runtime_diagnostic_gate.md",
+        spp001_solver_no_leakage,
+        spp001_solver_dir / "no_leakage_spp001_solver_runtime_diagnosis_audit.md",
+        spp001_solver_safety,
+        spp001_solver_dir / "large_file_safety_spp001_solver_runtime_diagnosis.md",
+    ]
+    existing_spp001_solver_required = [path for path in spp001_solver_required if path.exists()]
+    if existing_spp001_solver_required:
+        missing_spp001_solver_required = [path for path in spp001_solver_required if not path.exists()]
+        if missing_spp001_solver_required:
+            failures.append(
+                "IEEE39 SPP001 solver/runtime diagnosis artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_spp001_solver_required)
+            )
+        try:
+            summary = _read_json_path(spp001_solver_summary)
+            config = _read_json_path(spp001_solver_config)
+            warning = _read_json_path(spp001_solver_warning)
+            plan = _read_json_path(spp001_solver_plan)
+            gate = _read_json_path(spp001_solver_gate)
+            no_leakage = _read_json_path(spp001_solver_no_leakage)
+            safety = _read_json_path(spp001_solver_safety)
+            for key, expected in [
+                ("diagnosis_scope", "spp001_solver_runtime_diagnosis"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("selected_32_batch_executed", False),
+                ("full_1056_generation_run", False),
+                ("labels_exported", False),
+                ("formal_labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("source_sim_stage_diagnostic_commit", "a233fabaeadf19c23e9ced0c4459cbea7a366d25"),
+                ("pair_id", "SPP001"),
+                ("same_wrapper_confirmed", True),
+                ("previous_likely_timeout_stage", "phase_sim_start"),
+                ("previous_execution_status", "timeout"),
+                ("previous_python_timeout_seconds", 600),
+                ("previous_matlab_timeout_seconds", 540),
+                ("solver_runtime_diagnostic_only", True),
+                ("full_smoke_executed", False),
+                ("sim_run_attempted", False),
+                ("update_diagram_previously_passed", True),
+                ("short_stop_profiling_plan_written", True),
+                ("can_request_short_stop_solver_profile_after_manual_approval", True),
+                ("can_request_full_spp001_smoke_rerun", False),
+                ("can_request_selected_32_batch", False),
+                ("no_label_value_generated", True),
+                ("raw_trajectories_committed", False),
+                ("full_timeseries_committed", False),
+                ("mat_files_committed", False),
+                ("slx_files_committed", False),
+                ("slxc_files_committed", False),
+                ("slprj_committed", False),
+                ("local_bridge_committed", False),
+                ("source_slx_modified", False),
+                ("bus_fault_labels_used", False),
+                ("forbidden_features_detected_in_inputs", []),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"SPP001 solver/runtime summary must set {key}={expected!r}.")
+            for key in ["solver_type_if_available", "solver_name_if_available", "simulation_mode_if_available", "likely_runtime_blocker"]:
+                if key not in summary:
+                    failures.append(f"SPP001 solver/runtime summary missing key: {key}")
+            if config.get("inventory_scope") != "spp001_solver_runtime_config_inventory":
+                failures.append("SPP001 solver/runtime config inventory has wrong scope.")
+            if warning.get("review_scope") != "spp001_initial_condition_warning_review":
+                failures.append("SPP001 initial-condition warning review has wrong scope.")
+            if plan.get("plan_scope") != "spp001_short_stop_solver_profile_plan" or plan.get("sim_run_planned_this_round") is not False:
+                failures.append("SPP001 short-stop solver profile plan must be plan-only in this round.")
+            for key, expected in [
+                ("gate_scope", "spp001_solver_runtime_diagnostic_gate"),
+                ("pair_id", "SPP001"),
+                ("same_wrapper_confirmed", True),
+                ("previous_status", "timeout"),
+                ("likely_timeout_stage", "phase_sim_start"),
+                ("selected_32_batch_allowed", False),
+                ("full_1056_allowed", False),
+                ("formal_label_export_allowed", False),
+                ("gcn_training_allowed", False),
+                ("can_request_short_stop_solver_profile", True),
+                ("can_request_full_spp001_smoke_rerun", False),
+                ("can_request_selected_32_batch", False),
+            ]:
+                if gate.get(key) != expected:
+                    failures.append(f"SPP001 solver/runtime gate must set {key}={expected!r}.")
+            for key, expected in [
+                ("forbidden_features_detected_in_inputs", []),
+                ("post_fault_dynamic_measurements_used_as_inputs", False),
+                ("dynamic_outputs_used_only_as_future_labels_or_targets", True),
+                ("label_derived_flags_used_as_inputs", False),
+                ("bus_fault_labels_used", False),
+                ("line_trip_labels_first_priority", True),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if no_leakage.get(key) != expected:
+                    failures.append(f"SPP001 solver/runtime no-leakage audit must set {key}={expected!r}.")
+            for key in [
+                "raw_trajectories_committed",
+                "full_timeseries_committed",
+                "mat_files_committed",
+                "slx_files_committed",
+                "slxc_files_committed",
+                "slprj_committed",
+                "local_bridge_committed",
+                "local_lab_copy_committed",
+                "source_slx_modified",
+                "venv_committed",
+                "wheel_or_dll_committed",
+                "model_files_committed",
+            ]:
+                if safety.get(key) is not False:
+                    failures.append(f"SPP001 solver/runtime safety check must keep {key}=false.")
+            if safety.get("safety_check_passed") is not True:
+                failures.append("SPP001 solver/runtime large-file safety check must pass.")
+            solver_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_spp001_solver_runtime_diagnosis.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                    _read_text("results/gcn_search/ieee39_spp001_solver_runtime_diagnosis/spp001_solver_runtime_diagnosis_summary.md"),
+                    _read_text("results/gcn_search/ieee39_spp001_solver_runtime_diagnosis/spp001_short_stop_solver_profile_plan.md"),
+                ]
+            ).lower()
+            normalized_solver = " ".join(solver_text.replace("`", "").split())
+            for required in [
+                "spp001 solver/runtime diagnosis",
+                "does not train gcn",
+                "does not rerun formal audit",
+                "does not execute selected 32 batch",
+                "does not run full 1056 generation",
+                "does not export formal labels",
+                "previous timeout was already localized to the sim() stage",
+                "first solve for initial conditions failed to converge",
+                "does not generate a 0/1 label",
+                "cannot become a 0/1 label",
+                "raw trajectory",
+                "full timeseries",
+                "source .slx is not modified",
+                "bus-fault labels are not used",
+                "l12 remains special/excluded",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "temporary bus-fault injection is not engineering-grade protection",
+            ]:
+                if required not in normalized_solver:
+                    failures.append(f"SPP001 solver/runtime docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is useless",
+                "selected 32 batch executed",
+                "full 1056 generation completed",
+                "formal labels exported",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+                "deployment ready",
+            ]:
+                if bad in normalized_solver:
+                    failures.append(f"SPP001 solver/runtime docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read SPP001 solver/runtime diagnosis artifacts: {exc}")
 
     l15_repair_dir = ROOT / "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair"
     l15_repair_doc = ROOT / "docs/ieee39_l15_handwired_validation_readiness_repair.md"

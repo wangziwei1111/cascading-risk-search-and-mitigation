@@ -1,0 +1,15 @@
+{
+  "gate_scope": "spp001_solver_runtime_diagnostic_gate",
+  "pair_id": "SPP001",
+  "same_wrapper_confirmed": true,
+  "previous_status": "timeout",
+  "likely_timeout_stage": "phase_sim_start",
+  "selected_32_batch_allowed": false,
+  "full_1056_allowed": false,
+  "formal_label_export_allowed": false,
+  "gcn_training_allowed": false,
+  "can_request_short_stop_solver_profile": true,
+  "can_request_full_spp001_smoke_rerun": false,
+  "can_request_selected_32_batch": false,
+  "blocker_if_any": null
+}

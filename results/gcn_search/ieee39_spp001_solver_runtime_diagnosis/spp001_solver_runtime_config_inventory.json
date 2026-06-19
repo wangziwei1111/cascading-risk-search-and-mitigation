@@ -1,0 +1,38 @@
+{
+  "inventory_scope": "spp001_solver_runtime_config_inventory",
+  "pair_id": "SPP001",
+  "model_path": "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\results\\gcn_search\\ieee39_spp001_same_wrapper_bridge_builder_repair\\local_bridge_copy\\IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab.slx",
+  "same_wrapper_confirmed": true,
+  "config_inspection": {
+    "inspection_status": "succeeded",
+    "model_path": "C:/Users/24186/Documents/New project 7/simulink-dynamic-validation-worktree/results/gcn_search/ieee39_spp001_same_wrapper_bridge_builder_repair/local_bridge_copy/IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab.slx",
+    "model_name": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab",
+    "SolverType": "Fixed-step",
+    "Solver": "FixedStepDiscrete",
+    "SimulationMode": "normal",
+    "StopTime": "15",
+    "MaxStep": "1e-4",
+    "RelTol": "1e-3",
+    "AbsTol": "auto",
+    "AlgebraicLoopMsg": "warning",
+    "ZeroCross": "on",
+    "FastRestart": "off",
+    "SimscapeLogType": "all",
+    "powergui_block_count": 0,
+    "powergui_blocks": [],
+    "powergui_or_phasor_mode_if_available": "unknown",
+    "model_load_check_passed": true,
+    "matlab_returncode": 0,
+    "matlab_stdout_tail": [
+      "IEEE39 Simulink file-generation folders:",
+      "  cache: C:\\ieee39_codegen\\cache",
+      "  codegen: C:\\ieee39_codegen\\codegen",
+      "IEEE39 Simulink file-generation folders:",
+      "  cache: C:\\ieee39_codegen\\cache",
+      "  codegen: C:\\ieee39_codegen\\codegen",
+      "[\b����: ʹ�ò��� 'Variants' ������ find_system ���������������ǻ�� Variant Subsystem ģ�顣����Ϊ�����Ժ�İ汾�и��ģ��Բ鿴�ɱ���ϵͳ������ѡ���Ҫ���ҷ������������еĻģ�飬�����ģ�ͣ���ʹ�����ñ���",
+      "�������� 'MatchFilter' ѡ�Ҫ��������ģ�飬��ʹ�þ��� 'MatchFilter' ѡ��� '@Simulink.match.allVariants' ��������]\b "
+    ],
+    "matlab_stderr_tail": []
+  }
+}

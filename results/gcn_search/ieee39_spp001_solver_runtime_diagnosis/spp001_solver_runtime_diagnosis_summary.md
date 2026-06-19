@@ -1,0 +1,67 @@
+# IEEE39 SPP001 Solver Runtime Diagnosis Summary
+
+- `diagnosis_scope`: spp001_solver_runtime_diagnosis
+- `gcn_training_run`: False
+- `formal_gcn_audit_rerun`: False
+- `selected_32_batch_executed`: False
+- `full_1056_generation_run`: False
+- `labels_exported`: False
+- `formal_labels_exported`: False
+- `reranker_retrained`: False
+- `production_model_saved`: False
+- `source_sim_stage_diagnostic_commit`: a233fabaeadf19c23e9ced0c4459cbea7a366d25
+- `pair_id`: SPP001
+- `same_wrapper_confirmed`: True
+- `previous_likely_timeout_stage`: phase_sim_start
+- `previous_execution_status`: timeout
+- `previous_python_timeout_seconds`: 600
+- `previous_matlab_timeout_seconds`: 540
+- `initial_condition_convergence_warning_detected`: True
+- `solver_runtime_diagnostic_only`: True
+- `full_smoke_executed`: False
+- `sim_run_attempted`: False
+- `diagnostic_short_profile_attempted`: False
+- `model_load_check_passed`: True
+- `update_diagram_previously_passed`: True
+- `solver_type_if_available`: Fixed-step
+- `solver_name_if_available`: FixedStepDiscrete
+- `simulation_mode_if_available`: normal
+- `stop_time_if_available`: 15
+- `max_step_if_available`: 1e-4
+- `rel_tol_if_available`: 1e-3
+- `abs_tol_if_available`: auto
+- `powergui_or_phasor_mode_if_available`: unknown
+- `short_stop_profiling_plan_written`: True
+## recommended_short_stop_times
+```json
+[
+  0.0,
+  0.01,
+  0.1,
+  0.49,
+  0.51
+]
+```
+
+- `likely_runtime_blocker`: initial_condition_convergence_at_sim_start
+- `can_request_short_stop_solver_profile_after_manual_approval`: True
+- `can_request_full_spp001_smoke_rerun`: False
+- `can_request_selected_32_batch`: False
+- `no_label_value_generated`: True
+- `raw_trajectories_committed`: False
+- `full_timeseries_committed`: False
+- `mat_files_committed`: False
+- `slx_files_committed`: False
+- `slxc_files_committed`: False
+- `slprj_committed`: False
+- `local_bridge_committed`: False
+- `source_slx_modified`: False
+- `bus_fault_labels_used`: False
+## forbidden_features_detected_in_inputs
+```json
+[]
+```
+
+- `no_leakage_policy_passed`: True
+- `blocker_if_any`: None
+- `recommended_next_step`: approve one short-stop SPP001 solver profiling run focused on initialization; do not export labels or train

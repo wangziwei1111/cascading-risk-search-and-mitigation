@@ -5539,3 +5539,62 @@ Key fields:
 Boundary notes: no raw trajectory, full timeseries, `.mat`, `.slx`, `.slxc`, `slprj`, production model, venv, wheel, DLL, or local bridge `.slx` file is committed. The source `.slx` is not modified. Bus-fault labels are not used. Line-trip labels remain first priority. L12 remains special/excluded. `phasor_RMS` is not EMT. `generator_speed_proxy` is not direct frequency. Temporary bus-fault injection is not engineering-grade protection.
 
 Next step: inspect Simulink solver/runtime settings for the SPP001 bridge before any broader execution. Do not execute selected 32, export formal labels, or train GCN from this timeout result.
+
+## Round 104: IEEE39 SPP001 Solver/Runtime Diagnosis
+
+This round diagnoses the SPP001 `L15 -> L04` same-wrapper bridge solver/runtime timeout only. It does not train GCN, does not rerun formal audit, does not execute selected 32 batch, does not run full 1056 generation, does not export formal labels, does not retrain the reranker, and does not deploy a model.
+
+Plain-language result: the previous timeout was already localized to the `sim()` stage. This round therefore checked the previous phase trace, the previous MATLAB stdout/stderr warning, and the local bridge model configuration. The model load/config inspection passed without running full smoke. The local bridge reports `SolverType = Fixed-step`, `Solver = FixedStepDiscrete`, `SimulationMode = normal`, `StopTime = 15`, and `MaxStep = 1e-4`. The compact evidence still contains the warning that the first solve for initial conditions failed to converge and Simulink retried with high priorities relaxed to low. The current likely blocker is therefore `initial_condition_convergence_at_sim_start`. This still generates no 0/1 label.
+
+Artifacts:
+
+- `scripts/gcn_search/diagnose_ieee39_spp001_solver_runtime.py`
+- `docs/ieee39_spp001_solver_runtime_diagnosis.md`
+- `results/gcn_search/ieee39_spp001_solver_runtime_diagnosis/spp001_solver_runtime_diagnosis_summary.json`
+- `results/gcn_search/ieee39_spp001_solver_runtime_diagnosis/spp001_solver_runtime_config_inventory.json`
+- `results/gcn_search/ieee39_spp001_solver_runtime_diagnosis/spp001_initial_condition_warning_review.json`
+- `results/gcn_search/ieee39_spp001_solver_runtime_diagnosis/spp001_short_stop_solver_profile_plan.json`
+- `results/gcn_search/ieee39_spp001_solver_runtime_diagnosis/spp001_solver_runtime_diagnostic_gate.json`
+- `results/gcn_search/ieee39_spp001_solver_runtime_diagnosis/no_leakage_spp001_solver_runtime_diagnosis_audit.json`
+- `results/gcn_search/ieee39_spp001_solver_runtime_diagnosis/large_file_safety_spp001_solver_runtime_diagnosis.json`
+
+Key fields:
+
+- `diagnosis_scope = spp001_solver_runtime_diagnosis`
+- `pair_id = SPP001`
+- `same_wrapper_confirmed = true`
+- `previous_likely_timeout_stage = phase_sim_start`
+- `previous_python_timeout_seconds = 600`
+- `previous_matlab_timeout_seconds = 540`
+- `initial_condition_convergence_warning_detected = true`
+- `solver_runtime_diagnostic_only = true`
+- `full_smoke_executed = false`
+- `sim_run_attempted = false`
+- `model_load_check_passed = true`
+- `update_diagram_previously_passed = true`
+- `solver_type_if_available = Fixed-step`
+- `solver_name_if_available = FixedStepDiscrete`
+- `simulation_mode_if_available = normal`
+- `stop_time_if_available = 15`
+- `max_step_if_available = 1e-4`
+- `rel_tol_if_available = 1e-3`
+- `abs_tol_if_available = auto`
+- `powergui_or_phasor_mode_if_available = unknown`
+- `likely_runtime_blocker = initial_condition_convergence_at_sim_start`
+- `can_request_short_stop_solver_profile_after_manual_approval = true`
+- `can_request_full_spp001_smoke_rerun = false`
+- `can_request_selected_32_batch = false`
+- `no_label_value_generated = true`
+- `raw_trajectories_committed = false`
+- `full_timeseries_committed = false`
+- `mat_files_committed = false`
+- `slx_files_committed = false`
+- `local_bridge_committed = false`
+- `source_slx_modified = false`
+- `bus_fault_labels_used = false`
+- `forbidden_features_detected_in_inputs = []`
+- `no_leakage_policy_passed = true`
+
+Boundary notes: no raw trajectory, full timeseries, `.mat`, `.slx`, `.slxc`, `slprj`, production model, venv, wheel, DLL, or local bridge `.slx` file is committed. The source `.slx` is not modified. Bus-fault labels are not used. Line-trip labels remain first priority. L12 remains special/excluded. `phasor_RMS` is not EMT. `generator_speed_proxy` is not direct frequency. Temporary bus-fault injection is not engineering-grade protection.
+
+Next step: approve one short-stop SPP001 solver profiling run focused on initialization; do not export labels or train.

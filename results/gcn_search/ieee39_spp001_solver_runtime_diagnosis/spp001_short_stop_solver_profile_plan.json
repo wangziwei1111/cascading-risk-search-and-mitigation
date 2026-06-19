@@ -1,0 +1,16 @@
+{
+  "plan_scope": "spp001_short_stop_solver_profile_plan",
+  "pair_id": "SPP001",
+  "approved_now": false,
+  "sim_run_planned_this_round": false,
+  "recommended_short_stop_times": [
+    0.0,
+    0.01,
+    0.1,
+    0.49,
+    0.51
+  ],
+  "purpose": "separate initialization from post-trip runtime; do not export labels",
+  "must_not_export_formal_labels": true,
+  "must_not_train_gcn": true
+}
