@@ -1,0 +1,18 @@
+{
+  "gate_scope": "spp001_bridge_builder_rerun_gate",
+  "pair_id": "SPP001",
+  "l15_ready": true,
+  "l04_ready": true,
+  "local_bridge_built": true,
+  "l15_trip_command_found_in_bridge": true,
+  "l04_trip_command_found_in_bridge": true,
+  "l15_breaker_found_in_bridge": true,
+  "l04_breaker_found_in_bridge": true,
+  "same_wrapper_confirmed": true,
+  "selected_32_batch_allowed": false,
+  "full_1056_allowed": false,
+  "formal_label_export_allowed": false,
+  "gcn_training_allowed": false,
+  "can_request_spp001_smoke_rerun_approval": true,
+  "blocker_if_any": null
+}

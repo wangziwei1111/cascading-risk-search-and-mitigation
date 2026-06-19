@@ -1,0 +1,51 @@
+# IEEE39 SPP001 Bridge Builder Repair Report
+
+- `repair_report_scope`: spp001_bridge_builder_repair_report
+- `pair_id`: SPP001
+- `matlab_builder_invoked`: True
+- `matlab_returncode`: 0
+## matlab_builder_summary
+```json
+{
+  "bridge_scope": "spp001_same_wrapper_bridge_lab_builder_skeleton",
+  "pair_id": "SPP001",
+  "prior_outaged_branch": "L15",
+  "candidate_next_branch": "L04",
+  "source_wrapper_path": "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\results\\gcn_search\\ieee39_graphical_dynamic_model\\generated_models\\IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker.slx",
+  "l15_source_lab_path": "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\results\\gcn_search\\ieee39_graphical_dynamic_model\\generated_models\\IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15.slx",
+  "output_dir": "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\results\\gcn_search\\ieee39_spp001_same_wrapper_bridge_builder_repair\\local_bridge_copy",
+  "target_local_lab_copy_path": "C:\\Users\\24186\\Documents\\New project 7\\simulink-dynamic-validation-worktree\\results\\gcn_search\\ieee39_spp001_same_wrapper_bridge_builder_repair\\local_bridge_copy\\IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab.slx",
+  "dry_run_only": false,
+  "build_local_copy_requested": true,
+  "source_found": true,
+  "l15_source_found": true,
+  "target_created": true,
+  "copied_l15_trip_command": true,
+  "copied_l15_breaker": true,
+  "l15_trip_command_found_in_bridge": true,
+  "l04_trip_command_found_in_bridge": true,
+  "l15_breaker_found_in_bridge": true,
+  "l04_breaker_found_in_bridge": true,
+  "same_wrapper_confirmed": true,
+  "simulink_run": false,
+  "formal_labels_exported": false,
+  "raw_trajectories_saved": false,
+  "full_timeseries_saved": false,
+  "mat_files_saved": false,
+  "source_slx_modified": false,
+  "local_lab_copy_committed": false,
+  "note": "local bridge lab copy contains L15/L04 TripCommand and breaker blocks in the same wrapper; no simulation was run"
+}
+```
+
+- `source_wrapper_path`: results\gcn_search\ieee39_graphical_dynamic_model\generated_models\IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker.slx
+- `l15_source_lab_path`: results\gcn_search\ieee39_graphical_dynamic_model\generated_models\IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15.slx
+- `target_local_bridge_path`: results\gcn_search\ieee39_spp001_same_wrapper_bridge_builder_repair\local_bridge_copy\IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab.slx
+- `local_bridge_build_attempted`: True
+- `local_bridge_built`: True
+- `local_bridge_committed`: False
+- `source_slx_modified`: False
+- `simulink_run`: False
+- `labels_exported`: False
+- `formal_labels_exported`: False
+- `note`: Builder repair copies L15 TripCommand and breaker blocks into a local-only bridge copy; no sim() is called.

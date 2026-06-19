@@ -5342,3 +5342,47 @@ Key fields:
 Boundary notes: no raw trajectory, full timeseries, `.mat`, `.slx`, `.slxc`, `slprj`, production model, venv, wheel, DLL, or local bridge `.slx` file is committed. Bus-fault labels are not used. L12 remains special/excluded. `phasor_RMS` is not EMT. `generator_speed_proxy` is not direct frequency. Temporary bus-fault injection is not engineering-grade protection.
 
 Next step: repair local same-wrapper bridge builder before any SPP001 smoke rerun.
+
+## Round 100: IEEE39 SPP001 Same-Wrapper Bridge Builder Repair
+
+This round repaired the SPP001 same-wrapper bridge builder only. It does not train GCN, does not rerun formal audit, does not execute SPP001 smoke, does not execute selected 32 batch, does not run full 1056 generation, does not export formal labels, does not retrain the reranker, and does not deploy a model.
+
+Plain-language result: the previous local bridge copy was missing `L15_TripCommand`. This round updated the guarded builder so the local bridge copy contains `L15_TripCommand`, `L04_TripCommand`, `L15_HandwiredTimedBreaker`, and `L04_HandwiredTimedBreaker` in the same local wrapper. This only repairs the bridge. It does not generate a 0/1 label and does not run SPP001 smoke.
+
+Artifacts:
+
+- `scripts/gcn_search/repair_ieee39_spp001_same_wrapper_bridge_builder.py`
+- `docs/ieee39_spp001_same_wrapper_bridge_builder_repair.md`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_builder_repair/spp001_bridge_builder_repair_summary.json`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_builder_repair/spp001_bridge_builder_repair_report.json`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_builder_repair/spp001_repaired_same_wrapper_manifest.json`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_builder_repair/spp001_bridge_builder_rerun_gate.json`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_builder_repair/no_leakage_spp001_bridge_builder_repair_audit.json`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_builder_repair/large_file_safety_spp001_bridge_builder_repair.json`
+
+Key fields:
+
+- `repair_scope = spp001_same_wrapper_bridge_builder_repair`
+- `pair_id = SPP001`
+- `previous_l15_trip_command_found_in_bridge = false`
+- `previous_l04_trip_command_found_in_bridge = true`
+- `local_bridge_build_attempted = true`
+- `local_bridge_validation_attempted = true`
+- `local_bridge_built = true`
+- `local_bridge_committed = false`
+- `source_slx_modified = false`
+- `l15_trip_command_found_in_bridge = true`
+- `l04_trip_command_found_in_bridge = true`
+- `l15_breaker_found_in_bridge = true`
+- `l04_breaker_found_in_bridge = true`
+- `same_wrapper_confirmed = true`
+- `repaired_provenance_manifest_written = true`
+- `can_rerun_spp001_after_manual_approval = true`
+- `no_label_value_generated = true`
+- `forbidden_features_detected_in_inputs = []`
+- `no_leakage_policy_passed = true`
+- `blocker_if_any = null`
+
+Boundary notes: no raw trajectory, full timeseries, `.mat`, `.slx`, `.slxc`, `slprj`, production model, venv, wheel, DLL, or local bridge `.slx` file is committed. Bus-fault labels are not used. L12 remains special/excluded. `phasor_RMS` is not EMT. `generator_speed_proxy` is not direct frequency. Temporary bus-fault injection is not engineering-grade protection.
+
+Next step: approve rerun of SPP001 single-pair smoke using repaired same-wrapper bridge in a separate round; do not export labels or train.
