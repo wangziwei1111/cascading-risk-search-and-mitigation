@@ -5386,3 +5386,56 @@ Key fields:
 Boundary notes: no raw trajectory, full timeseries, `.mat`, `.slx`, `.slxc`, `slprj`, production model, venv, wheel, DLL, or local bridge `.slx` file is committed. Bus-fault labels are not used. L12 remains special/excluded. `phasor_RMS` is not EMT. `generator_speed_proxy` is not direct frequency. Temporary bus-fault injection is not engineering-grade protection.
 
 Next step: approve rerun of SPP001 single-pair smoke using repaired same-wrapper bridge in a separate round; do not export labels or train.
+
+## Round 101: IEEE39 SPP001 Same-Wrapper Bridge Smoke Rerun
+
+This round executed only the manually approved SPP001 same-wrapper bridge smoke path `L15 -> L04`. It does not train GCN, does not rerun formal audit, does not execute selected 32 batch, does not run full 1056 generation, does not export formal labels, does not retrain the reranker, and does not deploy a model.
+
+Plain-language result: the repaired manifest confirms that L15 and L04 trip commands are in the same local wrapper, so the provenance problem is fixed. The actual Simulink execution did not finish within the controlled Python timeout window, so the compact result is `execution_status = timeout`. This is not a positive or negative label: `pilot_label_value` remains null, and no formal training label is exported.
+
+Artifacts:
+
+- `docs/ieee39_spp001_same_wrapper_bridge_smoke_rerun.md`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_smoke_rerun/spp001_bridge_smoke_rerun_approval.json`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_smoke_rerun/spp001_bridge_smoke_rerun_summary.json`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_smoke_rerun/spp001_bridge_smoke_rerun_result.json`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_smoke_rerun/spp001_bridge_smoke_label_distribution.json`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_smoke_rerun/no_leakage_spp001_bridge_smoke_audit.json`
+- `results/gcn_search/ieee39_spp001_same_wrapper_bridge_smoke_rerun/large_file_safety_spp001_bridge_smoke.json`
+
+Key fields:
+
+- `execution_scope = spp001_same_wrapper_bridge_smoke_rerun`
+- `pair_id = SPP001`
+- `prior_outaged_branch = L15`
+- `candidate_next_branch = L04`
+- `planned_contingency_sequence = L15;L04`
+- `same_wrapper_confirmed = true`
+- `execution_attempted = true`
+- `execution_status = timeout`
+- `single_pair_executed = false`
+- `simulink_run = false`
+- `pilot_label_value = null`
+- `pilot_label_status = timeout`
+- `pilot_labels_are_formal_training_labels = false`
+- `selected_32_batch_executed = false`
+- `full_1056_generation_run = false`
+- `labels_exported = false`
+- `formal_labels_exported = false`
+- `gcn_training_run = false`
+- `formal_gcn_audit_rerun = false`
+- `reranker_retrained = false`
+- `production_model_saved = false`
+- `raw_trajectories_committed = false`
+- `full_timeseries_committed = false`
+- `mat_files_committed = false`
+- `slx_files_committed = false`
+- `local_bridge_committed = false`
+- `source_slx_modified = false`
+- `bus_fault_labels_used = false`
+- `forbidden_features_detected_in_inputs = []`
+- `no_leakage_policy_passed = true`
+
+Boundary notes: no raw trajectory, full timeseries, `.mat`, `.slx`, `.slxc`, `slprj`, production model, venv, wheel, DLL, or local bridge `.slx` file is committed. Bus-fault labels are not used. Line-trip labels remain first priority. L12 remains special/excluded. `phasor_RMS` is not EMT. `generator_speed_proxy` is not direct frequency. Temporary bus-fault injection is not engineering-grade protection.
+
+Next step: inspect the SPP001 bridge smoke timeout before any broader selected-pair execution. Do not export formal labels or train GCN from this timeout result.

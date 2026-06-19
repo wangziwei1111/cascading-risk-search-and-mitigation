@@ -7434,6 +7434,172 @@ def main() -> int:
         except Exception as exc:
             failures.append(f"Failed to read SPP001 same-wrapper bridge builder repair artifacts: {exc}")
 
+    spp001_bridge_smoke_dir = ROOT / "results/gcn_search/ieee39_spp001_same_wrapper_bridge_smoke_rerun"
+    spp001_bridge_smoke_doc = ROOT / "docs/ieee39_spp001_same_wrapper_bridge_smoke_rerun.md"
+    spp001_bridge_smoke_summary = spp001_bridge_smoke_dir / "spp001_bridge_smoke_rerun_summary.json"
+    spp001_bridge_smoke_approval = spp001_bridge_smoke_dir / "spp001_bridge_smoke_rerun_approval.json"
+    spp001_bridge_smoke_result = spp001_bridge_smoke_dir / "spp001_bridge_smoke_rerun_result.json"
+    spp001_bridge_smoke_distribution = spp001_bridge_smoke_dir / "spp001_bridge_smoke_label_distribution.json"
+    spp001_bridge_smoke_no_leakage = spp001_bridge_smoke_dir / "no_leakage_spp001_bridge_smoke_audit.json"
+    spp001_bridge_smoke_safety = spp001_bridge_smoke_dir / "large_file_safety_spp001_bridge_smoke.json"
+    spp001_bridge_smoke_required = [
+        spp001_bridge_smoke_doc,
+        spp001_bridge_smoke_approval,
+        spp001_bridge_smoke_dir / "spp001_bridge_smoke_rerun_approval.md",
+        spp001_bridge_smoke_summary,
+        spp001_bridge_smoke_dir / "spp001_bridge_smoke_rerun_summary.md",
+        spp001_bridge_smoke_dir / "spp001_bridge_smoke_rerun_summary.csv",
+        spp001_bridge_smoke_result,
+        spp001_bridge_smoke_dir / "spp001_bridge_smoke_rerun_result.md",
+        spp001_bridge_smoke_dir / "spp001_bridge_smoke_rerun_result.csv",
+        spp001_bridge_smoke_distribution,
+        spp001_bridge_smoke_dir / "spp001_bridge_smoke_label_distribution.md",
+        spp001_bridge_smoke_no_leakage,
+        spp001_bridge_smoke_dir / "no_leakage_spp001_bridge_smoke_audit.md",
+        spp001_bridge_smoke_safety,
+        spp001_bridge_smoke_dir / "large_file_safety_spp001_bridge_smoke.md",
+    ]
+    existing_spp001_bridge_smoke_required = [path for path in spp001_bridge_smoke_required if path.exists()]
+    if existing_spp001_bridge_smoke_required:
+        missing_spp001_bridge_smoke_required = [path for path in spp001_bridge_smoke_required if not path.exists()]
+        if missing_spp001_bridge_smoke_required:
+            failures.append(
+                "IEEE39 SPP001 same-wrapper bridge smoke rerun artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_spp001_bridge_smoke_required)
+            )
+        try:
+            summary = _read_json_path(spp001_bridge_smoke_summary)
+            approval = _read_json_path(spp001_bridge_smoke_approval)
+            result = _read_json_path(spp001_bridge_smoke_result)
+            distribution = _read_json_path(spp001_bridge_smoke_distribution)
+            no_leakage = _read_json_path(spp001_bridge_smoke_no_leakage)
+            safety = _read_json_path(spp001_bridge_smoke_safety)
+            for key, expected in [
+                ("execution_scope", "spp001_same_wrapper_bridge_smoke_rerun"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("selected_32_batch_executed", False),
+                ("full_1056_generation_run", False),
+                ("labels_exported", False),
+                ("formal_labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("source_bridge_builder_repair_commit", "f384edcb9989c02d6c65b9f0b6bfaece9866e062"),
+                ("pair_id", "SPP001"),
+                ("prior_outaged_branch", "L15"),
+                ("candidate_next_branch", "L04"),
+                ("planned_contingency_sequence", "L15;L04"),
+                ("same_wrapper_confirmed", True),
+                ("execution_attempted", True),
+                ("pilot_labels_are_formal_training_labels", False),
+                ("raw_trajectories_committed", False),
+                ("full_timeseries_committed", False),
+                ("mat_files_committed", False),
+                ("slx_files_committed", False),
+                ("slxc_files_committed", False),
+                ("slprj_committed", False),
+                ("local_bridge_committed", False),
+                ("source_slx_modified", False),
+                ("bus_fault_labels_used", False),
+                ("line_trip_labels_first_priority", True),
+                ("l12_special_case_preserved", True),
+                ("nf06_warning_preserved", True),
+                ("forbidden_features_detected_in_inputs", []),
+                ("no_leakage_policy_passed", True),
+                ("final_engineering_conclusion", False),
+                ("should_train_gcn_now", False),
+                ("should_rerun_formal_audit_now", False),
+                ("should_export_formal_labels_now", False),
+                ("should_retrain_reranker_now", False),
+                ("should_deploy_model", False),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"SPP001 bridge smoke summary must set {key}={expected!r}.")
+            if summary.get("execution_status") not in {"succeeded", "failed", "timeout", "blocked"}:
+                failures.append("SPP001 bridge smoke execution_status has an invalid value.")
+            if summary.get("execution_status") != "succeeded" and summary.get("pilot_label_value") is not None:
+                failures.append("SPP001 bridge smoke must keep pilot_label_value=null unless execution succeeded.")
+            if approval.get("approval_scope") != "spp001_same_wrapper_bridge_smoke_rerun_approval":
+                failures.append("SPP001 bridge smoke approval has wrong scope.")
+            if result.get("pair_id") != "SPP001":
+                failures.append("SPP001 bridge smoke result must be for SPP001 only.")
+            if distribution.get("pilot_only") is not True or distribution.get("formal_training_labels") is not False:
+                failures.append("SPP001 bridge smoke labels must be pilot-only and not formal training labels.")
+            for key, expected in [
+                ("forbidden_features_detected_in_inputs", []),
+                ("post_fault_dynamic_measurements_used_as_inputs", False),
+                ("dynamic_outputs_used_only_as_future_labels_or_targets", True),
+                ("label_derived_flags_used_as_inputs", False),
+                ("bus_fault_labels_used", False),
+                ("line_trip_labels_first_priority", True),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if no_leakage.get(key) != expected:
+                    failures.append(f"SPP001 bridge smoke no-leakage audit must set {key}={expected!r}.")
+            for key in [
+                "raw_trajectories_committed",
+                "full_timeseries_committed",
+                "mat_files_committed",
+                "slx_files_committed",
+                "slxc_files_committed",
+                "slprj_committed",
+                "local_bridge_committed",
+                "local_lab_copy_committed",
+                "source_slx_modified",
+                "venv_committed",
+                "wheel_or_dll_committed",
+                "model_files_committed",
+            ]:
+                if safety.get(key) is not False:
+                    failures.append(f"SPP001 bridge smoke safety check must keep {key}=false.")
+            if safety.get("safety_check_passed") is not True:
+                failures.append("SPP001 bridge smoke large-file safety check must pass.")
+            bridge_smoke_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_spp001_same_wrapper_bridge_smoke_rerun.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                    _read_text("results/gcn_search/ieee39_spp001_same_wrapper_bridge_smoke_rerun/spp001_bridge_smoke_rerun_summary.md"),
+                    _read_text("results/gcn_search/ieee39_spp001_same_wrapper_bridge_smoke_rerun/spp001_bridge_smoke_rerun_result.md"),
+                ]
+            ).lower()
+            normalized_bridge_smoke = " ".join(bridge_smoke_text.replace("`", "").split())
+            for required in [
+                "spp001 same-wrapper bridge smoke rerun",
+                "does not train gcn",
+                "does not rerun formal audit",
+                "does not execute selected 32 batch",
+                "does not run full 1056 generation",
+                "does not export formal labels",
+                "does not retrain the reranker",
+                "l15 -> l04",
+                "pilot label",
+                "not a formal training label",
+                "bus-fault labels are not used",
+                "line-trip labels remain first priority",
+                "l12 remains special/excluded",
+                "raw trajectories",
+                "full timeseries",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "temporary bus-fault injection is not engineering-grade protection",
+            ]:
+                if required not in normalized_bridge_smoke:
+                    failures.append(f"SPP001 bridge smoke docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is useless",
+                "formal labels exported",
+                "selected 32 batch executed",
+                "full 1056 generation completed",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+                "deployment ready",
+            ]:
+                if bad in normalized_bridge_smoke:
+                    failures.append(f"SPP001 bridge smoke docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read SPP001 same-wrapper bridge smoke rerun artifacts: {exc}")
+
     l15_repair_dir = ROOT / "results/gcn_search/ieee39_l15_handwired_validation_readiness_repair"
     l15_repair_doc = ROOT / "docs/ieee39_l15_handwired_validation_readiness_repair.md"
     l15_summary = l15_repair_dir / "l15_readiness_repair_summary.json"

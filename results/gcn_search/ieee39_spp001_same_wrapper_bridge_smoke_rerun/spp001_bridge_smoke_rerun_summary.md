@@ -1,0 +1,56 @@
+# IEEE39 SPP001 Bridge Smoke Rerun Summary
+
+- `execution_scope`: spp001_same_wrapper_bridge_smoke_rerun
+- `gcn_training_run`: False
+- `formal_gcn_audit_rerun`: False
+- `selected_32_batch_executed`: False
+- `full_1056_generation_run`: False
+- `labels_exported`: False
+- `formal_labels_exported`: False
+- `reranker_retrained`: False
+- `production_model_saved`: False
+- `source_bridge_builder_repair_commit`: f384edcb9989c02d6c65b9f0b6bfaece9866e062
+- `pair_id`: SPP001
+- `state_id`: single_outage_state_L15
+- `prior_outaged_branch`: L15
+- `candidate_next_branch`: L04
+- `planned_contingency_sequence`: L15;L04
+- `selection_bucket`: high_relay_ratio_pairs
+- `same_wrapper_confirmed`: True
+- `execution_attempted`: True
+- `execution_status`: timeout
+- `single_pair_executed`: False
+- `simulink_run`: False
+- `pilot_label_value`: None
+- `pilot_label_status`: timeout
+- `dynamic_stress_score_if_available`: None
+- `unstable_flag_if_available`: None
+- `timeout_or_failure_reason`: Python MATLAB wrapper timeout after 180s: IEEE39 Simulink file-generation folders: cache: C:\ieee39_codegen\cache codegen: C:\ieee39_codegen\codegen IEEE39 Simulink file-generation folders: cache: C:\ieee39_codegen\cache codegen: C:\ieee39_codegen\codegen IEEE39 Simulink file-generation folders: cache: C:\ieee39_codegen\cache codegen: C:\ieee39_codegen\codegen
+- `pilot_label_available`: False
+- `pilot_labels_are_formal_training_labels`: False
+- `raw_trajectories_committed`: False
+- `full_timeseries_committed`: False
+- `mat_files_committed`: False
+- `slx_files_committed`: False
+- `slxc_files_committed`: False
+- `slprj_committed`: False
+- `local_bridge_committed`: False
+- `source_slx_modified`: False
+- `bus_fault_labels_used`: False
+- `line_trip_labels_first_priority`: True
+- `l12_special_case_preserved`: True
+- `nf06_warning_preserved`: True
+## forbidden_features_detected_in_inputs
+```json
+[]
+```
+
+- `no_leakage_policy_passed`: True
+- `final_engineering_conclusion`: False
+- `should_train_gcn_now`: False
+- `should_rerun_formal_audit_now`: False
+- `should_export_formal_labels_now`: False
+- `should_retrain_reranker_now`: False
+- `should_deploy_model`: False
+- `blocker_if_any`: Python MATLAB wrapper timeout after 180s: IEEE39 Simulink file-generation folders: cache: C:\ieee39_codegen\cache codegen: C:\ieee39_codegen\codegen IEEE39 Simulink file-generation folders: cache: C:\ieee39_codegen\cache codegen: C:\ieee39_codegen\codegen IEEE39 Simulink file-generation folders: cache: C:\ieee39_codegen\cache codegen: C:\ieee39_codegen\codegen
+- `recommended_next_step`: inspect SPP001 bridge smoke failure and repair before any broader execution
