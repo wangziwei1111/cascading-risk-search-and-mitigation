@@ -1,0 +1,27 @@
+# IEEE39 SPP001 Bridge Control Signal Report
+
+- `report_scope`: spp001_bridge_control_signal_report
+- `l15_trip_command_to_breaker_control_connected`: False
+## l15_trip_command_signal_trace
+```json
+[]
+```
+
+- `l04_trip_command_to_breaker_control_connected`: True
+## l04_trip_command_signal_trace
+```json
+[
+  {
+    "from_block": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab/Grid/L04_TripCommand",
+    "to_block": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab/Grid/Simulink-PS\nConverter3",
+    "line_handle": 4293.0006103515625
+  },
+  {
+    "from_block": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab/Grid/Simulink-PS\nConverter3",
+    "to_block": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab/Grid/L04_HandwiredTimedBreaker",
+    "line_handle": 4292.0006103515625
+  }
+]
+```
+
+- `unconnected_control_ports_detected`: True

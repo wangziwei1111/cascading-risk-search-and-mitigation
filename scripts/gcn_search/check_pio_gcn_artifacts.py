@@ -771,6 +771,8 @@ REQUIRED_FILES = [
     "scripts/gcn_search/run_ieee39_selected_single_outage_pilot_pairs_controlled.py",
     "scripts/gcn_search/run_ieee39_spp001_sim_stage_diagnostic_retry.py",
     "scripts/gcn_search/diagnose_ieee39_spp001_solver_runtime.py",
+    "scripts/gcn_search/audit_ieee39_spp001_bridge_physical_connectivity.py",
+    "matlab/simulink_ieee39/audit_ieee39_spp001_bridge_physical_connectivity.m",
     "scripts/gcn_search/repair_ieee39_l15_handwired_validation_readiness.py",
     "scripts/gcn_search/parse_ieee39_selected_pair_execution_evidence.py",
     "matlab/simulink_ieee39/run_ieee39_selected_pair_line_trip_sequence.m",
@@ -793,6 +795,7 @@ REQUIRED_FILES = [
     "tests/test_ieee39_controlled_execution_backend_repair.py",
     "tests/test_ieee39_spp001_sim_stage_diagnostic_retry.py",
     "tests/test_ieee39_spp001_solver_runtime_diagnosis.py",
+    "tests/test_ieee39_spp001_bridge_physical_connectivity_audit.py",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_injection_points.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_fault_block_parameter_inventory.csv",
     "results/gcn_search/ieee39_graphical_dynamic_model/wrapper/ieee39_pilot_trip_implementation_summary.json",
@@ -7951,6 +7954,192 @@ def main() -> int:
                     failures.append(f"SPP001 sim-stage diagnostic docs contain overstatement: {bad}")
         except Exception as exc:
             failures.append(f"Failed to read SPP001 sim-stage diagnostic retry artifacts: {exc}")
+
+    spp001_connectivity_dir = ROOT / "results/gcn_search/ieee39_spp001_bridge_physical_connectivity_audit"
+    spp001_connectivity_doc = ROOT / "docs/ieee39_spp001_bridge_physical_connectivity_audit.md"
+    spp001_connectivity_summary = spp001_connectivity_dir / "spp001_bridge_physical_connectivity_summary.json"
+    spp001_l15_inventory = spp001_connectivity_dir / "l15_bridge_connectivity_inventory.json"
+    spp001_l04_inventory = spp001_connectivity_dir / "l04_bridge_connectivity_inventory.json"
+    spp001_unconnected = spp001_connectivity_dir / "spp001_bridge_unconnected_ports_report.json"
+    spp001_control = spp001_connectivity_dir / "spp001_bridge_control_signal_report.json"
+    spp001_topology = spp001_connectivity_dir / "spp001_bridge_topology_comparison.json"
+    spp001_gate = spp001_connectivity_dir / "spp001_bridge_execution_go_no_go_gate.json"
+    spp001_connectivity_no_leakage = spp001_connectivity_dir / "no_leakage_spp001_bridge_connectivity_audit.json"
+    spp001_connectivity_safety = spp001_connectivity_dir / "large_file_safety_spp001_bridge_connectivity_audit.json"
+    spp001_connectivity_required = [
+        spp001_connectivity_doc,
+        spp001_connectivity_summary,
+        spp001_connectivity_dir / "spp001_bridge_physical_connectivity_summary.md",
+        spp001_connectivity_dir / "spp001_bridge_physical_connectivity_summary.csv",
+        spp001_l15_inventory,
+        spp001_l04_inventory,
+        spp001_unconnected,
+        spp001_control,
+        spp001_topology,
+        spp001_gate,
+        spp001_connectivity_no_leakage,
+        spp001_connectivity_safety,
+    ]
+    existing_spp001_connectivity_required = [path for path in spp001_connectivity_required if path.exists()]
+    if existing_spp001_connectivity_required:
+        missing_spp001_connectivity_required = [path for path in spp001_connectivity_required if not path.exists()]
+        if missing_spp001_connectivity_required:
+            failures.append(
+                "IEEE39 SPP001 bridge physical connectivity audit artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_spp001_connectivity_required)
+            )
+        try:
+            summary = _read_json_path(spp001_connectivity_summary)
+            l15 = _read_json_path(spp001_l15_inventory)
+            l04 = _read_json_path(spp001_l04_inventory)
+            unconnected = _read_json_path(spp001_unconnected)
+            control = _read_json_path(spp001_control)
+            topology = _read_json_path(spp001_topology)
+            gate = _read_json_path(spp001_gate)
+            no_leakage = _read_json_path(spp001_connectivity_no_leakage)
+            safety = _read_json_path(spp001_connectivity_safety)
+            for key, expected in [
+                ("audit_scope", "spp001_bridge_physical_connectivity_audit"),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("spp001_smoke_executed", False),
+                ("selected_32_batch_executed", False),
+                ("full_1056_generation_run", False),
+                ("labels_exported", False),
+                ("formal_labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("pair_id", "SPP001"),
+                ("prior_outaged_branch", "L15"),
+                ("candidate_next_branch", "L04"),
+                ("local_bridge_loaded_for_static_audit", True),
+                ("source_slx_modified", False),
+                ("l15_trip_command_block_exists", True),
+                ("l15_breaker_block_exists", True),
+                ("l15_trip_command_to_breaker_control_connected", False),
+                ("l15_breaker_physical_ports_connected", False),
+                ("l15_breaker_in_series_with_actual_l15_branch", False),
+                ("l04_trip_command_block_exists", True),
+                ("l04_breaker_block_exists", True),
+                ("l04_trip_command_to_breaker_control_connected", True),
+                ("l04_breaker_physical_ports_connected", True),
+                ("physical_bridge_valid", False),
+                ("same_wrapper_block_presence_only", True),
+                ("can_run_initialization_profile_after_manual_approval", False),
+                ("can_run_full_spp001_smoke_after_manual_approval", False),
+                ("no_label_value_generated", True),
+                ("raw_trajectories_committed", False),
+                ("full_timeseries_committed", False),
+                ("mat_files_committed", False),
+                ("slx_files_committed", False),
+                ("local_bridge_committed", False),
+                ("forbidden_features_detected_in_inputs", []),
+                ("no_leakage_policy_passed", True),
+                ("sim_called", False),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"SPP001 bridge connectivity summary must set {key}={expected!r}.")
+            if not summary.get("blocker_if_any"):
+                failures.append("SPP001 bridge connectivity audit must preserve a blocker when physical_bridge_valid=false.")
+            if l15.get("inventory_scope") != "l15_bridge_connectivity_inventory":
+                failures.append("SPP001 L15 connectivity inventory has wrong scope.")
+            if l15.get("bridge", {}).get("breaker_physical_ports_connected") is not False:
+                failures.append("SPP001 L15 bridge audit must not treat block presence as physical connectivity.")
+            if l04.get("inventory_scope") != "l04_bridge_connectivity_inventory":
+                failures.append("SPP001 L04 connectivity inventory has wrong scope.")
+            if unconnected.get("report_scope") != "spp001_bridge_unconnected_ports_report":
+                failures.append("SPP001 unconnected ports report has wrong scope.")
+            if control.get("report_scope") != "spp001_bridge_control_signal_report":
+                failures.append("SPP001 control signal report has wrong scope.")
+            if topology.get("comparison_scope") != "spp001_bridge_topology_comparison":
+                failures.append("SPP001 topology comparison has wrong scope.")
+            for key, expected in [
+                ("gate_scope", "spp001_bridge_execution_go_no_go_gate"),
+                ("pair_id", "SPP001"),
+                ("physical_bridge_valid", False),
+                ("can_run_initialization_profile_after_manual_approval", False),
+                ("can_run_full_spp001_smoke_after_manual_approval", False),
+                ("selected_32_batch_allowed", False),
+                ("full_1056_allowed", False),
+                ("formal_label_export_allowed", False),
+                ("gcn_training_allowed", False),
+            ]:
+                if gate.get(key) != expected:
+                    failures.append(f"SPP001 bridge connectivity gate must set {key}={expected!r}.")
+            for key, expected in [
+                ("forbidden_features_detected_in_inputs", []),
+                ("post_fault_dynamic_measurements_used_as_inputs", False),
+                ("label_derived_flags_used_as_inputs", False),
+                ("bus_fault_labels_used", False),
+                ("line_trip_labels_first_priority", True),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if no_leakage.get(key) != expected:
+                    failures.append(f"SPP001 bridge connectivity no-leakage audit must set {key}={expected!r}.")
+            for key in [
+                "raw_trajectories_committed",
+                "full_timeseries_committed",
+                "mat_files_committed",
+                "slx_files_committed",
+                "slxc_files_committed",
+                "slprj_committed",
+                "local_bridge_committed",
+                "local_lab_copy_committed",
+                "source_slx_modified",
+                "venv_committed",
+                "wheel_or_dll_committed",
+                "model_files_committed",
+            ]:
+                if safety.get(key) is not False:
+                    failures.append(f"SPP001 bridge connectivity safety check must keep {key}=false.")
+            if safety.get("safety_check_passed") is not True:
+                failures.append("SPP001 bridge connectivity large-file safety check must pass.")
+            connectivity_text = "\n".join(
+                [
+                    _read_text("docs/ieee39_spp001_bridge_physical_connectivity_audit.md"),
+                    _read_text("docs/gcn_pio_validation_log.md"),
+                    _read_text("results/gcn_search/ieee39_spp001_bridge_physical_connectivity_audit/spp001_bridge_physical_connectivity_summary.md"),
+                    _read_text("results/gcn_search/ieee39_spp001_bridge_physical_connectivity_audit/spp001_bridge_execution_go_no_go_gate.md"),
+                ]
+            ).lower()
+            normalized_connectivity = " ".join(connectivity_text.replace("`", "").split())
+            for required in [
+                "spp001 bridge physical connectivity audit",
+                "does not call sim()",
+                "does not train gcn",
+                "does not rerun formal audit",
+                "does not execute spp001 smoke",
+                "does not execute selected 32 batch",
+                "does not run full 1056 generation",
+                "does not export formal labels",
+                "block name by itself is not enough",
+                "physical_bridge_valid",
+                "raw trajectory",
+                "full timeseries",
+                "source .slx is not modified",
+                "bus-fault labels are not used",
+                "l12 remains special/excluded",
+                "phasor_rms is not emt",
+                "generator_speed_proxy is not direct frequency",
+                "temporary bus-fault injection is not engineering-grade protection",
+            ]:
+                if required not in normalized_connectivity:
+                    failures.append(f"SPP001 bridge connectivity docs missing: {required}")
+            for bad in [
+                "gcn is useful",
+                "gcn is useless",
+                "spp001 smoke completed",
+                "selected 32 batch executed",
+                "full 1056 generation completed",
+                "formal labels exported",
+                "emt validation completed",
+                "generator_speed_proxy is direct frequency",
+                "deployment ready",
+            ]:
+                if bad in normalized_connectivity:
+                    failures.append(f"SPP001 bridge connectivity docs contain overstatement: {bad}")
+        except Exception as exc:
+            failures.append(f"Failed to read SPP001 bridge physical connectivity artifacts: {exc}")
 
     spp001_solver_dir = ROOT / "results/gcn_search/ieee39_spp001_solver_runtime_diagnosis"
     spp001_solver_doc = ROOT / "docs/ieee39_spp001_solver_runtime_diagnosis.md"

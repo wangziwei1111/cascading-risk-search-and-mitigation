@@ -1,0 +1,132 @@
+{
+  "inventory_scope": "l04_bridge_connectivity_inventory",
+  "bridge": {
+    "model": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab",
+    "line_id": "L04",
+    "breaker_name": "L04_HandwiredTimedBreaker",
+    "command_name": "L04_TripCommand",
+    "breaker_block_exists": true,
+    "trip_command_block_exists": true,
+    "breaker_block_path": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab/Grid/L04_HandwiredTimedBreaker",
+    "trip_command_block_path": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab/Grid/L04_TripCommand",
+    "trip_command_to_breaker_control_connected": true,
+    "breaker_physical_ports_connected": true,
+    "breaker_in_series_with_actual_branch": false,
+    "breaker_physical_port_inventory": [
+      {
+        "port_kind": "LConn",
+        "port_handle": 3896.0001220703125,
+        "line_handle": 4292.0006103515625,
+        "connected": true,
+        "neighbor_blocks": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab/Grid/Simulink-PS\nConverter3"
+      },
+      {
+        "port_kind": "LConn",
+        "port_handle": 3897.0001220703125,
+        "line_handle": 4294.0006103515625,
+        "connected": true,
+        "neighbor_blocks": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab/Grid/Bus6"
+      },
+      {
+        "port_kind": "RConn",
+        "port_handle": 3898.0001220703125,
+        "line_handle": 4295.0006103515625,
+        "connected": true,
+        "neighbor_blocks": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab/Grid/B11 to B6"
+      }
+    ],
+    "trip_command_signal_trace": [
+      {
+        "from_block": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab/Grid/L04_TripCommand",
+        "to_block": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab/Grid/Simulink-PS\nConverter3",
+        "line_handle": 4293.0006103515625
+      },
+      {
+        "from_block": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab/Grid/Simulink-PS\nConverter3",
+        "to_block": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab/Grid/L04_HandwiredTimedBreaker",
+        "line_handle": 4292.0006103515625
+      }
+    ],
+    "breaker_neighbor_signature": [
+      "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab/Grid/B11 to B6",
+      "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab/Grid/Bus6",
+      "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab/Grid/Simulink-PS\nConverter3"
+    ],
+    "branch_name_matches_line_context": false,
+    "unconnected_ports": [],
+    "audit_note": "static block-port and line-handle audit only; no sim()"
+  },
+  "source": {
+    "model": "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04",
+    "line_id": "L04",
+    "breaker_name": "L04_HandwiredTimedBreaker",
+    "command_name": "L04_TripCommand",
+    "breaker_block_exists": true,
+    "trip_command_block_exists": true,
+    "breaker_block_path": "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04/Grid/L04_HandwiredTimedBreaker",
+    "trip_command_block_path": "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04/Grid/L04_TripCommand",
+    "trip_command_to_breaker_control_connected": false,
+    "breaker_physical_ports_connected": true,
+    "breaker_in_series_with_actual_branch": true,
+    "breaker_physical_port_inventory": [
+      {
+        "port_kind": "LConn",
+        "port_handle": 12393.000122070312,
+        "line_handle": 12767.000366210938,
+        "connected": true,
+        "neighbor_blocks": "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04/Grid/Simulink-PS\nConverter"
+      },
+      {
+        "port_kind": "LConn",
+        "port_handle": 12394.000122070312,
+        "line_handle": 12770.000366210938,
+        "connected": true,
+        "neighbor_blocks": "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04/Grid/B11 to B6"
+      },
+      {
+        "port_kind": "RConn",
+        "port_handle": 12395.000122070312,
+        "line_handle": 12769.000366210938,
+        "connected": true,
+        "neighbor_blocks": "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04/Grid/Bus11"
+      }
+    ],
+    "trip_command_signal_trace": [
+      {
+        "from_block": "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04/Grid/L04_TripCommand",
+        "to_block": "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04/Grid/Simulink-PS\nConverter",
+        "line_handle": 12768.000366210938
+      },
+      {
+        "from_block": "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04/Grid/Simulink-PS\nConverter",
+        "to_block": "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04/Grid/Simulink-PS\nConverter",
+        "line_handle": 12767.000366210938
+      }
+    ],
+    "breaker_neighbor_signature": [
+      "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04/Grid/B11 to B6",
+      "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04/Grid/Bus11",
+      "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04/Grid/Simulink-PS\nConverter"
+    ],
+    "branch_name_matches_line_context": true,
+    "unconnected_ports": [],
+    "audit_note": "static block-port and line-handle audit only; no sim()"
+  },
+  "comparison": {
+    "line_id": "L04",
+    "bridge_neighbors": [
+      "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab/Grid/B11 to B6",
+      "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab/Grid/Bus6",
+      "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_same_wrapper_bridge_lab/Grid/Simulink-PS\nConverter3"
+    ],
+    "source_neighbors": [
+      "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04/Grid/B11 to B6",
+      "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04/Grid/Bus11",
+      "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L04/Grid/Simulink-PS\nConverter"
+    ],
+    "same_neighbor_count": true,
+    "shared_neighbor_count": 0,
+    "topology_signature_matches_source": false,
+    "audit_note": "name-normalized graph comparison is conservative; mismatch blocks execution"
+  }
+}

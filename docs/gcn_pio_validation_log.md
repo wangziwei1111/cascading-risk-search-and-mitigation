@@ -5598,3 +5598,62 @@ Key fields:
 Boundary notes: no raw trajectory, full timeseries, `.mat`, `.slx`, `.slxc`, `slprj`, production model, venv, wheel, DLL, or local bridge `.slx` file is committed. The source `.slx` is not modified. Bus-fault labels are not used. Line-trip labels remain first priority. L12 remains special/excluded. `phasor_RMS` is not EMT. `generator_speed_proxy` is not direct frequency. Temporary bus-fault injection is not engineering-grade protection.
 
 Next step: approve one short-stop SPP001 solver profiling run focused on initialization; do not export labels or train.
+## Round 106: IEEE39 SPP001 Bridge Physical Connectivity Audit
+
+This round immediately pauses all SPP001 full smoke, 0.01-second profile,
+solver profile, selected 32 batch, full 1056 generation, formal-label export,
+GCN training, and reranker training. It only performs a static physical
+connectivity audit for `SPP001: L15 -> L04`.
+
+Plain-language result: the previous same-wrapper bridge check proved that the
+L15 and L04 blocks exist in the same local wrapper, but that is not enough. This
+round inspected actual block ports and line handles without calling `sim()`. The
+audit shows that `L15_TripCommand` and `L15_HandwiredTimedBreaker` exist, but
+the L15 command is not connected to the L15 breaker control path, and the L15
+breaker physical ports are unconnected. Therefore the bridge is only a block
+presence repair, not a verified physical series insertion.
+
+Key results:
+
+- `audit_scope = spp001_bridge_physical_connectivity_audit`
+- `pair_id = SPP001`
+- `prior_outaged_branch = L15`
+- `candidate_next_branch = L04`
+- `l15_trip_command_block_exists = true`
+- `l15_breaker_block_exists = true`
+- `l15_trip_command_to_breaker_control_connected = false`
+- `l15_breaker_physical_ports_connected = false`
+- `l15_breaker_in_series_with_actual_l15_branch = false`
+- `l04_trip_command_to_breaker_control_connected = true`
+- `l04_breaker_physical_ports_connected = true`
+- `physical_bridge_valid = false`
+- `same_wrapper_block_presence_only = true`
+- `spp001_smoke_executed = false`
+- `selected_32_batch_executed = false`
+- `full_1056_generation_run = false`
+- `labels_exported = false`
+- `gcn_training_run = false`
+
+Boundary checks:
+
+- The audit does not call `sim()`.
+- The audit does not train GCN.
+- The audit does not rerun formal audit.
+- The audit does not execute SPP001 smoke.
+- The audit does not execute selected 32 batch.
+- The audit does not run full 1056 generation.
+- The audit does not export formal labels.
+- No raw trajectory, full timeseries, `.mat`, `.slx`, `.slxc`, or `slprj`
+  artifact is committed.
+- The source `.slx` is not modified.
+- Bus-fault labels are not used.
+- L12 remains special/excluded.
+- `phasor_RMS` is not EMT.
+- `generator_speed_proxy` is not direct frequency.
+- Temporary bus-fault injection is not engineering-grade protection.
+
+Recommendation: freeze SPP001 dynamic pair extension and do not run further
+solver profiles from this bridge. Continue the core paper-aligned GCN work using
+offline sequential labels and the already validated single-line dynamic
+evidence. A future SPP001 profile should only be considered after a new bridge
+whose physical port and control connections are verified.
