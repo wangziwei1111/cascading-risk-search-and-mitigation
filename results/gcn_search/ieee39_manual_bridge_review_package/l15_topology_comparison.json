@@ -1,0 +1,25 @@
+{
+  "line_id": "L15",
+  "bridge_breaker_exists": true,
+  "source_breaker_exists": true,
+  "bridge_control_connected": true,
+  "source_control_connected": true,
+  "bridge_physical_ports_connected": true,
+  "source_physical_ports_connected": true,
+  "bridge_series_with_expected_branch": true,
+  "source_series_with_expected_branch": true,
+  "bridge_bypass_exists": false,
+  "source_bypass_exists": false,
+  "bridge_breaker_neighbors": [
+    "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/B21 to B22",
+    "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/Bus21",
+    "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/L15_SimulinkPSConverter"
+  ],
+  "source_breaker_neighbors": [
+    "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Grid/B21 to B22",
+    "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Grid/Bus21",
+    "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Grid/Simulink-PS\nConverter"
+  ],
+  "topology_difference_summary": "no_boolean_topology_difference_detected",
+  "note": "paths can differ by copied converter names; pass/fail uses port/line graph evidence, not names alone"
+}

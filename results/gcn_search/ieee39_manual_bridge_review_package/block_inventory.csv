@@ -1,0 +1,263 @@
+source_role,model,requested_name,block_path,block_type,mask_type,exists,port_summary
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,L15_TripCommand,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/L15_TripCommand,Step,,1,"Inport:0,Outport:1,Enable:0,Trigger:0,State:0,LConn:0,RConn:0,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,L15_HandwiredTimedBreaker,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/L15_HandwiredTimedBreaker,SimscapeBlock,Circuit Breaker
+(Three-Phase),1,"Inport:0,Outport:0,Enable:0,Trigger:0,State:0,LConn:2,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,L04_TripCommand,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/L04_TripCommand,Step,,1,"Inport:0,Outport:1,Enable:0,Trigger:0,State:0,LConn:0,RConn:0,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,L04_HandwiredTimedBreaker,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/L04_HandwiredTimedBreaker,SimscapeBlock,Circuit Breaker
+(Three-Phase),1,"Inport:0,Outport:0,Enable:0,Trigger:0,State:0,LConn:2,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,Bus21,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/Bus21,SimscapeBlock,Busbar,1,"Inport:0,Outport:0,Enable:0,Trigger:0,State:0,LConn:2,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,B21 to B22,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/B21 to B22,SimscapeBlock,Transmission
+Line
+(Three-Phase),1,"Inport:0,Outport:0,Enable:0,Trigger:0,State:0,LConn:2,RConn:2,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,Bus11,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/Bus11,SimscapeBlock,Busbar,1,"Inport:0,Outport:0,Enable:0,Trigger:0,State:0,LConn:2,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,Bus6,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/Bus6,SimscapeBlock,Busbar,1,"Inport:0,Outport:0,Enable:0,Trigger:0,State:0,LConn:2,RConn:2,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,B11 to B6,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/B11 to B6,SimscapeBlock,Transmission
+Line
+(Three-Phase),1,"Inport:0,Outport:0,Enable:0,Trigger:0,State:0,LConn:2,RConn:2,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Generators/Gen10@Bus30/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Generators/Gen10@Bus30/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Generators/Gen1@Bus39/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Generators/Gen1@Bus39/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Generators/Gen2@Bus31/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Generators/Gen2@Bus31/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Generators/Gen3@Bus32/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Generators/Gen3@Bus32/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Generators/Gen4@Bus33/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Generators/Gen4@Bus33/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Generators/Gen5@Bus34/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Generators/Gen5@Bus34/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Generators/Gen6@Bus35/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Generators/Gen6@Bus35/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Generators/Gen7@Bus36/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Generators/Gen7@Bus36/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Generators/Gen8@Bus37/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Generators/Gen8@Bus37/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Generators/Gen9@Bus38/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Generators/Gen9@Bus38/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/Simulink-PS
+Converter1,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/Simulink-PS
+Converter2,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+local_bridge,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/Simulink-PS
+Converter3,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,L15_TripCommand,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Grid/L15_TripCommand,Step,,1,"Inport:0,Outport:1,Enable:0,Trigger:0,State:0,LConn:0,RConn:0,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,L15_HandwiredTimedBreaker,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Grid/L15_HandwiredTimedBreaker,SimscapeBlock,Circuit Breaker
+(Three-Phase),1,"Inport:0,Outport:0,Enable:0,Trigger:0,State:0,LConn:2,RConn:1,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,L04_TripCommand,,,,0,""
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,L04_HandwiredTimedBreaker,,,,0,""
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Generators/Gen10@Bus30/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Generators/Gen10@Bus30/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Generators/Gen1@Bus39/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Generators/Gen1@Bus39/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Generators/Gen2@Bus31/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Generators/Gen2@Bus31/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Generators/Gen3@Bus32/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Generators/Gen3@Bus32/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Generators/Gen4@Bus33/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Generators/Gen4@Bus33/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Generators/Gen5@Bus34/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Generators/Gen5@Bus34/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Generators/Gen6@Bus35/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Generators/Gen6@Bus35/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Generators/Gen7@Bus36/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Generators/Gen7@Bus36/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Generators/Gen8@Bus37/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Generators/Gen8@Bus37/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Generators/Gen9@Bus38/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Generators/Gen9@Bus38/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l15_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15/Grid/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,L15_TripCommand,,,,0,""
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,L15_HandwiredTimedBreaker,,,,0,""
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,L04_TripCommand,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Grid/L04_TripCommand,Step,,1,"Inport:0,Outport:1,Enable:0,Trigger:0,State:0,LConn:0,RConn:0,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,L04_HandwiredTimedBreaker,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Grid/L04_HandwiredTimedBreaker,SimscapeBlock,Circuit Breaker
+(Three-Phase),1,"Inport:0,Outport:0,Enable:0,Trigger:0,State:0,LConn:2,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen10@Bus30/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen10@Bus30/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen1@Bus39/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen1@Bus39/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen2@Bus31/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen2@Bus31/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen3@Bus32/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen3@Bus32/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen4@Bus33/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen4@Bus33/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen5@Bus34/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen5@Bus34/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen6@Bus35/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen6@Bus35/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen7@Bus36/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen7@Bus36/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen8@Bus37/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen8@Bus37/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen9@Bus38/AVR and Exciter/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Generators/Gen9@Bus38/Governor and
+Prime Mover/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Grid/Simulink-PS
+Converter,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Grid/Simulink-PS
+Converter1,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Grid/Simulink-PS
+Converter2,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"
+l04_source_lab,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker,related Simulink-PS Converter,IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker/Grid/Simulink-PS
+Converter3,SubSystem,Simulink-PS
+Converter,1,"Inport:1,Outport:0,Enable:0,Trigger:0,State:0,LConn:0,RConn:1,Ifaction:0,Reset:0,Event:0"

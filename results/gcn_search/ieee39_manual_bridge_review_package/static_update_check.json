@@ -1,0 +1,7 @@
+{
+  "check_scope": "static_update_check",
+  "update_diagram_called": false,
+  "sim_called": false,
+  "reason": "Review package exporter is restricted to load_system plus static reads; update diagram is intentionally not called.",
+  "static_read_completed": true
+}

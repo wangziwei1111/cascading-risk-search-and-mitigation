@@ -10554,6 +10554,76 @@ def main() -> int:
             if required not in manual_text:
                 failures.append(f"SPP001 manual dynamic validation docs missing: {required}")
 
+    review_dir = ROOT / "results/gcn_search/ieee39_manual_bridge_review_package"
+    review_required = [
+        review_dir / "model_summary.json",
+        review_dir / "block_inventory.csv",
+        review_dir / "physical_port_connectivity.csv",
+        review_dir / "signal_port_connectivity.csv",
+        review_dir / "unconnected_ports.csv",
+        review_dir / "breaker_control_chain.json",
+        review_dir / "breaker_series_and_bypass_check.json",
+        review_dir / "l15_topology_comparison.json",
+        review_dir / "l04_topology_comparison.json",
+        review_dir / "model_configuration.json",
+        review_dir / "static_update_check.json",
+        review_dir / "review_manifest.json",
+        review_dir / "grid_overview.png",
+        review_dir / "spp001_manual_bridge_review_package.zip",
+    ]
+    existing_review_required = [path for path in review_required if path.exists()]
+    if existing_review_required:
+        missing_review_required = [path for path in review_required if not path.exists()]
+        if missing_review_required:
+            failures.append(
+                "IEEE39 manual bridge review package is partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_review_required)
+            )
+        try:
+            summary = _read_json_path(review_dir / "model_summary.json")
+            manifest = _read_json_path(review_dir / "review_manifest.json")
+            bypass = _read_json_path(review_dir / "breaker_series_and_bypass_check.json")
+            for key, expected in [
+                ("review_scope", "ieee39_manual_bridge_review_package"),
+                ("pair_id", "SPP001"),
+                ("sim_called", False),
+                ("gcn_training_run", False),
+                ("selected_32_batch_executed", False),
+                ("full_1056_generation_run", False),
+                ("labels_exported", False),
+                ("formal_labels_exported", False),
+                ("source_slx_modified", False),
+                ("local_bridge_saved", False),
+                ("local_bridge_committed", False),
+                ("block_existence_only_is_sufficient", False),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"Manual bridge review summary must set {key}={expected!r}.")
+            for key in [
+                "l15_trip_command_to_breaker_control_connected",
+                "l15_breaker_physical_ports_connected",
+                "l15_breaker_in_series_with_actual_l15_branch",
+                "l15_original_direct_bypass_removed",
+                "l04_trip_command_to_breaker_control_connected",
+                "l04_breaker_physical_ports_connected",
+                "l04_breaker_in_series_with_actual_l04_branch",
+                "l04_original_direct_bypass_removed",
+                "no_unconnected_physical_ports",
+                "no_unconnected_control_ports",
+                "physical_bridge_valid",
+            ]:
+                if summary.get(key) is not True:
+                    failures.append(f"Manual bridge review summary must prove {key}=true.")
+            if manifest.get("required_files_missing") != []:
+                failures.append("Manual bridge review package manifest must have no missing required files.")
+            if manifest.get("forbidden_files_in_review_package_dir") != []:
+                failures.append("Manual bridge review package must not include forbidden local artifacts.")
+            if bypass.get("block_existence_only_is_sufficient") is not False:
+                failures.append("Manual bridge review bypass check must reject block-existence-only validation.")
+        except Exception as exc:
+            failures.append(f"Failed to read IEEE39 manual bridge review package artifacts: {exc}")
+
     tracked_results = set(_git_ls_files("results/gcn_search"))
     branch_changed = set(_git_changed_files_against_main())
     tracked = sorted(tracked_results & branch_changed)

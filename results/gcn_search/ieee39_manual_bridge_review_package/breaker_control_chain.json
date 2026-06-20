@@ -1,0 +1,30 @@
+{
+  "l15_trip_command_to_breaker_control_connected": true,
+  "l15_control_signal_path": [
+    {
+      "from_block": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/L15_TripCommand",
+      "to_block": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/L15_SimulinkPSConverter",
+      "line_handle": 4300.0006103515625
+    },
+    {
+      "from_block": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/L15_SimulinkPSConverter",
+      "to_block": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/L15_HandwiredTimedBreaker",
+      "line_handle": 4301.0006103515625
+    }
+  ],
+  "l04_trip_command_to_breaker_control_connected": true,
+  "l04_control_signal_path": [
+    {
+      "from_block": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/L04_TripCommand",
+      "to_block": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/Simulink-PS\nConverter3",
+      "line_handle": 4295.0006103515625
+    },
+    {
+      "from_block": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/Simulink-PS\nConverter3",
+      "to_block": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge/Grid/L04_HandwiredTimedBreaker",
+      "line_handle": 4294.0006103515625
+    }
+  ],
+  "no_unconnected_control_ports": true,
+  "note": "control trace follows line handles from command output through converter blocks to breaker control ports; no sim()"
+}

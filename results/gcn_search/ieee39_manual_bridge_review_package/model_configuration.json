@@ -1,0 +1,13 @@
+{
+  "configuration_scope": "ieee39_manual_bridge_model_configuration",
+  "bridge_model": "IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge",
+  "l15_source_model": "IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15",
+  "l04_source_model": "IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker",
+  "bridge_solver": "FixedStepDiscrete",
+  "bridge_stop_time": "15",
+  "bridge_simulation_mode": "normal",
+  "bridge_dirty_after_static_read": "off",
+  "sim_called": false,
+  "save_system_called": false,
+  "update_diagram_called": false
+}

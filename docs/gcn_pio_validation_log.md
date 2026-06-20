@@ -5717,3 +5717,62 @@ Boundary checks:
 Recommendation: diagnose the Stage A initialization timeout on this manual
 SPP001 bridge before any post-trip stage, label export, selected batch, full
 1056 generation, GCN training, or reranker training.
+
+## Round 108: IEEE39 Manual Bridge Review Package Exporter
+
+This round adds a local Simulink hand-built model review exporter for
+`SPP001: L15 -> L04`. The purpose is to let a manually wired local bridge be
+reviewed through exported block, port, line, control-chain, physical-connection,
+and bypass evidence instead of screenshots or block names alone.
+
+Plain-language result: the exporter loads the local bridge and source lab
+models for static reading only. It does not call `sim()`, does not save the
+model, does not export labels, and does not train GCN. It writes a ZIP review
+package that can be uploaded to chat for inspection.
+
+Key outputs:
+
+- `model_summary.json`
+- `block_inventory.csv`
+- `physical_port_connectivity.csv`
+- `signal_port_connectivity.csv`
+- `unconnected_ports.csv`
+- `breaker_control_chain.json`
+- `breaker_series_and_bypass_check.json`
+- `l15_topology_comparison.json`
+- `l04_topology_comparison.json`
+- `model_configuration.json`
+- `static_update_check.json`
+- `review_manifest.json`
+- `grid_overview.png`
+- `spp001_manual_bridge_review_package.zip`
+
+Current package result:
+
+- `sim_called = false`
+- `source_slx_modified = false`
+- `local_bridge_committed = false`
+- `labels_exported = false`
+- `gcn_training_run = false`
+- `selected_32_batch_executed = false`
+- `full_1056_generation_run = false`
+- `block_existence_only_is_sufficient = false`
+- `l15_trip_command_to_breaker_control_connected = true`
+- `l15_breaker_in_series_with_actual_l15_branch = true`
+- `l15_original_direct_bypass_removed = true`
+- `l04_trip_command_to_breaker_control_connected = true`
+- `l04_breaker_in_series_with_actual_l04_branch = true`
+- `l04_original_direct_bypass_removed = true`
+- `physical_bridge_valid = true`
+- `no_leakage_policy_passed = true`
+
+Validation:
+
+- `python -m pytest tests/test_ieee39_manual_bridge_review_package.py tests/test_ieee39_spp001_bridge_physical_connectivity_audit.py`
+  passed: `13 passed`
+- `python scripts/gcn_search/check_pio_gcn_artifacts.py` passed.
+- `git diff -- src/rl_mitigation scripts/rl_mitigation` is empty.
+
+Boundary: the ZIP contains JSON, CSV, and PNG evidence only. It does not include
+`.slx`, `.slxc`, `.mat`, raw trajectories, full timeseries, `slprj`, venv,
+wheel, DLL, or model files.

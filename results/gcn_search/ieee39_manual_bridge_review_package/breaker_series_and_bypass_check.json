@@ -1,0 +1,15 @@
+{
+  "l15_breaker_physical_ports_connected": true,
+  "l15_breaker_in_series_with_actual_l15_branch": true,
+  "l15_original_direct_bypass_exists": false,
+  "l15_original_direct_bypass_removed": true,
+  "l04_breaker_physical_ports_connected": true,
+  "l04_breaker_in_series_with_actual_l04_branch": true,
+  "l04_original_direct_bypass_exists": false,
+  "l04_original_direct_bypass_removed": true,
+  "no_unconnected_physical_ports": true,
+  "no_unconnected_control_ports": true,
+  "physical_bridge_valid": true,
+  "block_existence_only_is_sufficient": false,
+  "note": "series and bypass checks inspect PortHandles, Line handles, and physical conserving-port graph evidence"
+}
