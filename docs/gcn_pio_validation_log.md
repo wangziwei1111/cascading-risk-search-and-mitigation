@@ -3822,8 +3822,8 @@ Warning checks kept explicit:
 
 - `target_bus / target_bus_or_component` may cause target-bus memorization, so future audit must compare against a target-bus-only baseline.
 - `duration_s / fault_start_s / fault_clear_s` are intervention design variables, not free physical state features.
-- `phasor_RMS` is not EMT.
-- `generator_speed_proxy` is not direct frequency.
+- phasor_RMS is not EMT.
+- generator_speed_proxy is not direct frequency.
 - temporary bus-fault injection is not engineering-grade protection.
 
 Recommended next step:
@@ -5657,3 +5657,63 @@ solver profiles from this bridge. Continue the core paper-aligned GCN work using
 offline sequential labels and the already validated single-line dynamic
 evidence. A future SPP001 profile should only be considered after a new bridge
 whose physical port and control connections are verified.
+
+## Round 107: IEEE39 SPP001 Manual Physical Bridge and Dynamic Stage Gate
+
+This round hand-builds a local-only physical same-wrapper bridge for
+`SPP001: L15 -> L04`. The old same-wrapper bridge was not used as the final
+validation model because it only proved block presence and left the L15 breaker
+outside the real branch. The new builder copies the handwired L04 wrapper,
+inserts the L15 breaker into the actual `Bus21` to `B21 to B22` physical path,
+and verifies the bridge using control wiring, physical port connectivity,
+series-placement, bypass, and unconnected-port checks before allowing any
+`sim()` call.
+
+Plain-language result: the wiring problem was fixed, but the dynamic validation
+is still not completed. The static physical gate passed, so Stage A
+(`StopTime = 0.01`, no trip expected) was attempted. MATLAB did not return
+within the allowed orchestration window, so the process was terminated and
+stages B-E were not run. Therefore this is not a completed SPP001 dynamic
+validation, and no pilot label or formal training label was generated.
+
+Key results:
+
+- `validation_scope = spp001_manual_dynamic_validation`
+- `pair_id = SPP001`
+- `prior_outaged_branch = L15`
+- `candidate_next_branch = L04`
+- `l15_trip_command_to_breaker_control_connected = true`
+- `l15_breaker_physical_ports_connected = true`
+- `l15_breaker_in_series_with_actual_l15_branch = true`
+- `l15_original_direct_bypass_removed = true`
+- `l04_trip_command_to_breaker_control_connected = true`
+- `l04_breaker_physical_ports_connected = true`
+- `l04_breaker_in_series_with_actual_l04_branch = true`
+- `l04_original_direct_bypass_removed = true`
+- `physical_bridge_valid = true`
+- `static_gate_passed = true`
+- `dynamic_stages_completed = 0`
+- `earliest_failed_stage_if_any = A`
+- `full_spp001_dynamic_validation_completed = false`
+- `labels_exported = false`
+- `gcn_training_run = false`
+- `selected_32_batch_executed = false`
+- `full_1056_generation_run = false`
+- `reranker_retrained = false`
+
+Boundary checks:
+
+- The local bridge `.slx` remains local-only and is not committed.
+- Source `.slx` files are not modified.
+- No raw trajectory, full timeseries, `.mat`, `.slx`, `.slxc`, `slprj`, venv,
+  wheel, DLL, or model file is committed.
+- Bus-fault labels are not used.
+- L12 remains special/excluded.
+- `phasor_RMS` is not EMT.
+- `generator_speed_proxy` is not direct frequency.
+- Temporary breaker/protection implementation is not engineering-grade
+  protection.
+
+Recommendation: diagnose the Stage A initialization timeout on this manual
+SPP001 bridge before any post-trip stage, label export, selected batch, full
+1056 generation, GCN training, or reranker training.

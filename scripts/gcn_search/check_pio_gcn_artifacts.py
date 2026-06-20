@@ -10469,6 +10469,91 @@ def main() -> int:
             if bad in consistency_text:
                 failures.append(f"Dependency repair consistency docs contain overstatement: {bad}")
 
+    manual_spp001_doc = ROOT / "docs/ieee39_spp001_manual_dynamic_validation.md"
+    manual_spp001_summary = ROOT / "results/gcn_search/ieee39_spp001_manual_dynamic_validation/spp001_dynamic_validation_summary.json"
+    manual_spp001_gate = ROOT / "results/gcn_search/ieee39_spp001_manual_dynamic_validation/spp001_manual_bridge_static_gate.json"
+    manual_spp001_stages = ROOT / "results/gcn_search/ieee39_spp001_manual_dynamic_validation/spp001_dynamic_stage_results.json"
+    manual_required = [manual_spp001_doc, manual_spp001_summary, manual_spp001_gate, manual_spp001_stages]
+    existing_manual_required = [path for path in manual_required if path.exists()]
+    if existing_manual_required:
+        missing_manual_required = [path for path in manual_required if not path.exists()]
+        if missing_manual_required:
+            failures.append(
+                "SPP001 manual dynamic validation artifacts are partially present but incomplete:\n"
+                + "\n".join(f"  - missing {path.relative_to(ROOT)}" for path in missing_manual_required)
+            )
+        try:
+            summary = _read_json_path(manual_spp001_summary)
+            gate = _read_json_path(manual_spp001_gate)
+            stages = _read_json_path(manual_spp001_stages)
+            for key, expected in [
+                ("validation_scope", "spp001_manual_dynamic_validation"),
+                ("pair_id", "SPP001"),
+                ("prior_outaged_branch", "L15"),
+                ("candidate_next_branch", "L04"),
+                ("manual_bridge_build_attempted", True),
+                ("manual_bridge_built", True),
+                ("physical_bridge_valid", True),
+                ("static_gate_passed", True),
+                ("full_spp001_dynamic_validation_completed", False),
+                ("gcn_training_run", False),
+                ("formal_gcn_audit_rerun", False),
+                ("selected_32_batch_executed", False),
+                ("full_1056_generation_run", False),
+                ("labels_exported", False),
+                ("formal_labels_exported", False),
+                ("reranker_retrained", False),
+                ("production_model_saved", False),
+                ("no_formal_label_generated", True),
+                ("source_slx_modified", False),
+                ("bus_fault_labels_used", False),
+                ("no_leakage_policy_passed", True),
+            ]:
+                if summary.get(key) != expected:
+                    failures.append(f"SPP001 manual dynamic summary must set {key}={expected!r}.")
+            for key in [
+                "l15_trip_command_to_breaker_control_connected",
+                "l15_breaker_physical_ports_connected",
+                "l15_breaker_in_series_with_actual_l15_branch",
+                "l15_original_direct_bypass_removed",
+                "l04_trip_command_to_breaker_control_connected",
+                "l04_breaker_physical_ports_connected",
+                "l04_breaker_in_series_with_actual_l04_branch",
+                "l04_original_direct_bypass_removed",
+                "no_unconnected_physical_ports",
+                "no_unconnected_control_ports",
+                "update_diagram_passed",
+                "physical_bridge_valid",
+                "static_gate_passed",
+            ]:
+                if gate.get(key) is not True:
+                    failures.append(f"SPP001 manual static gate must pass {key}.")
+            if not stages or stages[0].get("stage_id") != "A":
+                failures.append("SPP001 manual dynamic stages must record the Stage A stop point.")
+            if summary.get("dynamic_stages_completed") != 0 or summary.get("earliest_failed_stage_if_any") != "A":
+                failures.append("SPP001 manual dynamic validation must remain stopped at Stage A until a clean rerun succeeds.")
+        except Exception as exc:
+            failures.append(f"Failed to read SPP001 manual dynamic validation artifacts: {exc}")
+
+        manual_text = "\n".join(
+            [
+                _read_text("docs/ieee39_spp001_manual_dynamic_validation.md"),
+                _read_text("docs/gcn_pio_validation_log.md"),
+            ]
+        ).lower()
+        for required in [
+            "static_gate_passed",
+            "stage a",
+            "timed out",
+            "not a completed spp001 dynamic validation",
+            "no pilot/formal label",
+            "phasor_rms is not emt",
+            "generator_speed_proxy is not direct frequency",
+            "not engineering-grade protection",
+        ]:
+            if required not in manual_text:
+                failures.append(f"SPP001 manual dynamic validation docs missing: {required}")
+
     tracked_results = set(_git_ls_files("results/gcn_search"))
     branch_changed = set(_git_changed_files_against_main())
     tracked = sorted(tracked_results & branch_changed)

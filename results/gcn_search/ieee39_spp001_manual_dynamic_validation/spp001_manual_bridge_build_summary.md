@@ -1,0 +1,34 @@
+# SPP001 Manual Bridge Build Summary
+
+- `build_scope`: spp001_manual_physical_bridge_matlab_builder
+- `pair_id`: SPP001
+- `prior_outaged_branch`: L15
+- `candidate_next_branch`: L04
+- `source_l04_wrapper_path`: C:/Users/24186/Documents/New project 7/simulink-dynamic-validation-worktree/results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_handwired_breaker.slx
+- `source_l15_wrapper_path`: C:/Users/24186/Documents/New project 7/simulink-dynamic-validation-worktree/results/gcn_search/ieee39_graphical_dynamic_model/generated_models/IEEE39BusSystem_dynamic_experiment_wrapper_clean_breaker_lab_L15.slx
+- `target_local_bridge_path`: C:\Users\24186\Documents\New project 7\simulink-dynamic-validation-worktree\results\gcn_search\ieee39_spp001_manual_dynamic_validation\local_bridge_copy\IEEE39BusSystem_dynamic_experiment_wrapper_spp001_manual_physical_bridge.slx
+- `manual_bridge_build_attempted`: True
+- `manual_bridge_built`: True
+- `l15_rebuild_attempted`: True
+- `l04_preserved_from_source`: True
+- `l15_rebuild_error`: 
+- `update_diagram_passed`: True
+- `update_diagram_error`: 
+- `physical_bridge_valid`: True
+- `source_slx_modified`: False
+- `sim_called`: False
+- `blocker_if_any`: 
+- `l15_trip_command_block_exists`: True
+- `l15_breaker_block_exists`: True
+- `l15_trip_command_to_breaker_control_connected`: True
+- `l15_breaker_physical_ports_connected`: True
+- `l15_breaker_in_series_with_actual_l15_branch`: True
+- `l15_original_direct_bypass_removed`: True
+- `l04_trip_command_block_exists`: True
+- `l04_breaker_block_exists`: True
+- `l04_trip_command_to_breaker_control_connected`: True
+- `l04_breaker_physical_ports_connected`: True
+- `l04_breaker_in_series_with_actual_l04_branch`: True
+- `l04_original_direct_bypass_removed`: True
+- `no_unconnected_physical_ports`: True
+- `no_unconnected_control_ports`: True

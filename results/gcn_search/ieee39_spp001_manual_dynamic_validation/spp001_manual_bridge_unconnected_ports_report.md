@@ -1,0 +1,21 @@
+# SPP001 Manual Bridge Unconnected Ports Report
+
+- `gate_scope`: spp001_manual_bridge_static_gate
+- `pair_id`: SPP001
+- `l15_trip_command_block_exists`: True
+- `l15_breaker_block_exists`: True
+- `l15_trip_command_to_breaker_control_connected`: True
+- `l15_breaker_physical_ports_connected`: True
+- `l15_breaker_in_series_with_actual_l15_branch`: True
+- `l15_original_direct_bypass_removed`: True
+- `l04_trip_command_block_exists`: True
+- `l04_breaker_block_exists`: True
+- `l04_trip_command_to_breaker_control_connected`: True
+- `l04_breaker_physical_ports_connected`: True
+- `l04_breaker_in_series_with_actual_l04_branch`: True
+- `l04_original_direct_bypass_removed`: True
+- `no_unconnected_physical_ports`: True
+- `no_unconnected_control_ports`: True
+- `update_diagram_passed`: True
+- `physical_bridge_valid`: True
+- `static_gate_passed`: True

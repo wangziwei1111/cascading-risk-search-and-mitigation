@@ -1,0 +1,4 @@
+# SPP001 Dynamic Stdout Stderr Excerpt
+
+- `excerpt_scope`: spp001_dynamic_stdout_stderr_excerpt
+- `stage_a_abort_note`: Outer orchestration exceeded allowed window; MATLAB process was terminated. No raw trajectory or full timeseries was saved.

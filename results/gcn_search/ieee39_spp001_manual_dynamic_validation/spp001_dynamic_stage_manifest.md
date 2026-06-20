@@ -1,0 +1,45 @@
+# SPP001 Dynamic Stage Manifest
+
+- `manifest_scope`: spp001_dynamic_stage_manifest
+- `python_timeout_seconds`: 300
+- `matlab_timeout_seconds`: 240
+## stages
+```json
+[
+  {
+    "stage_id": "A",
+    "requested_stop_time_seconds": 0.01,
+    "l15_trip_expected": false,
+    "l04_trip_expected": false,
+    "stage_name": "initialization"
+  },
+  {
+    "stage_id": "B",
+    "requested_stop_time_seconds": 0.49,
+    "l15_trip_expected": false,
+    "l04_trip_expected": false,
+    "stage_name": "pre_trip"
+  },
+  {
+    "stage_id": "C",
+    "requested_stop_time_seconds": 0.51,
+    "l15_trip_expected": true,
+    "l04_trip_expected": false,
+    "stage_name": "l15_trip"
+  },
+  {
+    "stage_id": "D",
+    "requested_stop_time_seconds": 0.76,
+    "l15_trip_expected": true,
+    "l04_trip_expected": true,
+    "stage_name": "l04_sequence_trip"
+  },
+  {
+    "stage_id": "E",
+    "requested_stop_time_seconds": 1.2,
+    "l15_trip_expected": true,
+    "l04_trip_expected": true,
+    "stage_name": "full_dynamic_response"
+  }
+]
+```

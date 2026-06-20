@@ -1,0 +1,21 @@
+{
+  "gate_scope": "spp001_manual_bridge_static_gate",
+  "pair_id": "SPP001",
+  "l15_trip_command_block_exists": true,
+  "l15_breaker_block_exists": true,
+  "l15_trip_command_to_breaker_control_connected": true,
+  "l15_breaker_physical_ports_connected": true,
+  "l15_breaker_in_series_with_actual_l15_branch": true,
+  "l15_original_direct_bypass_removed": true,
+  "l04_trip_command_block_exists": true,
+  "l04_breaker_block_exists": true,
+  "l04_trip_command_to_breaker_control_connected": true,
+  "l04_breaker_physical_ports_connected": true,
+  "l04_breaker_in_series_with_actual_l04_branch": true,
+  "l04_original_direct_bypass_removed": true,
+  "no_unconnected_physical_ports": true,
+  "no_unconnected_control_ports": true,
+  "update_diagram_passed": true,
+  "physical_bridge_valid": true,
+  "static_gate_passed": true
+}
