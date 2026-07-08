@@ -81,6 +81,42 @@ def build_line_frequency_table(table: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+def build_line_relay_trip_frequency_table(table: pd.DataFrame) -> pd.DataFrame:
+    if "relay_trip_labels" not in table:
+        return pd.DataFrame(columns=["line_label", "relay_trip_count"])
+    counts: dict[str, int] = {}
+    for labels in table["relay_trip_labels"].fillna("").astype(str):
+        for label in [part.strip() for part in labels.split(",") if part.strip()]:
+            counts[label] = counts.get(label, 0) + 1
+    rows = [{"line_label": label, "relay_trip_count": count} for label, count in sorted(counts.items())]
+    if not rows:
+        return pd.DataFrame(columns=["line_label", "relay_trip_count"])
+    return pd.DataFrame(rows).sort_values(["relay_trip_count", "line_label"], ascending=[False, True])
+
+
+def build_relay_cascade_top_paths(table: pd.DataFrame, limit: int = 100) -> pd.DataFrame:
+    if "critical_mechanism" not in table:
+        return pd.DataFrame(columns=table.columns)
+    relay = table[table["critical_mechanism"].fillna("").astype(str) == "relay_cascade"].copy()
+    if relay.empty:
+        return relay
+    return relay.sort_values(
+        ["total_load_shed_mw", "num_relay_trips", "max_event_loading_ratio", "path"],
+        ascending=[False, False, False, True],
+    ).head(limit)
+
+
+def build_top_relay_trip_paths(table: pd.DataFrame, limit: int = 100) -> pd.DataFrame:
+    if "num_relay_trips" not in table:
+        return pd.DataFrame(columns=table.columns)
+    ranked = table.copy()
+    ranked["num_relay_trips"] = pd.to_numeric(ranked["num_relay_trips"], errors="coerce").fillna(0)
+    return ranked.sort_values(
+        ["num_relay_trips", "total_load_shed_mw", "max_event_loading_ratio", "path"],
+        ascending=[False, False, False, True],
+    ).head(limit)
+
+
 def high_risk_patterns(table: pd.DataFrame, limit: int) -> list[dict]:
     critical = table[table["critical"]].copy()
     if critical.empty:
@@ -105,6 +141,14 @@ def build_summary(table: pd.DataFrame, top_table: pd.DataFrame, top_k_values: li
     error_mask = table["error"].fillna("").astype(str).str.len() > 0 if "error" in table else pd.Series(False, index=table.index)
     error_paths = int(error_mask.sum())
     critical_paths = int(table["critical"].sum()) if "critical" in table else 0
+    mechanism = table["critical_mechanism"].fillna("").astype(str) if "critical_mechanism" in table else pd.Series("", index=table.index)
+    relay_cascade_paths = int((mechanism == "relay_cascade").sum())
+    island_only_paths = int((mechanism == "island_only").sum())
+    redispatch_shed = pd.to_numeric(table.get("redispatch_load_shed_mw", pd.Series(0, index=table.index)), errors="coerce").fillna(0)
+    island_shed = pd.to_numeric(table.get("island_load_shed_mw", pd.Series(0, index=table.index)), errors="coerce").fillna(0)
+    has_overload = table.get("has_overload_cascade", pd.Series(False, index=table.index)).fillna(False).astype(bool)
+    redispatch_shed_paths = int((redispatch_shed > 1e-7).sum())
+    mixed_paths = int((has_overload & ((redispatch_shed > 1e-7) | (island_shed > 1e-7))).sum())
     max_row = (
         table.sort_values(["total_load_shed_mw", "final_max_loading_ratio", "path"], ascending=[False, False, True])
         .head(1)
@@ -116,10 +160,23 @@ def build_summary(table: pd.DataFrame, top_table: pd.DataFrame, top_k_values: li
         "error_paths": error_paths,
         "critical_paths": critical_paths,
         "critical_ratio": critical_paths / total_paths if total_paths else 0.0,
+        "relay_cascade_paths": relay_cascade_paths,
+        "relay_cascade_ratio": relay_cascade_paths / total_paths if total_paths else 0.0,
+        "island_only_paths": island_only_paths,
+        "island_only_ratio": island_only_paths / total_paths if total_paths else 0.0,
+        "redispatch_shed_paths": redispatch_shed_paths,
+        "redispatch_shed_ratio": redispatch_shed_paths / total_paths if total_paths else 0.0,
+        "mixed_paths": mixed_paths,
+        "mixed_ratio": mixed_paths / total_paths if total_paths else 0.0,
         "max_load_shed_path": max_row[0] if max_row else {},
         "top_load_shed_counts": {f"top_{k}": int(min(k, len(top_table))) for k in sorted(top_k_values)},
         "total_load_shed_mw_describe": describe_series(table["total_load_shed_mw"]),
         "final_max_loading_ratio_describe": describe_series(table["final_max_loading_ratio"]),
+        "max_event_loading_ratio_describe": describe_series(table.get("max_event_loading_ratio", pd.Series(dtype=float))),
+        "max_pre_redispatch_loading_ratio_describe": describe_series(
+            table.get("max_pre_redispatch_loading_ratio", pd.Series(dtype=float))
+        ),
+        "num_relay_trips_describe": describe_series(table.get("num_relay_trips", pd.Series(dtype=float))),
         "high_risk_ordered_patterns": high_risk_patterns(table, pattern_limit),
     }
 
@@ -135,6 +192,9 @@ def write_readme(output_dir: Path, summary: dict) -> None:
         f"- Error paths: {summary['error_paths']}",
         f"- Critical paths: {summary['critical_paths']}",
         f"- Critical ratio: {summary['critical_ratio']:.6f}",
+        f"- Relay cascade paths: {summary['relay_cascade_paths']}",
+        f"- Island-only paths: {summary['island_only_paths']}",
+        f"- Mixed paths: {summary['mixed_paths']}",
         "",
         "This is still full-truth data preparation. It is not IEEE 118 GCN search efficiency validation.",
     ]
@@ -146,6 +206,9 @@ def analyze(input_dir: Path, output_dir: Path, top_k_values: list[int], pattern_
     table = load_summary(input_dir)
     top_table = build_top_load_shed_table(table, top_k_values)
     frequency_table = build_line_frequency_table(table)
+    relay_frequency_table = build_line_relay_trip_frequency_table(table)
+    relay_top_table = build_relay_cascade_top_paths(table)
+    top_relay_trip_table = build_top_relay_trip_paths(table)
     error_mask = table["error"].fillna("").astype(str).str.len() > 0 if "error" in table else pd.Series(False, index=table.index)
     error_table = table[error_mask].copy()
     summary = build_summary(table, top_table, top_k_values, pattern_limit)
@@ -156,6 +219,9 @@ def analyze(input_dir: Path, output_dir: Path, top_k_values: list[int], pattern_
     )
     top_table.to_csv(output_dir / "ieee118_top_load_shed_paths.csv", index=False, encoding="utf-8-sig")
     frequency_table.to_csv(output_dir / "ieee118_line_critical_frequency.csv", index=False, encoding="utf-8-sig")
+    relay_frequency_table.to_csv(output_dir / "ieee118_line_relay_trip_frequency.csv", index=False, encoding="utf-8-sig")
+    relay_top_table.to_csv(output_dir / "ieee118_relay_cascade_top_paths.csv", index=False, encoding="utf-8-sig")
+    top_relay_trip_table.to_csv(output_dir / "ieee118_top_relay_trip_paths.csv", index=False, encoding="utf-8-sig")
     error_table.to_csv(output_dir / "ieee118_error_paths.csv", index=False, encoding="utf-8-sig")
     write_readme(output_dir, summary)
     return summary

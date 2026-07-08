@@ -9,6 +9,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "src" / "gcn_search" / "ieee118" / "analyze_ieee118_fulltruth.py"
 SMOKE_DIR = ROOT / "results" / "gcn_search" / "ieee118_fulltruth_smoke"
+STRESS_SMOKE_DIR = ROOT / "results" / "gcn_search" / "ieee118_thermal_limit_calibration" / "flow_scaled_1_30_max500"
 
 
 def test_ieee118_fulltruth_audit_reads_smoke_artifact(tmp_path):
@@ -61,3 +62,37 @@ def test_ieee118_fulltruth_audit_reads_smoke_artifact(tmp_path):
 
     error_table = pd.read_csv(error_path)
     assert {"path", "error"}.issubset(error_table.columns)
+
+
+def test_ieee118_fulltruth_audit_reports_relay_cascade_statistics(tmp_path):
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--input-dir",
+            str(STRESS_SMOKE_DIR),
+            "--output-dir",
+            str(tmp_path),
+        ],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    summary = json.loads((tmp_path / "ieee118_fulltruth_audit_summary.json").read_text(encoding="utf-8"))
+    assert summary["relay_cascade_paths"] > 0
+    assert summary["relay_cascade_ratio"] > 0.0
+    assert "island_only_paths" in summary
+    assert "mixed_paths" in summary
+    assert "num_relay_trips_describe" in summary
+    assert "max_event_loading_ratio_describe" in summary
+    assert "max_pre_redispatch_loading_ratio_describe" in summary
+
+    relay_frequency = pd.read_csv(tmp_path / "ieee118_line_relay_trip_frequency.csv")
+    relay_samples = pd.read_csv(tmp_path / "ieee118_relay_cascade_top_paths.csv")
+    top_relay = pd.read_csv(tmp_path / "ieee118_top_relay_trip_paths.csv")
+    assert {"line_label", "relay_trip_count"}.issubset(relay_frequency.columns)
+    assert {"path", "critical_mechanism", "num_relay_trips"}.issubset(relay_samples.columns)
+    assert top_relay["num_relay_trips"].max() > 0

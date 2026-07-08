@@ -1,0 +1,275 @@
+{
+  "total_paths": 500,
+  "converged_paths": 500,
+  "error_paths": 0,
+  "critical_paths": 206,
+  "critical_ratio": 0.412,
+  "relay_cascade_paths": 179,
+  "relay_cascade_ratio": 0.358,
+  "island_only_paths": 27,
+  "island_only_ratio": 0.054,
+  "redispatch_shed_paths": 120,
+  "redispatch_shed_ratio": 0.24,
+  "mixed_paths": 179,
+  "mixed_ratio": 0.358,
+  "max_load_shed_path": {
+    "scenario_id": 1,
+    "seed": 20260708,
+    "path": "L001->L093",
+    "first_line": "L001",
+    "second_line": "L093",
+    "converged": true,
+    "critical": true,
+    "total_load_shed_mw": 797.6938113398293,
+    "island_load_shed_mw": 797.2223621872988,
+    "redispatch_load_shed_mw": 0.4714491525305092,
+    "final_max_loading_ratio": 1.0000000000000009,
+    "final_outage_labels": "L001,L014,L015,L018,L019,L020,L022,L030,L035,L040,L044,L045,L046,L048,L052,L053,L054,L055,L056,L057,L058,L060,L062,L064,L065,L068,L069,L070,L071,L072,L073,L074,L075,L076,L077,L078,L079,L080,L081,L082,L083,L088,L089,L090,L091,L092,L093,L095,L101,L102,L104,L105,L106,L107,L109,L110,L111,L112,L113,L114,L115,L116,L119,L120,L121,L122,L125,L126,L127,L128,L129,L130,L131,L134,L140,L143,L148,L149,L150,L153,L154,L155,L156,L157,L158,L159,L160,L169,L175,L176,L178,L179,L180,L182,L186",
+    "num_final_outages": 95,
+    "max_event_loading_ratio": 73.71017566135114,
+    "max_pre_redispatch_loading_ratio": 73.71017566135114,
+    "num_relay_trips": 92,
+    "relay_trip_labels": "L015,L018,L019,L020,L022,L030,L035,L040,L044,L045,L046,L048,L052,L053,L054,L055,L056,L057,L058,L060,L062,L064,L065,L068,L069,L070,L071,L072,L073,L074,L075,L076,L077,L078,L079,L080,L081,L082,L083,L088,L089,L090,L091,L092,L095,L101,L102,L104,L105,L106,L107,L109,L110,L111,L112,L113,L114,L115,L116,L119,L120,L121,L122,L125,L126,L127,L128,L129,L130,L131,L134,L140,L143,L148,L149,L150,L153,L154,L155,L156,L157,L158,L159,L160,L169,L175,L176,L178,L179,L180,L182,L186",
+    "num_passive_outages": 93,
+    "has_overload_cascade": true,
+    "critical_mechanism": "relay_cascade",
+    "error": NaN
+  },
+  "top_load_shed_counts": {
+    "top_20": 20,
+    "top_50": 50,
+    "top_100": 100
+  },
+  "total_load_shed_mw_describe": {
+    "count": 500.0,
+    "mean": 126.70069158725543,
+    "std": 219.97865682434553,
+    "min": 0.0,
+    "25%": 0.0,
+    "50%": 0.0,
+    "75%": 128.3794560745243,
+    "max": 797.6938113398293
+  },
+  "final_max_loading_ratio_describe": {
+    "count": 500.0,
+    "mean": 1.0000000000000073,
+    "std": 1.6210624565098335e-14,
+    "min": 1.0000000000000002,
+    "25%": 1.0000000000000016,
+    "50%": 1.0000000000000016,
+    "75%": 1.0000000000000016,
+    "max": 1.00000000000007
+  },
+  "max_event_loading_ratio_describe": {
+    "count": 500.0,
+    "mean": 16.76767664656049,
+    "std": 28.9411016238416,
+    "min": 1.0000000000001563,
+    "25%": 1.1385138160999633,
+    "50%": 1.1681450891040837,
+    "75%": 4.853429586754319,
+    "max": 90.27211224861658
+  },
+  "max_pre_redispatch_loading_ratio_describe": {
+    "count": 500.0,
+    "mean": 16.76767664656049,
+    "std": 28.9411016238416,
+    "min": 1.0000000000001563,
+    "25%": 1.1385138160999633,
+    "50%": 1.1681450891040837,
+    "75%": 4.853429586754319,
+    "max": 90.27211224861658
+  },
+  "num_relay_trips_describe": {
+    "count": 500.0,
+    "mean": 16.74,
+    "std": 28.957649956133594,
+    "min": 0.0,
+    "25%": 0.0,
+    "50%": 0.0,
+    "75%": 7.0,
+    "max": 93.0
+  },
+  "high_risk_ordered_patterns": [
+    {
+      "first_line": "L001",
+      "second_line": "L093",
+      "path": "L001->L093",
+      "critical_count": 1,
+      "max_total_load_shed_mw": 797.6938113398293,
+      "mean_total_load_shed_mw": 797.6938113398293,
+      "max_final_max_loading_ratio": 1.0000000000000009
+    },
+    {
+      "first_line": "L001",
+      "second_line": "L094",
+      "path": "L001->L094",
+      "critical_count": 1,
+      "max_total_load_shed_mw": 797.6938113398293,
+      "mean_total_load_shed_mw": 797.6938113398293,
+      "max_final_max_loading_ratio": 1.0000000000000009
+    },
+    {
+      "first_line": "L001",
+      "second_line": "L090",
+      "path": "L001->L090",
+      "critical_count": 1,
+      "max_total_load_shed_mw": 795.4816623535685,
+      "mean_total_load_shed_mw": 795.4816623535685,
+      "max_final_max_loading_ratio": 1.0000000000000009
+    },
+    {
+      "first_line": "L001",
+      "second_line": "L108",
+      "path": "L001->L108",
+      "critical_count": 1,
+      "max_total_load_shed_mw": 786.3696838465977,
+      "mean_total_load_shed_mw": 786.3696838465977,
+      "max_final_max_loading_ratio": 1.0000000000000002
+    },
+    {
+      "first_line": "L001",
+      "second_line": "L089",
+      "path": "L001->L089",
+      "critical_count": 1,
+      "max_total_load_shed_mw": 740.0991660773112,
+      "mean_total_load_shed_mw": 740.0991660773112,
+      "max_final_max_loading_ratio": 1.0000000000000009
+    },
+    {
+      "first_line": "L001",
+      "second_line": "L008",
+      "path": "L001->L008",
+      "critical_count": 1,
+      "max_total_load_shed_mw": 702.2784707678172,
+      "mean_total_load_shed_mw": 702.2784707678172,
+      "max_final_max_loading_ratio": 1.0000000000000002
+    },
+    {
+      "first_line": "L001",
+      "second_line": "L029",
+      "path": "L001->L029",
+      "critical_count": 1,
+      "max_total_load_shed_mw": 690.5390202008059,
+      "mean_total_load_shed_mw": 690.5390202008059,
+      "max_final_max_loading_ratio": 1.0000000000000022
+    },
+    {
+      "first_line": "L001",
+      "second_line": "L041",
+      "path": "L001->L041",
+      "critical_count": 1,
+      "max_total_load_shed_mw": 690.0991070740189,
+      "mean_total_load_shed_mw": 690.0991070740189,
+      "max_final_max_loading_ratio": 1.0000000000000018
+    },
+    {
+      "first_line": "L001",
+      "second_line": "L028",
+      "path": "L001->L028",
+      "critical_count": 1,
+      "max_total_load_shed_mw": 667.8174599865325,
+      "mean_total_load_shed_mw": 667.8174599865325,
+      "max_final_max_loading_ratio": 1.0000000000000016
+    },
+    {
+      "first_line": "L001",
+      "second_line": "L031",
+      "path": "L001->L031",
+      "critical_count": 1,
+      "max_total_load_shed_mw": 666.958764155132,
+      "mean_total_load_shed_mw": 666.958764155132,
+      "max_final_max_loading_ratio": 1.0000000000000002
+    },
+    {
+      "first_line": "L001",
+      "second_line": "L116",
+      "path": "L001->L116",
+      "critical_count": 1,
+      "max_total_load_shed_mw": 644.6731849542201,
+      "mean_total_load_shed_mw": 644.6731849542201,
+      "max_final_max_loading_ratio": 1.000000000000005
+    },
+    {
+      "first_line": "L001",
+      "second_line": "L125",
+      "path": "L001->L125",
+      "critical_count": 1,
+      "max_total_load_shed_mw": 644.6731849542201,
+      "mean_total_load_shed_mw": 644.6731849542201,
+      "max_final_max_loading_ratio": 1.0000000000000009
+    },
+    {
+      "first_line": "L001",
+      "second_line": "L118",
+      "path": "L001->L118",
+      "critical_count": 1,
+      "max_total_load_shed_mw": 643.5867928523826,
+      "mean_total_load_shed_mw": 643.5867928523826,
+      "max_final_max_loading_ratio": 1.0000000000000009
+    },
+    {
+      "first_line": "L001",
+      "second_line": "L038",
+      "path": "L001->L038",
+      "critical_count": 1,
+      "max_total_load_shed_mw": 638.0382465633465,
+      "mean_total_load_shed_mw": 638.0382465633465,
+      "max_final_max_loading_ratio": 1.0000000000000004
+    },
+    {
+      "first_line": "L001",
+      "second_line": "L183",
+      "path": "L001->L183",
+      "critical_count": 1,
+      "max_total_load_shed_mw": 630.4392369409615,
+      "mean_total_load_shed_mw": 630.4392369409615,
+      "max_final_max_loading_ratio": 1.000000000000005
+    },
+    {
+      "first_line": "L001",
+      "second_line": "L010",
+      "path": "L001->L010",
+      "critical_count": 1,
+      "max_total_load_shed_mw": 622.9319606440675,
+      "mean_total_load_shed_mw": 622.9319606440675,
+      "max_final_max_loading_ratio": 1.0000000000000016
+    },
+    {
+      "first_line": "L001",
+      "second_line": "L011",
+      "path": "L001->L011",
+      "critical_count": 1,
+      "max_total_load_shed_mw": 622.9319606440675,
+      "mean_total_load_shed_mw": 622.9319606440675,
+      "max_final_max_loading_ratio": 1.0000000000000016
+    },
+    {
+      "first_line": "L001",
+      "second_line": "L030",
+      "path": "L001->L030",
+      "critical_count": 1,
+      "max_total_load_shed_mw": 618.0663115873438,
+      "mean_total_load_shed_mw": 618.0663115873438,
+      "max_final_max_loading_ratio": 1.0000000000000016
+    },
+    {
+      "first_line": "L001",
+      "second_line": "L113",
+      "path": "L001->L113",
+      "critical_count": 1,
+      "max_total_load_shed_mw": 618.0663115873438,
+      "mean_total_load_shed_mw": 618.0663115873438,
+      "max_final_max_loading_ratio": 1.0000000000000016
+    },
+    {
+      "first_line": "L001",
+      "second_line": "L170",
+      "path": "L001->L170",
+      "critical_count": 1,
+      "max_total_load_shed_mw": 618.0663115873438,
+      "mean_total_load_shed_mw": 618.0663115873438,
+      "max_final_max_loading_ratio": 1.0000000000000016
+    }
+  ]
+}
