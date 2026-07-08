@@ -14,7 +14,11 @@ sys.path.insert(0, str(LEGACY))
 sys.path.insert(0, str(SCRIPT.parent))
 
 from case_adapter import build_case_adapter
-from generate_ieee118_ordered_n2_fulltruth import apply_ieee118_load_scenario, apply_thermal_limit_mode
+from generate_ieee118_ordered_n2_fulltruth import (
+    apply_ieee118_load_scenario,
+    apply_thermal_limit_mode,
+    select_ordered_n2_paths,
+)
 
 
 def test_ieee118_fulltruth_generator_writes_max_paths_outputs(tmp_path):
@@ -216,3 +220,68 @@ def test_flow_scaled_generator_outputs_relay_mechanism_fields(tmp_path):
     assert config["limit_mode"] == "flow_scaled"
     assert config["flow_limit_scale"] == 1.3
     assert config["min_rate_a"] == 25.0
+
+
+def test_ieee118_random_sample_generator_writes_unique_paths(tmp_path):
+    output_dir = tmp_path / "ieee118_random_sample"
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--seeds",
+            "20260708",
+            "--sample-mode",
+            "random",
+            "--sample-size",
+            "5",
+            "--sample-seed",
+            "20260708",
+            "--output-dir",
+            str(output_dir),
+        ],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    table = pd.read_csv(output_dir / "ieee118_fulltruth_summary.csv")
+    assert len(table) == 5
+    assert table["path"].nunique() == 5
+
+    config = json.loads((output_dir / "ieee118_fulltruth_config.json").read_text(encoding="utf-8"))
+    assert config["sample_mode"] == "random"
+    assert config["sample_size"] == 5
+    assert config["sample_seed"] == 20260708
+    assert config["selected_paths_per_scenario"] == 5
+
+
+def test_ieee118_random_path_sampling_is_reproducible_and_seeded():
+    adapter = build_case_adapter("ieee118")
+    first = select_ordered_n2_paths(
+        adapter.line_labels,
+        max_paths=None,
+        sample_mode="random",
+        sample_size=20,
+        sample_seed=20260708,
+    )
+    repeat = select_ordered_n2_paths(
+        adapter.line_labels,
+        max_paths=None,
+        sample_mode="random",
+        sample_size=20,
+        sample_seed=20260708,
+    )
+    different = select_ordered_n2_paths(
+        adapter.line_labels,
+        max_paths=None,
+        sample_mode="random",
+        sample_size=20,
+        sample_seed=20260709,
+    )
+
+    assert first == repeat
+    assert first != different
+    assert len(first) == 20
+    assert len(set(first)) == 20

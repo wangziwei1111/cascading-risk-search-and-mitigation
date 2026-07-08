@@ -40,7 +40,9 @@ def test_ieee118_limit_sweep_summary_outputs_required_fields(tmp_path):
         "converged_rows",
         "error_rows",
         "critical_rows",
+        "critical_ratio",
         "relay_cascade_rows",
+        "relay_cascade_ratio",
         "island_only_rows",
         "redispatch_shed_rows",
         "mixed_rows",
@@ -58,3 +60,5 @@ def test_ieee118_limit_sweep_summary_outputs_required_fields(tmp_path):
     assert (table["converged_rows"] == 500).all()
     assert (table["error_rows"] == 0).all()
     assert (table["relay_cascade_rows"] > 0).all()
+    assert table["critical_ratio"].between(0.0, 1.0).all()
+    assert table["relay_cascade_ratio"].between(0.0, 1.0).all()

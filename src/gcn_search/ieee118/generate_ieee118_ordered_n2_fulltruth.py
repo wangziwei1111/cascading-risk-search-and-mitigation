@@ -61,6 +61,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-rate-a", type=float, default=25.0, help="Minimum RATE_A in flow_scaled mode.")
     parser.add_argument("--max-paths", type=int, default=None, help="Optional per-scenario path cap for debugging.")
     parser.add_argument(
+        "--sample-mode",
+        choices=["first", "random"],
+        default="first",
+        help="Path sampling mode. 'first' preserves ordered truncation; 'random' samples without replacement.",
+    )
+    parser.add_argument("--sample-size", type=int, default=None, help="Number of ordered N-2 paths to sample per scenario.")
+    parser.add_argument("--sample-seed", type=int, default=None, help="Random seed for --sample-mode random.")
+    parser.add_argument(
         "--output-dir",
         type=Path,
         default=ROOT / "results" / "gcn_search" / "ieee118_fulltruth",
@@ -103,16 +111,41 @@ def apply_thermal_limit_mode(
     return result
 
 
-def ordered_n2_paths(line_labels: tuple[str, ...], max_paths: int | None) -> list[tuple[str, str]]:
+def all_ordered_n2_paths(line_labels: tuple[str, ...]) -> list[tuple[str, str]]:
     paths: list[tuple[str, str]] = []
     for first_line in line_labels:
         for second_line in line_labels:
             if first_line == second_line:
                 continue
             paths.append((first_line, second_line))
-            if max_paths is not None and len(paths) >= max_paths:
-                return paths
     return paths
+
+
+def select_ordered_n2_paths(
+    line_labels: tuple[str, ...],
+    *,
+    max_paths: int | None,
+    sample_mode: str,
+    sample_size: int | None,
+    sample_seed: int | None,
+) -> list[tuple[str, str]]:
+    paths = all_ordered_n2_paths(line_labels)
+    if sample_size is not None and sample_size < 0:
+        raise ValueError("--sample-size must be non-negative")
+    if max_paths is not None and max_paths < 0:
+        raise ValueError("--max-paths must be non-negative")
+
+    if sample_mode == "first":
+        limit = sample_size if sample_size is not None else max_paths
+        return paths[:limit] if limit is not None else paths
+    if sample_mode == "random":
+        if sample_size is None:
+            raise ValueError("--sample-size is required when --sample-mode random")
+        sample_count = min(sample_size, len(paths))
+        rng = np.random.default_rng(sample_seed)
+        indices = rng.choice(len(paths), size=sample_count, replace=False)
+        return [paths[int(index)] for index in indices]
+    raise ValueError(f"Unsupported sample_mode={sample_mode!r}")
 
 
 def row_from_state(scenario_id: int, seed: int, first_line: str, second_line: str, state: dict) -> dict:
@@ -220,7 +253,13 @@ def load_resume_rows(summary_path: Path, retry_errors: bool = False) -> tuple[li
 def generate_fulltruth(args: argparse.Namespace) -> pd.DataFrame:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     adapter = build_case_adapter("ieee118")
-    paths = ordered_n2_paths(adapter.line_labels, args.max_paths)
+    paths = select_ordered_n2_paths(
+        adapter.line_labels,
+        max_paths=args.max_paths,
+        sample_mode=args.sample_mode,
+        sample_size=args.sample_size,
+        sample_seed=args.sample_seed,
+    )
     summary_path = args.output_dir / "ieee118_fulltruth_summary.csv"
     rows, completed_keys = load_resume_rows(summary_path, retry_errors=args.retry_errors) if args.resume else ([], set())
     new_rows_since_checkpoint = 0
@@ -287,6 +326,10 @@ def generate_fulltruth(args: argparse.Namespace) -> pd.DataFrame:
         "flow_limit_scale": args.flow_limit_scale,
         "min_rate_a": args.min_rate_a,
         "max_paths": args.max_paths,
+        "sample_mode": args.sample_mode,
+        "sample_size": args.sample_size,
+        "sample_seed": args.sample_seed,
+        "selected_paths_per_scenario": len(paths),
         "resume": bool(args.resume),
         "retry_errors": bool(args.retry_errors),
         "checkpoint_every": args.checkpoint_every,

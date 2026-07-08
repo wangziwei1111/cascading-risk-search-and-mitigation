@@ -28,6 +28,12 @@ def parse_args() -> argparse.Namespace:
         default=Path("results/gcn_search/ieee118_limit_calibration"),
         help="Directory for the compact sweep summary.",
     )
+    parser.add_argument(
+        "--output-prefix",
+        type=str,
+        default="ieee118_flow_scaled_wide_scale_sweep",
+        help="Output file prefix for CSV and JSON summaries.",
+    )
     return parser.parse_args()
 
 
@@ -96,12 +102,12 @@ def summarize_scale(template: str, scale: float) -> dict:
     }
 
 
-def summarize(scales: list[float], input_template: str, output_dir: Path) -> pd.DataFrame:
+def summarize(scales: list[float], input_template: str, output_dir: Path, output_prefix: str) -> pd.DataFrame:
     output_dir.mkdir(parents=True, exist_ok=True)
     records = [summarize_scale(input_template, scale) for scale in scales]
     table = pd.DataFrame(records)
-    table.to_csv(output_dir / "ieee118_flow_scaled_wide_scale_sweep.csv", index=False, encoding="utf-8-sig")
-    (output_dir / "ieee118_flow_scaled_wide_scale_sweep.json").write_text(
+    table.to_csv(output_dir / f"{output_prefix}.csv", index=False, encoding="utf-8-sig")
+    (output_dir / f"{output_prefix}.json").write_text(
         json.dumps(records, indent=2),
         encoding="utf-8",
     )
@@ -110,7 +116,7 @@ def summarize(scales: list[float], input_template: str, output_dir: Path) -> pd.
 
 def main() -> None:
     args = parse_args()
-    table = summarize(args.scales, args.input_template, args.output_dir)
+    table = summarize(args.scales, args.input_template, args.output_dir, args.output_prefix)
     print(f"IEEE118 limit sweep summary written to {args.output_dir}")
     print(table.to_string(index=False))
 
