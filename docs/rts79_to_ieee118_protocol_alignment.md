@@ -179,3 +179,43 @@ Not committed:
 ## Result Note
 
 In this IEEE118 run, strict `RTS79_GCN_path_prob_reused_on_IEEE118` is much stronger than random, line_order, and two-layer LODF_yP. However, the second-only ablation remains stronger than strict path probability. This means the previous PR #9 result should remain labeled as an ablation, but it also reveals that multiplying by the learned S0 first-outage probability may suppress many high-risk IEEE118 paths. This should be analyzed before making a final paper claim.
+
+## First-Step Critical Early-Stop Audit
+
+The current legacy RTS-79 implementation `run_sequential_initial_outages_dcpf` applies the provided `initial_outage_sequence` in order and does not explicitly stop when the first outage already sheds load. The pre-early-stop IEEE118 generator followed the same legacy behavior: once `S1(first_line)` was computed, it expanded every `second_line` even when the first outage was already critical.
+
+That behavior aligns with the current legacy implementation, but it is biased for the formal ordered N-2 search protocol. The formal rule is:
+
+```text
+S0 --Li--> load shed
+=> Li is first-step / N-1 critical
+=> do not generate Li->Lj as valid ordered N-2 rows
+
+S0 --Li--> no load shed
+=> enter S1(i)
+=> enumerate valid Lj second outages
+```
+
+Therefore PR #10 is a no-early-stop protocol result and should be treated as a historical ablation. It should not be described as the final formal IEEE118 ordered N-2 result.
+
+This PR introduces `--first-step-critical-policy skip|expand` in the IEEE118 full-truth generator:
+
+- `skip` is the formal default. First-step critical lines are written to `ieee118_first_step_summary.csv` and their `Li->Lj` rows are not generated as valid N-2 samples.
+- `expand` preserves the historical no-early-stop behavior for reproducing PR #10-style results only.
+
+Early-stop full-truth for `flow_scaled=8.00`, `min_rate_a=1.0`, seed `20260708` gives:
+
+- possible ordered N-2 paths without early stop: 34,410
+- first-step critical lines: 10
+- skipped ordered N-2 paths: 1,850
+- valid ordered N-2 paths: 32,560
+- valid critical paths: 1,754
+- valid relay-cascade paths: 1,643
+
+The formal paper result should use:
+
+- `RTS79_GCN_path_prob_reused_on_IEEE118_earlystop`
+
+and not the no-early-stop PR #10 method:
+
+- `RTS79_GCN_path_prob_reused_on_IEEE118`

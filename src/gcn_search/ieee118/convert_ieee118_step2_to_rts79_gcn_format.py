@@ -113,6 +113,13 @@ def feature_names_for_mode(feature_mode: str) -> list[str]:
     return PAPER_FEATURE_NAMES if feature_mode == "paper" else PIO_PHYSICS_FEATURE_NAMES
 
 
+def load_step2_metadata(step2_csv: Path) -> dict[str, Any]:
+    metadata_path = step2_csv.with_name("ieee118_step2_state_metadata.json")
+    if not metadata_path.exists():
+        return {}
+    return json.loads(metadata_path.read_text(encoding="utf-8"))
+
+
 def build_x_from_json(
     edge_json: str,
     node_json: str,
@@ -298,6 +305,15 @@ def convert_step2_to_rts79_gcn_format(args: argparse.Namespace) -> dict[str, Any
         "excluded_leakage_columns": sorted(LEAKAGE_COLUMNS),
         "model_contract": "Prepared for the original RTS-79 PaperStyleRts79Gcn/Pio-GCN input tensor shape: samples x branches x features.",
     }
+    step2_metadata = load_step2_metadata(args.step2_csv)
+    for key in (
+        "first_step_critical_policy",
+        "num_first_step_critical_lines",
+        "num_skipped_ordered_n2_paths",
+        "num_valid_ordered_n2_paths",
+    ):
+        if key in step2_metadata:
+            metadata[key] = step2_metadata[key]
     (args.output_dir / "ieee118_rts79_gcn_dataset_metadata.json").write_text(
         json.dumps(metadata, indent=2),
         encoding="utf-8",
