@@ -7,7 +7,10 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from pypower.idx_brch import PF, RATE_A
 from pypower.idx_bus import PD
+from pypower.ppoption import ppoption
+from pypower.rundcopf import rundcopf
 
 ROOT = Path(__file__).resolve().parents[3]
 LEGACY = ROOT / "src" / "gcn_search" / "legacy_rts79"
@@ -31,6 +34,13 @@ OUTPUT_COLUMNS = [
     "final_max_loading_ratio",
     "final_outage_labels",
     "num_final_outages",
+    "max_event_loading_ratio",
+    "max_pre_redispatch_loading_ratio",
+    "num_relay_trips",
+    "relay_trip_labels",
+    "num_passive_outages",
+    "has_overload_cascade",
+    "critical_mechanism",
     "error",
 ]
 
@@ -41,6 +51,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--load-scale", type=float, default=1.0, help="Base load multiplier before seeded perturbation.")
     parser.add_argument("--beta", type=float, default=1.2, help="Relay overload threshold multiplier.")
     parser.add_argument("--security-limit", type=float, default=1.0, help="Redispatch branch security limit multiplier.")
+    parser.add_argument(
+        "--limit-mode",
+        choices=["original_rate_a", "flow_scaled"],
+        default="original_rate_a",
+        help="Thermal limit mode for IEEE118 branches.",
+    )
+    parser.add_argument("--flow-limit-scale", type=float, default=1.3, help="Multiplier for abs(PF0) in flow_scaled mode.")
+    parser.add_argument("--min-rate-a", type=float, default=25.0, help="Minimum RATE_A in flow_scaled mode.")
     parser.add_argument("--max-paths", type=int, default=None, help="Optional per-scenario path cap for debugging.")
     parser.add_argument(
         "--output-dir",
@@ -64,6 +82,27 @@ def apply_ieee118_load_scenario(case: dict, *, seed: int, load_scale: float) -> 
     return scenario_case
 
 
+def apply_thermal_limit_mode(
+    case: dict,
+    *,
+    limit_mode: str,
+    flow_limit_scale: float,
+    min_rate_a: float,
+) -> dict:
+    if limit_mode == "original_rate_a":
+        return copy_case(case)
+    if limit_mode != "flow_scaled":
+        raise ValueError(f"Unsupported limit_mode={limit_mode!r}")
+    result = rundcopf(copy_case(case), ppoption(VERBOSE=0, OUT_ALL=0))
+    if not result["success"]:
+        raise RuntimeError("IEEE118 initial DCOPF failed while calibrating flow_scaled thermal limits")
+    branch = result["branch"].copy()
+    pf0 = np.abs(branch[:, PF].astype(float))
+    branch[:, RATE_A] = np.maximum(flow_limit_scale * pf0, float(min_rate_a))
+    result["branch"] = branch
+    return result
+
+
 def ordered_n2_paths(line_labels: tuple[str, ...], max_paths: int | None) -> list[tuple[str, str]]:
     paths: list[tuple[str, str]] = []
     for first_line in line_labels:
@@ -83,6 +122,27 @@ def row_from_state(scenario_id: int, seed: int, first_line: str, second_line: st
     redispatch_shed = float(state["redispatch_load_shed_mw"])
     total_shed = island_shed + redispatch_shed
     final_outages = tuple(state["final_outage_labels"])
+    event_table = state["event_table"]
+    relay_table = state["relay_trip_detail_table"]
+    max_event_loading = (
+        float(pd.to_numeric(event_table["max_loading_ratio"], errors="coerce").max())
+        if not event_table.empty and "max_loading_ratio" in event_table
+        else final_max_loading
+    )
+    relay_trip_labels = (
+        tuple(sorted(relay_table["line_label"].dropna().astype(str).unique()))
+        if not relay_table.empty and "line_label" in relay_table
+        else tuple()
+    )
+    num_relay_trips = int(len(relay_table)) if not relay_table.empty else 0
+    num_passive_outages = max(len(final_outages) - len({first_line, second_line}), 0)
+    has_overload_cascade = num_relay_trips > 0
+    if total_shed <= 1e-7:
+        critical_mechanism = "non_critical"
+    elif has_overload_cascade:
+        critical_mechanism = "relay_cascade"
+    else:
+        critical_mechanism = "island_only"
     return {
         "scenario_id": scenario_id,
         "seed": seed,
@@ -97,6 +157,13 @@ def row_from_state(scenario_id: int, seed: int, first_line: str, second_line: st
         "final_max_loading_ratio": final_max_loading,
         "final_outage_labels": ",".join(final_outages),
         "num_final_outages": len(final_outages),
+        "max_event_loading_ratio": max_event_loading,
+        "max_pre_redispatch_loading_ratio": max_event_loading,
+        "num_relay_trips": num_relay_trips,
+        "relay_trip_labels": ",".join(relay_trip_labels),
+        "num_passive_outages": num_passive_outages,
+        "has_overload_cascade": has_overload_cascade,
+        "critical_mechanism": critical_mechanism,
         "error": "",
     }
 
@@ -116,6 +183,13 @@ def error_row(scenario_id: int, seed: int, first_line: str, second_line: str, er
         "final_max_loading_ratio": np.nan,
         "final_outage_labels": "",
         "num_final_outages": 0,
+        "max_event_loading_ratio": np.nan,
+        "max_pre_redispatch_loading_ratio": np.nan,
+        "num_relay_trips": 0,
+        "relay_trip_labels": "",
+        "num_passive_outages": 0,
+        "has_overload_cascade": False,
+        "critical_mechanism": "error",
         "error": str(error),
     }
 
@@ -153,6 +227,12 @@ def generate_fulltruth(args: argparse.Namespace) -> pd.DataFrame:
 
     for scenario_id, seed in enumerate(args.seeds, start=1):
         scenario_case = apply_ieee118_load_scenario(adapter.case, seed=int(seed), load_scale=args.load_scale)
+        scenario_case = apply_thermal_limit_mode(
+            scenario_case,
+            limit_mode=args.limit_mode,
+            flow_limit_scale=args.flow_limit_scale,
+            min_rate_a=args.min_rate_a,
+        )
         first_state_cache: dict[str, dict | Exception] = {}
         for first_line, second_line in paths:
             key = (scenario_id, int(seed), first_line, second_line)
@@ -203,6 +283,9 @@ def generate_fulltruth(args: argparse.Namespace) -> pd.DataFrame:
         "load_random_high": 1.1,
         "beta": args.beta,
         "security_limit": args.security_limit,
+        "limit_mode": args.limit_mode,
+        "flow_limit_scale": args.flow_limit_scale,
+        "min_rate_a": args.min_rate_a,
         "max_paths": args.max_paths,
         "resume": bool(args.resume),
         "retry_errors": bool(args.retry_errors),
