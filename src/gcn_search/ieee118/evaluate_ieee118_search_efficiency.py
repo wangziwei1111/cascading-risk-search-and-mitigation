@@ -37,6 +37,7 @@ def parse_args() -> argparse.Namespace:
         / "ieee118_fulltruth_summary.csv",
     )
     parser.add_argument("--gcn-predictions-csv", type=Path, default=None)
+    parser.add_argument("--gcn-method-name", default="GCN_smoke")
     parser.add_argument("--include-lodf", action="store_true", help="Compute the IEEE118 LODF_yP baseline.")
     parser.add_argument("--random-seeds", type=int, nargs="+", default=list(range(10)))
     parser.add_argument("--seed", type=int, default=20260708)
@@ -149,6 +150,30 @@ def evaluate_order(method: str, ordered_paths: list[str], truth: pd.DataFrame, b
                 "captured_total_load_shed_ratio": captured_shed / total_load_shed if total_load_shed else 0.0,
                 "captured_relay_cascade_load_shed_mw": captured_relay_shed,
                 "captured_relay_cascade_load_shed_ratio": captured_relay_shed / relay_load_shed if relay_load_shed else 0.0,
+            }
+        )
+    return pd.DataFrame(records)
+
+
+def make_curve_points(method: str, ordered_paths: list[str], truth: pd.DataFrame) -> pd.DataFrame:
+    truth_by_path = truth.set_index("path")
+    ranked = truth_by_path.reindex(ordered_paths).dropna(subset=["critical"]).reset_index()
+    critical_seen = 0
+    relay_seen = 0
+    captured_shed = 0.0
+    records = []
+    for attempt, row in enumerate(ranked.itertuples(index=False), start=1):
+        critical_seen += int(bool(getattr(row, "critical")))
+        relay_seen += int(bool(getattr(row, "relay_cascade")))
+        captured_shed += float(getattr(row, "total_load_shed_mw"))
+        records.append(
+            {
+                "method": method,
+                "candidate_evaluations": attempt,
+                "path": str(getattr(row, "path")),
+                "critical_paths_found": critical_seen,
+                "relay_cascade_paths_found": relay_seen,
+                "captured_load_shed_mw": captured_shed,
             }
         )
     return pd.DataFrame(records)
@@ -287,13 +312,16 @@ def evaluate(args: argparse.Namespace) -> pd.DataFrame:
     budgets = budget_table(len(truth))
     paths = line_order_paths(truth)
     rows = [evaluate_order("line_order", paths, truth, budgets)]
+    curve_parts = [make_curve_points("line_order", paths, truth)]
     line_summary = rows[-1]
     line_summary.to_csv(args.output_dir / "line_order_baseline_summary.csv", index=False, encoding="utf-8-sig")
     write_json(args.output_dir / "line_order_baseline_summary.json", line_summary.to_dict("records"))
 
     random_parts = []
     for seed in args.random_seeds:
-        random_parts.append(evaluate_order(f"random_seed_{seed}", random_order_paths(paths, seed), truth, budgets))
+        random_paths = random_order_paths(paths, seed)
+        random_parts.append(evaluate_order(f"random_seed_{seed}", random_paths, truth, budgets))
+        curve_parts.append(make_curve_points(f"random_seed_{seed}", random_paths, truth))
     random_raw = pd.concat(random_parts, ignore_index=True)
     random_summary = summarize_random(random_raw.assign(method="random"))
     random_summary.to_csv(args.output_dir / "random_baseline_summary.csv", index=False, encoding="utf-8-sig")
@@ -307,25 +335,32 @@ def evaluate(args: argparse.Namespace) -> pd.DataFrame:
         lodf_summary.to_csv(args.output_dir / "lodf_yp_baseline_summary.csv", index=False, encoding="utf-8-sig")
         write_json(args.output_dir / "lodf_yp_baseline_summary.json", lodf_summary.to_dict("records"))
         rows.append(lodf_summary)
+        curve_parts.append(make_curve_points("LODF_yP", lodf_order, truth))
         lodf_status = {"status": "complete", "num_ranked_paths": len(lodf_order)}
     else:
         write_json(args.output_dir / "lodf_yp_baseline_summary.json", lodf_status)
 
     if args.gcn_predictions_csv is not None:
         gcn_order = order_from_predictions(args.gcn_predictions_csv, paths)
-        gcn_summary = evaluate_order("GCN_smoke", gcn_order, truth, budgets)
-        gcn_summary.to_csv(args.output_dir / "gcn_smoke_search_summary.csv", index=False, encoding="utf-8-sig")
-        write_json(args.output_dir / "gcn_smoke_search_summary.json", gcn_summary.to_dict("records"))
+        gcn_method = str(args.gcn_method_name)
+        gcn_summary = evaluate_order(gcn_method, gcn_order, truth, budgets)
+        gcn_summary.to_csv(args.output_dir / "original_rts79_gcn_ieee118_search_efficiency_summary.csv", index=False, encoding="utf-8-sig")
+        write_json(args.output_dir / "original_rts79_gcn_ieee118_search_efficiency_summary.json", gcn_summary.to_dict("records"))
+        curve_parts.append(make_curve_points(gcn_method, gcn_order, truth))
         rows.append(gcn_summary)
 
     combined = pd.concat(rows, ignore_index=True, sort=False)
     combined.to_csv(args.output_dir / "search_efficiency_summary.csv", index=False, encoding="utf-8-sig")
     write_json(args.output_dir / "search_efficiency_summary.json", combined.to_dict("records"))
+    if curve_parts:
+        curve_table = pd.concat(curve_parts, ignore_index=True, sort=False)
+        curve_table.to_csv(args.output_dir / "original_rts79_gcn_ieee118_curve_points.csv", index=False, encoding="utf-8-sig")
     write_json(
         args.output_dir / "search_efficiency_config.json",
         {
             "fulltruth_csv": str(args.fulltruth_csv),
             "gcn_predictions_csv": str(args.gcn_predictions_csv) if args.gcn_predictions_csv else None,
+            "gcn_method_name": args.gcn_method_name if args.gcn_predictions_csv else None,
             "total_paths": int(len(truth)),
             "critical_paths": int(truth["critical"].sum()),
             "relay_cascade_paths": int(truth["relay_cascade"].sum()),
