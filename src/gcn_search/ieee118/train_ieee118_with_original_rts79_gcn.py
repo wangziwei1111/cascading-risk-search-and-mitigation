@@ -43,6 +43,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--positive-weight", type=float, default=20.0)
     parser.add_argument("--validation-fraction", type=float, default=0.2)
     parser.add_argument("--random-seed", type=int, default=20260512)
+    parser.add_argument("--seed", type=int, default=None, help="Alias for --random-seed for IEEE118 run scripts.")
     parser.add_argument("--topk-output-rows", type=int, default=5000)
     parser.add_argument("--allow-torch-blocked", action="store_true")
     parser.add_argument(
@@ -176,6 +177,8 @@ def write_blocked_output(args: argparse.Namespace, error: Exception) -> dict[str
 
 def train_with_original_rts79_gcn(args: argparse.Namespace) -> dict[str, Any]:
     args.output_dir.mkdir(parents=True, exist_ok=True)
+    if args.seed is not None:
+        args.random_seed = int(args.seed)
     require_file(args.dataset_npz, "converted IEEE118 RTS-79 GCN NPZ")
     require_file(args.path_index_csv, "converted IEEE118 path index CSV")
     try:
@@ -265,6 +268,11 @@ def train_with_original_rts79_gcn(args: argparse.Namespace) -> dict[str, Any]:
     )
     pd.DataFrame(epoch_rows).to_csv(
         args.output_dir / "original_rts79_gcn_ieee118_epoch_log.csv",
+        index=False,
+        encoding="utf-8-sig",
+    )
+    pd.DataFrame(epoch_rows).to_csv(
+        args.output_dir / "original_rts79_gcn_ieee118_training_log.csv",
         index=False,
         encoding="utf-8-sig",
     )

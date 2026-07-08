@@ -148,3 +148,23 @@ Formal IEEE118 GCN result names should be:
 ## Current Environment Note
 
 The local default Python currently fails to import `torch` with a DLL path error. The wrapper therefore has an explicit blocked mode that writes `original_rts79_gcn_ieee118_metrics.json` with `status=blocked_torch_import`; it does not fall back to the NumPy/logistic smoke scorer. A working PyTorch environment is required to train the reused original RTS-79 GCN.
+
+## Follow-up Torch Run Result
+
+The default Python problem was diagnosed as an environment issue:
+
+- `E:\Scripts\python.exe` has `sys.exec_prefix=E:`
+- PyTorch then attempts a malformed DLL path such as `E:bin`
+- PATH itself did not contain a literal `E:bin`
+
+The repository-adjacent virtual environment at `C:\Users\24186\Documents\New project 7\.venv\Scripts\python.exe` imports `torch 2.11.0+cpu` successfully and was used for the formal full IEEE118 run.
+
+Completed formal method:
+
+- `RTS79_GCN_reused_on_IEEE118`
+
+Not completed in this stage:
+
+- `RTS79_PIO_GCN_reused_on_IEEE118`
+
+Selected IEEE118 results show that `RTS79_GCN_reused_on_IEEE118` is stronger than random, line_order, and LODF_yP at the reported budgets. For example, at `K=5000`, critical recall is `0.5697` for reused RTS-79 GCN versus `0.2673` for LODF_yP. This is still a first IEEE118 full formal reuse run, not a final tuned claim.

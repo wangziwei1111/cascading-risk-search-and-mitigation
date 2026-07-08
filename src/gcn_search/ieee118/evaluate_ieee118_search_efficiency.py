@@ -321,7 +321,6 @@ def evaluate(args: argparse.Namespace) -> pd.DataFrame:
     for seed in args.random_seeds:
         random_paths = random_order_paths(paths, seed)
         random_parts.append(evaluate_order(f"random_seed_{seed}", random_paths, truth, budgets))
-        curve_parts.append(make_curve_points(f"random_seed_{seed}", random_paths, truth))
     random_raw = pd.concat(random_parts, ignore_index=True)
     random_summary = summarize_random(random_raw.assign(method="random"))
     random_summary.to_csv(args.output_dir / "random_baseline_summary.csv", index=False, encoding="utf-8-sig")
@@ -344,14 +343,16 @@ def evaluate(args: argparse.Namespace) -> pd.DataFrame:
         gcn_order = order_from_predictions(args.gcn_predictions_csv, paths)
         gcn_method = str(args.gcn_method_name)
         gcn_summary = evaluate_order(gcn_method, gcn_order, truth, budgets)
-        gcn_summary.to_csv(args.output_dir / "original_rts79_gcn_ieee118_search_efficiency_summary.csv", index=False, encoding="utf-8-sig")
-        write_json(args.output_dir / "original_rts79_gcn_ieee118_search_efficiency_summary.json", gcn_summary.to_dict("records"))
+        gcn_summary.to_csv(args.output_dir / "original_rts79_gcn_ieee118_gcn_only_search_summary.csv", index=False, encoding="utf-8-sig")
+        write_json(args.output_dir / "original_rts79_gcn_ieee118_gcn_only_search_summary.json", gcn_summary.to_dict("records"))
         curve_parts.append(make_curve_points(gcn_method, gcn_order, truth))
         rows.append(gcn_summary)
 
     combined = pd.concat(rows, ignore_index=True, sort=False)
     combined.to_csv(args.output_dir / "search_efficiency_summary.csv", index=False, encoding="utf-8-sig")
     write_json(args.output_dir / "search_efficiency_summary.json", combined.to_dict("records"))
+    combined.to_csv(args.output_dir / "original_rts79_gcn_ieee118_search_efficiency_summary.csv", index=False, encoding="utf-8-sig")
+    write_json(args.output_dir / "original_rts79_gcn_ieee118_search_efficiency_summary.json", combined.to_dict("records"))
     if curve_parts:
         curve_table = pd.concat(curve_parts, ignore_index=True, sort=False)
         curve_table.to_csv(args.output_dir / "original_rts79_gcn_ieee118_curve_points.csv", index=False, encoding="utf-8-sig")

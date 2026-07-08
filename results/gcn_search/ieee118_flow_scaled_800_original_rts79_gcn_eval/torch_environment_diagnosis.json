@@ -1,0 +1,34 @@
+{
+  "python_executable": "C:\\Users\\24186\\Documents\\New project 7\\.venv\\Scripts\\python.exe",
+  "python_version": "3.13.7 (tags/v3.13.7:bcee1c3, Aug 14 2025, 14:15:11) [MSC v.1944 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "sys_prefix": "C:\\Users\\24186\\Documents\\New project 7\\.venv",
+  "sys_base_prefix": "E:",
+  "sys_exec_prefix": "C:\\Users\\24186\\Documents\\New project 7\\.venv",
+  "sys_base_exec_prefix": "E:",
+  "sys_path": [
+    "C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\src\\gcn_search\\ieee118",
+    "E:\\Scripts\\python313.zip",
+    "E:\\DLLs",
+    "E:\\Lib",
+    "E:\\Scripts",
+    "C:\\Users\\24186\\Documents\\New project 7\\.venv",
+    "C:\\Users\\24186\\Documents\\New project 7\\.venv\\Lib\\site-packages"
+  ],
+  "path_contains_literal_E_colon_bin": false,
+  "path_entries_containing_E_drive": [
+    "E:\\matlab2025a\\runtime\\win64",
+    "E:\\matlab2025a\\bin",
+    "E:\\Scripts\\",
+    "E:\\",
+    "E:\\PyCharm 2025.2.2\\bin",
+    "E:\\Microsoft VS Code\\bin"
+  ],
+  "conda_prefix": null,
+  "virtual_env": null,
+  "torch_import_success": true,
+  "torch_version": "2.11.0+cpu",
+  "torch_cuda_available": false,
+  "torch_file": "C:\\Users\\24186\\Documents\\New project 7\\.venv\\Lib\\site-packages\\torch\\__init__.py",
+  "torch_import_error": null
+}

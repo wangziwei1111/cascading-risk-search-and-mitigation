@@ -1,0 +1,32 @@
+{
+  "status": "complete",
+  "target": "label_critical",
+  "num_state_samples": 186,
+  "num_path_samples": 34410,
+  "model_class": "PaperStyleRts79Gcn",
+  "source_model_file": "src/gcn_search/legacy_rts79/train_rts79_paper_gcn.py",
+  "train_config": {
+    "epochs": 20,
+    "batch_size": 32,
+    "learning_rate": 0.005,
+    "k_gcn": 3,
+    "first_layer_channels": 16,
+    "second_layer_channels": 4,
+    "positive_weight": 20.0,
+    "validation_fraction": 0.2,
+    "random_seed": 20260708
+  },
+  "validation": {
+    "epoch": 20,
+    "train_loss": 1.0690733514376134,
+    "total_accuracy": 0.7386413440467494,
+    "hit_rate": 0.16040462427745664,
+    "cover_rate": 0.8786279683377308,
+    "f1": 0.27128309572301423,
+    "true_positive": 333,
+    "true_negative": 4723,
+    "false_positive": 1743,
+    "false_negative": 46
+  },
+  "notes": "Uses the original RTS-79 GCN model class; IEEE118 changes are limited to data formatting and branch adjacency."
+}
