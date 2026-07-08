@@ -37,6 +37,13 @@ PIO_PHYSICS_FEATURE_NAMES = [
     "is_candidate",
 ]
 
+PAPER_FEATURE_NAMES = [
+    "branch_status_offline",
+    "relay_loading_ratio",
+    "abs_flow",
+    "max_terminal_load",
+]
+
 REQUIRED_COLUMNS = {
     "scenario_id",
     "seed",
@@ -68,6 +75,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--beta", type=float, default=1.2)
     parser.add_argument("--security-limit", type=float, default=1.0)
+    parser.add_argument("--feature-mode", choices=["paper", "physics"], default="physics")
     parser.add_argument("--max-first-lines", type=int, default=None)
     parser.add_argument("--max-samples", type=int, default=None)
     return parser.parse_args()
@@ -101,11 +109,23 @@ def load_step2_rows(path: Path, max_first_lines: int | None, max_samples: int | 
     return table.reset_index(drop=True)
 
 
-def build_x_from_json(edge_json: str, node_json: str, *, beta: float, security_limit: float) -> tuple[np.ndarray, list[str], np.ndarray, np.ndarray]:
+def feature_names_for_mode(feature_mode: str) -> list[str]:
+    return PAPER_FEATURE_NAMES if feature_mode == "paper" else PIO_PHYSICS_FEATURE_NAMES
+
+
+def build_x_from_json(
+    edge_json: str,
+    node_json: str,
+    *,
+    beta: float,
+    security_limit: float,
+    feature_mode: str,
+) -> tuple[np.ndarray, list[str], np.ndarray, np.ndarray]:
     edges = json.loads(edge_json)
     nodes = json.loads(node_json)
     load_by_bus = {int(node["bus_id"]): float(node.get("Pd", 0.0)) for node in nodes}
-    x = np.zeros((len(edges), len(PIO_PHYSICS_FEATURE_NAMES)), dtype=np.float32)
+    feature_names = feature_names_for_mode(feature_mode)
+    x = np.zeros((len(edges), len(feature_names)), dtype=np.float32)
     line_labels: list[str] = []
     from_bus = np.zeros(len(edges), dtype=np.int64)
     to_bus = np.zeros(len(edges), dtype=np.int64)
@@ -125,19 +145,20 @@ def build_x_from_json(edge_json: str, node_json: str, *, beta: float, security_l
         x[idx, 1] = abs_flow / max(beta * rate_a, 1e-8)
         x[idx, 2] = abs_flow
         x[idx, 3] = max(load_by_bus.get(f_bus, 0.0), load_by_bus.get(t_bus, 0.0))
-        x[idx, 4] = loading_ratio
-        x[idx, 5] = float(security_limit) - loading_ratio
-        x[idx, 6] = float(beta) - loading_ratio
-        x[idx, 7] = is_online
-        x[idx, 8] = is_online
+        if feature_mode == "physics":
+            x[idx, 4] = loading_ratio
+            x[idx, 5] = float(security_limit) - loading_ratio
+            x[idx, 6] = float(beta) - loading_ratio
+            x[idx, 7] = is_online
+            x[idx, 8] = is_online
     if not np.isfinite(x).all():
         raise ValueError("Converted IEEE118 GCN features contain NaN or Inf.")
     return x, line_labels, from_bus, to_bus
 
 
-def fit_normalizer(x_raw: np.ndarray) -> dict[str, dict[str, float]]:
+def fit_normalizer(x_raw: np.ndarray, feature_names: list[str]) -> dict[str, dict[str, float]]:
     normalizer: dict[str, dict[str, float]] = {}
-    for idx, name in enumerate(PIO_PHYSICS_FEATURE_NAMES):
+    for idx, name in enumerate(feature_names):
         values = x_raw[:, :, idx]
         if name in {"branch_status_offline", "is_online", "is_candidate"}:
             normalizer[name] = {"mean": 0.0, "std": 1.0}
@@ -146,15 +167,16 @@ def fit_normalizer(x_raw: np.ndarray) -> dict[str, dict[str, float]]:
     return normalizer
 
 
-def normalize_x(x_raw: np.ndarray, normalizer: dict[str, dict[str, float]]) -> np.ndarray:
+def normalize_x(x_raw: np.ndarray, normalizer: dict[str, dict[str, float]], feature_names: list[str]) -> np.ndarray:
     x = x_raw.copy()
-    for idx, name in enumerate(PIO_PHYSICS_FEATURE_NAMES):
+    for idx, name in enumerate(feature_names):
         x[:, :, idx] = (x[:, :, idx] - normalizer[name]["mean"]) / normalizer[name]["std"]
     return x
 
 
 def convert_step2_to_rts79_gcn_format(args: argparse.Namespace) -> dict[str, Any]:
     args.output_dir.mkdir(parents=True, exist_ok=True)
+    feature_mode = str(getattr(args, "feature_mode", "physics"))
     table = load_step2_rows(args.step2_csv, args.max_first_lines, args.max_samples)
     grouped = table.groupby(["scenario_id", "seed", "first_line"], sort=True)
     x_states: list[np.ndarray] = []
@@ -174,6 +196,7 @@ def convert_step2_to_rts79_gcn_format(args: argparse.Namespace) -> dict[str, Any
             str(first["node_features_json"]),
             beta=float(args.beta),
             security_limit=float(args.security_limit),
+                feature_mode=feature_mode,
         )
         if line_labels is None:
             line_labels = labels
@@ -227,8 +250,9 @@ def convert_step2_to_rts79_gcn_format(args: argparse.Namespace) -> dict[str, Any
         raise ValueError("No IEEE118 Step2-State rows were available for conversion.")
 
     x_raw_array = np.stack(x_states).astype(np.float32)
-    normalizer = fit_normalizer(x_raw_array)
-    x_array = normalize_x(x_raw_array, normalizer).astype(np.float32)
+    feature_names = feature_names_for_mode(feature_mode)
+    normalizer = fit_normalizer(x_raw_array, feature_names)
+    x_array = normalize_x(x_raw_array, normalizer, feature_names).astype(np.float32)
     y_critical_array = np.stack(y_critical).astype(np.int64)
     y_relay_array = np.stack(y_relay).astype(np.int64)
     mask_array = np.stack(masks).astype(bool)
@@ -251,7 +275,7 @@ def convert_step2_to_rts79_gcn_format(args: argparse.Namespace) -> dict[str, Any
         line_labels=np.asarray(line_labels, dtype=str),
         branch_from_bus=from_bus,
         branch_to_bus=to_bus,
-        feature_names=np.asarray(PIO_PHYSICS_FEATURE_NAMES, dtype=str),
+        feature_names=np.asarray(feature_names, dtype=str),
     )
     sample_table.to_csv(args.output_dir / "ieee118_rts79_gcn_sample_summary.csv", index=False, encoding="utf-8-sig")
     path_table.to_csv(args.output_dir / "ieee118_rts79_gcn_path_index.csv", index=False, encoding="utf-8-sig")
@@ -269,7 +293,8 @@ def convert_step2_to_rts79_gcn_format(args: argparse.Namespace) -> dict[str, Any
         "num_relay_cascade_path_labels": int(path_table["label_relay_cascade"].sum()),
         "expected_full_ieee118_ordered_n2_paths": 186 * 185,
         "is_full_ieee118_ordered_n2_dataset": bool(len(path_table) == 186 * 185),
-        "feature_names": PIO_PHYSICS_FEATURE_NAMES,
+        "feature_mode": feature_mode,
+        "feature_names": feature_names,
         "excluded_leakage_columns": sorted(LEAKAGE_COLUMNS),
         "model_contract": "Prepared for the original RTS-79 PaperStyleRts79Gcn/Pio-GCN input tensor shape: samples x branches x features.",
     }
