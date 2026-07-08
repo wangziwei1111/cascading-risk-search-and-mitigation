@@ -42,10 +42,6 @@ def test_pio_gcn_key_modules_import() -> None:
         "analyze_path_pattern_memorization",
         "run_path_reranker_feature_ablation",
         "analyze_pio_gcn_loss_diagnostics",
-        "export_simulink_dynamic_cases",
-        "export_rts79_simulink_basecase",
-        "make_mock_simulink_dynamic_results",
-        "analyze_simulink_dynamic_results",
     ]
 
     for module_name in module_names:

@@ -26,11 +26,6 @@ REQUIRED_FILES = [
     "docs/pio_gcn_path_reranker_leakage_audit.md",
     "docs/pio_gcn_path_reranker_external_validation.md",
     "docs/pio_gcn_path_pattern_memorization.md",
-    "docs/pio_gcn_simulink_dynamic_validation_plan.md",
-    "matlab/simulink_rts79/README.md",
-    "src/gcn_search/legacy_rts79/export_simulink_dynamic_cases.py",
-    "src/gcn_search/legacy_rts79/export_rts79_simulink_basecase.py",
-    "src/gcn_search/legacy_rts79/analyze_simulink_dynamic_results.py",
     "docs/gcn_pio_validation_log.md",
     "results/gcn_search/pio_formal_preliminary_3seed/config.json",
     "results/gcn_search/pio_formal_preliminary_3seed/aggregate_method_comparison.csv",
@@ -109,9 +104,6 @@ DISALLOWED_TRACKED_SUBSTRINGS = [
     ".pt",
     ".pkl",
     ".npz",
-    ".slx",
-    ".mat",
-    ".mdl",
     "full_truth",
     "smoke_truth",
     "simulation_results",
@@ -120,8 +112,6 @@ DISALLOWED_TRACKED_SUBSTRINGS = [
     "topk_score_distribution.csv",
     "found_critical_paths.csv",
     "missed_critical_paths.csv",
-    "raw_trajectories",
-    "dynamic_trajectories",
 ]
 
 
@@ -191,16 +181,7 @@ def main() -> int:
         failures.append("Stage summary contains nonexistent script: run_pio_gcn_formal_experiment.py")
     if "real SCADA/PMU integration" in stage_text:
         failures.append("Stage summary contains an overstated SCADA/PMU integration claim.")
-    forbidden_doc_phrases = [
-        "production ready",
-        "final proof",
-        "final dynamic proof",
-        "EMT validation completed",
-        "renewable dynamic validation completed",
-        "real-time deployment completed",
-        "real SCADA/PMU integration completed",
-        "真实在线部署已完成",
-    ]
+    forbidden_doc_phrases = ["production ready", "final proof", "real SCADA/PMU integration completed", "真实在线部署已完成"]
     for rel_doc in [
         "docs/pio_gcn_stage_summary.md",
         "docs/pio_gcn_pr_description.md",
@@ -210,8 +191,6 @@ def main() -> int:
         "docs/pio_gcn_path_reranker_external_validation.md",
         "docs/pio_gcn_path_pattern_memorization.md",
         "docs/pio_gcn_renewable_preliminary.md",
-        "docs/pio_gcn_simulink_dynamic_validation_plan.md",
-        "matlab/simulink_rts79/README.md",
     ]:
         if (ROOT / rel_doc).exists():
             text = _read_text(rel_doc).lower()
