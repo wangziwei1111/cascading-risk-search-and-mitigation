@@ -1,0 +1,59 @@
+{
+  "total_paths": 100,
+  "converged_paths": 100,
+  "error_paths": 0,
+  "critical_paths": 1,
+  "critical_ratio": 0.01,
+  "max_load_shed_path": {
+    "scenario_id": 1,
+    "seed": 20260708,
+    "path": "L001->L013",
+    "first_line": "L001",
+    "second_line": "L013",
+    "converged": true,
+    "critical": true,
+    "total_load_shed_mw": 20.67354040745169,
+    "island_load_shed_mw": 20.67354040745169,
+    "redispatch_load_shed_mw": 0.0,
+    "final_max_loading_ratio": 0.0555555555555555,
+    "final_outage_labels": "L001,L013",
+    "num_final_outages": 2,
+    "error": NaN
+  },
+  "top_load_shed_counts": {
+    "top_20": 20,
+    "top_50": 50,
+    "top_100": 100
+  },
+  "total_load_shed_mw_describe": {
+    "count": 100.0,
+    "mean": 0.2067354040745169,
+    "std": 2.0673540407451685,
+    "min": 0.0,
+    "25%": 0.0,
+    "50%": 0.0,
+    "75%": 0.0,
+    "max": 20.67354040745169
+  },
+  "final_max_loading_ratio_describe": {
+    "count": 100.0,
+    "mean": 0.05286127745385729,
+    "std": 0.005956710889443623,
+    "min": 0.036314049119409,
+    "25%": 0.0555555555555555,
+    "50%": 0.0555555555555555,
+    "75%": 0.0555555555555555,
+    "max": 0.0626570847607711
+  },
+  "high_risk_ordered_patterns": [
+    {
+      "first_line": "L001",
+      "second_line": "L013",
+      "path": "L001->L013",
+      "critical_count": 1,
+      "max_total_load_shed_mw": 20.67354040745169,
+      "mean_total_load_shed_mw": 20.67354040745169,
+      "max_final_max_loading_ratio": 0.0555555555555555
+    }
+  ]
+}

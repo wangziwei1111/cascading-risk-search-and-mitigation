@@ -38,3 +38,45 @@ The first-step outage state is cached within each seed. For each `first_line`, t
 ## Not Yet GCN Validation
 
 This stage still is not a GCN efficiency validation. It only generates IEEE 118 ordered N-2 truth rows. GCN efficiency claims require a completed full-truth dataset followed by method comparison against GCN, `LODF_yP`, random ordering, and simple `line_order` baselines under the same evaluation protocol.
+
+## Full Seed 20260708 Run
+
+Command:
+
+```bash
+python src/gcn_search/ieee118/generate_ieee118_ordered_n2_fulltruth.py \
+  --seeds 20260708 \
+  --output-dir results/gcn_search/ieee118_fulltruth_seed20260708 \
+  --resume \
+  --checkpoint-every 500
+```
+
+Audit command:
+
+```bash
+python src/gcn_search/ieee118/analyze_ieee118_fulltruth.py \
+  --input-dir results/gcn_search/ieee118_fulltruth_seed20260708 \
+  --output-dir results/gcn_search/ieee118_fulltruth_seed20260708
+```
+
+Results:
+
+- Total ordered N-2 rows: 34,410 (`186 * 185`).
+- Converged rows: 32,745.
+- Error rows: 1,665.
+- Critical rows: 454.
+- Critical ratio: 0.013194.
+- Maximum load shed path: `L121->L125`.
+- Maximum total load shed: 111.760638 MW.
+- Resume: used `--resume` from the run command; no restart from scratch was needed.
+- Full local CSV: `results/gcn_search/ieee118_fulltruth_seed20260708/ieee118_fulltruth_summary.csv`.
+
+Observed issue:
+
+- Some paths fail with `index 13 is out of bounds for axis 1 with size 13`. These rows are preserved in `ieee118_error_paths.csv` and counted in the audit summary. This should be investigated before using the full-truth table as training or evaluation ground truth.
+
+Repository policy note:
+
+- The full 34,410-row CSV is kept local rather than committed. The PR commits scripts, tests, docs, smoke artifacts, and compact audit outputs.
+
+This full-seed run is still data preparation only. It does not train an IEEE 118 GCN and does not evaluate GCN, `LODF_yP`, random, or `line_order` search efficiency.
