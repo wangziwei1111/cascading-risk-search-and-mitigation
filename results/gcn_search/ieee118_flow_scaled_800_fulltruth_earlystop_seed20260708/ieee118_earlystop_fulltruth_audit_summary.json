@@ -1,0 +1,27 @@
+{
+  "total_branches": 186,
+  "total_possible_ordered_n2_paths_without_earlystop": 34410,
+  "num_first_lines": 186,
+  "num_first_step_critical_lines": 10,
+  "num_skipped_ordered_n2_paths": 1850,
+  "num_valid_ordered_n2_paths": 32560,
+  "num_valid_critical_paths": 1754,
+  "valid_critical_ratio": 0.05386977886977887,
+  "num_valid_relay_cascade_paths": 1643,
+  "valid_relay_cascade_ratio": 0.050460687960687964,
+  "max_total_load_shed_mw": 111.76063839397672,
+  "max_relay_trips_per_valid_path": 20,
+  "first_step_critical_lines": [
+    "L016",
+    "L047",
+    "L051",
+    "L061",
+    "L096",
+    "L147",
+    "L180",
+    "L181",
+    "L183",
+    "L184"
+  ],
+  "first_step_critical_total_load_shed_mw_sum": 344.87611839001806
+}

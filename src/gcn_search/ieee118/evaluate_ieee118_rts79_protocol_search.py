@@ -44,6 +44,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--security-limit", type=float, default=1.0)
     parser.add_argument("--random-seeds", type=int, nargs="+", default=list(range(10)))
     parser.add_argument("--topk-output-rows", type=int, default=5000)
+    parser.add_argument("--method-suffix", default="", help="Suffix appended to GCN method names, e.g. _earlystop.")
+    parser.add_argument("--output-prefix", default="ieee118_rts79_protocol")
     parser.add_argument(
         "--output-dir",
         type=Path,
@@ -90,6 +92,12 @@ def load_truth(path: Path) -> pd.DataFrame:
     missing = sorted(required - set(truth.columns))
     if missing:
         raise ValueError(f"Full-truth CSV missing required columns: {missing}")
+    if "valid_ordered_n2" in truth.columns:
+        truth = truth.loc[truth["valid_ordered_n2"].fillna(True).astype(str).str.lower().isin({"true", "1", "yes"})].copy()
+    if "first_step_critical" in truth.columns:
+        truth = truth.loc[~truth["first_step_critical"].fillna(False).astype(str).str.lower().isin({"true", "1", "yes"})].copy()
+    if truth.empty:
+        raise ValueError("Full-truth CSV contains no valid ordered N-2 rows after early-stop filtering.")
     truth["critical"] = coerce_bool(truth["critical"])
     truth["relay_cascade"] = truth["critical_mechanism"].fillna("").astype(str).eq("relay_cascade")
     truth["total_load_shed_mw"] = pd.to_numeric(truth["total_load_shed_mw"], errors="coerce").fillna(0.0)
@@ -196,7 +204,20 @@ def dedupe_order(paths: list[str]) -> list[str]:
     return ordered
 
 
-def make_orders(score: pd.DataFrame, y_p_first: dict[str, float], y_p_second: dict[str, dict[str, float]], random_seeds: list[int]) -> dict[str, list[str]]:
+def label_method(method: str, suffix: str) -> str:
+    if suffix and method.startswith("RTS79_GCN_"):
+        return f"{method}{suffix}"
+    return method
+
+
+def make_orders(
+    score: pd.DataFrame,
+    y_p_first: dict[str, float],
+    y_p_second: dict[str, dict[str, float]],
+    random_seeds: list[int],
+    *,
+    method_suffix: str = "",
+) -> dict[str, list[str]]:
     all_paths = score["path"].astype(str).tolist()
     first_lines = sorted(score["first_line"].astype(str).unique())
     orders: dict[str, list[str]] = {"line_order": all_paths}
@@ -206,7 +227,7 @@ def make_orders(score: pd.DataFrame, y_p_first: dict[str, float], y_p_second: di
         group = score.loc[score["first_line"] == first].copy()
         group = group.sort_values(["p_shed_second", "second_line"], ascending=[False, True])
         paths.extend(group["path"].astype(str).tolist())
-    orders[METHOD_GCN_PROB] = dedupe_order(paths)
+    orders[label_method(METHOD_GCN_PROB, method_suffix)] = dedupe_order(paths)
 
     paths = []
     first_order = sorted(
@@ -222,13 +243,13 @@ def make_orders(score: pd.DataFrame, y_p_first: dict[str, float], y_p_second: di
         group["second_y_p"] = group["second_line"].map(lambda second: float(y_p_second.get(first, {}).get(str(second), 0.0)))
         group = group.sort_values(["p_shed_second", "second_y_p", "second_line"], ascending=[False, False, True])
         paths.extend(group["path"].astype(str).tolist())
-    orders[METHOD_GCN_PROB_YP] = dedupe_order(paths)
+    orders[label_method(METHOD_GCN_PROB_YP, method_suffix)] = dedupe_order(paths)
 
-    orders[METHOD_GCN_PATH_PROB] = score.sort_values(
+    orders[label_method(METHOD_GCN_PATH_PROB, method_suffix)] = score.sort_values(
         ["path_product_score", "p_shed_first", "p_shed_second", "path"],
         ascending=[False, False, False, True],
     )["path"].astype(str).tolist()
-    orders[METHOD_SECOND_ONLY] = score.sort_values(["p_shed_second", "path"], ascending=[False, True])["path"].astype(str).tolist()
+    orders[label_method(METHOD_SECOND_ONLY, method_suffix)] = score.sort_values(["p_shed_second", "path"], ascending=[False, True])["path"].astype(str).tolist()
 
     paths = []
     first_order = sorted(first_lines, key=lambda line: (-float(y_p_first.get(line, -np.inf)), line))
@@ -253,6 +274,7 @@ def evaluate_order(method: str, ordered_paths: list[str], truth: pd.DataFrame, b
     total_critical = int(truth["critical"].sum())
     total_relay = int(truth["relay_cascade"].sum())
     total_shed = float(truth["total_load_shed_mw"].sum())
+    total_relay_shed = float(truth.loc[truth["relay_cascade"], "total_load_shed_mw"].sum())
     rows = []
     for _, budget in budgets.iterrows():
         k = int(budget["K"])
@@ -260,6 +282,7 @@ def evaluate_order(method: str, ordered_paths: list[str], truth: pd.DataFrame, b
         critical_hits = int(top["critical"].sum())
         relay_hits = int(top["relay_cascade"].sum())
         shed = float(top["total_load_shed_mw"].sum())
+        relay_shed = float(top.loc[top["relay_cascade"], "total_load_shed_mw"].sum())
         rows.append(
             {
                 "method": method,
@@ -274,6 +297,8 @@ def evaluate_order(method: str, ordered_paths: list[str], truth: pd.DataFrame, b
                 "precision_at_k": critical_hits / max(k, 1),
                 "captured_load_shed_mw": shed,
                 "captured_load_shed_ratio": shed / max(total_shed, 1e-12),
+                "captured_relay_cascade_load_shed_mw": relay_shed,
+                "captured_relay_cascade_load_shed_ratio": relay_shed / max(total_relay_shed, 1e-12),
             }
         )
     return pd.DataFrame(rows)
@@ -337,13 +362,35 @@ def write_json(path: Path, value: Any) -> None:
     path.write_text(json.dumps(value, indent=2), encoding="utf-8")
 
 
+def load_first_step_stats(fulltruth_csv: Path) -> dict[str, Any]:
+    first_path = fulltruth_csv.with_name("ieee118_first_step_summary.csv")
+    if not first_path.exists():
+        return {
+            "num_first_step_critical_lines": 0,
+            "first_step_critical_total_load_shed_mw_sum": 0.0,
+            "first_step_critical_lines": [],
+            "num_skipped_ordered_n2_paths": 0,
+            "source": None,
+        }
+    first = pd.read_csv(first_path)
+    critical = first["first_step_critical"].fillna(False).astype(str).str.lower().isin({"true", "1", "yes"})
+    return {
+        "num_first_step_critical_lines": int(critical.sum()),
+        "first_step_critical_total_load_shed_mw_sum": float(pd.to_numeric(first.loc[critical, "first_step_total_load_shed_mw"], errors="coerce").fillna(0.0).sum()),
+        "first_step_critical_lines": first.loc[critical, "first_line"].astype(str).tolist(),
+        "num_skipped_ordered_n2_paths": int(pd.to_numeric(first.get("num_skipped_second_lines", pd.Series(dtype=float)), errors="coerce").fillna(0).sum()),
+        "source": str(first_path),
+    }
+
+
 def evaluate_protocol(args: argparse.Namespace) -> pd.DataFrame:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     truth = load_truth(args.fulltruth_csv)
+    first_step_stats = load_first_step_stats(args.fulltruth_csv)
     s1_probability, line_labels = predict_s1_probabilities(args.dataset_npz, args.model_path)
     score = make_path_score_table(args.path_index_csv, args.first_step_probabilities_csv, s1_probability, truth)
     y_p_first, y_p_second = build_y_p_scores(args)
-    orders = make_orders(score, y_p_first, y_p_second, args.random_seeds)
+    orders = make_orders(score, y_p_first, y_p_second, args.random_seeds, method_suffix=args.method_suffix)
     budgets = budget_table(len(truth))
     summary_parts = []
     random_parts = []
@@ -356,26 +403,36 @@ def evaluate_protocol(args: argparse.Namespace) -> pd.DataFrame:
         curve_parts.append(sparse_curve_points(method, order, truth, budgets))
     summary_parts.append(summarize_random(random_parts))
     summary = pd.concat(summary_parts, ignore_index=True, sort=False)
-    summary.to_csv(args.output_dir / "ieee118_rts79_protocol_search_summary.csv", index=False, encoding="utf-8-sig")
-    write_json(args.output_dir / "ieee118_rts79_protocol_search_summary.json", summary.to_dict("records"))
+    prefix = str(args.output_prefix)
+    summary.to_csv(args.output_dir / f"{prefix}_search_summary.csv", index=False, encoding="utf-8-sig")
+    write_json(args.output_dir / f"{prefix}_search_summary.json", summary.to_dict("records"))
     pd.concat(curve_parts, ignore_index=True, sort=False).to_csv(
-        args.output_dir / "ieee118_rts79_protocol_curve_points_sparse.csv",
+        args.output_dir / f"{prefix}_curve_points_sparse.csv",
         index=False,
         encoding="utf-8-sig",
     )
     top_rows = []
-    for method in [METHOD_GCN_PATH_PROB, METHOD_GCN_PROB, METHOD_GCN_PROB_YP, METHOD_SECOND_ONLY, "LODF_yP"]:
+    for method in [
+        label_method(METHOD_GCN_PATH_PROB, args.method_suffix),
+        label_method(METHOD_GCN_PROB, args.method_suffix),
+        label_method(METHOD_GCN_PROB_YP, args.method_suffix),
+        label_method(METHOD_SECOND_ONLY, args.method_suffix),
+        "LODF_yP",
+    ]:
         ranked = score.set_index("path").reindex(orders[method]).dropna(subset=["first_line"]).reset_index().head(args.topk_output_rows)
         ranked.insert(0, "method", method)
         ranked.insert(1, "rank", np.arange(1, len(ranked) + 1))
         top_rows.append(ranked)
     pd.concat(top_rows, ignore_index=True, sort=False).to_csv(
-        args.output_dir / "ieee118_rts79_protocol_topk_paths.csv",
+        args.output_dir / f"{prefix}_topk_paths.csv",
         index=False,
         encoding="utf-8-sig",
     )
+    first_step_out = args.output_dir / f"{prefix}_first_step_probabilities.csv"
+    if args.first_step_probabilities_csv.resolve() != first_step_out.resolve():
+        pd.read_csv(args.first_step_probabilities_csv).to_csv(first_step_out, index=False, encoding="utf-8-sig")
     write_json(
-        args.output_dir / "ieee118_rts79_protocol_config.json",
+        args.output_dir / f"{prefix}_config.json",
         {
             "dataset_npz": str(args.dataset_npz),
             "path_index_csv": str(args.path_index_csv),
@@ -384,16 +441,21 @@ def evaluate_protocol(args: argparse.Namespace) -> pd.DataFrame:
             "first_step_probabilities_csv": str(args.first_step_probabilities_csv),
             "feature_mode": "paper",
             "line_labels": "L001-L186",
-            "main_method": METHOD_GCN_PATH_PROB,
-            "second_only_ablation": METHOD_SECOND_ONLY,
+            "main_method": label_method(METHOD_GCN_PATH_PROB, args.method_suffix),
+            "second_only_ablation": label_method(METHOD_SECOND_ONLY, args.method_suffix),
+            "num_valid_ordered_n2_paths": int(len(truth)),
+            **first_step_stats,
             "full_cascade_path_rule": "first_line -> second_line -> relay_trip_labels in recorded order; fallback to final_outage_labels when relay_trip_labels is empty.",
         },
     )
-    (args.output_dir / "ieee118_rts79_protocol_readme.md").write_text(
+    (args.output_dir / f"{prefix}_readme.md").write_text(
         "# IEEE118 RTS-79 Protocol Search\n\n"
-        "Main method: `RTS79_GCN_path_prob_reused_on_IEEE118`, using `p_shed(Li|S0) * p_shed(Lj|S1(i))`.\n"
-        "`RTS79_GCN_second_only_reused_on_IEEE118` is retained only as an ablation.\n"
-        "Curve points are sparse and include RTS-79-style full-cascade-path deduplicated counts.\n",
+        f"Main method: `{label_method(METHOD_GCN_PATH_PROB, args.method_suffix)}`, using `p_shed(Li|S0) * p_shed(Lj|S1(i))`.\n"
+        f"`{label_method(METHOD_SECOND_ONLY, args.method_suffix)}` is retained only as an ablation.\n"
+        f"Valid ordered N-2 paths: {len(truth)}.\n"
+        "Curve points are sparse and include RTS-79-style full-cascade-path deduplicated counts.\n"
+        "The full-cascade path is an approximate reconstruction from relay/final outage labels, "
+        "not an exact protection_event_table replay.\n",
         encoding="utf-8",
     )
     return summary

@@ -1,0 +1,63 @@
+{
+  "sample_columns": [
+    "sample_id",
+    "scenario_id",
+    "seed",
+    "path",
+    "first_line",
+    "second_line",
+    "critical",
+    "critical_mechanism",
+    "has_overload_cascade",
+    "relay_cascade",
+    "total_load_shed_mw",
+    "num_relay_trips",
+    "max_event_loading_ratio",
+    "label_critical",
+    "label_relay_cascade",
+    "label_load_shed_positive",
+    "first_line_loading_ratio",
+    "candidate_second_line_loading_ratio",
+    "candidate_second_line_rate_a",
+    "candidate_second_line_pf",
+    "lodf_or_dc_sensitivity_if_available",
+    "node_features_json",
+    "edge_features_json",
+    "path_features_json"
+  ],
+  "node_features": [
+    "bus_id",
+    "bus_type",
+    "Pd",
+    "Pg",
+    "net_injection",
+    "voltage_angle_or_dc_theta",
+    "is_islanded_component",
+    "component_id"
+  ],
+  "edge_features": [
+    "line_label",
+    "from_bus",
+    "to_bus",
+    "x",
+    "b",
+    "rate_a",
+    "pf_after_first_outage",
+    "abs_pf_after_first_outage",
+    "loading_ratio_after_first_outage",
+    "is_first_outage",
+    "is_candidate_second_outage"
+  ],
+  "path_features": [
+    "first_line_loading_ratio",
+    "candidate_second_line_loading_ratio",
+    "candidate_second_line_rate_a",
+    "candidate_second_line_pf",
+    "lodf_or_dc_sensitivity_if_available"
+  ],
+  "json_columns": {
+    "node_features_json": "List[Dict[node feature name, value]] with one record per bus.",
+    "edge_features_json": "List[Dict[edge feature name, value]] with one record per branch.",
+    "path_features_json": "Dict of scalar first/candidate path features."
+  }
+}

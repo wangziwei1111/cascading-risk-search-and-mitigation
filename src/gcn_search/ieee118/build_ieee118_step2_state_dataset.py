@@ -137,6 +137,12 @@ def load_fulltruth(path: Path, *, seed: int, max_first_lines: int | None, max_sa
     table = table.loc[table["seed"].astype(int) == int(seed)].copy()
     if table.empty:
         raise ValueError(f"Full-truth CSV contains no rows for seed={seed}")
+    if "valid_ordered_n2" in table.columns:
+        table = table.loc[table["valid_ordered_n2"].fillna(True).astype(str).str.lower().isin({"true", "1", "yes"})].copy()
+    if "first_step_critical" in table.columns:
+        table = table.loc[~table["first_step_critical"].fillna(False).astype(str).str.lower().isin({"true", "1", "yes"})].copy()
+    if table.empty:
+        raise ValueError(f"Full-truth CSV contains no valid ordered N-2 rows for seed={seed}")
     if max_first_lines is not None:
         first_lines = list(dict.fromkeys(table["first_line"].astype(str).tolist()))[:max_first_lines]
         table = table.loc[table["first_line"].astype(str).isin(first_lines)].copy()
@@ -362,6 +368,13 @@ def write_metadata(
     cache_hits: int,
     cache_misses: int,
 ) -> None:
+    first_step_summary_path = Path(args.fulltruth_csv).with_name("ieee118_first_step_summary.csv")
+    first_step_summary = pd.read_csv(first_step_summary_path) if first_step_summary_path.exists() else pd.DataFrame()
+    first_step_critical = (
+        first_step_summary["first_step_critical"].fillna(False).astype(str).str.lower().isin({"true", "1", "yes"})
+        if not first_step_summary.empty and "first_step_critical" in first_step_summary
+        else pd.Series(dtype=bool)
+    )
     metadata = {
         "case_name": "ieee118",
         "source_fulltruth_csv": str(args.fulltruth_csv),
@@ -371,6 +384,10 @@ def write_metadata(
         "seed": args.seed,
         "num_lines": num_lines,
         "expected_full_samples": num_lines * (num_lines - 1),
+        "first_step_critical_policy": "skip" if "valid_ordered_n2" in pd.read_csv(args.fulltruth_csv, nrows=0).columns else "legacy_expand_or_unknown",
+        "num_first_step_critical_lines": int(first_step_critical.sum()) if not first_step_summary.empty else 0,
+        "num_skipped_ordered_n2_paths": int(pd.to_numeric(first_step_summary.get("num_skipped_second_lines", pd.Series(dtype=float)), errors="coerce").fillna(0).sum()) if not first_step_summary.empty else 0,
+        "num_valid_ordered_n2_paths": int(len(sample_table)),
         "num_samples": int(len(sample_table)),
         "num_unique_first_lines": int(sample_table["first_line"].nunique()) if not sample_table.empty else 0,
         "critical_samples": int(sample_table["label_critical"].sum()) if not sample_table.empty else 0,

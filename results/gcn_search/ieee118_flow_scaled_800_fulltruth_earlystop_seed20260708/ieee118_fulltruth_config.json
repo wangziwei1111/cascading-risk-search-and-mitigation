@@ -1,0 +1,28 @@
+{
+  "case_name": "ieee118",
+  "seeds": [
+    20260708
+  ],
+  "load_scale": 1.0,
+  "load_random_low": 0.9,
+  "load_random_high": 1.1,
+  "beta": 1.2,
+  "security_limit": 1.0,
+  "limit_mode": "flow_scaled",
+  "flow_limit_scale": 8.0,
+  "min_rate_a": 1.0,
+  "max_paths": null,
+  "sample_mode": "first",
+  "sample_size": null,
+  "sample_seed": null,
+  "selected_paths_per_scenario": 34410,
+  "resume": true,
+  "retry_errors": false,
+  "checkpoint_every": 500,
+  "first_step_critical_policy": "skip",
+  "total_candidate_paths_per_scenario": 34410,
+  "generated_rows": 32560,
+  "num_first_step_rows": 186,
+  "num_first_step_critical_lines": 10,
+  "num_skipped_ordered_n2_paths": 1850
+}
