@@ -1,0 +1,4 @@
+IEEE 118 full-truth rows written to results\gcn_search\ieee118_fulltruth_seed20260708\ieee118_fulltruth_summary.csv
+num_rows=34410
+num_converged=32745
+num_critical=454
