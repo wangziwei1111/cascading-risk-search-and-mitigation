@@ -1,0 +1,22 @@
+{
+  "case_name": "ieee118",
+  "source_fulltruth_csv": "results\\gcn_search\\ieee118_flow_scaled_800_fulltruth_seed20260708\\ieee118_fulltruth_summary.csv",
+  "limit_mode": "flow_scaled",
+  "flow_limit_scale": 8.0,
+  "min_rate_a": 1.0,
+  "seed": 20260708,
+  "num_lines": 186,
+  "expected_full_samples": 34410,
+  "num_samples": 10,
+  "num_unique_first_lines": 1,
+  "critical_samples": 1,
+  "critical_ratio": 0.1,
+  "relay_cascade_samples": 1,
+  "relay_cascade_ratio": 0.1,
+  "first_state_cache_hits": 9,
+  "first_state_cache_misses": 1,
+  "max_first_lines": 2,
+  "max_samples": 10,
+  "full_dataset_csv_tracked_in_git": false,
+  "notes": "Labels come directly from the supplied full-truth CSV; critical is not recomputed here."
+}
