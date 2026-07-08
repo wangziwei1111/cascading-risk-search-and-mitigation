@@ -1,0 +1,2 @@
+﻿scenario_id,seed,path,first_line,second_line,converged,critical,total_load_shed_mw,island_load_shed_mw,redispatch_load_shed_mw,final_max_loading_ratio,final_outage_labels,num_final_outages,error
+1,20260708,L001->L013,L001,L013,True,True,20.67354040745169,20.67354040745169,0.0,0.055555555555555566,"L001,L013",2,
