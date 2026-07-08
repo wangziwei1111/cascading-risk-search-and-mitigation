@@ -1,0 +1,12 @@
+{
+  "dataset_npz": "results\\gcn_search\\ieee118_flow_scaled_800_rts79_protocol_eval\\ieee118_rts79_gcn_dataset.npz",
+  "path_index_csv": "results\\gcn_search\\ieee118_flow_scaled_800_rts79_protocol_eval\\ieee118_rts79_gcn_path_index.csv",
+  "fulltruth_csv": "results\\gcn_search\\ieee118_flow_scaled_800_fulltruth_seed20260708\\ieee118_fulltruth_summary.csv",
+  "model_path": "results\\gcn_search\\ieee118_flow_scaled_800_rts79_protocol_eval\\original_rts79_gcn_ieee118_model.pt",
+  "first_step_probabilities_csv": "results\\gcn_search\\ieee118_flow_scaled_800_rts79_protocol_eval\\ieee118_rts79_gcn_first_step_probabilities.csv",
+  "feature_mode": "paper",
+  "line_labels": "L001-L186",
+  "main_method": "RTS79_GCN_path_prob_reused_on_IEEE118",
+  "second_only_ablation": "RTS79_GCN_second_only_reused_on_IEEE118",
+  "full_cascade_path_rule": "first_line -> second_line -> relay_trip_labels in recorded order; fallback to final_outage_labels when relay_trip_labels is empty."
+}

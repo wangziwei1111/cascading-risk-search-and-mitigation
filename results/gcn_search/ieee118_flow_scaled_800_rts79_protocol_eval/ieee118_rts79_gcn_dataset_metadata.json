@@ -1,0 +1,32 @@
+{
+  "dataset_npz": "results\\gcn_search\\ieee118_flow_scaled_800_rts79_protocol_eval\\ieee118_rts79_gcn_dataset.npz",
+  "source_step2_csv": "C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\gcn_search\\ieee118_flow_scaled_800_step2_state\\ieee118_step2_state_samples.csv",
+  "num_state_samples": 186,
+  "num_line_labels": 186,
+  "num_path_samples": 34410,
+  "num_critical_path_labels": 1859,
+  "num_relay_cascade_path_labels": 1659,
+  "expected_full_ieee118_ordered_n2_paths": 34410,
+  "is_full_ieee118_ordered_n2_dataset": true,
+  "feature_mode": "paper",
+  "feature_names": [
+    "branch_status_offline",
+    "relay_loading_ratio",
+    "abs_flow",
+    "max_terminal_load"
+  ],
+  "excluded_leakage_columns": [
+    "critical",
+    "critical_mechanism",
+    "has_overload_cascade",
+    "label_critical",
+    "label_load_shed_positive",
+    "label_relay_cascade",
+    "max_event_loading_ratio",
+    "max_pre_redispatch_loading_ratio",
+    "num_relay_trips",
+    "relay_cascade",
+    "total_load_shed_mw"
+  ],
+  "model_contract": "Prepared for the original RTS-79 PaperStyleRts79Gcn/Pio-GCN input tensor shape: samples x branches x features."
+}
