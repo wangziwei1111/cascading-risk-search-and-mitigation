@@ -4,10 +4,17 @@ import sys
 from pathlib import Path
 
 import pandas as pd
+from pypower.idx_brch import RATE_A
 
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "src" / "gcn_search" / "ieee118" / "generate_ieee118_ordered_n2_fulltruth.py"
+LEGACY = ROOT / "src" / "gcn_search" / "legacy_rts79"
+sys.path.insert(0, str(LEGACY))
+sys.path.insert(0, str(SCRIPT.parent))
+
+from case_adapter import build_case_adapter
+from generate_ieee118_ordered_n2_fulltruth import apply_ieee118_load_scenario, apply_thermal_limit_mode
 
 
 def test_ieee118_fulltruth_generator_writes_max_paths_outputs(tmp_path):
@@ -56,6 +63,13 @@ def test_ieee118_fulltruth_generator_writes_max_paths_outputs(tmp_path):
         "final_max_loading_ratio",
         "final_outage_labels",
         "num_final_outages",
+        "max_event_loading_ratio",
+        "max_pre_redispatch_loading_ratio",
+        "num_relay_trips",
+        "relay_trip_labels",
+        "num_passive_outages",
+        "has_overload_cascade",
+        "critical_mechanism",
         "error",
     }
     assert expected_columns.issubset(table.columns)
@@ -78,6 +92,7 @@ def test_ieee118_fulltruth_generator_writes_max_paths_outputs(tmp_path):
     assert config["seeds"] == [20260708]
     assert config["max_paths"] == 5
     assert config["total_candidate_paths_per_scenario"] == 186 * 185
+    assert config["limit_mode"] == "original_rate_a"
 
 
 def test_ieee118_fulltruth_generator_resume_skips_existing_rows(tmp_path):
@@ -137,3 +152,67 @@ def test_ieee118_fulltruth_generator_retry_errors_recomputes_error_rows(tmp_path
     retried = pd.read_csv(summary_path)
     assert len(retried) == 5
     assert "forced retry" not in retried["error"].fillna("").tolist()
+
+
+def test_flow_scaled_thermal_limits_modify_rate_a_and_original_keeps_rate_a():
+    adapter = build_case_adapter("ieee118")
+    scenario_case = apply_ieee118_load_scenario(adapter.case, seed=20260708, load_scale=1.0)
+
+    original = apply_thermal_limit_mode(
+        scenario_case,
+        limit_mode="original_rate_a",
+        flow_limit_scale=1.3,
+        min_rate_a=25.0,
+    )
+    scaled = apply_thermal_limit_mode(
+        scenario_case,
+        limit_mode="flow_scaled",
+        flow_limit_scale=1.3,
+        min_rate_a=25.0,
+    )
+
+    assert (original["branch"][:, RATE_A] == scenario_case["branch"][:, RATE_A]).all()
+    assert not (scaled["branch"][:, RATE_A] == scenario_case["branch"][:, RATE_A]).all()
+    assert scaled["branch"][:, RATE_A].min() >= 25.0
+
+
+def test_flow_scaled_generator_outputs_relay_mechanism_fields(tmp_path):
+    output_dir = tmp_path / "ieee118_flow_scaled"
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--seeds",
+            "20260708",
+            "--max-paths",
+            "5",
+            "--limit-mode",
+            "flow_scaled",
+            "--flow-limit-scale",
+            "1.30",
+            "--min-rate-a",
+            "25",
+            "--output-dir",
+            str(output_dir),
+        ],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    table = pd.read_csv(output_dir / "ieee118_fulltruth_summary.csv")
+    assert {
+        "max_event_loading_ratio",
+        "max_pre_redispatch_loading_ratio",
+        "num_relay_trips",
+        "relay_trip_labels",
+        "num_passive_outages",
+        "has_overload_cascade",
+        "critical_mechanism",
+    }.issubset(table.columns)
+    config = json.loads((output_dir / "ieee118_fulltruth_config.json").read_text(encoding="utf-8"))
+    assert config["limit_mode"] == "flow_scaled"
+    assert config["flow_limit_scale"] == 1.3
+    assert config["min_rate_a"] == 25.0
