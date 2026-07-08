@@ -323,6 +323,10 @@ def offline_line_labels(case: dict, adapter: CaseAdapter) -> tuple[str, ...]:
 
 
 def build_branch_table(result: dict, adapter: CaseAdapter) -> pd.DataFrame:
+    if result["branch"].shape[1] <= PF:
+        result, success = solve_islanded_dcpf(result)
+        if not success or result["branch"].shape[1] <= PF:
+            raise RuntimeError(f"{adapter.case_name} DCPF did not produce branch PF result columns")
     branch = result["branch"]
     rate_a = branch[:, RATE_A].astype(float)
     flow = branch[:, PF].astype(float)

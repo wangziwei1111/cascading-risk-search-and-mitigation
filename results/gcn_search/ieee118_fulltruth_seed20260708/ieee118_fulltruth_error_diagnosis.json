@@ -1,0 +1,10 @@
+{
+  "total_error_paths": 0,
+  "num_error_first_lines": 0,
+  "num_error_second_lines": 0,
+  "max_errors_per_first_line": 0,
+  "max_errors_per_second_line": 0,
+  "error_first_lines": [],
+  "dominant_error_messages": {},
+  "s1_reproduced_error_count_after_current_fix": 0
+}

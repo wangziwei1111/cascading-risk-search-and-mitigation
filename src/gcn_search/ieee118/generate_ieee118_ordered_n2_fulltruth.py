@@ -49,6 +49,7 @@ def parse_args() -> argparse.Namespace:
         help="Directory for full-truth outputs.",
     )
     parser.add_argument("--resume", action="store_true", help="Resume by skipping rows already in the summary CSV.")
+    parser.add_argument("--retry-errors", action="store_true", help="With --resume, recompute rows whose error field is non-empty.")
     parser.add_argument("--checkpoint-every", type=int, default=100, help="Write partial CSV outputs every N new rows.")
     return parser.parse_args()
 
@@ -127,10 +128,13 @@ def write_outputs(rows: list[dict], output_dir: Path) -> None:
     table[table["critical"]].to_csv(critical_path, index=False, encoding="utf-8-sig")
 
 
-def load_resume_rows(summary_path: Path) -> tuple[list[dict], set[tuple[int, int, str, str]]]:
+def load_resume_rows(summary_path: Path, retry_errors: bool = False) -> tuple[list[dict], set[tuple[int, int, str, str]]]:
     if not summary_path.exists():
         return [], set()
     existing = pd.read_csv(summary_path)
+    if retry_errors and "error" in existing:
+        error_mask = existing["error"].fillna("").astype(str).str.len() > 0
+        existing = existing.loc[~error_mask].copy()
     rows = existing.to_dict("records")
     keys = {
         (int(row["scenario_id"]), int(row["seed"]), str(row["first_line"]), str(row["second_line"]))
@@ -144,7 +148,7 @@ def generate_fulltruth(args: argparse.Namespace) -> pd.DataFrame:
     adapter = build_case_adapter("ieee118")
     paths = ordered_n2_paths(adapter.line_labels, args.max_paths)
     summary_path = args.output_dir / "ieee118_fulltruth_summary.csv"
-    rows, completed_keys = load_resume_rows(summary_path) if args.resume else ([], set())
+    rows, completed_keys = load_resume_rows(summary_path, retry_errors=args.retry_errors) if args.resume else ([], set())
     new_rows_since_checkpoint = 0
 
     for scenario_id, seed in enumerate(args.seeds, start=1):
@@ -201,6 +205,7 @@ def generate_fulltruth(args: argparse.Namespace) -> pd.DataFrame:
         "security_limit": args.security_limit,
         "max_paths": args.max_paths,
         "resume": bool(args.resume),
+        "retry_errors": bool(args.retry_errors),
         "checkpoint_every": args.checkpoint_every,
         "total_candidate_paths_per_scenario": len(adapter.line_labels) * (len(adapter.line_labels) - 1),
         "generated_rows": len(rows),

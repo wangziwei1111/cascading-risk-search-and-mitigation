@@ -1,0 +1,26 @@
+{
+  "num_branches": 186,
+  "raw_branch_columns": 13,
+  "num_rate_a_nonpositive": 0,
+  "rate_a": {
+    "min": 9900.0,
+    "mean": 9900.0,
+    "median": 9900.0,
+    "max": 9900.0
+  },
+  "initial_dcopf_branch_columns": 21,
+  "initial_dcopf_branch_has_pf": true,
+  "initial_loading_ratio": {
+    "min": 6.277428366896487e-05,
+    "mean": 0.0051510290203192,
+    "median": 0.0033490063553151712,
+    "max": 0.04404859820140885
+  },
+  "low_loading_ratio_counts": {
+    "le_0_05": 186,
+    "le_0_10": 186,
+    "le_0_20": 186
+  },
+  "beta_1_2_overload_unlikely_with_original_rate_a": true,
+  "recommendation": "PYPOWER case118 RATE_A values are uniformly 9900 MW, so initial loading ratios are very low. For OPA-style overload relay experiments, compare original RATE_A against synthetic thermal limits calibrated from base-case flows or target loading bands before drawing GCN efficiency conclusions."
+}

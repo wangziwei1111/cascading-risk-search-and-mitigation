@@ -171,6 +171,19 @@ def copy_case(case: dict) -> dict:
     return {key: value.copy() if hasattr(value, "copy") else value for key, value in case.items()}
 
 
+def _ensure_branch_result_columns(case: dict, min_cols: int = PF + 1) -> dict:
+    """Return a case whose branch matrix has enough result columns for PF assignment."""
+
+    if case["branch"].shape[1] >= min_cols:
+        return case
+    expanded = copy_case(case)
+    branch = expanded["branch"]
+    padded = np.zeros((branch.shape[0], min_cols), dtype=branch.dtype)
+    padded[:, : branch.shape[1]] = branch
+    expanded["branch"] = padded
+    return expanded
+
+
 def line_label_to_index_1based(line_label: str) -> int:
     """Convert an L01-style RTS-79 line label to a one-based branch index."""
 
@@ -523,7 +536,7 @@ def balance_islands_by_load_shedding(case: dict) -> Rts79IslandBalanceState:
 def redispatch_minimize_load_shed(case: dict, security_limit: float = 1.0) -> Rts79RedispatchState:
     """Redispatch each island with a DC linear program that minimizes total load shedding."""
 
-    redispatched = copy_case(case)
+    redispatched = _ensure_branch_result_columns(copy_case(case))
     merged_bus = redispatched["bus"].copy()
     merged_branch = redispatched["branch"].copy()
     merged_gen = redispatched["gen"].copy()
@@ -807,7 +820,7 @@ def search_n2_paths_for_load_scenarios(
 def _solve_island_redispatch_lp(island_case: dict, security_limit: float = 1.0) -> dict:
     original_pd = island_case["bus"][:, PD].copy()
     if island_case["gen"].shape[0] == 0:
-        result = copy_case(island_case)
+        result = _ensure_branch_result_columns(copy_case(island_case))
         result["bus"][:, PD] = 0.0
         result["bus"][:, VA] = 0.0
         if result["branch"].shape[0] > 0:
@@ -817,7 +830,7 @@ def _solve_island_redispatch_lp(island_case: dict, security_limit: float = 1.0) 
         return result
 
     if island_case["bus"].shape[0] == 1:
-        result = copy_case(island_case)
+        result = _ensure_branch_result_columns(copy_case(island_case))
         pmax_online = result["gen"][:, PMAX] * (result["gen"][:, GEN_STATUS] > 0)
         served = min(float(original_pd.sum()), float(pmax_online.sum()))
         shed = float(original_pd.sum()) - served
@@ -889,7 +902,7 @@ def _solve_island_redispatch_lp(island_case: dict, security_limit: float = 1.0) 
     shed = x[shed_slice]
     flow = base_mva * (Bf @ theta + Pfinj)
 
-    result = copy_case(internal)
+    result = _ensure_branch_result_columns(copy_case(internal))
     result["bus"][:, PD] = np.maximum(bus[:, PD] - shed, 0.0)
     result["bus"][:, VA] = theta * 180.0 / np.pi
     result["gen"][:, PG] = pg
@@ -906,7 +919,7 @@ def solve_islanded_dcpf(case: dict) -> tuple[dict, bool]:
     if len(islands) == 1:
         return rundcpf(case, ppoption(VERBOSE=0, OUT_ALL=0))
 
-    merged = copy_case(case)
+    merged = _ensure_branch_result_columns(copy_case(case))
     merged_bus = merged["bus"].copy()
     merged_branch = merged["branch"].copy()
     merged_gen = merged["gen"].copy()

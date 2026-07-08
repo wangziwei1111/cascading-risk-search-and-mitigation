@@ -10,6 +10,7 @@
   "security_limit": 1.0,
   "max_paths": null,
   "resume": true,
+  "retry_errors": true,
   "checkpoint_every": 500,
   "total_candidate_paths_per_scenario": 34410,
   "generated_rows": 34410

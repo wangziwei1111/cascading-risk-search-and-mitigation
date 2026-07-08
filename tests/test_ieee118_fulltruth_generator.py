@@ -100,3 +100,40 @@ def test_ieee118_fulltruth_generator_resume_skips_existing_rows(tmp_path):
 
     table = pd.read_csv(output_dir / "ieee118_fulltruth_summary.csv")
     assert len(table) == 5
+
+
+def test_ieee118_fulltruth_generator_retry_errors_recomputes_error_rows(tmp_path):
+    output_dir = tmp_path / "ieee118_fulltruth"
+
+    base_cmd = [
+        sys.executable,
+        str(SCRIPT),
+        "--seeds",
+        "20260708",
+        "--max-paths",
+        "5",
+        "--output-dir",
+        str(output_dir),
+    ]
+    first = subprocess.run(base_cmd, cwd=ROOT, text=True, capture_output=True, check=False)
+    assert first.returncode == 0, first.stderr
+
+    summary_path = output_dir / "ieee118_fulltruth_summary.csv"
+    table = pd.read_csv(summary_path)
+    table["error"] = table["error"].astype(object)
+    table.loc[0, "converged"] = False
+    table.loc[0, "error"] = "forced retry"
+    table.to_csv(summary_path, index=False, encoding="utf-8-sig")
+
+    retry = subprocess.run(
+        base_cmd + ["--resume", "--retry-errors"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert retry.returncode == 0, retry.stderr
+
+    retried = pd.read_csv(summary_path)
+    assert len(retried) == 5
+    assert "forced retry" not in retried["error"].fillna("").tolist()

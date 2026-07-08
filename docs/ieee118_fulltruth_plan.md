@@ -59,7 +59,7 @@ python src/gcn_search/ieee118/analyze_ieee118_fulltruth.py \
   --output-dir results/gcn_search/ieee118_fulltruth_seed20260708
 ```
 
-Results:
+Initial results before the branch-result-column fix:
 
 - Total ordered N-2 rows: 34,410 (`186 * 185`).
 - Converged rows: 32,745.
@@ -80,3 +80,62 @@ Repository policy note:
 - The full 34,410-row CSV is kept local rather than committed. The PR commits scripts, tests, docs, smoke artifacts, and compact audit outputs.
 
 This full-seed run is still data preparation only. It does not train an IEEE 118 GCN and does not evaluate GCN, `LODF_yP`, random, or `line_order` search efficiency.
+
+## Error Fix And Branch Limit Audit
+
+Root cause:
+
+- The failed rows were concentrated in 9 first-line outages, each with 185 second-line continuations.
+- The dominant error was `index 13 is out of bounds for axis 1 with size 13`.
+- PYPOWER `case118` starts with a raw 13-column branch matrix. DCPF/DCOPF result matrices include PF/PT result columns.
+- When a first outage created islands, `solve_islanded_dcpf()` merged island DCPF results back into a copied raw 13-column branch matrix and then attempted to write `PF` at column index 13.
+
+Fix:
+
+- Branch result matrices are now expanded before PF assignment in islanded DCPF / redispatch code paths.
+- IEEE118 `build_branch_table()` now explicitly runs DCPF if it receives a raw branch matrix without PF result columns.
+- The full-truth generator supports `--retry-errors` so resume can recompute existing rows whose `error` field is non-empty.
+
+Verification commands:
+
+```bash
+python src/gcn_search/ieee118/diagnose_ieee118_fulltruth_errors.py \
+  --input-dir results/gcn_search/ieee118_fulltruth_seed20260708 \
+  --output-dir results/gcn_search/ieee118_fulltruth_seed20260708
+
+python src/gcn_search/ieee118/generate_ieee118_ordered_n2_fulltruth.py \
+  --seeds 20260708 \
+  --output-dir results/gcn_search/ieee118_fulltruth_seed20260708 \
+  --resume \
+  --retry-errors \
+  --checkpoint-every 500
+
+python src/gcn_search/ieee118/audit_ieee118_branch_limits.py \
+  --output-dir results/gcn_search/ieee118_branch_limit_audit
+```
+
+Post-fix full seed results:
+
+- Total ordered N-2 rows: 34,410.
+- Converged rows: 34,410.
+- Error rows: 0.
+- Critical rows: 472.
+- Critical ratio: 0.013717.
+- Maximum load shed path: `L121->L125`.
+- Maximum total load shed: 111.760638 MW.
+
+Branch limit audit:
+
+- IEEE118 branch count: 186.
+- `RATE_A <= 0`: 0.
+- `RATE_A` min / mean / median / max: 9900 / 9900 / 9900 / 9900 MW.
+- Initial DCOPF branch matrix includes PF result columns.
+- Initial loading ratio min / mean / median / max: 0.000063 / 0.005151 / 0.003349 / 0.044049.
+- All 186 branches have initial loading ratio <= 0.05.
+
+Conclusion:
+
+- The 1,665 historical error rows are fixed for seed 20260708 after retrying error rows.
+- Original `case118` branch limits are extremely loose for an OPA-style overload relay with `beta=1.2`, so overload trips are unlikely under the original `RATE_A` values.
+- Next experiments should compare at least two settings: original `RATE_A` for MATPOWER fidelity, and synthetic thermal limits calibrated from base-case flows or target loading bands for OPA-style cascading sensitivity.
+- Until the error-row fix and branch-limit choice are documented in downstream experiment configs, this IEEE118 full-truth table should not be used as GCN training or evaluation ground truth.
