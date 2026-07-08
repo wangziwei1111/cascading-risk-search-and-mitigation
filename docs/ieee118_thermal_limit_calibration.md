@@ -115,6 +115,29 @@ Recommended main stress scale: `flow_scaled=8.00`, `min-rate-a=1.0`.
 
 Rationale: random sampling shows that `2.00` remains too tight (`38.0%` critical), and even `3.00` to `5.00` exceed the target sparse range. `8.00` has a `5.2%` critical ratio and a `4.7%` relay-cascade ratio, close to the desired sparsity while preserving enough relay events. `10.00` is a more conservative sensitivity point with slightly lower relay-trip severity.
 
+## Flow-Scaled 8.00 Full-Truth Confirmation
+
+The recommended `flow_scaled=8.00`, `min-rate-a=1.0` setting was then run on the complete IEEE118 ordered N-2 space:
+
+```bash
+python src/gcn_search/ieee118/generate_ieee118_ordered_n2_fulltruth.py \
+  --seeds 20260708 \
+  --limit-mode flow_scaled \
+  --flow-limit-scale 8.00 \
+  --min-rate-a 1.0 \
+  --output-dir results/gcn_search/ieee118_flow_scaled_800_fulltruth_seed20260708 \
+  --resume \
+  --checkpoint-every 500
+```
+
+Full-seed audit:
+
+| scale | total | converged | errors | critical | critical ratio | relay_cascade | relay ratio | island_only | redispatch_shed | mixed | max shed MW | max shed path | max relay trips/path |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|
+| 8.00 | 34,410 | 34,410 | 0 | 1,859 | 0.054025 | 1,659 | 0.048213 | 200 | 2 | 1,659 | 111.760638 | `L121->L125` | 20 |
+
+This confirms that the random1000 calibration was representative: the full critical ratio remains in the target 2% to 8% range, relay-cascade paths are nonzero and near 5%, and no error rows were produced. The complete raw 34,410-row CSV remains local-only; compact audit outputs are sufficient for review.
+
 ## Recommendation
 
 Use two tracks in the next IEEE118 stage:

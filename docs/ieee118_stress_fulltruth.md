@@ -103,37 +103,37 @@ Audit:
 
 ```bash
 python src/gcn_search/ieee118/analyze_ieee118_fulltruth.py \
-  --input-dir results/gcn_search/ieee118_flow_scaled_800_random1000 \
-  --output-dir results/gcn_search/ieee118_flow_scaled_800_random1000
+  --input-dir results/gcn_search/ieee118_flow_scaled_800_fulltruth_seed20260708 \
+  --output-dir results/gcn_search/ieee118_flow_scaled_800_fulltruth_seed20260708
 ```
 
 ## Full Seed Status
 
-The earlier tight `1.20` full seed run is checkpointed under:
+The `flow_scaled=8.00`, `min-rate-a=1.0` full seed is complete under:
 
 ```text
-results/gcn_search/ieee118_flow_scaled_120_fulltruth_seed20260708/
+results/gcn_search/ieee118_flow_scaled_800_fulltruth_seed20260708/
 ```
 
-Because this tight stress setting produces many passive relay trips, the full 34,410-row run is significantly slower than the original-rate case. The run uses `--resume` and `--checkpoint-every 500` so it can continue without restarting, but it is no longer the recommended main full-truth setting.
+Full-seed audit:
 
-Current checkpoint from this branch:
-
-- Rows generated: 9,500 / 34,410.
-- Converged rows: 9,500.
+- Rows generated: 34,410 / 34,410.
+- Converged rows: 34,410.
 - Error rows: 0.
-- Critical rows: 3,017.
-- Relay-cascade rows: 2,228.
-- Island-only rows: 789.
-- Redispatch-shed rows: 1,083.
-- Mixed rows: 2,228.
-- Maximum load shed path so far: `L019->L093`.
-- Maximum load shed so far: 797.693811 MW.
-- Maximum relay trips in one path so far: 97.
+- Critical rows: 1,859.
+- Critical ratio: 0.054025.
+- Relay-cascade rows: 1,659.
+- Relay-cascade ratio: 0.048213.
+- Island-only rows: 200.
+- Redispatch-shed rows: 2.
+- Mixed rows: 1,659.
+- Maximum load shed path: `L121->L125`.
+- Maximum load shed: 111.760638 MW.
+- Maximum relay trips in one path: 20.
 
-The run was stopped at this checkpoint for review-time practicality. It can continue with the same full-seed command because `--resume` is enabled.
+The full 34,410-row raw CSV is intentionally local-only and should not be committed. This PR commits only compact audit outputs, renamed with the `ieee118_flow_scaled_800_*` prefix for review.
 
-The next full 34,410-row stress run should use `flow_scaled=8.00`, not `1.20` or `2.00`. The complete CSV should remain local and should not be committed. Commit only compact audit outputs after the full run is complete.
+The earlier tight `1.20` full seed run remains a local checkpoint reference under `results/gcn_search/ieee118_flow_scaled_120_fulltruth_seed20260708/`, but it is no longer the recommended main full-truth setting.
 
 ## Original vs Stress-Calibrated
 
