@@ -1,0 +1,86 @@
+{
+  "fulltruth_csv": "results\\gcn_search\\ieee118_flow_scaled_800_fulltruth_seed20260708\\ieee118_fulltruth_summary.csv",
+  "gcn_predictions_csv": "results\\gcn_search\\ieee118_flow_scaled_800_gcn_smoke\\gcn_smoke_predictions.csv",
+  "total_paths": 34410,
+  "critical_paths": 1859,
+  "relay_cascade_paths": 1659,
+  "budgets": [
+    {
+      "budget_type": "fixed",
+      "budget_label": "50",
+      "K": 50
+    },
+    {
+      "budget_type": "fixed",
+      "budget_label": "100",
+      "K": 100
+    },
+    {
+      "budget_type": "percent",
+      "budget_label": "0.5%",
+      "K": 172
+    },
+    {
+      "budget_type": "fixed",
+      "budget_label": "200",
+      "K": 200
+    },
+    {
+      "budget_type": "percent",
+      "budget_label": "1%",
+      "K": 344
+    },
+    {
+      "budget_type": "fixed",
+      "budget_label": "500",
+      "K": 500
+    },
+    {
+      "budget_type": "percent",
+      "budget_label": "2%",
+      "K": 688
+    },
+    {
+      "budget_type": "fixed",
+      "budget_label": "1000",
+      "K": 1000
+    },
+    {
+      "budget_type": "percent",
+      "budget_label": "5%",
+      "K": 1720
+    },
+    {
+      "budget_type": "fixed",
+      "budget_label": "2000",
+      "K": 2000
+    },
+    {
+      "budget_type": "percent",
+      "budget_label": "10%",
+      "K": 3441
+    },
+    {
+      "budget_type": "fixed",
+      "budget_label": "5000",
+      "K": 5000
+    }
+  ],
+  "random_seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "lodf_yp": {
+    "status": "complete",
+    "num_ranked_paths": 34044
+  },
+  "notes": "Smoke-stage evaluation. Results are not final tuned IEEE118 GCN claims."
+}

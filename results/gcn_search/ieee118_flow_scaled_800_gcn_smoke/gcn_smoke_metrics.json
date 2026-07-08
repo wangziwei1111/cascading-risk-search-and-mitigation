@@ -1,0 +1,116 @@
+{
+  "target": "label_critical",
+  "step2_csv": "results\\gcn_search\\ieee118_flow_scaled_800_step2_state\\ieee118_step2_state_samples.csv",
+  "max_samples": null,
+  "num_samples": 34410,
+  "feature_columns": [
+    "first_line_loading_ratio",
+    "candidate_second_line_loading_ratio",
+    "candidate_second_line_rate_a",
+    "candidate_second_line_pf"
+  ],
+  "excluded_label_columns": [
+    "critical",
+    "critical_mechanism",
+    "has_overload_cascade",
+    "label_critical",
+    "label_load_shed_positive",
+    "label_relay_cascade",
+    "max_event_loading_ratio",
+    "num_relay_trips",
+    "relay_cascade",
+    "total_load_shed_mw"
+  ],
+  "train": {
+    "num_rows": 24087,
+    "positive_count": 1294,
+    "positive_ratio": 0.05372192468966663,
+    "precision_at_0_5": 0.07273290003095018,
+    "recall_at_0_5": 0.7264296754250387,
+    "average_score_positive": 0.5046113403020706,
+    "average_score_negative": 0.49969962133875806
+  },
+  "val": {
+    "num_rows": 5161,
+    "positive_count": 301,
+    "positive_ratio": 0.05832203061422205,
+    "precision_at_0_5": 0.07998565279770445,
+    "recall_at_0_5": 0.7408637873754153,
+    "average_score_positive": 0.5039951543785385,
+    "average_score_negative": 0.4998215692098239
+  },
+  "test": {
+    "num_rows": 5162,
+    "positive_count": 264,
+    "positive_ratio": 0.05114296784192174,
+    "precision_at_0_5": 0.06842867487328023,
+    "recall_at_0_5": 0.7159090909090909,
+    "average_score_positive": 0.5041587866228676,
+    "average_score_negative": 0.49970348623089317
+  },
+  "normalizer": {
+    "mean": [
+      0.0,
+      0.19447903335094452,
+      400.80303955078125,
+      2.448801279067993
+    ],
+    "std": [
+      1.0,
+      0.23833435773849487,
+      511.9573669433594,
+      79.74488830566406
+    ],
+    "feature_columns": [
+      "first_line_loading_ratio",
+      "candidate_second_line_loading_ratio",
+      "candidate_second_line_rate_a",
+      "candidate_second_line_pf"
+    ]
+  },
+  "model": {
+    "type": "numpy_logistic_smoke",
+    "weights": [
+      0.0,
+      -0.012345863460818951,
+      0.01078660533894078,
+      0.02136380085169204
+    ],
+    "bias": -0.00014547653849588066
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 1.3118199560689863
+    },
+    {
+      "epoch": 2,
+      "train_loss": 1.310631138829601
+    },
+    {
+      "epoch": 3,
+      "train_loss": 1.3094599085616847
+    },
+    {
+      "epoch": 4,
+      "train_loss": 1.3083059646317943
+    },
+    {
+      "epoch": 5,
+      "train_loss": 1.3071690104916664
+    },
+    {
+      "epoch": 6,
+      "train_loss": 1.3060487537085836
+    },
+    {
+      "epoch": 7,
+      "train_loss": 1.304944905989999
+    },
+    {
+      "epoch": 8,
+      "train_loss": 1.303857183202663
+    }
+  ],
+  "notes": "Lightweight smoke scorer over Step2-State graph-derived scalar features; not a final tuned GCN."
+}
