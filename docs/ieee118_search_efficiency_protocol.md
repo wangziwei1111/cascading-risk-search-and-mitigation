@@ -2,6 +2,8 @@
 
 This document defines the first IEEE118 search-efficiency smoke protocol for the `flow_scaled=8.00`, `min-rate-a=1.0` stress setting. It is a pipeline validation stage, not a final tuned GCN / PIO-GCN result.
 
+Important correction: `GCN_smoke` is only a lightweight NumPy/logistic pipeline sanity check. It is not the original RTS-79 GCN and must not be reported as the main IEEE118 GCN result. Formal GCN results should reuse `PaperStyleRts79Gcn` from `src/gcn_search/legacy_rts79/train_rts79_paper_gcn.py` through `src/gcn_search/ieee118/train_ieee118_with_original_rts79_gcn.py` and should be named `RTS79_GCN_reused_on_IEEE118` or `RTS79_PIO_GCN_reused_on_IEEE118`.
+
 ## Ground Truth
 
 - Case: IEEE118
@@ -27,7 +29,8 @@ These large CSVs are local-only and are not committed.
 - `random`: random permutations of all ordered paths. Report mean and standard deviation over at least 10 random seeds.
 - `line_order`: deterministic ordered path enumeration, e.g. `L001->L002`, `L001->L003`, ...
 - `LODF_yP`: IEEE118 adaptation of the RTS-79 LODF physical vulnerability baseline. It ranks first-line candidates by yP, then ranks second-line candidates from `S1(first_line)` by yP.
-- `GCN_smoke`: lightweight smoke scorer trained on Step2-State graph-derived scalar features. It excludes label/leakage columns and is not a final tuned GCN architecture.
+- `GCN_smoke`: lightweight smoke scorer trained on Step2-State graph-derived scalar features. It excludes label/leakage columns, is not the original RTS-79 GCN, and must remain a pipeline sanity check only.
+- `RTS79_PIO_GCN_reused_on_IEEE118`: formal reuse path that converts IEEE118 Step2-State samples to the original RTS-79 GCN tensor contract and calls the original `PaperStyleRts79Gcn` model class.
 
 ## Metrics
 

@@ -32,7 +32,9 @@ INPUT_FEATURE_COLUMNS = [
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Train a lightweight IEEE118 Step2-State GCN/PIO-GCN smoke scorer.")
+    parser = argparse.ArgumentParser(
+        description="Train a lightweight IEEE118 Step2-State smoke scorer. This is not the original RTS-79 GCN."
+    )
     parser.add_argument(
         "--step2-csv",
         type=Path,
@@ -198,7 +200,9 @@ def train_smoke(args: argparse.Namespace) -> dict:
     (args.output_dir / "gcn_smoke_metrics.json").write_text(json.dumps(metrics, indent=2), encoding="utf-8")
     (args.output_dir / "gcn_smoke_readme.md").write_text(
         "# IEEE118 GCN Smoke\n\n"
-        "This is a lightweight smoke scorer for the IEEE118 Step2-State pipeline. It excludes label/leakage columns and is not a final tuned GCN result.\n",
+        "This is a lightweight NumPy/logistic smoke scorer for the IEEE118 Step2-State pipeline. "
+        "It is not the original RTS-79 GCN / PIO-GCN and must not be reported as the main GCN result. "
+        "Use `train_ieee118_with_original_rts79_gcn.py` for the formal reuse path.\n",
         encoding="utf-8",
     )
     return metrics

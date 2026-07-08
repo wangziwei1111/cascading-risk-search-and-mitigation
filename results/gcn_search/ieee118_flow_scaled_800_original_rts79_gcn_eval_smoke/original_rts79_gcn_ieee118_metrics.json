@@ -1,0 +1,6 @@
+{
+  "status": "blocked_torch_import",
+  "model": "PaperStyleRts79Gcn from src/gcn_search/legacy_rts79/train_rts79_paper_gcn.py",
+  "reason": "Original RTS-79 GCN reuse requires importing torch and src/gcn_search/legacy_rts79/train_rts79_paper_gcn.py. The current environment failed during import: [WinError 87] \u53c2\u6570\u9519\u8bef\u3002: 'E:bin'",
+  "notes": "No fallback NumPy/logistic scorer was used. Fix torch import to train the original RTS-79 GCN."
+}
