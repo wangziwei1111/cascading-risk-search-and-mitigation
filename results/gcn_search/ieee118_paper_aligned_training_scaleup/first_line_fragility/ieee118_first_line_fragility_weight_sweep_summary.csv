@@ -1,0 +1,5 @@
+﻿positive_weight,validation_average_precision,validation_precision,validation_recall,validation_f1,test_average_precision,test_precision,test_recall,test_f1
+20.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+50.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+100.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+200.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0

@@ -1,0 +1,54 @@
+{
+  "case_name": "ieee118",
+  "dataset_npz": "C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\gcn_search\\ieee118_paper_aligned_training_scaleup\\first_line_fragility\\ieee118_first_line_fragility_dataset.npz",
+  "source_paper_gcn_dataset_npz": "C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\gcn_search\\ieee118_paper_aligned_training_scaleup\\pilot_2000\\ieee118_paper_gcn_dataset.npz",
+  "source_paper_gcn_dataset_metadata_json": "C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\gcn_search\\ieee118_paper_aligned_training_scaleup\\pilot_2000\\ieee118_paper_gcn_dataset_metadata.json",
+  "source_fulltruth_csv": "C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\gcn_search\\ieee118_flow_scaled_800_fulltruth_earlystop_seed20260708\\ieee118_fulltruth_summary.csv",
+  "source_path_index_csv": "C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\gcn_search\\ieee118_flow_scaled_800_original_rts79_gcn_eval_earlystop\\ieee118_rts79_gcn_path_index.csv",
+  "num_s0_samples": 20,
+  "num_train_s0_samples": 18,
+  "num_validation_s0_samples": 1,
+  "num_test_s0_samples": 1,
+  "num_known_first_line_labels": 1461,
+  "num_positive_fragility_labels": 1461,
+  "num_negative_fragility_labels": 0,
+  "fragility_positive_ratio": 1.0,
+  "num_first_step_critical_excluded": 158,
+  "num_direct_shed_labels": 158,
+  "train_seeds": [
+    20260701,
+    20260702,
+    20260703,
+    20260704,
+    20260705,
+    20260706,
+    20260707,
+    20260709,
+    20260710,
+    20260711,
+    20260712,
+    20260713,
+    20260714,
+    20260715,
+    20260716,
+    20260717,
+    20260718,
+    20260719
+  ],
+  "validation_seeds": [
+    20260720
+  ],
+  "test_seeds": [
+    20260708
+  ],
+  "heldout_test_seed": 20260708,
+  "feature_mode": "paper",
+  "input_channels": 4,
+  "label_mode": "valid_n2_any_critical",
+  "label_sources": {
+    "fulltruth": 176,
+    "sampled_s1": 3534
+  },
+  "heldout_fulltruth_labels_used": true,
+  "large_npz_tracked_in_git": false
+}
