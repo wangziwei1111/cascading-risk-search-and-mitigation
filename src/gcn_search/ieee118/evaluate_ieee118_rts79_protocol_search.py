@@ -9,6 +9,7 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+from pypower.idx_brch import BR_STATUS, PF
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -20,12 +21,14 @@ from case_adapter import build_case_adapter, run_sequential_outages_for_case
 from evaluate_ieee118_search_efficiency import budget_table, calculate_lodf_y_p
 from generate_ieee118_ordered_n2_fulltruth import apply_ieee118_load_scenario, apply_thermal_limit_mode
 from train_ieee118_with_original_rts79_gcn import build_branch_graph_adjacency_from_endpoints, load_original_rts79_gcn_symbols
+from convert_ieee118_step2_to_rts79_gcn_format import PAPER_FEATURE_NAMES, normalize_x
 
 
 METHOD_GCN_PROB = "RTS79_GCN_prob_reused_on_IEEE118"
 METHOD_GCN_PROB_YP = "RTS79_GCN_prob_yP_reused_on_IEEE118"
 METHOD_GCN_PATH_PROB = "RTS79_GCN_path_prob_reused_on_IEEE118"
 METHOD_SECOND_ONLY = "RTS79_GCN_second_only_reused_on_IEEE118"
+METHOD_PFW = "PFW"
 
 
 def parse_args() -> argparse.Namespace:
@@ -35,6 +38,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--fulltruth-csv", type=Path, required=True)
     parser.add_argument("--model-path", type=Path, required=True)
     parser.add_argument("--first-step-probabilities-csv", type=Path, required=True)
+    parser.add_argument("--feature-normalizer-json", type=Path, default=None)
     parser.add_argument("--seed", type=int, default=20260708)
     parser.add_argument("--load-scale", type=float, default=1.0)
     parser.add_argument("--limit-mode", choices=["original_rate_a", "flow_scaled"], default="flow_scaled")
@@ -105,11 +109,28 @@ def load_truth(path: Path) -> pd.DataFrame:
     return truth.reset_index(drop=True)
 
 
-def predict_s1_probabilities(dataset_npz: Path, model_path: Path) -> tuple[np.ndarray, np.ndarray]:
+def load_external_normalizer(path: Path | None) -> dict[str, dict[str, float]] | None:
+    if path is None:
+        return None
+    require_file(path, "paper-aligned feature normalizer JSON")
+    normalizer = json.loads(path.read_text(encoding="utf-8"))
+    missing = [name for name in PAPER_FEATURE_NAMES if name not in normalizer]
+    if missing:
+        raise ValueError(f"Feature normalizer missing paper-style keys: {missing}")
+    return normalizer
+
+
+def predict_s1_probabilities(dataset_npz: Path, model_path: Path, feature_normalizer_json: Path | None = None) -> tuple[np.ndarray, np.ndarray]:
     require_file(dataset_npz, "IEEE118 RTS-79 GCN dataset NPZ")
     require_file(model_path, "trained original RTS-79 GCN model")
     data = np.load(dataset_npz, allow_pickle=True)
-    x = data["x_gcn"].astype(np.float32)
+    normalizer = load_external_normalizer(feature_normalizer_json)
+    if normalizer is not None:
+        if "physics_raw_features" not in data:
+            raise ValueError("Dataset NPZ must contain physics_raw_features when --feature-normalizer-json is used.")
+        x = normalize_x(data["physics_raw_features"].astype(np.float32), normalizer, PAPER_FEATURE_NAMES).astype(np.float32)
+    else:
+        x = data["x_gcn"].astype(np.float32)
     symbols = load_original_rts79_gcn_symbols()
     torch = symbols["torch"]
     PaperGcnTrainConfig = symbols["PaperGcnTrainConfig"]
@@ -194,6 +215,38 @@ def build_y_p_scores(args: argparse.Namespace) -> tuple[dict[str, float], dict[s
     return first_scores, second_scores
 
 
+def pfw_scores_from_case(case: dict, line_labels: tuple[str, ...]) -> dict[str, float]:
+    branch = case["branch"]
+    if branch.shape[1] <= PF:
+        raise ValueError("Branch matrix does not contain PF results required for PFW scoring.")
+    status = branch[:, BR_STATUS].astype(int)
+    flow = np.where(status == 1, np.abs(branch[:, PF].astype(float)), -np.inf)
+    return {label: float(flow[idx]) for idx, label in enumerate(line_labels)}
+
+
+def build_pfw_scores(args: argparse.Namespace) -> tuple[dict[str, float], dict[str, dict[str, float]]]:
+    adapter = build_case_adapter("ieee118")
+    scenario_case = apply_ieee118_load_scenario(adapter.case, seed=args.seed, load_scale=args.load_scale)
+    scenario_case = apply_thermal_limit_mode(
+        scenario_case,
+        limit_mode=args.limit_mode,
+        flow_limit_scale=args.flow_limit_scale,
+        min_rate_a=args.min_rate_a,
+    )
+    first_scores = pfw_scores_from_case(scenario_case, adapter.line_labels)
+    second_scores: dict[str, dict[str, float]] = {}
+    for first_line in adapter.line_labels:
+        state = run_sequential_outages_for_case(
+            scenario_case,
+            adapter,
+            [first_line],
+            beta=args.beta,
+            security_limit=args.security_limit,
+        )
+        second_scores[first_line] = pfw_scores_from_case(state["case"], adapter.line_labels)
+    return first_scores, second_scores
+
+
 def dedupe_order(paths: list[str]) -> list[str]:
     seen = set()
     ordered = []
@@ -214,6 +267,8 @@ def make_orders(
     score: pd.DataFrame,
     y_p_first: dict[str, float],
     y_p_second: dict[str, dict[str, float]],
+    pfw_first: dict[str, float],
+    pfw_second: dict[str, dict[str, float]],
     random_seeds: list[int],
     *,
     method_suffix: str = "",
@@ -259,6 +314,14 @@ def make_orders(
         group = group.sort_values(["second_y_p", "second_line"], ascending=[False, True])
         paths.extend(group["path"].astype(str).tolist())
     orders["LODF_yP"] = dedupe_order(paths)
+    paths = []
+    first_order = sorted(first_lines, key=lambda line: (-float(pfw_first.get(line, -np.inf)), line))
+    for first in first_order:
+        group = score.loc[score["first_line"] == first].copy()
+        group["second_pfw"] = group["second_line"].map(lambda second: float(pfw_second.get(first, {}).get(str(second), -np.inf)))
+        group = group.sort_values(["second_pfw", "second_line"], ascending=[False, True])
+        paths.extend(group["path"].astype(str).tolist())
+    orders[METHOD_PFW] = dedupe_order(paths)
 
     for seed in random_seeds:
         shuffled = list(all_paths)
@@ -387,10 +450,11 @@ def evaluate_protocol(args: argparse.Namespace) -> pd.DataFrame:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     truth = load_truth(args.fulltruth_csv)
     first_step_stats = load_first_step_stats(args.fulltruth_csv)
-    s1_probability, line_labels = predict_s1_probabilities(args.dataset_npz, args.model_path)
+    s1_probability, line_labels = predict_s1_probabilities(args.dataset_npz, args.model_path, args.feature_normalizer_json)
     score = make_path_score_table(args.path_index_csv, args.first_step_probabilities_csv, s1_probability, truth)
     y_p_first, y_p_second = build_y_p_scores(args)
-    orders = make_orders(score, y_p_first, y_p_second, args.random_seeds, method_suffix=args.method_suffix)
+    pfw_first, pfw_second = build_pfw_scores(args)
+    orders = make_orders(score, y_p_first, y_p_second, pfw_first, pfw_second, args.random_seeds, method_suffix=args.method_suffix)
     budgets = budget_table(len(truth))
     summary_parts = []
     random_parts = []
@@ -417,6 +481,7 @@ def evaluate_protocol(args: argparse.Namespace) -> pd.DataFrame:
         label_method(METHOD_GCN_PROB, args.method_suffix),
         label_method(METHOD_GCN_PROB_YP, args.method_suffix),
         label_method(METHOD_SECOND_ONLY, args.method_suffix),
+        METHOD_PFW,
         "LODF_yP",
     ]:
         ranked = score.set_index("path").reindex(orders[method]).dropna(subset=["first_line"]).reset_index().head(args.topk_output_rows)
@@ -439,10 +504,12 @@ def evaluate_protocol(args: argparse.Namespace) -> pd.DataFrame:
             "fulltruth_csv": str(args.fulltruth_csv),
             "model_path": str(args.model_path),
             "first_step_probabilities_csv": str(args.first_step_probabilities_csv),
+            "feature_normalizer_json": str(args.feature_normalizer_json) if args.feature_normalizer_json else None,
             "feature_mode": "paper",
             "line_labels": "L001-L186",
             "main_method": label_method(METHOD_GCN_PATH_PROB, args.method_suffix),
             "second_only_ablation": label_method(METHOD_SECOND_ONLY, args.method_suffix),
+            "pfw_baseline": METHOD_PFW,
             "num_valid_ordered_n2_paths": int(len(truth)),
             **first_step_stats,
             "full_cascade_path_rule": "first_line -> second_line -> relay_trip_labels in recorded order; fallback to final_outage_labels when relay_trip_labels is empty.",
@@ -452,6 +519,7 @@ def evaluate_protocol(args: argparse.Namespace) -> pd.DataFrame:
         "# IEEE118 RTS-79 Protocol Search\n\n"
         f"Main method: `{label_method(METHOD_GCN_PATH_PROB, args.method_suffix)}`, using `p_shed(Li|S0) * p_shed(Lj|S1(i))`.\n"
         f"`{label_method(METHOD_SECOND_ONLY, args.method_suffix)}` is retained only as an ablation.\n"
+        f"`{METHOD_PFW}` is the power-flow-weighted baseline using absolute PF in S0 and S1 states.\n"
         f"Valid ordered N-2 paths: {len(truth)}.\n"
         "Curve points are sparse and include RTS-79-style full-cascade-path deduplicated counts.\n"
         "The full-cascade path is an approximate reconstruction from relay/final outage labels, "

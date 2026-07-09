@@ -1,0 +1,48 @@
+{
+  "case_name": "ieee118",
+  "dataset_npz": "results\\gcn_search\\ieee118_flow_scaled_800_paper_aligned_training_smoke\\ieee118_paper_gcn_dataset.npz",
+  "feature_mode": "paper",
+  "feature_names": [
+    "branch_status_offline",
+    "relay_loading_ratio",
+    "abs_flow",
+    "max_terminal_load"
+  ],
+  "input_channels": 4,
+  "target_state_samples": 12,
+  "num_state_samples": 12,
+  "num_s0_samples": 3,
+  "num_s1_samples": 9,
+  "num_positive_labels": 105,
+  "num_candidate_labels": 2208,
+  "positive_label_ratio": 0.04755434782608696,
+  "num_first_step_critical_labels": 26,
+  "num_valid_n2_positive_labels": 79,
+  "train_seeds": [
+    20260701
+  ],
+  "validation_seeds": [
+    20260702
+  ],
+  "test_seeds": [
+    20260708
+  ],
+  "num_train_seeds": 1,
+  "num_validation_seeds": 1,
+  "num_test_seeds": 1,
+  "num_train_state_samples": 5,
+  "num_validation_state_samples": 5,
+  "num_test_state_samples": 2,
+  "load_scale": 1.1,
+  "load_random_low": 0.9,
+  "load_random_high": 1.1,
+  "limit_mode": "flow_scaled",
+  "flow_limit_scale": 8.0,
+  "min_rate_a": 1.0,
+  "beta": 1.2,
+  "security_limit": 1.0,
+  "first_step_critical_policy": "skip",
+  "normalizer_fit_split": "train",
+  "paper_aligned_target_state_samples": 8000,
+  "large_npz_tracked_in_git": false
+}

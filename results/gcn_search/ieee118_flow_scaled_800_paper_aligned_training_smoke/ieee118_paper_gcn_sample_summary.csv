@@ -1,0 +1,13 @@
+﻿sample_index,seed,split,sample_type,current_outage_labels,num_candidate_labels,num_positive_labels
+0,20260701,train,S0,,186,9
+1,20260701,train,S1,L154,185,8
+2,20260701,train,S1,L063,185,9
+3,20260701,train,S1,"L030,L045,L102,L109,L110,L111,L113,L115,L134,L140,L141,L143,L155,L156,L178",171,10
+4,20260701,train,S1,L057,185,10
+5,20260702,validation,S0,,186,8
+6,20260702,validation,S1,L153,185,8
+7,20260702,validation,S1,L039,185,8
+8,20260702,validation,S1,L060,185,11
+9,20260702,validation,S1,"L030,L104",184,7
+10,20260708,test,S0,,186,9
+11,20260708,test,S1,L114,185,8
