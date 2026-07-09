@@ -1,0 +1,6 @@
+{
+  "s1_score_table_csv": "C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\gcn_search\\ieee118_paper_aligned_training_scaleup\\s0_bottleneck_diagnostics\\s0_bottleneck_full_score_table_local_only.csv",
+  "strict_fragility_probabilities_csv": "C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\gcn_search\\ieee118_paper_aligned_training_scaleup\\strict_fragility_targets\\ieee118_strict_fragility_probabilities_compact.csv",
+  "num_paths": 32560,
+  "no_opa_rerun": true
+}
