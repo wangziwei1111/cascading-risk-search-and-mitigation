@@ -1,0 +1,5 @@
+﻿method,target_mode,top_quantile,K,critical_hits,relay_hits,precision,recall_critical,recall_relay,relative_to_random_hits,relative_to_line_order_hits,relative_to_lodf_hits,relative_to_pfw_hits,relative_to_strict_path_prob_hits,relative_to_second_only_hits,relative_to_best_alpha_hits,relative_to_any_critical_fragility_hits
+best_strict_fragility_path_prob,critical_count_topq,0.3,100,95.0,89.0,0.95,0.05416191562143672,0.054169202678027994,88.4,89.0,85.0,89.0,38.0,1.0,1.0,8.0
+best_strict_fragility_path_prob,critical_count_topq,0.3,500,469.0,461.0,0.938,0.26738882554161914,0.28058429701765064,441.4,445.0,436.0,433.0,266.0,0.0,0.0,97.0
+best_strict_fragility_path_prob,relay_count_topq,0.1,1000,676.0,660.0,0.676,0.38540478905359177,0.40170419963481435,620.6,620.0,618.0,610.0,316.0,15.0,15.0,3.0
+best_strict_fragility_path_prob,critical_count_topq,0.1,5000,1709.0,1622.0,0.3418,0.9743443557582668,0.9872185027388922,1436.1,1428.0,1434.0,1444.0,524.0,4.0,-1.0,3.0

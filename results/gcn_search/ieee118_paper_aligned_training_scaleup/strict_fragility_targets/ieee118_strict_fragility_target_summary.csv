@@ -1,0 +1,13 @@
+﻿target_name,target_mode,top_quantile,metric,num_positive,num_negative,positive_ratio,num_s0_samples,num_known_first_line_labels,num_first_step_critical_excluded,degenerate,trainable
+critical_count_top10,critical_count_topq,0.1,critical_count,156,1305,0.10677618069815195,20,1461,158,False,True
+critical_count_top20,critical_count_topq,0.2,critical_count,302,1159,0.20670773442847365,20,1461,158,False,True
+critical_count_top30,critical_count_topq,0.3,critical_count,448,1013,0.3066392881587953,20,1461,158,False,True
+relay_count_top10,relay_count_topq,0.1,relay_cascade_count,156,1305,0.10677618069815195,20,1461,158,False,True
+relay_count_top20,relay_count_topq,0.2,relay_cascade_count,302,1159,0.20670773442847365,20,1461,158,False,True
+relay_count_top30,relay_count_topq,0.3,relay_cascade_count,448,1013,0.3066392881587953,20,1461,158,False,True
+max_shed_top10,max_shed_topq,0.1,max_load_shed_mw,156,1305,0.10677618069815195,20,1461,158,False,True
+max_shed_top20,max_shed_topq,0.2,max_load_shed_mw,302,1159,0.20670773442847365,20,1461,158,False,True
+max_shed_top30,max_shed_topq,0.3,max_load_shed_mw,448,1013,0.3066392881587953,20,1461,158,False,True
+composite_top10,composite_topq,0.1,composite_score,156,1305,0.10677618069815195,20,1461,158,False,True
+composite_top20,composite_topq,0.2,composite_score,302,1159,0.20670773442847365,20,1461,158,False,True
+composite_top30,composite_topq,0.3,composite_score,448,1013,0.3066392881587953,20,1461,158,False,True
