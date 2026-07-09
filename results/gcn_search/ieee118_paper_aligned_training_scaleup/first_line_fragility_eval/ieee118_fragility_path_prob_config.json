@@ -1,0 +1,11 @@
+{
+  "fulltruth_csv": "C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\gcn_search\\ieee118_flow_scaled_800_fulltruth_earlystop_seed20260708\\ieee118_fulltruth_summary.csv",
+  "s1_score_table_csv": "C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\gcn_search\\ieee118_paper_aligned_training_scaleup\\s0_bottleneck_diagnostics\\s0_bottleneck_full_score_table_local_only.csv",
+  "first_line_fragility_probabilities_csv": "C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\gcn_search\\ieee118_paper_aligned_training_scaleup\\first_line_fragility\\ieee118_first_line_fragility_probabilities.csv",
+  "alpha_sweep_summary_csv": "C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\gcn_search\\ieee118_paper_aligned_training_scaleup\\alpha_path_prob_sweep\\alpha_path_prob_sweep_summary.csv",
+  "num_paths": 32560,
+  "num_critical_paths": 1754,
+  "num_relay_cascade_paths": 1643,
+  "scoring_rule": "fragility_path_prob = q_fragile(Li|S0) * p_second(Lj|S1(i))",
+  "no_opa_rerun": true
+}
