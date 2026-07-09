@@ -212,10 +212,63 @@ Early-stop full-truth for `flow_scaled=8.00`, `min_rate_a=1.0`, seed `20260708` 
 - valid critical paths: 1,754
 - valid relay-cascade paths: 1,643
 
-The formal paper result should use:
+The PR #11 early-stop path-product ablation uses:
 
 - `RTS79_GCN_path_prob_reused_on_IEEE118_earlystop`
 
 and not the no-early-stop PR #10 method:
 
 - `RTS79_GCN_path_prob_reused_on_IEEE118`
+
+## Algorithm 1 Search Alignment
+
+The original paper Algorithm 1 GCN search is not the path-product score
+
+```text
+score(Li -> Lj) = p_shed(Li | S0) * p_shed(Lj | S1(i))
+```
+
+That path-product score is now retained as a ranking ablation:
+
+- `RTS79_GCN_path_prob_reused_on_IEEE118_earlystop`
+
+The Algorithm 1 search rule is GCN-positive candidates first, then physics fallback:
+
+1. In the current state, evaluate the reused RTS-79 `PaperStyleRts79Gcn`.
+2. Search all candidates with `p_shed >= gcn_threshold` first.
+3. Sort the GCN-positive set by GCN probability, then by `yP`, then by line label.
+4. Sort the remaining GCN-negative candidates by `yP`, then by line label.
+5. After each active outage, continue the OPA Step 3 / Step 4 cascade stabilization before entering the next state.
+
+For IEEE118 early-stop evaluation, the formal Algorithm 1 method is:
+
+- `RTS79_GCN_Algorithm1_reused_on_IEEE118_earlystop`
+
+The following methods remain in the result table as baselines or ablations:
+
+- `random`
+- `line_order`
+- `PFW`
+- `LODF_yP`
+- `RTS79_GCN_prob_reused_on_IEEE118_earlystop`
+- `RTS79_GCN_prob_yP_reused_on_IEEE118_earlystop`
+- `RTS79_GCN_path_prob_reused_on_IEEE118_earlystop`
+- `RTS79_GCN_second_only_reused_on_IEEE118_earlystop`
+
+`PFW` is the Power Flow Weighted baseline from the original comparison set. It ranks first outages by absolute base-state branch flow `|PF|`, then ranks second outages by `|PF|` in the corresponding `S1(first_line)` state.
+
+The first-step critical early-stop rule still applies to every method. First-step critical lines are recorded only in `ieee118_first_step_summary.csv`; they do not enter the valid ordered N-2 search curve.
+
+This PR only adds the Algorithm 1 search layer and the missing PFW baseline. It does not regenerate full-truth, does not rebuild Step2-State, does not retrain `PaperStyleRts79Gcn`, and does not change the model structure. Multi-scenario training and final tuning remain later PR work.
+
+For `flow_scaled=8.00`, `min_rate_a=1.0`, seed `20260708`, early-stop evaluation keeps:
+
+- valid ordered N-2 paths: 32,560
+- first-step critical lines: 10
+- skipped ordered N-2 paths: 1,850
+- default Algorithm 1 threshold: 0.5
+
+Threshold sweep outputs are written to:
+
+- `ieee118_algorithm1_threshold_sweep.csv`
+- `ieee118_algorithm1_threshold_sweep.json`
