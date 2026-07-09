@@ -1,0 +1,31 @@
+{
+  "dataset_npz": "results\\gcn_search\\ieee118_flow_scaled_800_original_rts79_gcn_eval_earlystop\\ieee118_rts79_gcn_dataset.npz",
+  "path_index_csv": "results\\gcn_search\\ieee118_flow_scaled_800_original_rts79_gcn_eval_earlystop\\ieee118_rts79_gcn_path_index.csv",
+  "fulltruth_csv": "results\\gcn_search\\ieee118_flow_scaled_800_fulltruth_earlystop_seed20260708\\ieee118_fulltruth_summary.csv",
+  "model_path": "results\\gcn_search\\ieee118_paper_aligned_training_scaleup\\pilot_2000\\ieee118_paper_gcn_model.pt",
+  "first_step_probabilities_csv": "results\\gcn_search\\ieee118_paper_aligned_training_scaleup\\pilot_2000_eval\\ieee118_rts79_gcn_first_step_probabilities.csv",
+  "feature_normalizer_json": "results\\gcn_search\\ieee118_paper_aligned_training_scaleup\\pilot_2000\\ieee118_paper_gcn_feature_normalizer.json",
+  "feature_mode": "paper",
+  "line_labels": "L001-L186",
+  "main_method": "RTS79_GCN_path_prob_reused_on_IEEE118_earlystop",
+  "second_only_ablation": "RTS79_GCN_second_only_reused_on_IEEE118_earlystop",
+  "pfw_baseline": "PFW",
+  "num_valid_ordered_n2_paths": 32560,
+  "num_first_step_critical_lines": 10,
+  "first_step_critical_total_load_shed_mw_sum": 344.876118390018,
+  "first_step_critical_lines": [
+    "L016",
+    "L047",
+    "L051",
+    "L061",
+    "L096",
+    "L147",
+    "L180",
+    "L181",
+    "L183",
+    "L184"
+  ],
+  "num_skipped_ordered_n2_paths": 1850,
+  "source": "results\\gcn_search\\ieee118_flow_scaled_800_fulltruth_earlystop_seed20260708\\ieee118_first_step_summary.csv",
+  "full_cascade_path_rule": "first_line -> second_line -> relay_trip_labels in recorded order; fallback to final_outage_labels when relay_trip_labels is empty."
+}

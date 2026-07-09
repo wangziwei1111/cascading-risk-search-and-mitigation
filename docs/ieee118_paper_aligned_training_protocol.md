@@ -93,3 +93,14 @@ The smoke artifact is only a label-density sanity check. Full paper-aligned trai
 ## Scope
 
 This PR does not regenerate full-truth, does not change Algorithm 1 or other search ordering logic, and does not commit NPZ datasets, model checkpoints, raw full-truth CSV, full predictions, or Simulink/MATLAB artifacts.
+
+## Scale-Up Stage
+
+The follow-up scale-up stage keeps this same protocol and increases the run size from the PR #13 smoke artifact to:
+
+- `calibration_200`: medium label-density calibration over `load_scale={1.0,1.05,1.1}` and `flow_limit_scale={8,10,12}`.
+- `pilot_200`: first usable end-to-end pilot with original RTS-79 defaults.
+- `pilot_2000`: larger pilot for classification and search evaluation.
+- `paper_8000`: the formal target matching the original paper-scale training idea.
+
+Scale-up results are recorded in `docs/ieee118_paper_aligned_training_scaleup_results.md`. Pilot results must not be described as the final paper-8000 result, and positive-weight sensitivities must not overwrite the original-paper `positive_weight=20` baseline.

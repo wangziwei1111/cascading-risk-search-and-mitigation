@@ -230,3 +230,9 @@ After first-step critical early-stop, the remaining protocol gap is training dat
 Training only on Step2-State S1 samples and then using that model to predict S0 first-line probabilities is protocol-incomplete. The paper-aligned IEEE118 training stage adds S0 + S1 multi-state samples, keeps first-step critical lines as positive S0 labels, and still excludes them from valid ordered N-2 S1 expansion.
 
 The new training stage still uses the original RTS-79 `PaperStyleRts79Gcn`, paper-style 4D features, and seed-separated train/validation/test splits. It does not change Algorithm 1 or any other search ordering logic.
+
+## Paper-Aligned Training Scale-Up
+
+The scale-up stage extends the 12-state PR #13 smoke run without changing the model or search logic. It adds medium calibration, pilot-200, pilot-2000, and optional paper-8000 commands for IEEE118. The main baseline remains the original RTS-79 default `positive_weight=20`; `positive_weight={50,100,200,800}` is reported only as sensitivity.
+
+The search evaluator may be rerun with the scale-up model and its train-split feature normalizer. This is preprocessing compatibility for the original `PaperStyleRts79Gcn`, not a new search algorithm. `path_prob`, `second_only`, Algorithm 1, `LODF_yP`, `PFW`, random, and line order remain evaluation methods/ablations and should not be mixed together as one claimed method.
