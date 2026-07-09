@@ -22,6 +22,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--samples-per-scenario", type=int, default=6)
     parser.add_argument("--sample-seed", type=int, default=20260708)
     parser.add_argument(
+        "--output-stem",
+        default="ieee118_training_calibration_sweep",
+        help="Base filename for CSV/JSON/readme outputs. Use *_200 for medium scale calibration.",
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
         default=ROOT / "results" / "gcn_search" / "ieee118_flow_scaled_800_paper_aligned_training",
@@ -106,9 +111,34 @@ def run_sweep(args: argparse.Namespace) -> pd.DataFrame:
                 row["recommended_setting"] = recommendation(row)
             rows.append(row)
     table = pd.DataFrame(rows)
-    table.to_csv(args.output_dir / "ieee118_training_calibration_sweep.csv", index=False, encoding="utf-8-sig")
-    (args.output_dir / "ieee118_training_calibration_sweep.json").write_text(
+    csv_path = args.output_dir / f"{args.output_stem}.csv"
+    json_path = args.output_dir / f"{args.output_stem}.json"
+    readme_path = args.output_dir / f"{args.output_stem}_readme.md"
+    table.to_csv(csv_path, index=False, encoding="utf-8-sig")
+    json_path.write_text(
         json.dumps(table.to_dict("records"), indent=2),
+        encoding="utf-8",
+    )
+    candidates = table.loc[table["recommended_setting"].eq("candidate")].copy()
+    if not candidates.empty:
+        candidates = candidates.sort_values(
+            ["load_scale", "flow_limit_scale", "positive_label_ratio"],
+            ascending=[False, True, True],
+        )
+        recommended = candidates.iloc[0].to_dict()
+    else:
+        recommended = None
+    readme_path.write_text(
+        "# IEEE118 Paper-Aligned Training Calibration\n\n"
+        f"- Target state samples per setting: {args.target_state_samples}\n"
+        f"- Samples per scenario: {args.samples_per_scenario}\n"
+        f"- Seeds: {', '.join(str(seed) for seed in args.seeds)}\n"
+        f"- Load scales: {', '.join(str(value) for value in args.load_scales)}\n"
+        f"- Flow-limit scales: {', '.join(str(value) for value in args.flow_limit_scales)}\n"
+        f"- Recommended row: {json.dumps(recommended, ensure_ascii=False) if recommended else 'none'}\n\n"
+        "Recommendation keeps the original-paper load setting when feasible, avoids overly dense labels, "
+        "and avoids cases dominated by first-step critical lines. This calibration is for training-label "
+        "density only; it does not modify search ordering logic.\n",
         encoding="utf-8",
     )
     return table

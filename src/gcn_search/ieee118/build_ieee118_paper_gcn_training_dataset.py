@@ -153,6 +153,7 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
     for seed in seeds:
         if len(rows) >= args.target_state_samples:
             break
+        print(f"[paper-gcn-dataset] seed={seed} start, current_states={len(rows)}/{args.target_state_samples}", flush=True)
         scenario_case = apply_load_scenario(
             adapter.case,
             seed=seed,
@@ -187,6 +188,11 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
             else:
                 noncritical_first_lines.append(label)
         append_sample(rows, x_s0, y_s0, mask_s0, seed=seed, sample_type="S0", split=split, current_outages=set(), line_labels=labels)
+        print(
+            f"[paper-gcn-dataset] seed={seed} S0 done, first_step_positive={int(y_s0[mask_s0].sum())}, "
+            f"noncritical_first_lines={len(noncritical_first_lines)}, current_states={len(rows)}/{args.target_state_samples}",
+            flush=True,
+        )
         if len(rows) >= args.target_state_samples:
             break
 
@@ -209,6 +215,12 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
                     y_s1[idx] = 1
                     valid_n2_positive_labels += 1
             append_sample(rows, x_s1, y_s1, mask_s1, seed=seed, sample_type="S1", split=split, current_outages=current_outages, line_labels=labels)
+            if len(rows) % 25 == 0 or len(rows) >= args.target_state_samples:
+                print(
+                    f"[paper-gcn-dataset] seed={seed} current_states={len(rows)}/{args.target_state_samples}, "
+                    f"last_first_line={first_line}, last_s1_positive={int(y_s1[mask_s1].sum())}",
+                    flush=True,
+                )
 
     if not rows or line_labels is None or branch_from_bus is None or branch_to_bus is None:
         raise ValueError("No paper-aligned IEEE118 samples were generated.")
