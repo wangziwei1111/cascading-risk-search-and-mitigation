@@ -1,0 +1,9 @@
+﻿stage,short_name,category,status,key_takeaway,source
+PR #11,early_stop_protocol,protocol,formal_protocol,IEEE118 early-stop ordered N-2 protocol fixes the formal valid-path universe.,manual_checked_value
+PR #12,algorithm1_completion,original_method_completion,method_completed_not_best,"Original Algorithm 1 was completed, but current single-scenario/pilot performance is weak.",manual_checked_value
+PR #13,paper_aligned_smoke,pipeline_smoke,smoke_only,12-state smoke proves the S0/S1 paper-aligned data/training/eval chain runs.,manual_checked_value
+PR #14,pilot_2000_training,paper_aligned_pilot_training,pilot_result,"Pilot-2000 is the closest current IEEE118 result to paper-aligned RTS-79 training, but is not paper-8000.",manual_checked_value
+PR #15,s0_bottleneck,diagnostic,mechanism_diagnosis,"Many critical paths are low-p_first / high-p_second, explaining why strict path_prob is suppressed.",manual_checked_value
+PR #16,alpha_path_prob,ranking_improvement,diagnostic_improvement,Alpha path probability shows reducing the hard p_first gate improves low-budget ranking.,manual_checked_value
+PR #17,any_critical_fragility,diagnostic_failed_label,degenerate_label,Any-critical first-line fragility is all-positive and cannot be a discriminative classifier.,manual_checked_value
+PR #18,strict_fragility_targets,strict_fragility_refinement,diagnostic_refinement,Strict top-q fragility targets fix label degeneracy and slightly improve some low-budget comparisons.,manual_checked_value

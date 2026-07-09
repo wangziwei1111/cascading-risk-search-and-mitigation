@@ -1,0 +1,46 @@
+﻿stage,metric,value,unit,note,source
+PR #11,first_step_critical_lines,10,lines,"L016, L047, L051, L061, L096, L147, L180, L181, L183, L184",manual_checked_value
+PR #11,skipped_paths_due_to_early_stop,1850,ordered paths,,manual_checked_value
+PR #11,valid_ordered_n2_paths_after_early_stop,32560,ordered paths,,manual_checked_value
+PR #11,valid_critical_paths,1754,paths,,manual_checked_value
+PR #11,valid_relay_cascade_paths,1643,paths,,manual_checked_value
+PR #11,valid_critical_ratio,0.0538698,ratio,,manual_checked_value
+PR #11,max_total_load_shed_mw,111.760638,MW,,manual_checked_value
+PR #12,Algorithm1_K1000_critical_hits,62,hits,Current single-scenario/pilot performance is weak.,manual_checked_value
+PR #12,path_prob_K1000_critical_hits,389,hits,,manual_checked_value
+PR #12,second_only_K1000_critical_hits,691,hits,,manual_checked_value
+PR #12,LODF_yP_K1000_critical_hits,58,hits,,manual_checked_value
+PR #12,PFW_K1000_critical_hits,66,hits,,manual_checked_value
+PR #12,random_K1000_critical_hits,60,hits,,manual_checked_value
+PR #12,line_order_K1000_critical_hits,56,hits,,manual_checked_value
+PR #13,paper_aligned_states_in_smoke,12,states,Smoke only; not formal IEEE118 result.,manual_checked_value
+PR #14,pilot_2000_overall_AP,0.878658,,,manual_checked_value
+PR #14,pilot_2000_F1,0.610405,,,manual_checked_value
+PR #14,pilot_2000_validation_AP,0.865178,,,manual_checked_value
+PR #14,pilot_2000_test_AP,0.860736,,,manual_checked_value
+PR #14,pilot_2000_S0_AP,0.513846,,,manual_checked_value
+PR #14,pilot_2000_S1_AP,0.880911,,,manual_checked_value
+PR #15,suppressed_critical_union,313,,,manual_checked_value
+PR #15,class_A,180,,,manual_checked_value
+PR #15,class_B,203,,,manual_checked_value
+PR #15,K1000_second_only_only_critical_hits,500,,,manual_checked_value
+PR #15,K1000_path_prob_only_critical_hits,199,,,manual_checked_value
+PR #15,second_only_only_mean_p_first,0.027451,,,manual_checked_value
+PR #15,second_only_only_mean_p_second,0.992166,,,manual_checked_value
+PR #15,path_prob_only_mean_p_first,0.570718,,,manual_checked_value
+PR #15,valid_N2_paths_with_first_step_positive_S0_label,0 / 32560,,,manual_checked_value
+PR #15,relay_cascade_suppressed_ratio,0.189897,,,manual_checked_value
+PR #15,island_only_suppressed_ratio,0.009009,,,manual_checked_value
+PR #16,alpha_score_formula,score_alpha=(epsilon+p_first)^alpha*p_second,,,manual_checked_value
+PR #16,K1000_strict_path_prob_hits,360,,,manual_checked_value
+PR #16,K1000_second_only_or_alpha0_hits,661,,,manual_checked_value
+PR #16,K5000_best_alpha_hits,1710,hits,"alpha=0.25, epsilon=1e-2",manual_checked_value
+PR #17,known_first_line_labels,1461,,,manual_checked_value
+PR #17,any_critical_positive,1461,,,manual_checked_value
+PR #17,any_critical_negative,0,,,manual_checked_value
+PR #17,any_critical_positive_ratio,1.0,,,manual_checked_value
+PR #18,strict_targets_non_degenerate,12,targets,,manual_checked_value
+PR #18,top10_positive_negative,156 / 1305,,,manual_checked_value
+PR #18,top20_positive_negative,302 / 1159,,,manual_checked_value
+PR #18,top30_positive_negative,448 / 1013,,,manual_checked_value
+PR #18,first_step_critical_excluded,158,,,manual_checked_value
