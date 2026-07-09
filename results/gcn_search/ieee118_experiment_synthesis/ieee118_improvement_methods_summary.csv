@@ -1,0 +1,5 @@
+﻿method,category,formula_or_rule,main_observation,paper_positioning,K1000_critical_hits,K5000_critical_hits
+second_only,diagnostic_ablation,p_second,Often stronger than strict path_prob because many valid critical paths are low-p_first/high-p_second.,"diagnostic/ablation, not original main method",661.0,1705.0
+best_alpha_path_prob,ranking_improvement,(epsilon+p_first)^alpha*p_second,Reducing the p_first gate improves low-budget ranking and nearly saturates K=5000.,"calibrated improvement, not original paper method",661.0,1710.0
+any_critical_fragility_path_prob,diagnostic_failed_label,q_any_critical(first_line)*p_second,"Label is all-positive, so it cannot prove discriminative first-line fragility learning.",appendix/diagnostic,673.0,1706.0
+best_strict_fragility_path_prob,strict_fragility_refinement,q_strict_fragile(first_line)*p_second,"Fixes label degeneracy and slightly improves K=100/K=1000, but does not dominate best_alpha.",optional main-text diagnostic refinement,676.0,1709.0

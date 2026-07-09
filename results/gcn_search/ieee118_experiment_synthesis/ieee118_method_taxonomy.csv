@@ -1,0 +1,9 @@
+﻿method_or_pr,category,paper_alignment_level,is_original_paper_method,is_ablation,is_diagnostic,is_improvement,is_formal_result,is_pilot_result,can_be_main_text,should_be_appendix,caveat
+PR #11 early-stop,protocol,high,False,False,False,False,True,False,True,False,Defines the current formal IEEE118 ordered N-2 universe.
+PR #12 Algorithm1,original_method_completion,high,True,False,False,False,False,True,True,True,"Completed original method, but current single-scenario/pilot model is not strong."
+PR #13 12-state smoke,pipeline_smoke,medium,False,False,False,False,False,False,False,True,Smoke only; not a formal result.
+PR #14 pilot-2000,paper_aligned_pilot_training,high,True,False,False,False,False,True,True,False,"Closest paper-aligned pilot, but not paper-8000."
+PR #15 S0 bottleneck,diagnostic,high,False,True,True,False,False,True,True,False,"Mechanism diagnosis, not a new ranking method."
+PR #16 alpha path-prob,ranking_improvement,medium,False,True,True,True,False,True,True,False,Calibrated ranking improvement; not original paper method.
+PR #17 any-critical fragility,diagnostic_failed_label,medium,False,True,True,False,False,True,False,True,Label degenerates to all-positive; diagnostic only.
+PR #18 strict fragility,strict_fragility_refinement,medium,False,True,True,True,False,True,True,False,Slight low-budget gains; not a decisive breakthrough.
