@@ -9,6 +9,7 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+from pypower.idx_brch import BR_STATUS, PF
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -26,6 +27,8 @@ METHOD_GCN_PROB = "RTS79_GCN_prob_reused_on_IEEE118"
 METHOD_GCN_PROB_YP = "RTS79_GCN_prob_yP_reused_on_IEEE118"
 METHOD_GCN_PATH_PROB = "RTS79_GCN_path_prob_reused_on_IEEE118"
 METHOD_SECOND_ONLY = "RTS79_GCN_second_only_reused_on_IEEE118"
+METHOD_GCN_ALGORITHM1 = "RTS79_GCN_Algorithm1_reused_on_IEEE118"
+METHOD_PFW = "PFW"
 
 
 def parse_args() -> argparse.Namespace:
@@ -46,6 +49,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--topk-output-rows", type=int, default=5000)
     parser.add_argument("--method-suffix", default="", help="Suffix appended to GCN method names, e.g. _earlystop.")
     parser.add_argument("--output-prefix", default="ieee118_rts79_protocol")
+    parser.add_argument("--gcn-threshold", type=float, default=0.5, help="Probability threshold for Algorithm 1 GCN-positive candidates.")
+    parser.add_argument("--threshold-sweep", type=float, nargs="+", default=[0.3, 0.5, 0.7, 0.9])
+    parser.add_argument("--threshold-sweep-prefix", default="ieee118_algorithm1_threshold_sweep")
     parser.add_argument(
         "--output-dir",
         type=Path,
@@ -194,6 +200,38 @@ def build_y_p_scores(args: argparse.Namespace) -> tuple[dict[str, float], dict[s
     return first_scores, second_scores
 
 
+def pfw_scores_from_case(case: dict, line_labels: tuple[str, ...]) -> dict[str, float]:
+    branch = case["branch"]
+    if branch.shape[1] <= PF:
+        raise ValueError("Branch matrix does not contain PF results required for PFW scoring.")
+    status = branch[:, BR_STATUS].astype(int)
+    flow = np.where(status == 1, np.abs(branch[:, PF].astype(float)), -np.inf)
+    return {label: float(flow[idx]) for idx, label in enumerate(line_labels)}
+
+
+def build_pfw_scores(args: argparse.Namespace) -> tuple[dict[str, float], dict[str, dict[str, float]]]:
+    adapter = build_case_adapter("ieee118")
+    scenario_case = apply_ieee118_load_scenario(adapter.case, seed=args.seed, load_scale=args.load_scale)
+    scenario_case = apply_thermal_limit_mode(
+        scenario_case,
+        limit_mode=args.limit_mode,
+        flow_limit_scale=args.flow_limit_scale,
+        min_rate_a=args.min_rate_a,
+    )
+    first_scores = pfw_scores_from_case(scenario_case, adapter.line_labels)
+    second_scores: dict[str, dict[str, float]] = {}
+    for first_line in adapter.line_labels:
+        state = run_sequential_outages_for_case(
+            scenario_case,
+            adapter,
+            [first_line],
+            beta=args.beta,
+            security_limit=args.security_limit,
+        )
+        second_scores[first_line] = pfw_scores_from_case(state["case"], adapter.line_labels)
+    return first_scores, second_scores
+
+
 def dedupe_order(paths: list[str]) -> list[str]:
     seen = set()
     ordered = []
@@ -210,13 +248,96 @@ def label_method(method: str, suffix: str) -> str:
     return method
 
 
+def p_first_for_line(score: pd.DataFrame, line: str) -> float:
+    return float(score.loc[score["first_line"] == line, "p_shed_first"].iloc[0])
+
+
+def ordered_gcn_positive_then_physics(
+    rows: pd.DataFrame,
+    *,
+    candidate_col: str,
+    probability_col: str,
+    physics_col: str,
+    threshold: float,
+) -> pd.DataFrame:
+    table = rows.copy()
+    table["_is_gcn_positive"] = table[probability_col].astype(float) >= float(threshold)
+    positives = table.loc[table["_is_gcn_positive"]].sort_values(
+        [probability_col, physics_col, candidate_col],
+        ascending=[False, False, True],
+    )
+    fallback = table.loc[~table["_is_gcn_positive"]].sort_values(
+        [physics_col, candidate_col],
+        ascending=[False, True],
+    )
+    return pd.concat([positives, fallback], ignore_index=True)
+
+
+def make_gcn_algorithm1_order(
+    score: pd.DataFrame,
+    y_p_first: dict[str, float],
+    y_p_second: dict[str, dict[str, float]],
+    *,
+    threshold: float,
+) -> list[str]:
+    first_rows = []
+    for first in sorted(score["first_line"].astype(str).unique()):
+        first_rows.append(
+            {
+                "first_line": first,
+                "p_shed_first": p_first_for_line(score, first),
+                "first_y_p": float(y_p_first.get(first, 0.0)),
+            }
+        )
+    first_order = ordered_gcn_positive_then_physics(
+        pd.DataFrame(first_rows),
+        candidate_col="first_line",
+        probability_col="p_shed_first",
+        physics_col="first_y_p",
+        threshold=threshold,
+    )["first_line"].astype(str).tolist()
+
+    paths: list[str] = []
+    for first in first_order:
+        group = score.loc[score["first_line"] == first].copy()
+        group["second_y_p"] = group["second_line"].map(lambda second: float(y_p_second.get(first, {}).get(str(second), 0.0)))
+        second_order = ordered_gcn_positive_then_physics(
+            group,
+            candidate_col="second_line",
+            probability_col="p_shed_second",
+            physics_col="second_y_p",
+            threshold=threshold,
+        )
+        paths.extend(second_order["path"].astype(str).tolist())
+    return dedupe_order(paths)
+
+
+def make_pfw_order(
+    score: pd.DataFrame,
+    pfw_first: dict[str, float],
+    pfw_second: dict[str, dict[str, float]],
+) -> list[str]:
+    paths: list[str] = []
+    first_lines = sorted(score["first_line"].astype(str).unique())
+    first_order = sorted(first_lines, key=lambda line: (-float(pfw_first.get(line, -np.inf)), line))
+    for first in first_order:
+        group = score.loc[score["first_line"] == first].copy()
+        group["second_pfw"] = group["second_line"].map(lambda second: float(pfw_second.get(first, {}).get(str(second), -np.inf)))
+        group = group.sort_values(["second_pfw", "second_line"], ascending=[False, True])
+        paths.extend(group["path"].astype(str).tolist())
+    return dedupe_order(paths)
+
+
 def make_orders(
     score: pd.DataFrame,
     y_p_first: dict[str, float],
     y_p_second: dict[str, dict[str, float]],
+    pfw_first: dict[str, float],
+    pfw_second: dict[str, dict[str, float]],
     random_seeds: list[int],
     *,
     method_suffix: str = "",
+    gcn_threshold: float = 0.5,
 ) -> dict[str, list[str]]:
     all_paths = score["path"].astype(str).tolist()
     first_lines = sorted(score["first_line"].astype(str).unique())
@@ -250,6 +371,12 @@ def make_orders(
         ascending=[False, False, False, True],
     )["path"].astype(str).tolist()
     orders[label_method(METHOD_SECOND_ONLY, method_suffix)] = score.sort_values(["p_shed_second", "path"], ascending=[False, True])["path"].astype(str).tolist()
+    orders[label_method(METHOD_GCN_ALGORITHM1, method_suffix)] = make_gcn_algorithm1_order(
+        score,
+        y_p_first,
+        y_p_second,
+        threshold=gcn_threshold,
+    )
 
     paths = []
     first_order = sorted(first_lines, key=lambda line: (-float(y_p_first.get(line, -np.inf)), line))
@@ -259,12 +386,48 @@ def make_orders(
         group = group.sort_values(["second_y_p", "second_line"], ascending=[False, True])
         paths.extend(group["path"].astype(str).tolist())
     orders["LODF_yP"] = dedupe_order(paths)
+    orders[METHOD_PFW] = make_pfw_order(score, pfw_first, pfw_second)
 
     for seed in random_seeds:
         shuffled = list(all_paths)
         random.Random(seed).shuffle(shuffled)
         orders[f"random_seed_{seed}"] = shuffled
     return orders
+
+
+def algorithm1_threshold_stats(
+    score: pd.DataFrame,
+    y_p_first: dict[str, float],
+    y_p_second: dict[str, dict[str, float]],
+    truth: pd.DataFrame,
+    budgets: pd.DataFrame,
+    thresholds: list[float],
+    *,
+    method_name: str,
+) -> pd.DataFrame:
+    rows = []
+    first_lines = sorted(score["first_line"].astype(str).unique())
+    for threshold in thresholds:
+        order = make_gcn_algorithm1_order(score, y_p_first, y_p_second, threshold=float(threshold))
+        metrics = evaluate_order(method_name, order, truth, budgets)
+        k1000 = metrics.loc[(metrics["budget_type"] == "fixed") & (metrics["K"] == min(1000, len(truth)))]
+        k5000 = metrics.loc[(metrics["budget_type"] == "fixed") & (metrics["K"] == min(5000, len(truth)))]
+        second_positive_counts = []
+        for first in first_lines:
+            group = score.loc[score["first_line"] == first]
+            second_positive_counts.append(int((group["p_shed_second"].astype(float) >= float(threshold)).sum()))
+        rows.append(
+            {
+                "gcn_threshold": float(threshold),
+                "k1000_recall_critical": float(k1000["recall_critical"].iloc[0]) if not k1000.empty else np.nan,
+                "k1000_precision_at_k": float(k1000["precision_at_k"].iloc[0]) if not k1000.empty else np.nan,
+                "k5000_recall_critical": float(k5000["recall_critical"].iloc[0]) if not k5000.empty else np.nan,
+                "k5000_precision_at_k": float(k5000["precision_at_k"].iloc[0]) if not k5000.empty else np.nan,
+                "num_gcn_positive_first_lines": int(sum(p_first_for_line(score, first) >= float(threshold) for first in first_lines)),
+                "mean_num_gcn_positive_second_lines": float(np.mean(second_positive_counts)) if second_positive_counts else 0.0,
+            }
+        )
+    return pd.DataFrame(rows)
 
 
 def evaluate_order(method: str, ordered_paths: list[str], truth: pd.DataFrame, budgets: pd.DataFrame) -> pd.DataFrame:
@@ -390,7 +553,17 @@ def evaluate_protocol(args: argparse.Namespace) -> pd.DataFrame:
     s1_probability, line_labels = predict_s1_probabilities(args.dataset_npz, args.model_path)
     score = make_path_score_table(args.path_index_csv, args.first_step_probabilities_csv, s1_probability, truth)
     y_p_first, y_p_second = build_y_p_scores(args)
-    orders = make_orders(score, y_p_first, y_p_second, args.random_seeds, method_suffix=args.method_suffix)
+    pfw_first, pfw_second = build_pfw_scores(args)
+    orders = make_orders(
+        score,
+        y_p_first,
+        y_p_second,
+        pfw_first,
+        pfw_second,
+        args.random_seeds,
+        method_suffix=args.method_suffix,
+        gcn_threshold=args.gcn_threshold,
+    )
     budgets = budget_table(len(truth))
     summary_parts = []
     random_parts = []
@@ -406,6 +579,17 @@ def evaluate_protocol(args: argparse.Namespace) -> pd.DataFrame:
     prefix = str(args.output_prefix)
     summary.to_csv(args.output_dir / f"{prefix}_search_summary.csv", index=False, encoding="utf-8-sig")
     write_json(args.output_dir / f"{prefix}_search_summary.json", summary.to_dict("records"))
+    threshold_summary = algorithm1_threshold_stats(
+        score,
+        y_p_first,
+        y_p_second,
+        truth,
+        budgets,
+        [float(value) for value in args.threshold_sweep],
+        method_name=label_method(METHOD_GCN_ALGORITHM1, args.method_suffix),
+    )
+    threshold_summary.to_csv(args.output_dir / f"{args.threshold_sweep_prefix}.csv", index=False, encoding="utf-8-sig")
+    write_json(args.output_dir / f"{args.threshold_sweep_prefix}.json", threshold_summary.to_dict("records"))
     pd.concat(curve_parts, ignore_index=True, sort=False).to_csv(
         args.output_dir / f"{prefix}_curve_points_sparse.csv",
         index=False,
@@ -416,7 +600,9 @@ def evaluate_protocol(args: argparse.Namespace) -> pd.DataFrame:
         label_method(METHOD_GCN_PATH_PROB, args.method_suffix),
         label_method(METHOD_GCN_PROB, args.method_suffix),
         label_method(METHOD_GCN_PROB_YP, args.method_suffix),
+        label_method(METHOD_GCN_ALGORITHM1, args.method_suffix),
         label_method(METHOD_SECOND_ONLY, args.method_suffix),
+        METHOD_PFW,
         "LODF_yP",
     ]:
         ranked = score.set_index("path").reindex(orders[method]).dropna(subset=["first_line"]).reset_index().head(args.topk_output_rows)
@@ -441,8 +627,12 @@ def evaluate_protocol(args: argparse.Namespace) -> pd.DataFrame:
             "first_step_probabilities_csv": str(args.first_step_probabilities_csv),
             "feature_mode": "paper",
             "line_labels": "L001-L186",
-            "main_method": label_method(METHOD_GCN_PATH_PROB, args.method_suffix),
+            "main_method": label_method(METHOD_GCN_ALGORITHM1, args.method_suffix),
+            "path_product_ablation": label_method(METHOD_GCN_PATH_PROB, args.method_suffix),
             "second_only_ablation": label_method(METHOD_SECOND_ONLY, args.method_suffix),
+            "pfw_baseline": METHOD_PFW,
+            "gcn_threshold": float(args.gcn_threshold),
+            "threshold_sweep": [float(value) for value in args.threshold_sweep],
             "num_valid_ordered_n2_paths": int(len(truth)),
             **first_step_stats,
             "full_cascade_path_rule": "first_line -> second_line -> relay_trip_labels in recorded order; fallback to final_outage_labels when relay_trip_labels is empty.",
@@ -450,8 +640,11 @@ def evaluate_protocol(args: argparse.Namespace) -> pd.DataFrame:
     )
     (args.output_dir / f"{prefix}_readme.md").write_text(
         "# IEEE118 RTS-79 Protocol Search\n\n"
-        f"Main method: `{label_method(METHOD_GCN_PATH_PROB, args.method_suffix)}`, using `p_shed(Li|S0) * p_shed(Lj|S1(i))`.\n"
+        f"Main method: `{label_method(METHOD_GCN_ALGORITHM1, args.method_suffix)}`, using Algorithm 1 GCN-positive candidates first and yP fallback.\n"
+        f"`{label_method(METHOD_GCN_PATH_PROB, args.method_suffix)}` is retained as a path-product ranking ablation.\n"
         f"`{label_method(METHOD_SECOND_ONLY, args.method_suffix)}` is retained only as an ablation.\n"
+        f"`{METHOD_PFW}` is the power-flow-weighted baseline using absolute PF in S0 and S1 states.\n"
+        f"GCN threshold: {float(args.gcn_threshold)}.\n"
         f"Valid ordered N-2 paths: {len(truth)}.\n"
         "Curve points are sparse and include RTS-79-style full-cascade-path deduplicated counts.\n"
         "The full-cascade path is an approximate reconstruction from relay/final outage labels, "
