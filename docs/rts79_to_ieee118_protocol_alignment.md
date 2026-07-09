@@ -219,3 +219,14 @@ The formal paper result should use:
 and not the no-early-stop PR #10 method:
 
 - `RTS79_GCN_path_prob_reused_on_IEEE118`
+
+## Paper-Aligned Training Protocol
+
+After first-step critical early-stop, the remaining protocol gap is training data construction. The paper-style GCN learns `y_GCN = f(X_GCN)` across many current operating states. IEEE118 therefore needs both:
+
+- S0 base-state samples for learning `p_shed(Li | S0)`.
+- S1 first-outage states for learning `p_shed(Lj | S1(i))`.
+
+Training only on Step2-State S1 samples and then using that model to predict S0 first-line probabilities is protocol-incomplete. The paper-aligned IEEE118 training stage adds S0 + S1 multi-state samples, keeps first-step critical lines as positive S0 labels, and still excludes them from valid ordered N-2 S1 expansion.
+
+The new training stage still uses the original RTS-79 `PaperStyleRts79Gcn`, paper-style 4D features, and seed-separated train/validation/test splits. It does not change Algorithm 1 or any other search ordering logic.
