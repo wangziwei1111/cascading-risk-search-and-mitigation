@@ -117,6 +117,7 @@ def append_sample(
     split: str,
     current_outages: set[str],
     line_labels: list[str],
+    active_first_line: str = "",
 ) -> None:
     rows.append(
         {
@@ -124,6 +125,7 @@ def append_sample(
             "seed": int(seed),
             "split": split,
             "sample_type": sample_type,
+            "active_first_line": str(active_first_line),
             "current_outage_labels": ",".join(sorted(current_outages)),
             "x_raw": x_raw,
             "y": y.astype(np.int64),
@@ -187,7 +189,17 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
                 first_step_critical_labels += 1
             else:
                 noncritical_first_lines.append(label)
-        append_sample(rows, x_s0, y_s0, mask_s0, seed=seed, sample_type="S0", split=split, current_outages=set(), line_labels=labels)
+        append_sample(
+            rows,
+            x_s0,
+            y_s0,
+            mask_s0,
+            seed=seed,
+            sample_type="S0",
+            split=split,
+            current_outages=set(),
+            line_labels=labels,
+        )
         print(
             f"[paper-gcn-dataset] seed={seed} S0 done, first_step_positive={int(y_s0[mask_s0].sum())}, "
             f"noncritical_first_lines={len(noncritical_first_lines)}, current_states={len(rows)}/{args.target_state_samples}",
@@ -214,7 +226,18 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
                 if bool_critical(state2):
                     y_s1[idx] = 1
                     valid_n2_positive_labels += 1
-            append_sample(rows, x_s1, y_s1, mask_s1, seed=seed, sample_type="S1", split=split, current_outages=current_outages, line_labels=labels)
+            append_sample(
+                rows,
+                x_s1,
+                y_s1,
+                mask_s1,
+                seed=seed,
+                sample_type="S1",
+                split=split,
+                current_outages=current_outages,
+                line_labels=labels,
+                active_first_line=first_line,
+            )
             if len(rows) % 25 == 0 or len(rows) >= args.target_state_samples:
                 print(
                     f"[paper-gcn-dataset] seed={seed} current_states={len(rows)}/{args.target_state_samples}, "
@@ -243,6 +266,7 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
         seed=np.asarray([row["seed"] for row in rows], dtype=np.int64),
         split=splits,
         sample_type=np.asarray([row["sample_type"] for row in rows], dtype=str),
+        active_first_line=np.asarray([row["active_first_line"] for row in rows], dtype=str),
         current_outage_labels=np.asarray([row["current_outage_labels"] for row in rows], dtype=str),
         line_labels=np.asarray(line_labels, dtype=str),
         branch_from_bus=branch_from_bus,
@@ -256,6 +280,7 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
                 "seed": row["seed"],
                 "split": row["split"],
                 "sample_type": row["sample_type"],
+                "active_first_line": row["active_first_line"],
                 "current_outage_labels": row["current_outage_labels"],
                 "num_candidate_labels": row["num_candidate_labels"],
                 "num_positive_labels": row["num_positive_labels"],
@@ -333,6 +358,7 @@ def write_schema(output_dir: Path) -> None:
         "- `y_gcn`: branch vulnerability labels for the current state.\n"
         "- `loss_mask`: valid candidate branches for each current state.\n"
         "- `sample_type`: `S0` base states and `S1` first-outage states.\n"
+        "- `active_first_line`: the active first outage for S1; empty for S0.\n"
         "- Splits are assigned by load-scenario seed to avoid leakage.\n",
         encoding="utf-8",
     )

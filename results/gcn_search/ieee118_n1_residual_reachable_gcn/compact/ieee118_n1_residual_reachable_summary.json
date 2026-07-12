@@ -1,0 +1,39 @@
+{
+  "status": "complete",
+  "experiment_scope": "pilot_2000_state_samples",
+  "model_class": "PaperStyleRts79Gcn",
+  "model_core_modified": false,
+  "checkpoint_selection": "maximum validation average precision",
+  "selected_k_gcn": 6,
+  "selected_effective_two_layer_max_hops": 12,
+  "num_valid_ordered_n2_paths": 32560,
+  "num_critical_paths": 1754,
+  "n1_prescreen_evaluations": 186,
+  "primary_protocol_method": "N1_gate_plus_RTS79_residual_reachable_GCN_path_prob",
+  "primary_path_probability_thresholds": {
+    "K90": 2003,
+    "K95": 3176,
+    "K99": 10929,
+    "K100": 22317,
+    "total_physical_K90": 2189,
+    "total_physical_K95": 3362,
+    "total_physical_K99": 11115,
+    "total_physical_K100": 22503
+  },
+  "diagnostic_ablation_method": "N1_gate_plus_RTS79_residual_reachable_GCN_second_only",
+  "selected_second_only_thresholds": {
+    "K90": 1939,
+    "K95": 3033,
+    "K99": 10200,
+    "K100": 21605,
+    "total_physical_K90": 2125,
+    "total_physical_K95": 3219,
+    "total_physical_K99": 10386,
+    "total_physical_K100": 21791
+  },
+  "rts79_reference_searches_per_critical": 1.2049469964664312,
+  "ieee118_primary_total_physical_K90_per_critical": 1.2480045610034207,
+  "ieee118_total_physical_K90_per_critical": 1.2115165336374003,
+  "large_training_artifacts_tracked_in_git": false,
+  "final_paper_claim_permitted": false
+}

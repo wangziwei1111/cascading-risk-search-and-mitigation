@@ -1,0 +1,90 @@
+{
+  "status": "complete",
+  "fulltruth_csv": "C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\gcn_search\\ieee118_flow_scaled_800_fulltruth_earlystop_seed20260708\\ieee118_fulltruth_summary.csv",
+  "first_step_summary_csv": "C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\gcn_search\\ieee118_flow_scaled_800_fulltruth_earlystop_seed20260708\\ieee118_first_step_summary.csv",
+  "num_scenarios": 1,
+  "num_valid_ordered_n2_paths": 32560,
+  "num_critical_paths": 1754,
+  "num_relay_cascade_paths": 1643,
+  "num_island_only_paths": 111,
+  "num_n1_critical_lines": 10,
+  "n1_prescreen_evaluations_per_scenario": 186,
+  "tier_a_paths": 1760,
+  "tier_a_critical_paths": 1556,
+  "tier_a_precision": 0.884090909090909,
+  "residual_paths": 30800,
+  "residual_critical_paths": 198,
+  "residual_critical_ratio": 0.0064285714285714285,
+  "residual_relay_cascade_paths": 154,
+  "residual_island_only_paths": 44,
+  "num_residual_reachable_first_lines": 114,
+  "num_residual_nonreachable_first_lines": 62,
+  "definition": {
+    "tier_a": "valid ordered N-2 paths whose second_line is N-1 critical in the same S0 scenario",
+    "residual": "valid ordered N-2 paths whose second_line is not N-1 critical in the same S0 scenario",
+    "critical_unchanged": true
+  },
+  "score_table_csv": "C:\\Users\\24186\\Documents\\New project 7\\cascading-risk-search-and-mitigation\\results\\gcn_search\\ieee118_paper_aligned_training_scaleup\\s0_bottleneck_diagnostics\\s0_bottleneck_full_score_table_local_only.csv",
+  "diagnostic_ranking_thresholds": [
+    {
+      "method": "second_only",
+      "universe": "full",
+      "total_paths": 32560,
+      "total_critical": 1754,
+      "K90": 3919,
+      "K95": 4071,
+      "K99": 11716,
+      "K100": 30314
+    },
+    {
+      "method": "n1_gate_plus_second_only",
+      "universe": "full",
+      "total_paths": 32560,
+      "total_critical": 1754,
+      "K90": 1969,
+      "K95": 3080,
+      "K99": 11716,
+      "K100": 30314
+    },
+    {
+      "method": "residual_second_only",
+      "universe": "residual",
+      "total_paths": 30800,
+      "total_critical": 198,
+      "K90": 8681,
+      "K95": 16669,
+      "K99": 22238,
+      "K100": 28554
+    },
+    {
+      "method": "path_prob",
+      "universe": "full",
+      "total_paths": 32560,
+      "total_critical": 1754,
+      "K90": 11488,
+      "K95": 16047,
+      "K99": 21530,
+      "K100": 30362
+    },
+    {
+      "method": "n1_gate_plus_path_prob",
+      "universe": "full",
+      "total_paths": 32560,
+      "total_critical": 1754,
+      "K90": 1997,
+      "K95": 4493,
+      "K99": 14870,
+      "K100": 29132
+    },
+    {
+      "method": "residual_path_prob",
+      "universe": "residual",
+      "total_paths": 30800,
+      "total_critical": 198,
+      "K90": 12536,
+      "K95": 16477,
+      "K99": 22945,
+      "K100": 27372
+    }
+  ]
+}
