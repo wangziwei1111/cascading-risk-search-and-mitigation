@@ -100,6 +100,9 @@
   "path_prob_delta": {
     "validation_average_precision": 0.3006254388185248,
     "test_average_precision": 0.17044837406336993,
+    "K90": -210.0,
+    "K95": -913.0,
+    "K99": -6624.0,
     "total_physical_K90": -210.0,
     "total_physical_K95": -913.0,
     "total_physical_K99": -6624.0
@@ -107,8 +110,13 @@
   "second_only_delta": {
     "validation_average_precision": 0.3006254388185248,
     "test_average_precision": 0.17044837406336993,
+    "K90": -147.0,
+    "K95": -744.0,
+    "K99": -5843.0,
     "total_physical_K90": -147.0,
     "total_physical_K95": -744.0,
     "total_physical_K99": -5843.0
-  }
+  },
+  "reporting_convention": "N-2 candidate verification count; N-1 state construction reported separately",
+  "n1_state_construction_evaluations": 186
 }

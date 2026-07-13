@@ -231,6 +231,7 @@ def test_scaleup_comparison_writes_pilot_and_paper8000_rows(tmp_path: Path) -> N
     assert result["path_prob_delta"]["total_physical_K90"] == -200
     assert (tmp_path / "compact" / "ieee118_paper8000_vs_pilot2000_thresholds.csv").exists()
     readme = (tmp_path / "compact" / "ieee118_paper8000_vs_pilot2000_readme.md").read_text(encoding="utf-8")
-    assert "2,186" in readme
-    assert "1,986" in readme
+    assert "2,000" in readme
+    assert "1,800" in readme
+    assert "186 N-1" in readme
     assert "path_prob" in readme

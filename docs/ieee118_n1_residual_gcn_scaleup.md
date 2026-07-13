@@ -20,8 +20,9 @@ Fixed settings:
 
 The pilot contains 2,000 states, or about 10.8 states per IEEE118 line. It
 already shows that the N-1 gate plus residual GCN can reach 90% critical recall
-in 2,125 total physical evaluations, but the residual tail remains difficult:
-K99 is 10,386 total evaluations for the second-only ablation.
+in 1,939 N-2 candidate verifications, but the residual tail remains difficult:
+K99 is 10,200 candidate verifications for the second-only ablation. The 186
+N-1 state-construction simulations are reported separately.
 
 The next controlled variable is therefore training coverage, not architecture.
 Paper-8000 increases state coverage fourfold while preserving the selected
@@ -155,27 +156,34 @@ The fixed `k=6` model selected epoch 19 by validation AP. Validation AP was
 0.6422 and held-out test AP was 0.6167. The pilot-2000 values were 0.3416 and
 0.4463 respectively.
 
-The primary ranking remains N-1 gate plus RTS-79-compatible `path_prob`:
+The primary ranking remains N-1 gate plus RTS-79-compatible `path_prob`. To
+match the RTS-79 slide convention, the main table counts N-2 candidate
+verifications only. The fixed 186 N-1 state-construction simulations are a
+separate setup cost.
 
-| Training data | Total physical K90 | K95 | K99 | K100 |
+| Training data | N-2 candidate K90 | K95 | K99 | K100 |
 |---|---:|---:|---:|---:|
-| pilot-2000 | 2,189 | 3,362 | 11,115 | 22,503 |
-| paper-8000 | **1,979** | **2,449** | **4,491** | **13,718** |
+| pilot-2000 | 2,003 | 3,176 | 10,929 | 22,317 |
+| paper-8000 | **1,793** | **2,263** | **4,305** | **13,532** |
 
 Increasing state coverage reduced K90 by 210 evaluations, K95 by 913, and
 K99 by 6,624. The largest improvement is therefore in the difficult
 high-recall tail, not only at the early part of the ranking.
 
-At K90, paper-8000 uses 1,979 physical evaluations, or 6.08% of the 32,560
-ordered N-2 paths. Fair N-1-gated baselines require 3,879 for line order,
-4,617 for LODF_yP, and 5,129.6 on average for random ranking. This makes the
+At K90, paper-8000 uses 1,793 N-2 candidate verifications, or 5.51% of the
+32,560 ordered N-2 paths. Fair N-1-gated baselines require 3,693 for line
+order, 4,431 for LODF_yP, and 4,943.6 on average for random ranking. This makes the
 IEEE118 early-recall budget ratio closer to the scale of the RTS-79 result,
 but it is not an equal claim: the RTS-79 slide reports finding all critical
-paths, whereas 1,979 is the IEEE118 90%-recall point. IEEE118 K100 remains
-13,718, so complete tail recovery is still substantially harder.
+paths, whereas 1,793 is the IEEE118 90%-recall point. IEEE118 K100 remains
+13,532, so complete tail recovery is still substantially harder.
 
-The `second_only` diagnostic ablation reaches total physical K90/K95/K99 at
-1,978/2,475/4,543. It is nearly tied at K90 but slightly worse than the
+For resource planning, add the separately reported 186 N-1 simulations. This
+gives total physical counts of 1,979/2,449/4,491 at K90/K95/K99, but those
+totals are not the primary RTS-79-compatible search-count convention.
+
+The `second_only` diagnostic ablation reaches candidate K90/K95/K99 at
+1,792/2,289/4,357. It is nearly tied at K90 but slightly worse than the
 primary `path_prob` ranking at K95 and K99, so `path_prob` remains the formal
 primary method.
 
@@ -202,7 +210,8 @@ NPZ shards, merged datasets, the model checkpoint, and full top-K path tables.
   S1 active first lines;
 - original RTS-79 `PaperStyleRts79Gcn` trained at fixed `k=6` and evaluated on
   the unchanged 32,560-path truth;
-- paper-8000 improves primary total physical K90/K95/K99 to
-  1,979/2,449/4,491;
+- paper-8000 improves primary N-2 candidate K90/K95/K99 to
+  1,793/2,263/4,305, with 186 N-1 state-construction simulations reported
+  separately;
 - no GCN architecture change, no Simulink/MATLAB scope, and no large artifact
   is intended for Git.

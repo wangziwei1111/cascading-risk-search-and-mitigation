@@ -115,32 +115,38 @@ def compare(args: argparse.Namespace) -> dict[str, Any]:
                 scale["validation_average_precision"] - pilot["validation_average_precision"]
             ),
             "test_average_precision": float(scale["test_average_precision"] - pilot["test_average_precision"]),
+            "K90": float(scale["K90"] - pilot["K90"]),
+            "K95": float(scale["K95"] - pilot["K95"]),
+            "K99": float(scale["K99"] - pilot["K99"]),
             "total_physical_K90": float(scale["total_physical_K90"] - pilot["total_physical_K90"]),
             "total_physical_K95": float(scale["total_physical_K95"] - pilot["total_physical_K95"]),
             "total_physical_K99": float(scale["total_physical_K99"] - pilot["total_physical_K99"]),
         }
-    (args.output_dir / "ieee118_paper8000_vs_pilot2000_summary.json").write_text(
-        json.dumps(result, indent=2), encoding="utf-8"
-    )
     pilot_path = thresholds.loc[
         thresholds["dataset"].eq("pilot_2000") & thresholds["ranking_variant"].eq("path_prob")
     ].iloc[0]
     scale_path = thresholds.loc[
         thresholds["dataset"].eq("paper_8000") & thresholds["ranking_variant"].eq("path_prob")
     ].iloc[0]
+    n1_cost = int(scale_path["total_physical_K90"] - scale_path["K90"])
+    result["reporting_convention"] = "N-2 candidate verification count; N-1 state construction reported separately"
+    result["n1_state_construction_evaluations"] = n1_cost
+    (args.output_dir / "ieee118_paper8000_vs_pilot2000_summary.json").write_text(
+        json.dumps(result, indent=2), encoding="utf-8"
+    )
     (args.output_dir / "ieee118_paper8000_vs_pilot2000_readme.md").write_text(
         "# IEEE118 Residual-Reachable Scale-Up Comparison\n\n"
         "This compact comparison holds the original RTS-79 `PaperStyleRts79Gcn`, `k_gcn=6`, loss, truth, and "
         "N-1-gated evaluation protocol fixed. Only multi-seed training-state volume changes from 2,000 to 8,000. "
-        "`path_prob` is the primary ranking; `second_only` remains a diagnostic ablation.\n\n"
-        "| Dataset | Test AP | Total physical K90 | K95 | K99 |\n"
+        "`path_prob` is the primary ranking; `second_only` remains a diagnostic ablation. The main search count uses "
+        f"N-2 candidate verifications, matching the RTS-79 convention; {n1_cost} N-1 state-construction simulations "
+        "are reported separately.\n\n"
+        "| Dataset | Test AP | N-2 candidate K90 | K95 | K99 |\n"
         "|---|---:|---:|---:|---:|\n"
         f"| pilot-2000 | {pilot_path['test_average_precision']:.4f} | "
-        f"{int(pilot_path['total_physical_K90']):,} | {int(pilot_path['total_physical_K95']):,} | "
-        f"{int(pilot_path['total_physical_K99']):,} |\n"
+        f"{int(pilot_path['K90']):,} | {int(pilot_path['K95']):,} | {int(pilot_path['K99']):,} |\n"
         f"| paper-8000 | {scale_path['test_average_precision']:.4f} | "
-        f"{int(scale_path['total_physical_K90']):,} | {int(scale_path['total_physical_K95']):,} | "
-        f"{int(scale_path['total_physical_K99']):,} |\n",
+        f"{int(scale_path['K90']):,} | {int(scale_path['K95']):,} | {int(scale_path['K99']):,} |\n",
         encoding="utf-8",
     )
     return result
