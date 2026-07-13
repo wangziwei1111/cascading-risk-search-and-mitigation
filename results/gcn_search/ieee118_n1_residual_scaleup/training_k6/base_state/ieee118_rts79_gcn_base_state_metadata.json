@@ -1,0 +1,13 @@
+{
+  "num_base_states": 1,
+  "num_line_labels": 186,
+  "feature_names": [
+    "branch_status_offline",
+    "relay_loading_ratio",
+    "abs_flow",
+    "max_terminal_load"
+  ],
+  "feature_mode": "paper",
+  "model_path": "results\\gcn_search\\ieee118_n1_residual_scaleup\\training_k6\\ieee118_residual_reachable_gcn_k6_model.pt",
+  "first_step_probability_csv": "results\\gcn_search\\ieee118_n1_residual_scaleup\\training_k6\\base_state\\ieee118_rts79_gcn_first_step_probabilities.csv"
+}

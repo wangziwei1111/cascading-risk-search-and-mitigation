@@ -17,6 +17,10 @@ LEGACY = ROOT / "src" / "gcn_search" / "legacy_rts79"
 sys.path.insert(0, str(LEGACY))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+CHECKPOINT_VERSION = 1
+CHECKPOINT_DIRNAME = "paper_gcn_checkpoint_shards"
+CHECKPOINT_PROGRESS_NAME = "ieee118_paper_gcn_checkpoint.json"
+
 from build_ieee118_step2_state_dataset import build_edge_features, build_node_features
 from case_adapter import build_case_adapter, run_sequential_outages_for_case
 from convert_ieee118_step2_to_rts79_gcn_format import PAPER_FEATURE_NAMES, build_x_from_json, fit_normalizer, normalize_x
@@ -137,6 +141,152 @@ def append_sample(
     )
 
 
+def generation_fingerprint(
+    args: argparse.Namespace,
+    seeds: list[int],
+    train_seeds: set[int],
+    validation_seeds: set[int],
+    test_seeds: set[int],
+) -> dict[str, Any]:
+    return {
+        "checkpoint_version": CHECKPOINT_VERSION,
+        "seeds": [int(value) for value in seeds],
+        "train_seeds": sorted(int(value) for value in train_seeds),
+        "validation_seeds": sorted(int(value) for value in validation_seeds),
+        "test_seeds": sorted(int(value) for value in test_seeds),
+        "samples_per_scenario": args.samples_per_scenario,
+        "target_state_samples": int(args.target_state_samples),
+        "load_scale": float(args.load_scale),
+        "load_random_low": float(args.load_random_low),
+        "load_random_high": float(args.load_random_high),
+        "limit_mode": str(args.limit_mode),
+        "flow_limit_scale": float(args.flow_limit_scale),
+        "min_rate_a": float(args.min_rate_a),
+        "beta": float(args.beta),
+        "security_limit": float(args.security_limit),
+        "first_step_critical_policy": str(args.first_step_critical_policy),
+        "feature_mode": str(args.feature_mode),
+        "sample_seed": int(args.sample_seed),
+    }
+
+
+def checkpoint_row_arrays(rows: list[dict[str, Any]]) -> dict[str, np.ndarray]:
+    return {
+        "x_raw": np.stack([row["x_raw"] for row in rows]).astype(np.float32),
+        "y": np.stack([row["y"] for row in rows]).astype(np.int64),
+        "loss_mask": np.stack([row["loss_mask"] for row in rows]).astype(bool),
+        "seed": np.asarray([row["seed"] for row in rows], dtype=np.int64),
+        "split": np.asarray([row["split"] for row in rows], dtype=str),
+        "sample_type": np.asarray([row["sample_type"] for row in rows], dtype=str),
+        "active_first_line": np.asarray([row["active_first_line"] for row in rows], dtype=str),
+        "current_outage_labels": np.asarray([row["current_outage_labels"] for row in rows], dtype=str),
+    }
+
+
+def load_checkpoint_rows(path: Path, rows: list[dict[str, Any]], line_labels: list[str]) -> None:
+    if not path.exists():
+        raise FileNotFoundError(f"Checkpoint progress references missing shard: {path}")
+    data = np.load(path, allow_pickle=False)
+    required = {
+        "x_raw",
+        "y",
+        "loss_mask",
+        "seed",
+        "split",
+        "sample_type",
+        "active_first_line",
+        "current_outage_labels",
+    }
+    missing = sorted(required - set(data.files))
+    if missing:
+        raise ValueError(f"Checkpoint shard {path} is missing arrays: {missing}")
+    for idx in range(len(data["seed"])):
+        append_sample(
+            rows,
+            data["x_raw"][idx],
+            data["y"][idx],
+            data["loss_mask"][idx],
+            seed=int(data["seed"][idx]),
+            sample_type=str(data["sample_type"][idx]),
+            split=str(data["split"][idx]),
+            current_outages={
+                token.strip()
+                for token in str(data["current_outage_labels"][idx]).split(",")
+                if token.strip()
+            },
+            line_labels=line_labels,
+            active_first_line=str(data["active_first_line"][idx]),
+        )
+
+
+def load_checkpoint(
+    output_dir: Path,
+    fingerprint: dict[str, Any],
+    line_labels: list[str],
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    progress_path = output_dir / CHECKPOINT_PROGRESS_NAME
+    if not progress_path.exists():
+        return [], {"shards": [], "completed_seeds": []}
+    progress = json.loads(progress_path.read_text(encoding="utf-8"))
+    if progress.get("generation_fingerprint") != fingerprint:
+        raise ValueError(
+            "Checkpoint configuration does not match this run. Use the original arguments or a new output directory."
+        )
+    rows: list[dict[str, Any]] = []
+    checkpoint_dir = output_dir / CHECKPOINT_DIRNAME
+    for shard_name in progress.get("shards", []):
+        load_checkpoint_rows(checkpoint_dir / str(shard_name), rows, line_labels)
+    expected = int(progress.get("num_state_samples", len(rows)))
+    if len(rows) != expected:
+        raise ValueError(f"Checkpoint restored {len(rows)} rows but progress records {expected}.")
+    return rows, progress
+
+
+def flush_checkpoint(
+    output_dir: Path,
+    rows: list[dict[str, Any]],
+    pending_start: int,
+    progress: dict[str, Any],
+    fingerprint: dict[str, Any],
+    completed_seeds: set[int],
+    *,
+    status: str,
+) -> int:
+    checkpoint_dir = output_dir / CHECKPOINT_DIRNAME
+    checkpoint_dir.mkdir(parents=True, exist_ok=True)
+    shards = [str(value) for value in progress.get("shards", [])]
+    if pending_start < len(rows):
+        existing_ids = []
+        for path in checkpoint_dir.glob("checkpoint_*.npz"):
+            try:
+                existing_ids.append(int(path.stem.rsplit("_", 1)[1]))
+            except ValueError:
+                continue
+        shard_id = max(existing_ids, default=0) + 1
+        shard_name = f"checkpoint_{shard_id:06d}.npz"
+        shard_path = checkpoint_dir / shard_name
+        temp_path = checkpoint_dir / f"checkpoint_{shard_id:06d}.tmp.npz"
+        np.savez_compressed(temp_path, **checkpoint_row_arrays(rows[pending_start:]))
+        temp_path.replace(shard_path)
+        shards.append(shard_name)
+
+    updated = {
+        "checkpoint_version": CHECKPOINT_VERSION,
+        "status": status,
+        "generation_fingerprint": fingerprint,
+        "num_state_samples": int(len(rows)),
+        "completed_seeds": sorted(int(value) for value in completed_seeds),
+        "shards": shards,
+    }
+    progress_path = output_dir / CHECKPOINT_PROGRESS_NAME
+    temp_progress = output_dir / f"{CHECKPOINT_PROGRESS_NAME}.tmp"
+    temp_progress.write_text(json.dumps(updated, indent=2), encoding="utf-8")
+    temp_progress.replace(progress_path)
+    progress.clear()
+    progress.update(updated)
+    return len(rows)
+
+
 def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
     if args.feature_mode != "paper":
         raise ValueError("The formal paper-aligned dataset must use --feature-mode paper.")
@@ -144,17 +294,51 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
     adapter = build_case_adapter("ieee118")
     seeds = [int(seed) for seed in args.seeds[: args.num_load_scenarios] if args.num_load_scenarios] or [int(seed) for seed in args.seeds]
     train_seeds, validation_seeds, test_seeds = split_seed_sets(argparse.Namespace(**{**vars(args), "seeds": seeds}))
-    rng = np.random.default_rng(args.sample_seed)
-    rows: list[dict[str, Any]] = []
-    first_step_critical_labels = 0
-    valid_n2_positive_labels = 0
-    branch_from_bus: np.ndarray | None = None
-    branch_to_bus: np.ndarray | None = None
-    line_labels: list[str] | None = None
+    fingerprint = generation_fingerprint(args, seeds, train_seeds, validation_seeds, test_seeds)
+    progress_path = args.output_dir / CHECKPOINT_PROGRESS_NAME
+    if progress_path.exists() and not args.resume:
+        raise FileExistsError(
+            f"Checkpoint already exists at {progress_path}. Pass --resume or choose a new output directory."
+        )
+    metadata_path = args.output_dir / "ieee118_paper_gcn_dataset_metadata.json"
+    final_dataset_path = args.output_dir / "ieee118_paper_gcn_dataset.npz"
+    if args.resume and metadata_path.exists() and final_dataset_path.exists():
+        existing_metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        if (
+            existing_metadata.get("generation_fingerprint") == fingerprint
+            and int(existing_metadata.get("num_state_samples", 0)) >= int(args.target_state_samples)
+        ):
+            return existing_metadata
+
+    line_labels = [str(value) for value in adapter.line_labels]
+    branch_from_bus = adapter.case["branch"][:, F_BUS].astype(np.int64)
+    branch_to_bus = adapter.case["branch"][:, T_BUS].astype(np.int64)
+    rows, checkpoint_progress = (
+        load_checkpoint(args.output_dir, fingerprint, line_labels)
+        if args.resume
+        else ([], {"shards": [], "completed_seeds": []})
+    )
+    completed_seeds = {int(value) for value in checkpoint_progress.get("completed_seeds", [])}
+    pending_checkpoint_start = len(rows)
+    first_step_critical_labels = sum(
+        int(row["y"][row["loss_mask"]].sum()) for row in rows if row["sample_type"] == "S0"
+    )
+    valid_n2_positive_labels = sum(
+        int(row["y"][row["loss_mask"]].sum()) for row in rows if row["sample_type"] == "S1"
+    )
+    if rows:
+        print(
+            f"[paper-gcn-dataset] resumed {len(rows)} states from {len(checkpoint_progress.get('shards', []))} shards; "
+            f"completed_seeds={len(completed_seeds)}",
+            flush=True,
+        )
 
     for seed in seeds:
         if len(rows) >= args.target_state_samples:
             break
+        if seed in completed_seeds:
+            print(f"[paper-gcn-dataset] seed={seed} already checkpointed; skipping", flush=True)
+            continue
         print(f"[paper-gcn-dataset] seed={seed} start, current_states={len(rows)}/{args.target_state_samples}", flush=True)
         scenario_case = apply_load_scenario(
             adapter.case,
@@ -171,10 +355,10 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
         )
         split = split_name(seed, train_seeds, validation_seeds, test_seeds)
         x_s0, labels, from_bus, to_bus = state_features(scenario_case, adapter, set(), args.feature_mode, args.beta, args.security_limit)
-        if line_labels is None:
-            line_labels = labels
-            branch_from_bus = from_bus
-            branch_to_bus = to_bus
+        if labels != line_labels:
+            raise ValueError("IEEE118 line-label order changed across load scenarios.")
+        if not np.array_equal(from_bus, branch_from_bus) or not np.array_equal(to_bus, branch_to_bus):
+            raise ValueError("IEEE118 branch endpoints changed across load scenarios.")
         y_s0 = np.zeros(len(labels), dtype=np.int64)
         mask_s0 = scenario_case["branch"][:, BR_STATUS].astype(int) == 1
         noncritical_first_lines: list[str] = []
@@ -186,20 +370,23 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
             first_states[label] = state
             if bool_critical(state):
                 y_s0[idx] = 1
-                first_step_critical_labels += 1
             else:
                 noncritical_first_lines.append(label)
-        append_sample(
-            rows,
-            x_s0,
-            y_s0,
-            mask_s0,
-            seed=seed,
-            sample_type="S0",
-            split=split,
-            current_outages=set(),
-            line_labels=labels,
-        )
+        seed_rows = [row for row in rows if int(row["seed"]) == seed]
+        has_s0 = any(row["sample_type"] == "S0" for row in seed_rows)
+        if not has_s0:
+            append_sample(
+                rows,
+                x_s0,
+                y_s0,
+                mask_s0,
+                seed=seed,
+                sample_type="S0",
+                split=split,
+                current_outages=set(),
+                line_labels=labels,
+            )
+            first_step_critical_labels += int(y_s0[mask_s0].sum())
         print(
             f"[paper-gcn-dataset] seed={seed} S0 done, first_step_positive={int(y_s0[mask_s0].sum())}, "
             f"noncritical_first_lines={len(noncritical_first_lines)}, current_states={len(rows)}/{args.target_state_samples}",
@@ -208,11 +395,19 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
         if len(rows) >= args.target_state_samples:
             break
 
-        rng.shuffle(noncritical_first_lines)
+        seed_rng = np.random.default_rng(np.random.SeedSequence([int(args.sample_seed), int(seed)]))
+        seed_rng.shuffle(noncritical_first_lines)
         scenario_cap = args.samples_per_scenario if args.samples_per_scenario is not None else len(noncritical_first_lines)
+        processed_first_lines = {
+            str(row["active_first_line"])
+            for row in seed_rows
+            if row["sample_type"] == "S1" and str(row["active_first_line"])
+        }
         for first_line in noncritical_first_lines[:scenario_cap]:
             if len(rows) >= args.target_state_samples:
                 break
+            if first_line in processed_first_lines:
+                continue
             first_state = first_states[first_line]
             current_outages = final_outage_set(first_state) | {first_line}
             x_s1, _, _, _ = state_features(first_state["case"], adapter, current_outages, args.feature_mode, args.beta, args.security_limit)
@@ -225,7 +420,6 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
                 state2 = run_sequential_outages_for_case(first_state["case"], adapter, [second_line], beta=args.beta, security_limit=args.security_limit)
                 if bool_critical(state2):
                     y_s1[idx] = 1
-                    valid_n2_positive_labels += 1
             append_sample(
                 rows,
                 x_s1,
@@ -238,6 +432,17 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
                 line_labels=labels,
                 active_first_line=first_line,
             )
+            valid_n2_positive_labels += int(y_s1[mask_s1].sum())
+            if args.checkpoint_every > 0 and len(rows) - pending_checkpoint_start >= args.checkpoint_every:
+                pending_checkpoint_start = flush_checkpoint(
+                    args.output_dir,
+                    rows,
+                    pending_checkpoint_start,
+                    checkpoint_progress,
+                    fingerprint,
+                    completed_seeds,
+                    status="running",
+                )
             if len(rows) % 25 == 0 or len(rows) >= args.target_state_samples:
                 print(
                     f"[paper-gcn-dataset] seed={seed} current_states={len(rows)}/{args.target_state_samples}, "
@@ -245,8 +450,37 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
                     flush=True,
                 )
 
-    if not rows or line_labels is None or branch_from_bus is None or branch_to_bus is None:
+        selected_first_lines = set(noncritical_first_lines[:scenario_cap])
+        now_processed = processed_first_lines | {
+            str(row["active_first_line"])
+            for row in rows
+            if int(row["seed"]) == seed and row["sample_type"] == "S1" and str(row["active_first_line"])
+        }
+        if selected_first_lines.issubset(now_processed):
+            completed_seeds.add(seed)
+        if args.checkpoint_every > 0:
+            pending_checkpoint_start = flush_checkpoint(
+                args.output_dir,
+                rows,
+                pending_checkpoint_start,
+                checkpoint_progress,
+                fingerprint,
+                completed_seeds,
+                status="target_reached" if len(rows) >= args.target_state_samples else "running",
+            )
+
+    if not rows:
         raise ValueError("No paper-aligned IEEE118 samples were generated.")
+    if args.checkpoint_every > 0:
+        pending_checkpoint_start = flush_checkpoint(
+            args.output_dir,
+            rows,
+            pending_checkpoint_start,
+            checkpoint_progress,
+            fingerprint,
+            completed_seeds,
+            status="complete" if len(rows) >= args.target_state_samples else "seed_list_exhausted",
+        )
     x_raw = np.stack([row["x_raw"] for row in rows]).astype(np.float32)
     y = np.stack([row["y"] for row in rows]).astype(np.int64)
     mask = np.stack([row["loss_mask"] for row in rows]).astype(bool)
@@ -290,7 +524,18 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
     )
     summary.to_csv(args.output_dir / "ieee118_paper_gcn_sample_summary.csv", index=False, encoding="utf-8-sig")
     (args.output_dir / "ieee118_paper_gcn_feature_normalizer.json").write_text(json.dumps(normalizer, indent=2), encoding="utf-8")
-    metadata = write_metadata(args, summary, y, mask, first_step_critical_labels, valid_n2_positive_labels, train_seeds, validation_seeds, test_seeds)
+    metadata = write_metadata(
+        args,
+        summary,
+        y,
+        mask,
+        first_step_critical_labels,
+        valid_n2_positive_labels,
+        train_seeds,
+        validation_seeds,
+        test_seeds,
+        generation_fingerprint=fingerprint,
+    )
     write_schema(args.output_dir)
     write_readme(args.output_dir, metadata)
     return metadata
@@ -306,6 +551,7 @@ def write_metadata(
     train_seeds: set[int],
     validation_seeds: set[int],
     test_seeds: set[int],
+    generation_fingerprint: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     active = mask.astype(bool)
     positive = int(y[active].sum())
@@ -346,6 +592,10 @@ def write_metadata(
         "normalizer_fit_split": "train",
         "paper_aligned_target_state_samples": 8000,
         "large_npz_tracked_in_git": False,
+        "resume_supported": True,
+        "checkpoint_format": "incremental compressed NPZ shards",
+        "checkpoint_progress": str(args.output_dir / CHECKPOINT_PROGRESS_NAME),
+        "generation_fingerprint": generation_fingerprint,
     }
     (args.output_dir / "ieee118_paper_gcn_dataset_metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     return metadata

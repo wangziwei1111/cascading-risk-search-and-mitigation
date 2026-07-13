@@ -7,6 +7,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -14,6 +15,7 @@ IEEE118 = ROOT / "src" / "gcn_search" / "ieee118"
 ARTIFACT = ROOT / "results" / "gcn_search" / "ieee118_flow_scaled_800_paper_aligned_training_smoke"
 sys.path.insert(0, str(IEEE118))
 
+import build_ieee118_paper_gcn_training_dataset as dataset_builder
 from build_ieee118_paper_gcn_training_dataset import build_dataset
 
 
@@ -39,14 +41,13 @@ def test_committed_sample_summary_has_seed_separated_splits() -> None:
     assert set(summary["sample_type"]) == {"S0", "S1"}
 
 
-def test_tiny_builder_outputs_loss_mask_and_no_seed_leakage(tmp_path: Path) -> None:
-    meta = build_dataset(
-        argparse.Namespace(
+def tiny_builder_args(tmp_path: Path, *, resume: bool = False, load_scale: float = 1.1) -> argparse.Namespace:
+    return argparse.Namespace(
             seeds=[20260701],
             num_load_scenarios=None,
             samples_per_scenario=1,
             target_state_samples=2,
-            load_scale=1.1,
+            load_scale=load_scale,
             load_random_low=0.9,
             load_random_high=1.1,
             limit_mode="flow_scaled",
@@ -57,19 +58,45 @@ def test_tiny_builder_outputs_loss_mask_and_no_seed_leakage(tmp_path: Path) -> N
             first_step_critical_policy="skip",
             feature_mode="paper",
             sample_seed=1,
-            resume=False,
-            checkpoint_every=0,
+            resume=resume,
+            checkpoint_every=1,
             train_seeds=[20260701],
             validation_seeds=[],
             test_seeds=[],
             output_dir=tmp_path,
         )
-    )
+
+
+def test_tiny_builder_outputs_loss_mask_and_no_seed_leakage(tmp_path: Path) -> None:
+    meta = build_dataset(tiny_builder_args(tmp_path))
     data = np.load(tmp_path / "ieee118_paper_gcn_dataset.npz", allow_pickle=True)
     assert data["x_gcn"].shape[2] == 4
     assert data["loss_mask"].any()
     assert int(data["y_gcn"][data["loss_mask"]].sum()) == meta["num_positive_labels"]
     assert set(data["sample_type"].astype(str)) == {"S0", "S1"}
+    s1_active = data["active_first_line"][data["sample_type"].astype(str) == "S1"].astype(str).tolist()
+    assert len(s1_active) == 1 and s1_active[0].startswith("L")
+    progress = json.loads((tmp_path / "ieee118_paper_gcn_checkpoint.json").read_text(encoding="utf-8"))
+    assert progress["status"] == "complete"
+    assert progress["num_state_samples"] == 2
+    assert progress["shards"]
+
+
+def test_completed_checkpoint_resume_does_not_rerun_cascade(tmp_path: Path, monkeypatch) -> None:
+    first = build_dataset(tiny_builder_args(tmp_path))
+
+    def fail_if_called(*args, **kwargs):
+        raise AssertionError("completed --resume run must not rerun cascade simulation")
+
+    monkeypatch.setattr(dataset_builder, "run_sequential_outages_for_case", fail_if_called)
+    resumed = build_dataset(tiny_builder_args(tmp_path, resume=True))
+    assert resumed == first
+
+
+def test_checkpoint_resume_rejects_changed_physics_config(tmp_path: Path) -> None:
+    build_dataset(tiny_builder_args(tmp_path))
+    with pytest.raises(ValueError, match="Checkpoint configuration does not match"):
+        build_dataset(tiny_builder_args(tmp_path, resume=True, load_scale=1.05))
 
 
 def test_calibration_sweep_outputs_exist() -> None:
