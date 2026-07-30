@@ -1,0 +1,53 @@
+{
+  "status": "complete",
+  "research_stage": "Phase 3 validation-frozen low-fidelity N-1 proxy",
+  "num_validation_seeds": 8,
+  "num_test_seeds": 1,
+  "candidate_metrics": {
+    "iterative_num_relay_trips": 0.22935593189207257,
+    "iterative_max_event_loading_ratio": 0.24959081276309258,
+    "iterative_composite_score": 0.4077917071194729
+  },
+  "selected_metric_by_validation_mean_ap": "iterative_composite_score",
+  "training_distribution_test_average_precision": 0.5292622809289476,
+  "deployment_load_scale": 1.0,
+  "deployment_seed": 20260708,
+  "deployment_num_n1_critical": 10,
+  "deployment_average_precision": 0.5673232323232323,
+  "validation_selected_proxy_gate_size_for_100pct_n1_recall": 81,
+  "validation_selected_primary_gate_size_median_K_for_90pct_n1_recall": 26,
+  "validation_selected_conservative_gate_size_max_K_for_90pct_n1_recall": 76,
+  "validation_proxy_gate_size_summary": [
+    {
+      "target_n1_recall": 0.9,
+      "mean": 38.375,
+      "max": 76
+    },
+    {
+      "target_n1_recall": 0.95,
+      "mean": 45.25,
+      "max": 81
+    },
+    {
+      "target_n1_recall": 1.0,
+      "mean": 45.25,
+      "max": 81
+    }
+  ],
+  "num_cached_topologies": 546,
+  "physics_cost": {
+    "base_dcopf_calls": 10,
+    "high_fidelity_n1_cascade_calls": 0,
+    "high_fidelity_n2_cascade_calls": 0
+  },
+  "model_limit": "The iterative proxy trips overloaded lines with LODF updates but does not solve islands, redispatch generation, or shed load.",
+  "deployment_score_file_has_high_fidelity_labels": false,
+  "validation_score_file_has_high_fidelity_labels": false,
+  "configuration": {
+    "limit_mode": "flow_scaled",
+    "flow_limit_scale": 8.0,
+    "min_rate_a": 1.0,
+    "beta": 1.2,
+    "max_rounds": 20
+  }
+}

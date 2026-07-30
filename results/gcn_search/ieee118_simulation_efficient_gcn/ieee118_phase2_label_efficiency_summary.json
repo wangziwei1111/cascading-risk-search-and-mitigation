@@ -1,0 +1,99 @@
+{
+  "status": "complete",
+  "research_stage": "Phase 2 retrospective label-efficiency experiment",
+  "model_class": "PaperStyleRts79Gcn",
+  "model_core_modified": false,
+  "num_acquisition_seeds": 5,
+  "full_label_baseline": {
+    "num_training_oracle_labels": 1239452,
+    "validation_average_precision": 0.6421922835244174,
+    "test_average_precision": 0.6167409208414474,
+    "s0_average_precision": 0.8735657096866426,
+    "s1_average_precision": 0.4742615103140726,
+    "path_prob_K90": 1793,
+    "path_prob_K95": 2263,
+    "path_prob_K99": 4305,
+    "path_prob_K100": 13532,
+    "residual_path_prob_K90": 2521
+  },
+  "primary_method": "pmf_hybrid_prior_corrected",
+  "primary_5_percent_result": {
+    "queried_training_labels": 61973,
+    "queried_training_label_fraction": 0.050000322723268,
+    "oracle_label_saving_fraction": 0.949999677276732,
+    "test_average_precision_mean": 0.5578813016131607,
+    "test_average_precision_std": 0.0149916205217505,
+    "test_ap_fraction_of_full_label": 0.904563460540316,
+    "path_prob_K90_mean": 1891.2,
+    "path_prob_K90_std": 26.74621468544661,
+    "path_prob_K95_mean": 3569.4,
+    "path_prob_K99_mean": 21806.2,
+    "residual_path_prob_K90_mean": 19556.0
+  },
+  "final_test_metrics_by_state_type": [
+    {
+      "method": "entropy",
+      "num_acquisition_seeds": 5,
+      "test_s0_average_precision_mean": 0.802064047313048,
+      "test_s0_average_precision_std": 0.02439280470300087,
+      "test_s1_average_precision_mean": 0.36240624300823354,
+      "test_s1_average_precision_std": 0.07732105227653867
+    },
+    {
+      "method": "pmf_hybrid",
+      "num_acquisition_seeds": 5,
+      "test_s0_average_precision_mean": 0.7957013220740377,
+      "test_s0_average_precision_std": 0.0074861720708277926,
+      "test_s1_average_precision_mean": 0.45265643494363744,
+      "test_s1_average_precision_std": 0.02240684376443975
+    },
+    {
+      "method": "pmf_hybrid_prior_corrected",
+      "num_acquisition_seeds": 5,
+      "test_s0_average_precision_mean": 0.7718608369732547,
+      "test_s0_average_precision_std": 0.05162694289731593,
+      "test_s1_average_precision_mean": 0.4712595817003707,
+      "test_s1_average_precision_std": 0.01053515491286576
+    },
+    {
+      "method": "pmf_quota",
+      "num_acquisition_seeds": 5,
+      "test_s0_average_precision_mean": 0.7927173591195922,
+      "test_s0_average_precision_std": 0.02992570251057949,
+      "test_s1_average_precision_mean": 0.4502605629010854,
+      "test_s1_average_precision_std": 0.029931023498072303
+    },
+    {
+      "method": "random",
+      "num_acquisition_seeds": 5,
+      "test_s0_average_precision_mean": 0.7974376941287054,
+      "test_s0_average_precision_std": 0.007818662286900967,
+      "test_s1_average_precision_mean": 0.28809604475631273,
+      "test_s1_average_precision_std": 0.09130493598990087
+    }
+  ],
+  "gate_1": {
+    "validation_ap_95_percent_of_full_label": false,
+    "overall_path_K90_not_materially_worse": true,
+    "within_10_percent_oracle_labels": true,
+    "passed": false,
+    "reason": "The primary method uses only 5% of labels and approaches overall gated K90, but mean validation AP is below 95% of the full-label value and residual high-recall ranking remains materially worse."
+  },
+  "negative_result": "Active selection improves AP and gated K90 label efficiency, but selection bias still harms residual-only K90/K95/K99. The next core experiment must estimate query propensities or preserve a stronger representative loss, rather than claiming deployment readiness.",
+  "interpretation_limit": "All labels were generated previously and hidden retrospectively. This does not yet prove prospective physical-oracle savings.",
+  "output_files": {
+    "budget_curve": "ieee118_phase2_label_efficiency_curve.csv",
+    "summary": "ieee118_phase2_label_efficiency_summary.json",
+    "readme": "ieee118_phase2_label_efficiency_readme.md"
+  },
+  "dual_anchor_diagnostic": {
+    "validation_selected_fusion": "dual_anchor_mean_second",
+    "training_oracle_labels_mean": 118034.6,
+    "training_oracle_fraction_mean": 0.09523127963003004,
+    "path_prob_K90_mean": 1901.0,
+    "path_prob_K95_mean": 3122.4,
+    "path_prob_K99_mean": 11544.8,
+    "residual_path_prob_K90_mean": 8578.4,
+    "status": "freeze_then_confirm_on_independent_operating_scenarios"
+  }
+}
