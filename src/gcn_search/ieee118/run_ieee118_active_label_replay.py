@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -21,6 +22,7 @@ from simulation_efficient_active_learning import (
     candidate_pairs,
     select_active_query_batch,
     select_initial_batch,
+    select_quota_active_query_batch,
     select_random_batch,
     update_query_mask,
 )
@@ -28,6 +30,10 @@ from risk_controlled_selective_verification import (
     calibrate_missed_positive_risk,
     missed_positive_fraction_by_unit,
     selected_for_physical_verification,
+)
+from active_replay_search_metrics import (
+    active_replay_search_thresholds,
+    load_active_replay_search_context,
 )
 from train_ieee118_paper_aligned_gcn import predict_probability, split_metrics
 from train_ieee118_with_original_rts79_gcn import (
@@ -58,12 +64,35 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument(
         "--acquisition-mode",
-        choices=["random", "entropy", "physics_kcenter", "pmf_bal"],
+        choices=[
+            "random",
+            "entropy",
+            "physics_kcenter",
+            "pmf_bal",
+            "pmf_quota",
+            "pmf_hybrid",
+            "pmf_hybrid_prior_corrected",
+        ],
         default="pmf_bal",
     )
     parser.add_argument("--initial-labels", type=int, default=1000)
     parser.add_argument("--query-batch-size", type=int, default=1000)
     parser.add_argument("--rounds", type=int, default=3)
+    budget_group = parser.add_mutually_exclusive_group()
+    budget_group.add_argument(
+        "--label-budgets",
+        type=int,
+        nargs="+",
+        default=None,
+        help="Exact cumulative queried-label budgets; overrides initial/batch/round scheduling.",
+    )
+    budget_group.add_argument(
+        "--label-budget-fractions",
+        type=float,
+        nargs="+",
+        default=None,
+        help="Cumulative fractions of available training labels, for example 0.0025 0.005 0.01.",
+    )
     parser.add_argument("--epochs-per-round", type=int, default=5)
     parser.add_argument("--ensemble-members", type=int, default=3)
     parser.add_argument("--physics-fraction", type=float, default=0.5)
@@ -87,6 +116,36 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="Ablation: train each active round from random weights instead of warm-starting.",
     )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Resume from the local per-round torch checkpoint in the output directory.",
+    )
+    parser.add_argument(
+        "--search-eval-dataset-npz",
+        type=Path,
+        default=None,
+        help="Optional 176-state S1 dataset used only for formal path-ranking evaluation.",
+    )
+    parser.add_argument(
+        "--search-fulltruth-csv",
+        type=Path,
+        default=None,
+        help="Optional early-stop full-truth used only after inference to score rankings.",
+    )
+    parser.add_argument(
+        "--search-first-step-summary-csv",
+        type=Path,
+        default=None,
+        help="N-1 summary paired with --search-fulltruth-csv.",
+    )
+    parser.add_argument(
+        "--search-feature-normalizer-json",
+        type=Path,
+        default=None,
+        help="Training normalizer applied to raw features in the search evaluation dataset.",
+    )
+    parser.add_argument("--search-test-seed", type=int, default=20260708)
     return parser.parse_args(argv)
 
 
@@ -153,6 +212,7 @@ def _fit_one_model(
     *,
     member_seed: int,
     initial_state: dict[str, Any] | None = None,
+    positive_weight_override: float | None = None,
 ) -> tuple[Any, list[dict[str, Any]]]:
     torch = symbols["torch"]
     nn = symbols["nn"]
@@ -174,7 +234,11 @@ def _fit_one_model(
         k_gcn=int(args.k_gcn),
         first_layer_channels=int(args.first_layer_channels),
         second_layer_channels=int(args.second_layer_channels),
-        positive_weight=float(args.positive_weight),
+        positive_weight=float(
+            args.positive_weight
+            if positive_weight_override is None
+            else positive_weight_override
+        ),
         validation_fraction=0.0,
         random_seed=int(member_seed),
     )
@@ -295,6 +359,7 @@ def _physics_kcenter_batch(
     query_mask: np.ndarray,
     feature_names: np.ndarray,
     args: argparse.Namespace,
+    batch_size: int,
 ) -> AcquisitionBatch:
     return select_active_query_batch(
         member_probability,
@@ -302,7 +367,7 @@ def _physics_kcenter_batch(
         valid_mask,
         query_mask,
         feature_names,
-        args.query_batch_size,
+        batch_size,
         shortlist_multiplier=args.shortlist_multiplier,
         max_diversity_selections=args.max_diversity_selections,
         uncertainty_weight=0.0,
@@ -353,7 +418,10 @@ def _append_query_log(
     *,
     query_round: int,
     mode: str,
+    max_rows: int,
 ) -> None:
+    if max_rows <= 0:
+        return
     pairs = batch.pairs() if isinstance(batch, AcquisitionBatch) else np.asarray(batch, dtype=np.int64)
     score = (
         batch.acquisition_score
@@ -375,6 +443,12 @@ def _append_query_log(
         if isinstance(batch, AcquisitionBatch)
         else np.full(len(pairs), np.nan)
     )
+    limit = min(len(pairs), int(max_rows))
+    pairs = pairs[:limit]
+    score = score[:limit]
+    entropy = entropy[:limit]
+    disagreement = disagreement[:limit]
+    severity = severity[:limit]
     for position, pair in enumerate(pairs):
         state_idx, line_idx = int(pair[0]), int(pair[1])
         rows.append(
@@ -394,6 +468,153 @@ def _append_query_log(
         )
 
 
+def _label_budget_schedule(
+    args: argparse.Namespace,
+    num_available_training_labels: int,
+) -> list[int]:
+    if args.label_budgets is not None:
+        budgets = [int(value) for value in args.label_budgets]
+    elif args.label_budget_fractions is not None:
+        fractions = [float(value) for value in args.label_budget_fractions]
+        if any(value <= 0.0 or value > 1.0 for value in fractions):
+            raise ValueError("--label-budget-fractions values must be in (0, 1].")
+        budgets = [
+            max(1, int(round(value * num_available_training_labels)))
+            for value in fractions
+        ]
+    else:
+        budgets = [
+            min(
+                num_available_training_labels,
+                int(args.initial_labels + active_round * args.query_batch_size),
+            )
+            for active_round in range(int(args.rounds))
+        ]
+        budgets = list(dict.fromkeys(budgets))
+    if not budgets or any(value <= 0 for value in budgets):
+        raise ValueError("The cumulative label-budget schedule must be non-empty and positive.")
+    if budgets != sorted(set(budgets)):
+        raise ValueError("Cumulative label budgets must be unique and strictly increasing.")
+    if budgets[-1] > num_available_training_labels:
+        raise ValueError(
+            f"Label budget {budgets[-1]} exceeds the {num_available_training_labels} "
+            "available training labels."
+        )
+    return budgets
+
+
+def _prior_corrected_positive_weight(
+    base_weight: float,
+    reference_positive_prior: float,
+    queried_positive_ratio: float,
+) -> float:
+    if base_weight <= 0.0:
+        raise ValueError("Positive class weight must be positive.")
+    if reference_positive_prior <= 0.0 or queried_positive_ratio <= 0.0:
+        return float(base_weight)
+    return float(
+        np.clip(
+            base_weight * reference_positive_prior / queried_positive_ratio,
+            1.0,
+            base_weight,
+        )
+    )
+
+
+def _checkpoint_fingerprint(
+    args: argparse.Namespace,
+    original_indices: np.ndarray,
+    budget_schedule: list[int],
+) -> str:
+    payload = {
+        "dataset_npz": str(args.dataset_npz.resolve()),
+        "subset_indices_sha256": hashlib.sha256(
+            np.asarray(original_indices, dtype=np.int64).tobytes()
+        ).hexdigest(),
+        "acquisition_mode": str(args.acquisition_mode),
+        "label_budget_schedule": budget_schedule,
+        "epochs_per_round": int(args.epochs_per_round),
+        "ensemble_members": int(args.ensemble_members),
+        "physics_fraction": float(args.physics_fraction),
+        "initial_pool_multiplier": int(args.initial_pool_multiplier),
+        "shortlist_multiplier": int(args.shortlist_multiplier),
+        "max_diversity_selections": int(args.max_diversity_selections),
+        "batch_size": int(args.batch_size),
+        "learning_rate": float(args.learning_rate),
+        "positive_weight": float(args.positive_weight),
+        "k_gcn": int(args.k_gcn),
+        "first_layer_channels": int(args.first_layer_channels),
+        "second_layer_channels": int(args.second_layer_channels),
+        "random_seed": int(args.random_seed),
+        "risk_alpha": float(args.risk_alpha),
+        "reinitialize_each_round": bool(args.reinitialize_each_round),
+        "search_eval_dataset_npz": (
+            str(args.search_eval_dataset_npz.resolve())
+            if args.search_eval_dataset_npz is not None
+            else None
+        ),
+        "search_fulltruth_csv": (
+            str(args.search_fulltruth_csv.resolve())
+            if args.search_fulltruth_csv is not None
+            else None
+        ),
+        "search_first_step_summary_csv": (
+            str(args.search_first_step_summary_csv.resolve())
+            if args.search_first_step_summary_csv is not None
+            else None
+        ),
+        "search_feature_normalizer_json": (
+            str(args.search_feature_normalizer_json.resolve())
+            if args.search_feature_normalizer_json is not None
+            else None
+        ),
+        "search_test_seed": int(args.search_test_seed),
+    }
+    encoded = json.dumps(payload, sort_keys=True).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _load_checkpoint(torch: Any, path: Path) -> dict[str, Any]:
+    try:
+        return torch.load(path, map_location="cpu", weights_only=False)
+    except TypeError:  # pragma: no cover - compatibility with older torch.
+        return torch.load(path, map_location="cpu")
+
+
+def _save_checkpoint(
+    torch: Any,
+    path: Path,
+    *,
+    fingerprint: str,
+    next_active_round: int,
+    query_mask: np.ndarray,
+    member_states: list[dict[str, Any] | None],
+    round_rows: list[dict[str, Any]],
+    training_log_rows: list[dict[str, Any]],
+    retrieval_rows: list[dict[str, Any]],
+    query_log_rows: list[dict[str, Any]],
+    final_probability: np.ndarray,
+    reference_positive_prior: float,
+) -> None:
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    torch.save(
+        {
+            "fingerprint": fingerprint,
+            "next_active_round": int(next_active_round),
+            "query_mask": np.asarray(query_mask, dtype=bool),
+            "member_states": member_states,
+            "round_rows": round_rows,
+            "training_log_rows": training_log_rows,
+            "retrieval_rows": retrieval_rows,
+            "query_log_rows": query_log_rows,
+            "final_probability": np.asarray(final_probability, dtype=np.float32),
+            "reference_positive_prior": float(reference_positive_prior),
+        },
+        temporary,
+    )
+    temporary.replace(path)
+
+
 def replay(args: argparse.Namespace) -> dict[str, Any]:
     require_dataset(args.dataset_npz)
     if args.initial_labels <= 0:
@@ -404,6 +625,22 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError("rounds, epochs-per-round, and ensemble-members must be positive.")
     if not 0.0 < args.risk_alpha < 1.0:
         raise ValueError("--risk-alpha must be in (0, 1).")
+    if args.positive_weight <= 0.0:
+        raise ValueError("--positive-weight must be positive.")
+    if args.max_query_log_rows < 0:
+        raise ValueError("--max-query-log-rows must be non-negative.")
+    search_paths = (
+        args.search_eval_dataset_npz,
+        args.search_fulltruth_csv,
+        args.search_first_step_summary_csv,
+    )
+    if any(path is not None for path in search_paths) and not all(
+        path is not None for path in search_paths
+    ):
+        raise ValueError(
+            "Formal search evaluation requires --search-eval-dataset-npz, "
+            "--search-fulltruth-csv, and --search-first-step-summary-csv together."
+        )
     args.output_dir.mkdir(parents=True, exist_ok=True)
     data = np.load(args.dataset_npz, allow_pickle=True)
     _validate_data(data)
@@ -413,12 +650,17 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
     y = data["y_gcn"][original_indices].astype(np.int64)
     valid_mask = data["loss_mask"][original_indices].astype(bool)
     split = full_split[original_indices]
+    sample_type = data["sample_type"][original_indices].astype(str)
     feature_names = data["feature_names"].astype(str)
     line_labels = data["line_labels"].astype(str)
     train_candidate_mask = valid_mask & (split == "train")[:, None]
     num_available_training_labels = int(train_candidate_mask.sum())
     if num_available_training_labels == 0:
         raise ValueError("Selected replay subset contains no valid training labels.")
+    budget_schedule = _label_budget_schedule(
+        args,
+        num_available_training_labels,
+    )
 
     symbols = load_original_rts79_gcn_symbols()
     torch = symbols["torch"]
@@ -431,52 +673,147 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
         build_adjacency_powers(adjacency, int(args.k_gcn)),
         dtype=torch.float32,
     )
+    search_context = None
+    if args.search_eval_dataset_npz is not None:
+        search_context = load_active_replay_search_context(
+            eval_dataset_npz=args.search_eval_dataset_npz,
+            fulltruth_csv=args.search_fulltruth_csv,
+            first_step_summary_csv=args.search_first_step_summary_csv,
+            feature_normalizer_json=args.search_feature_normalizer_json,
+            expected_line_labels=line_labels,
+            expected_branch_from_bus=data["branch_from_bus"],
+            expected_branch_to_bus=data["branch_to_bus"],
+            test_seed=args.search_test_seed,
+        )
 
-    query_mask = np.zeros_like(valid_mask, dtype=bool)
-    if args.acquisition_mode in {"random", "entropy"}:
-        initial = select_random_batch(
-            train_candidate_mask,
-            args.initial_labels,
-            random_seed=args.random_seed,
-        )
-    else:
-        initial = select_initial_batch(
-            x,
-            train_candidate_mask,
-            feature_names,
-            args.initial_labels,
-            physics_fraction=args.physics_fraction,
-            pool_multiplier=args.initial_pool_multiplier,
-            max_diversity_selections=args.max_diversity_selections,
-            random_seed=args.random_seed,
-        )
-    query_mask = update_query_mask(query_mask, initial)
-    query_log_rows: list[dict[str, Any]] = []
-    _append_query_log(
-        query_log_rows,
-        initial,
-        y,
+    checkpoint_path = args.output_dir / "active_label_replay_checkpoint.pt"
+    checkpoint_fingerprint = _checkpoint_fingerprint(
+        args,
         original_indices,
-        line_labels,
-        query_round=0,
-        mode=f"{args.acquisition_mode}_initial",
+        budget_schedule,
     )
-
+    query_mask = np.zeros_like(valid_mask, dtype=bool)
     round_rows: list[dict[str, Any]] = []
     training_log_rows: list[dict[str, Any]] = []
     retrieval_rows: list[dict[str, Any]] = []
+    query_log_rows: list[dict[str, Any]] = []
     final_probability = np.zeros_like(y, dtype=np.float32)
-    member_models: list[Any | None] = [None] * int(args.ensemble_members)
-    for active_round in range(args.rounds):
+    member_states: list[dict[str, Any] | None] = [None] * int(args.ensemble_members)
+    reference_positive_prior = 0.0
+    start_active_round = 0
+    resumed_from_checkpoint = False
+    query_log_rows_per_round = (
+        (int(args.max_query_log_rows) + len(budget_schedule) - 1)
+        // len(budget_schedule)
+    )
+    if args.resume and checkpoint_path.exists():
+        checkpoint = _load_checkpoint(torch, checkpoint_path)
+        if checkpoint.get("fingerprint") != checkpoint_fingerprint:
+            raise ValueError(
+                "Active-label replay checkpoint configuration does not match this run. "
+                "Use the original arguments or a different output directory."
+            )
+        query_mask = np.asarray(checkpoint["query_mask"], dtype=bool)
+        if query_mask.shape != valid_mask.shape:
+            raise ValueError("Active-label replay checkpoint query mask has the wrong shape.")
+        member_states = checkpoint["member_states"]
+        round_rows = list(checkpoint["round_rows"])
+        training_log_rows = list(checkpoint["training_log_rows"])
+        retrieval_rows = list(checkpoint["retrieval_rows"])
+        query_log_rows = list(checkpoint["query_log_rows"])
+        final_probability = np.asarray(
+            checkpoint["final_probability"],
+            dtype=np.float32,
+        )
+        reference_positive_prior = float(
+            checkpoint.get(
+                "reference_positive_prior",
+                y[query_mask & train_candidate_mask].sum()
+                / max((query_mask & train_candidate_mask).sum(), 1),
+            )
+        )
+        start_active_round = int(checkpoint["next_active_round"])
+        if not 0 <= start_active_round <= len(budget_schedule):
+            raise ValueError("Active-label replay checkpoint next round is out of range.")
+        if len(member_states) != int(args.ensemble_members):
+            raise ValueError("Active-label replay checkpoint has the wrong ensemble size.")
+        resumed_from_checkpoint = True
+        print(
+            "[active-label-replay] "
+            f"resumed next_round={start_active_round}/{len(budget_schedule)} "
+            f"labels={int(query_mask[split == 'train'].sum())}",
+            flush=True,
+        )
+    else:
+        if args.acquisition_mode in {
+            "random",
+            "entropy",
+            "pmf_quota",
+            "pmf_hybrid",
+            "pmf_hybrid_prior_corrected",
+        }:
+            initial = select_random_batch(
+                train_candidate_mask,
+                budget_schedule[0],
+                random_seed=args.random_seed,
+            )
+        else:
+            initial = select_initial_batch(
+                x,
+                train_candidate_mask,
+                feature_names,
+                budget_schedule[0],
+                physics_fraction=args.physics_fraction,
+                pool_multiplier=args.initial_pool_multiplier,
+                max_diversity_selections=args.max_diversity_selections,
+                random_seed=args.random_seed,
+            )
+        query_mask = update_query_mask(query_mask, initial)
+        _append_query_log(
+            query_log_rows,
+            initial,
+            y,
+            original_indices,
+            line_labels,
+            query_round=0,
+            mode=f"{args.acquisition_mode}_initial",
+            max_rows=query_log_rows_per_round,
+        )
+        initial_train_query = query_mask & train_candidate_mask
+        reference_positive_prior = float(
+            y[initial_train_query].sum() / max(initial_train_query.sum(), 1)
+        )
+
+    for active_round in range(start_active_round, len(budget_schedule)):
+        target_budget = budget_schedule[active_round]
+        current_budget = int(query_mask[split == "train"].sum())
+        if current_budget != target_budget:
+            raise RuntimeError(
+                f"Active round {active_round} expected {target_budget} queried labels, "
+                f"but query mask contains {current_budget}."
+            )
+        current_positive_ratio = float(
+            y[query_mask & train_candidate_mask].sum() / max(current_budget, 1)
+        )
+        effective_positive_weight = float(args.positive_weight)
+        if (
+            args.acquisition_mode == "pmf_hybrid_prior_corrected"
+        ):
+            effective_positive_weight = _prior_corrected_positive_weight(
+                args.positive_weight,
+                reference_positive_prior,
+                current_positive_ratio,
+            )
         member_probability: list[np.ndarray] = []
+        member_eval_probability: list[np.ndarray] = []
         for member in range(args.ensemble_members):
-            warm_model = member_models[member]
             warm_state = (
                 {
                     name: value.detach().cpu().clone()
-                    for name, value in warm_model.state_dict().items()
+                    for name, value in member_states[member].items()
                 }
-                if warm_model is not None and not args.reinitialize_each_round
+                if member_states[member] is not None
+                and not args.reinitialize_each_round
                 else None
             )
             member_seed = int(
@@ -495,14 +832,27 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
                 args,
                 member_seed=member_seed,
                 initial_state=warm_state,
+                positive_weight_override=effective_positive_weight,
             )
-            member_models[member] = model
+            member_states[member] = {
+                name: value.detach().cpu().clone()
+                for name, value in model.state_dict().items()
+            }
             for row in logs:
                 row["active_round"] = int(active_round)
                 training_log_rows.append(row)
             member_probability.append(
                 predict_probability(model, x, adjacency_powers, torch)
             )
+            if search_context is not None:
+                member_eval_probability.append(
+                    predict_probability(
+                        model,
+                        search_context.x_eval,
+                        adjacency_powers,
+                        torch,
+                    )
+                )
         probability_stack = np.stack(member_probability)
         final_probability = probability_stack.mean(axis=0)
         train_rows = split == "train"
@@ -546,7 +896,42 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
             "risk_calibration_threshold": float(calibration.threshold),
             "risk_calibration_feasible": bool(calibration.feasible),
             "risk_calibration_upper_risk": float(calibration.crc_upper_risk),
+            "reference_positive_prior": reference_positive_prior,
+            "effective_positive_weight": effective_positive_weight,
         }
+        for split_name, split_rows in (
+            ("validation", validation_rows),
+            ("test", test_rows),
+        ):
+            for state_type in ("S0", "S1"):
+                typed_rows = split_rows & (sample_type == state_type)
+                if typed_rows.any():
+                    typed_metrics = split_metrics(
+                        y[typed_rows],
+                        final_probability[typed_rows],
+                        valid_mask[typed_rows],
+                    )
+                    round_row[
+                        f"{split_name}_{state_type.lower()}_average_precision"
+                    ] = float(typed_metrics["average_precision"])
+        if search_context is not None:
+            s0_candidates = np.where(
+                (split == "test")
+                & (sample_type == "S0")
+                & (data["seed"][original_indices].astype(np.int64) == args.search_test_seed)
+            )[0]
+            if len(s0_candidates) != 1:
+                raise ValueError(
+                    "Formal search evaluation requires exactly one S0 test state for "
+                    f"seed {args.search_test_seed}; found {len(s0_candidates)}."
+                )
+            round_row.update(
+                active_replay_search_thresholds(
+                    search_context,
+                    s0_probability=final_probability[int(s0_candidates[0])],
+                    s1_probability=np.stack(member_eval_probability).mean(axis=0),
+                )
+            )
         if test_rows.any():
             test_selected = selected_for_physical_verification(
                 final_probability[test_rows],
@@ -602,57 +987,99 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
             )
         print(
             "[active-label-replay] "
-            f"round={active_round + 1}/{args.rounds} mode={args.acquisition_mode} "
+            f"round={active_round + 1}/{len(budget_schedule)} mode={args.acquisition_mode} "
             f"labels={queried_train_labels}/{num_available_training_labels} "
             f"positive={queried_positive} val_ap={validation_metrics['average_precision']:.6f} "
             f"test_ap={test_metrics.get('average_precision', 0.0):.6f}",
             flush=True,
         )
-        if active_round + 1 == args.rounds:
-            break
-        if args.acquisition_mode == "random":
-            new_batch: AcquisitionBatch | np.ndarray = select_random_batch(
-                train_candidate_mask,
-                args.query_batch_size,
-                queried_mask=query_mask,
-                random_seed=args.random_seed + active_round + 1,
+        if active_round + 1 < len(budget_schedule):
+            next_batch_size = budget_schedule[active_round + 1] - queried_train_labels
+            if args.acquisition_mode == "random":
+                new_batch: AcquisitionBatch | np.ndarray = select_random_batch(
+                    train_candidate_mask,
+                    next_batch_size,
+                    queried_mask=query_mask,
+                    random_seed=args.random_seed + active_round + 1,
+                )
+            elif args.acquisition_mode == "entropy":
+                new_batch = _top_entropy_batch(
+                    final_probability,
+                    train_candidate_mask,
+                    query_mask,
+                    next_batch_size,
+                )
+            elif args.acquisition_mode == "physics_kcenter":
+                new_batch = _physics_kcenter_batch(
+                    probability_stack,
+                    x,
+                    train_candidate_mask,
+                    query_mask,
+                    feature_names,
+                    args,
+                    next_batch_size,
+                )
+            elif args.acquisition_mode == "pmf_bal":
+                new_batch = select_active_query_batch(
+                    probability_stack,
+                    x,
+                    train_candidate_mask,
+                    query_mask,
+                    feature_names,
+                    next_batch_size,
+                    shortlist_multiplier=args.shortlist_multiplier,
+                    max_diversity_selections=args.max_diversity_selections,
+                )
+            elif args.acquisition_mode == "pmf_quota":
+                new_batch = select_quota_active_query_batch(
+                    probability_stack,
+                    x,
+                    train_candidate_mask,
+                    query_mask,
+                    feature_names,
+                    next_batch_size,
+                    shortlist_multiplier=args.shortlist_multiplier,
+                    max_diversity_selections=args.max_diversity_selections,
+                )
+            else:
+                new_batch = select_quota_active_query_batch(
+                    probability_stack,
+                    x,
+                    train_candidate_mask,
+                    query_mask,
+                    feature_names,
+                    next_batch_size,
+                    risk_fraction=0.15,
+                    uncertainty_fraction=0.25,
+                    random_fraction=0.50,
+                    shortlist_multiplier=args.shortlist_multiplier,
+                    max_diversity_selections=args.max_diversity_selections,
+                    random_seed=args.random_seed + active_round + 1,
+                )
+            query_mask = update_query_mask(query_mask, new_batch)
+            _append_query_log(
+                query_log_rows,
+                new_batch,
+                y,
+                original_indices,
+                line_labels,
+                query_round=active_round + 1,
+                mode=args.acquisition_mode,
+                max_rows=query_log_rows_per_round,
             )
-        elif args.acquisition_mode == "entropy":
-            new_batch = _top_entropy_batch(
-                final_probability,
-                train_candidate_mask,
-                query_mask,
-                args.query_batch_size,
-            )
-        elif args.acquisition_mode == "physics_kcenter":
-            new_batch = _physics_kcenter_batch(
-                probability_stack,
-                x,
-                train_candidate_mask,
-                query_mask,
-                feature_names,
-                args,
-            )
-        else:
-            new_batch = select_active_query_batch(
-                probability_stack,
-                x,
-                train_candidate_mask,
-                query_mask,
-                feature_names,
-                args.query_batch_size,
-                shortlist_multiplier=args.shortlist_multiplier,
-                max_diversity_selections=args.max_diversity_selections,
-            )
-        query_mask = update_query_mask(query_mask, new_batch)
-        _append_query_log(
-            query_log_rows,
-            new_batch,
-            y,
-            original_indices,
-            line_labels,
-            query_round=active_round + 1,
-            mode=args.acquisition_mode,
+        _save_checkpoint(
+            torch,
+            checkpoint_path,
+            fingerprint=checkpoint_fingerprint,
+            next_active_round=active_round + 1,
+            query_mask=query_mask,
+            member_states=member_states,
+            round_rows=round_rows,
+            training_log_rows=training_log_rows,
+            retrieval_rows=retrieval_rows,
+            query_log_rows=query_log_rows,
+            final_probability=final_probability,
+            reference_positive_prior=reference_positive_prior,
         )
 
     round_table = pd.DataFrame(round_rows)
@@ -691,9 +1118,18 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
         round_rows,
         key=lambda row: float(row["validation_average_precision"]),
     )
+    final_search = {
+        name: value
+        for name, value in final_round.items()
+        if name.startswith("search_")
+    }
     summary = {
         "status": "complete",
-        "research_stage": "Phase 1 retrospective hidden-label replay",
+        "research_stage": (
+            "Phase 2 retrospective label-efficiency and formal search evaluation"
+            if search_context is not None
+            else "Phase 1 retrospective hidden-label replay"
+        ),
         "acquisition_mode": str(args.acquisition_mode),
         "model_class": "PaperStyleRts79Gcn",
         "source_model_file": "src/gcn_search/legacy_rts79/train_rts79_paper_gcn.py",
@@ -708,6 +1144,10 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
         "num_queried_training_oracle_labels": int(final_round["queried_training_labels"]),
         "queried_training_oracle_fraction": float(final_round["queried_training_label_fraction"]),
         "num_queried_positive_labels": int(final_round["queried_positive_labels"]),
+        "label_budget_schedule": budget_schedule,
+        "resumed_from_checkpoint": resumed_from_checkpoint,
+        "formal_search_evaluation_enabled": search_context is not None,
+        "final_formal_search_thresholds": final_search,
         "final_validation_average_precision": float(final_round["validation_average_precision"]),
         "final_test_average_precision": float(final_round["test_average_precision"]),
         "best_active_round_by_validation_ap": int(best_round["active_round"]),
@@ -739,6 +1179,9 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
             "batch_size": int(args.batch_size),
             "learning_rate": float(args.learning_rate),
             "positive_weight": float(args.positive_weight),
+            "adaptive_prior_correction": (
+                args.acquisition_mode == "pmf_hybrid_prior_corrected"
+            ),
             "initial_pool_multiplier": int(args.initial_pool_multiplier),
             "shortlist_multiplier": int(args.shortlist_multiplier),
             "max_diversity_selections": int(args.max_diversity_selections),
@@ -758,6 +1201,7 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
             "retrieval_metrics": "active_label_replay_retrieval_metrics.csv",
             "query_sample": "active_label_replay_query_sample.csv",
             "local_checkpoint_not_for_git": "active_label_replay_local_checkpoint.npz",
+            "per_round_resume_checkpoint_not_for_git": "active_label_replay_checkpoint.pt",
         },
     }
     (args.output_dir / "active_label_replay_summary.json").write_text(

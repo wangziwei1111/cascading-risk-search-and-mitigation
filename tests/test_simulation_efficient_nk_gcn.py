@@ -13,8 +13,22 @@ IEEE118 = ROOT / "src" / "gcn_search" / "ieee118"
 sys.path.insert(0, str(IEEE118))
 
 from audit_ieee118_gcn_oracle_cost import audit
+from evaluate_ieee118_active_dual_anchor import _oracle_costs, fuse_probabilities
+from active_replay_search_metrics import (
+    ActiveReplaySearchContext,
+    active_replay_search_thresholds,
+    make_active_replay_path_scores,
+)
+from run_ieee118_active_label_replay import (
+    _label_budget_schedule,
+    _prior_corrected_positive_weight,
+)
 from run_ieee118_active_label_replay import parse_args as parse_replay_args
 from run_ieee118_active_label_replay import replay
+from run_ieee118_label_efficiency_experiment import (
+    _replay_arguments,
+    parse_args as parse_experiment_args,
+)
 from risk_controlled_selective_verification import (
     calibrate_missed_positive_risk,
     missed_positive_fraction_by_unit,
@@ -27,6 +41,7 @@ from simulation_efficient_active_learning import (
     ensemble_disagreement,
     select_active_query_batch,
     select_initial_batch,
+    select_quota_active_query_batch,
     select_random_batch,
     update_query_mask,
 )
@@ -114,6 +129,80 @@ def test_active_batch_excludes_queried_candidates() -> None:
     updated = update_query_mask(queried, batch)
     assert int(updated.sum()) == 8
     assert len(candidate_pairs(valid, updated)) == 12
+
+
+def test_large_active_batch_caps_diversity_and_fills_without_duplicates() -> None:
+    rng = np.random.default_rng(9)
+    x = np.abs(rng.normal(size=(4, 5, 4))).astype(np.float32)
+    valid = np.ones((4, 5), dtype=bool)
+    queried = np.zeros_like(valid)
+    members = rng.uniform(0.05, 0.95, size=(2, 4, 5))
+    batch = select_active_query_batch(
+        members,
+        x,
+        valid,
+        queried,
+        FEATURE_NAMES,
+        19,
+        shortlist_multiplier=2,
+        max_diversity_selections=2,
+    )
+    assert batch.size == 19
+    assert len({tuple(pair) for pair in batch.pairs().tolist()}) == 19
+
+
+def test_quota_active_batch_is_unique_and_excludes_queried() -> None:
+    rng = np.random.default_rng(19)
+    x = np.abs(rng.normal(size=(5, 7, 4))).astype(np.float32)
+    valid = np.ones((5, 7), dtype=bool)
+    queried = np.zeros_like(valid)
+    queried[0, 0] = True
+    members = rng.uniform(0.05, 0.95, size=(3, 5, 7))
+    batch = select_quota_active_query_batch(
+        members,
+        x,
+        valid,
+        queried,
+        FEATURE_NAMES,
+        30,
+        shortlist_multiplier=2,
+        max_diversity_selections=3,
+    )
+    pairs = {tuple(pair) for pair in batch.pairs().tolist()}
+    assert batch.size == 30
+    assert len(pairs) == 30
+    assert (0, 0) not in pairs
+
+    hybrid = select_quota_active_query_batch(
+        members,
+        x,
+        valid,
+        queried,
+        FEATURE_NAMES,
+        30,
+        risk_fraction=0.15,
+        uncertainty_fraction=0.25,
+        random_fraction=0.50,
+        shortlist_multiplier=2,
+        max_diversity_selections=3,
+        random_seed=23,
+    )
+    repeated = select_quota_active_query_batch(
+        members,
+        x,
+        valid,
+        queried,
+        FEATURE_NAMES,
+        30,
+        risk_fraction=0.15,
+        uncertainty_fraction=0.25,
+        random_fraction=0.50,
+        shortlist_multiplier=2,
+        max_diversity_selections=3,
+        random_seed=23,
+    )
+    assert np.array_equal(hybrid.pairs(), repeated.pairs())
+    assert len({tuple(pair) for pair in hybrid.pairs().tolist()}) == 30
 
 
 def test_label_leakage_guard_rejects_outcome_fields() -> None:
@@ -248,34 +337,30 @@ def test_active_label_replay_uses_sparse_queries_and_original_model(tmp_path: Pa
         feature_names=FEATURE_NAMES,
     )
     output = tmp_path / "replay"
-    args = parse_replay_args(
-        [
-            "--dataset-npz",
-            str(dataset),
-            "--output-dir",
-            str(output),
-            "--acquisition-mode",
-            "pmf_bal",
-            "--initial-labels",
-            "6",
-            "--query-batch-size",
-            "4",
-            "--rounds",
-            "2",
-            "--epochs-per-round",
-            "1",
-            "--ensemble-members",
-            "1",
-            "--batch-size",
-            "4",
-            "--k-gcn",
-            "1",
-            "--initial-pool-multiplier",
-            "2",
-            "--shortlist-multiplier",
-            "2",
-        ]
-    )
+    argument_list = [
+        "--dataset-npz",
+        str(dataset),
+        "--output-dir",
+        str(output),
+        "--acquisition-mode",
+        "pmf_bal",
+        "--label-budgets",
+        "6",
+        "10",
+        "--epochs-per-round",
+        "1",
+        "--ensemble-members",
+        "1",
+        "--batch-size",
+        "4",
+        "--k-gcn",
+        "1",
+        "--initial-pool-multiplier",
+        "2",
+        "--shortlist-multiplier",
+        "2",
+    ]
+    args = parse_replay_args(argument_list)
     summary = replay(args)
     assert summary["status"] == "complete"
     assert summary["model_class"] == "PaperStyleRts79Gcn"
@@ -284,8 +369,175 @@ def test_active_label_replay_uses_sparse_queries_and_original_model(tmp_path: Pa
     assert summary["num_available_training_oracle_labels"] == 40
     assert summary["num_queried_training_oracle_labels"] == 10
     assert summary["queried_training_oracle_fraction"] == pytest.approx(0.25)
+    assert summary["label_budget_schedule"] == [6, 10]
+    assert summary["resumed_from_checkpoint"] is False
     assert (output / "active_label_replay_round_metrics.csv").exists()
     assert (output / "active_label_replay_retrieval_metrics.csv").exists()
+    assert (output / "active_label_replay_checkpoint.pt").exists()
+
+    resumed = replay(parse_replay_args(argument_list + ["--resume"]))
+    assert resumed["resumed_from_checkpoint"] is True
+    assert resumed["num_queried_training_oracle_labels"] == 10
+    assert len(pd.read_csv(output / "active_label_replay_round_metrics.csv")) == 2
+
+
+def test_fractional_label_budget_schedule_uses_available_training_count() -> None:
+    args = parse_replay_args(
+        ["--label-budget-fractions", "0.0025", "0.005", "0.01"]
+    )
+    assert _label_budget_schedule(args, 10_000) == [25, 50, 100]
+
+
+def test_prior_correction_uses_only_queried_positive_rate() -> None:
+    assert _prior_corrected_positive_weight(20.0, 0.015, 0.075) == pytest.approx(4.0)
+    assert _prior_corrected_positive_weight(20.0, 0.015, 0.005) == pytest.approx(20.0)
+    assert _prior_corrected_positive_weight(20.0, 0.0, 0.075) == pytest.approx(20.0)
+
+
+def test_dual_anchor_probability_fusion_is_shape_safe() -> None:
+    anchor = np.asarray([[0.1, 0.9]])
+    active = np.asarray([[0.4, 0.4]])
+    assert np.allclose(fuse_probabilities(anchor, active, "mean"), [[0.25, 0.65]])
+    assert np.allclose(
+        fuse_probabilities(anchor, active, "geometric_mean"),
+        np.sqrt(anchor * active),
+    )
+    with pytest.raises(ValueError, match="same shape"):
+        fuse_probabilities(anchor, active[:, :1], "mean")
+
+
+def test_dual_anchor_oracle_cost_uses_subset_source_index_order() -> None:
+    anchor = {
+        "source_indices": np.asarray([1, 3, 2, 0]),
+        "query_mask": np.asarray(
+            [
+                [1, 0],
+                [0, 1],
+                [1, 1],
+                [1, 1],
+            ],
+            dtype=bool,
+        ),
+    }
+    active = {
+        "source_indices": np.asarray([1, 3, 2, 0]),
+        "query_mask": np.asarray(
+            [
+                [0, 1],
+                [0, 1],
+                [0, 0],
+                [0, 0],
+            ],
+            dtype=bool,
+        ),
+    }
+    full_split = np.asarray(["test", "train", "validation", "train"])
+    assert _oracle_costs(anchor, active, full_split) == (2, 2, 3)
+
+
+def test_label_efficiency_runner_preserves_exact_fraction_schedule(tmp_path: Path) -> None:
+    args = parse_experiment_args(
+        [
+            "--label-budget-fractions",
+            "0.0025",
+            "0.01",
+            "--resume",
+        ]
+    )
+    values = _replay_arguments(
+        args,
+        mode="pmf_hybrid_prior_corrected",
+        seed=12,
+        output_dir=tmp_path,
+    )
+    fraction_start = values.index("--label-budget-fractions") + 1
+    assert values[fraction_start : fraction_start + 2] == ["0.0025", "0.01"]
+    assert values[-1] == "--resume"
+    assert values[values.index("--random-seed") + 1] == "12"
+
+
+def test_active_replay_formal_search_uses_s0_and_all_s1_scores() -> None:
+    truth = pd.DataFrame(
+        [
+            {
+                "path": "L001->L002",
+                "first_line": "L001",
+                "second_line": "L002",
+                "critical": True,
+                "relay_cascade": True,
+                "island_only": False,
+                "total_load_shed_mw": 10.0,
+                "n1_second": False,
+            },
+            {
+                "path": "L001->L003",
+                "first_line": "L001",
+                "second_line": "L003",
+                "critical": False,
+                "relay_cascade": False,
+                "island_only": False,
+                "total_load_shed_mw": 0.0,
+                "n1_second": False,
+            },
+            {
+                "path": "L002->L001",
+                "first_line": "L002",
+                "second_line": "L001",
+                "critical": False,
+                "relay_cascade": False,
+                "island_only": False,
+                "total_load_shed_mw": 0.0,
+                "n1_second": False,
+            },
+            {
+                "path": "L002->L003",
+                "first_line": "L002",
+                "second_line": "L003",
+                "critical": True,
+                "relay_cascade": False,
+                "island_only": True,
+                "total_load_shed_mw": 5.0,
+                "n1_second": True,
+            },
+        ]
+    )
+    context = ActiveReplaySearchContext(
+        x_eval=np.zeros((2, 3, 4), dtype=np.float32),
+        truth=truth,
+        first_step=pd.DataFrame(),
+        first_lines=np.asarray(["L001", "L002"]),
+        line_labels=np.asarray(["L001", "L002", "L003"]),
+        test_seed=1,
+    )
+    score = make_active_replay_path_scores(
+        context,
+        s0_probability=np.asarray([0.5, 0.9, 0.1]),
+        s1_probability=np.asarray(
+            [
+                [0.0, 0.8, 0.2],
+                [0.4, 0.0, 0.7],
+            ]
+        ),
+    )
+    first = score.set_index("path").loc["L001->L002"]
+    assert first["p_shed_first"] == pytest.approx(0.5)
+    assert first["p_shed_second"] == pytest.approx(0.8)
+    assert first["path_product_score"] == pytest.approx(0.4)
+    thresholds = active_replay_search_thresholds(
+        context,
+        s0_probability=np.asarray([0.5, 0.9, 0.1]),
+        s1_probability=np.asarray(
+            [
+                [0.0, 0.8, 0.2],
+                [0.4, 0.0, 0.7],
+            ]
+        ),
+    )
+    assert thresholds["search_num_valid_paths"] == 4
+    assert thresholds["search_num_critical_paths"] == 2
+    assert thresholds["search_path_prob_K90"] == 2
+    assert thresholds["search_second_only_K100"] <= 4
+    assert thresholds["search_residual_path_prob_K90"] == 1
 
 
 def test_active_replay_summary_compares_complete_runs(tmp_path: Path) -> None:
@@ -313,6 +565,7 @@ def test_active_replay_summary_compares_complete_runs(tmp_path: Path) -> None:
                 "risk_calibration_upper_risk": 0.04,
                 "test_verification_budget_ratio": 0.4,
                 "test_verification_positive_recall": 0.9,
+                "search_path_prob_K90": 20,
             },
             {
                 "active_round": 1,
@@ -325,6 +578,7 @@ def test_active_replay_summary_compares_complete_runs(tmp_path: Path) -> None:
                 "risk_calibration_upper_risk": 0.04,
                 "test_verification_budget_ratio": 0.3,
                 "test_verification_positive_recall": 0.85,
+                "search_path_prob_K90": 10,
             },
         ]
         pd.DataFrame(rows).to_csv(
@@ -335,6 +589,7 @@ def test_active_replay_summary_compares_complete_runs(tmp_path: Path) -> None:
     output = tmp_path / "summary"
     result = summarize(root, output)
     assert result["num_methods"] == 2
+    assert result["formal_search_metrics_included"] is True
     assert {row["method"] for row in result["methods"]} == {"random", "pmf_bal"}
     assert (output / "ieee118_active_label_replay_comparison.csv").exists()
     assert (output / "ieee118_active_label_replay_aggregate.csv").exists()

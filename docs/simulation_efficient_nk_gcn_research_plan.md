@@ -463,11 +463,121 @@ deployment gate.
 - compact audit and comparison summaries contain explicit retrospective
   caveats.
 
-## 14. Current Boundary
+## 14. Phase 2 Result
 
-Phase 1 code and one same-budget smoke comparison are complete. Existing full
-truth is used only as a hidden retrospective oracle. The next valid claim
-requires at least five acquisition seeds over the planned label budgets,
-followed by a prospective builder that invokes the physical simulator only for
-selected candidates. No current result is a final real-grid or N-k deployment
-result.
+### Protocol
+
+The paper-8,000 residual dataset was replayed with exact cumulative label
+budgets of 0.25%, 0.5%, 1%, 2%, and 5% of the 1,239,452 available training
+labels. Each stochastic method used five paired acquisition seeds. Every round
+used the unchanged `PaperStyleRts79Gcn`, two ensemble members, three warm-start
+epochs, and a frozen validation/test split.
+
+Formal search evaluation no longer relies on classification AP alone. Each
+round also predicts the independent 176-state S1 evaluation dataset, aligns it
+with the 32,560 valid early-stop ordered N-2 rows, applies the fixed 186-line
+N-1 gate, and reports path-level K90/K95/K99/K100. Full-truth outcomes enter
+only the post-inference evaluator.
+
+### Acquisition revisions
+
+The first weighted PMF-BAL score was unstable on the complete dataset.
+Physics-k-center alone overemphasized geometric coverage and usually found
+only tens of positives at 1% budget. Two revisions were therefore tested:
+
+1. quota acquisition separately selects predicted-risk, uncertainty, and
+   physics-diversity cohorts;
+2. hybrid acquisition adds a fixed random-anchor cohort to reduce adaptive
+   sampling bias.
+
+The final diagnostic variant also estimates a positive-label prior from the
+initial random queried batch and scales the positive class weight by the ratio
+of initial to current queried positive rate. This uses only already queried
+labels. It is a prior-shift correction, not rigorous IWAL propensity weighting.
+
+### Five-seed result
+
+The primary diagnostic method is `pmf_hybrid_prior_corrected`.
+
+| Metric | Full labels | 5% queried labels |
+|---|---:|---:|
+| training oracle labels | 1,239,452 | 61,973 |
+| mean test AP | 0.6167 | 0.5579 +/- 0.0150 |
+| mean S1 test AP | 0.4743 | 0.4713 +/- 0.0105 |
+| gated path-prob K90 | 1,793 | 1,891.2 +/- 26.7 |
+| gated path-prob K95 | 2,263 | 3,569.4 |
+| gated path-prob K99 | 4,305 | 21,806.2 |
+| residual-only path-prob K90 | 2,521 | 19,556.0 |
+
+This uses 95% fewer retrospective training oracle labels and preserves 90.46%
+of the full-label test AP. Overall gated K90 is only 98.2 candidates worse on
+average. These are useful label-efficiency results, but the high-recall tail is
+not preserved.
+
+At 5% budget, the uncorrected hybrid reaches test AP 0.5313 +/- 0.0531 and
+gated K90 1,910.6 +/- 28.0. Random labeling reaches test AP
+0.3715 +/- 0.1054 and gated K90 1,985.0 +/- 95.1. However, random labeling has
+a much better residual-only K90 of 8,287 than the actively biased variants.
+This negative result confirms that positive mining and high AP alone do not
+guarantee a good complete-pool ranking.
+
+### Dual-anchor diagnostic
+
+The sampling-bias finding motivated a two-model score diagnostic without
+changing either GCN:
+
+- a representative random-label model supplies `p_first`;
+- the actively trained model supplies the stronger conditional `p_second`;
+- mean and geometric-mean `p_second` fusions are also evaluated;
+- standalone methods count their own query masks;
+- dual methods count the exact union of both masks after mapping through local
+  subset source indices.
+
+Mean fusion has the best mean validation S1 AP and is the frozen recommendation
+for a new-seed confirmation. Across the existing five test diagnostics:
+
+| Metric | Active alone | Validation-selected mean fusion |
+|---|---:|---:|
+| training oracle labels | 61,973 | 118,034.6 |
+| oracle fraction | 5.00% | 9.52% |
+| gated path-prob K90 | 1,891.2 | 1,901.0 |
+| gated path-prob K95 | 3,569.4 | 3,122.4 |
+| gated path-prob K99 | 21,806.2 | 11,544.8 |
+| residual-only path-prob K90 | 19,556.0 | 8,578.4 |
+
+The fusion recovers much of the representative model's residual ranking while
+retaining the active model's conditional discrimination. It still misses the
+full-label K99 of 4,305 and residual K90 of 2,521. Random standalone is also
+slightly better at K99 (11,351.8), so this is not a universal win.
+
+The diagnostic code was developed during a stage that inspected the frozen
+test truth. Therefore mean fusion is only a recommendation to freeze and
+confirm on independent operating scenarios, not a new formal test claim.
+
+### Gate 1 decision
+
+Gate 1 does **not** pass:
+
+- label use is within the 10% ceiling;
+- overall gated K90 is not materially worse;
+- mean validation AP is below 95% of the full-label value;
+- K95/K99 and residual-only retrieval remain materially worse.
+
+The next core experiment must record or estimate randomized query propensities
+and train a debiased representative loss, or retain a stronger passive anchor
+model for residual ranking. It must compare against random labeling at equal
+oracle cost.
+
+## 15. Current Boundary
+
+Phase 1 and the five-seed Phase-2 retrospective budget study are complete.
+Checkpoint/resume, exact budget schedules, large-pool acquisition, and formal
+path-level evaluation are implemented. Existing truth is still used as a
+hidden retrospective oracle, so the 95% label reduction does not reclaim past
+compute and is not yet a prospective simulator saving.
+
+No current result supports a real-grid or general N-k deployment claim. The
+next valid stage is propensity-debiased replay followed by a prospective
+builder that calls the physical cascade simulator only for selected
+candidates. N-3/N-4 best-first prefix expansion remains a later sampled
+experiment.

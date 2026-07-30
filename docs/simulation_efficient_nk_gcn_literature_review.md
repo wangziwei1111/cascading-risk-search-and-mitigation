@@ -93,6 +93,35 @@ Gap relative to this project:
 - generic class accuracy is not enough for rare critical-path retrieval;
 - they do not count high-fidelity cascade simulations as the primary budget.
 
+### Active-learning sampling bias and unbiased risk
+
+- [Importance Weighted Active
+  Learning](https://arxiv.org/abs/0812.4952) uses importance weighting to
+  correct the sampling bias introduced by adaptive label queries.
+- [Optimal sampling in unbiased active
+  learning](https://proceedings.mlr.press/v108/imberg20a.html) shows that
+  uncertainty-proportional sampling can be suboptimal and can lose to random
+  sampling on some tasks.
+- [Asymptotic optimality for active learning
+  processes](https://proceedings.mlr.press/v180/zhan22a.html) analyzes
+  sampling bias and dataset shift in active learning and combines
+  generalization error with an importance-weighted training loss.
+- [Margin-based sampling in high
+  dimensions](https://proceedings.mlr.press/v202/tifrea23a.html) gives
+  theoretical and empirical settings where active sampling is less efficient
+  than passive random labeling.
+
+These results are directly relevant to rare cascading-path labels. A query
+policy may discover many positives yet train on a distribution unlike the
+complete candidate pool. Random-label sampling is therefore a required
+baseline, and a representative random component or principled query-propensity
+correction is part of the proposed method rather than an optional convenience.
+
+The Phase-2 queried-label prior correction in this repository is only a
+label-prior adjustment estimated from an initial random anchor set. It is not
+the rigorous per-query importance weighting of IWAL and must not be described
+as such.
+
 ## 3. Physics and Topology Generalization
 
 ### Narimani et al.: graph and LODF N-x screening

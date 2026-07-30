@@ -40,34 +40,42 @@ def summarize(
         )
         rounds = pd.read_csv(rounds_path, encoding="utf-8-sig")
         for row in rounds.to_dict(orient="records"):
-            records.append(
+            record = {
+                "method": str(run_summary["acquisition_mode"]),
+                "acquisition_seed": acquisition_seed,
+                "active_round": int(row["active_round"]),
+                "queried_training_labels": int(row["queried_training_labels"]),
+                "queried_training_label_fraction": float(
+                    row["queried_training_label_fraction"]
+                ),
+                "queried_positive_labels": int(row["queried_positive_labels"]),
+                "validation_average_precision": float(
+                    row["validation_average_precision"]
+                ),
+                "test_average_precision": float(row["test_average_precision"]),
+                "risk_calibration_feasible": bool(
+                    row.get("risk_calibration_feasible", False)
+                ),
+                "risk_calibration_upper_risk": float(
+                    row.get("risk_calibration_upper_risk", float("nan"))
+                ),
+                "test_verification_budget_ratio": float(
+                    row.get("test_verification_budget_ratio", float("nan"))
+                ),
+                "test_verification_positive_recall": float(
+                    row.get("test_verification_positive_recall", float("nan"))
+                ),
+            }
+            record.update(
                 {
-                    "method": str(run_summary["acquisition_mode"]),
-                    "acquisition_seed": acquisition_seed,
-                    "active_round": int(row["active_round"]),
-                    "queried_training_labels": int(row["queried_training_labels"]),
-                    "queried_training_label_fraction": float(
-                        row["queried_training_label_fraction"]
-                    ),
-                    "queried_positive_labels": int(row["queried_positive_labels"]),
-                    "validation_average_precision": float(
-                        row["validation_average_precision"]
-                    ),
-                    "test_average_precision": float(row["test_average_precision"]),
-                    "risk_calibration_feasible": bool(
-                        row.get("risk_calibration_feasible", False)
-                    ),
-                    "risk_calibration_upper_risk": float(
-                        row.get("risk_calibration_upper_risk", float("nan"))
-                    ),
-                    "test_verification_budget_ratio": float(
-                        row.get("test_verification_budget_ratio", float("nan"))
-                    ),
-                    "test_verification_positive_recall": float(
-                        row.get("test_verification_positive_recall", float("nan"))
-                    ),
+                    name: value
+                    for name, value in row.items()
+                    if str(name).startswith("search_")
+                    or str(name).endswith("_s0_average_precision")
+                    or str(name).endswith("_s1_average_precision")
                 }
             )
+            records.append(record)
     if not records:
         raise FileNotFoundError(
             f"No complete active-label replay runs matching {run_glob!r} were found under "
@@ -91,6 +99,13 @@ def summarize(
         "test_average_precision",
         "test_verification_budget_ratio",
         "test_verification_positive_recall",
+        *sorted(
+            name
+            for name in table.columns
+            if name.startswith("search_")
+            or name.endswith("_s0_average_precision")
+            or name.endswith("_s1_average_precision")
+        ),
     )
     for (method, labels), group in table.groupby(
         ["method", "queried_training_labels"],
@@ -129,6 +144,13 @@ def summarize(
         ].idxmax()
     ]
     method_summaries: list[dict[str, Any]] = []
+    extra_metric_names = sorted(
+        name
+        for name in table.columns
+        if name.startswith("search_")
+        or name.endswith("_s0_average_precision")
+        or name.endswith("_s1_average_precision")
+    )
     for method in sorted(table["method"].unique()):
         final = final_rows.loc[final_rows["method"] == method]
         best = best_rows.loc[best_rows["method"] == method]
@@ -138,8 +160,7 @@ def summarize(
                 f"Final queried-label budgets differ across {method} runs: "
                 f"{final_labels.tolist()}"
             )
-        method_summaries.append(
-            {
+        method_summary = {
                 "method": method,
                 "num_acquisition_seeds": int(final["acquisition_seed"].nunique()),
                 "final_queried_training_labels": int(final_labels[0]),
@@ -177,10 +198,23 @@ def summarize(
                     final["test_verification_positive_recall"].mean()
                 ),
             }
-        )
+        for metric in extra_metric_names:
+            values = pd.to_numeric(final[metric], errors="coerce").dropna()
+            if len(values):
+                method_summary[f"final_{metric}_mean"] = float(values.mean())
+                method_summary[f"final_{metric}_std"] = float(values.std(ddof=0))
+        method_summaries.append(method_summary)
+    formal_search_enabled = any(
+        name.startswith("search_") for name in extra_metric_names
+    )
     summary = {
         "status": "complete",
-        "research_stage": "Phase 1 retrospective hidden-label replay smoke comparison",
+        "research_stage": (
+            "Phase 2 retrospective label-efficiency and formal search comparison"
+            if formal_search_enabled
+            else "Phase 1 retrospective hidden-label replay smoke comparison"
+        ),
+        "formal_search_metrics_included": formal_search_enabled,
         "num_methods": len(method_summaries),
         "methods": method_summaries,
         "interpretation_limit": (

@@ -267,16 +267,16 @@ def select_initial_batch(
     remaining_mask[physics_indices] = False
     remaining = np.flatnonzero(remaining_mask)
     remaining_count = batch_size - len(physics_indices)
+    diversity_count = min(remaining_count, int(max_diversity_selections))
     pool_size = min(
         len(remaining),
-        max(remaining_count, remaining_count * int(pool_multiplier)),
+        max(diversity_count, diversity_count * int(pool_multiplier)),
     )
     pool = (
         rng.choice(remaining, size=pool_size, replace=False)
         if pool_size
         else np.empty(0, dtype=np.int64)
     )
-    diversity_count = min(remaining_count, int(max_diversity_selections))
     if diversity_count:
         descriptors = build_candidate_descriptors(x_gcn, pairs[pool])
         local_diverse = farthest_first_indices(
@@ -289,9 +289,15 @@ def select_initial_batch(
         local_diverse = np.empty(0, dtype=np.int64)
         diverse = np.empty(0, dtype=np.int64)
     fill_count = remaining_count - len(diverse)
-    pool_fill_mask = np.ones(len(pool), dtype=bool)
-    pool_fill_mask[local_diverse] = False
-    fill = pool[pool_fill_mask][:fill_count]
+    fill_available_mask = np.ones(len(remaining), dtype=bool)
+    if len(diverse):
+        fill_available_mask[np.searchsorted(remaining, np.sort(diverse))] = False
+    fill_available = remaining[fill_available_mask]
+    fill = (
+        rng.choice(fill_available, size=fill_count, replace=False)
+        if fill_count
+        else np.empty(0, dtype=np.int64)
+    )
     chosen = np.concatenate((physics_indices, diverse, fill))
     chosen_pairs = pairs[chosen]
     chosen_severity = severity[chosen]
@@ -354,32 +360,172 @@ def select_active_query_batch(
         + float(severity_weight) * _rank01(severity)
         + float(positive_weight) * _rank01(mean_probability)
     )
-    shortlist_size = min(
-        len(pairs),
-        max(batch_size, batch_size * max(int(shortlist_multiplier), 1)),
-    )
-    shortlist = np.argsort(-score, kind="stable")[:shortlist_size]
-    shortlist_pairs = pairs[shortlist]
     diversity_count = min(batch_size, int(max_diversity_selections))
+    ranked = np.argsort(-score, kind="stable")
     if diversity_count:
-        descriptors = build_candidate_descriptors(x_gcn, shortlist_pairs)
+        diversity_pool_size = min(
+            len(pairs),
+            max(
+                diversity_count,
+                diversity_count * max(int(shortlist_multiplier), 1),
+            ),
+        )
+        diversity_pool = ranked[:diversity_pool_size]
+        descriptors = build_candidate_descriptors(x_gcn, pairs[diversity_pool])
         local = farthest_first_indices(
             descriptors,
             diversity_count,
-            priority=score[shortlist],
+            priority=score[diversity_pool],
         )
+        diverse = diversity_pool[local]
     else:
-        local = np.empty(0, dtype=np.int64)
-    fill_count = batch_size - len(local)
-    fill_mask = np.ones(len(shortlist), dtype=bool)
-    fill_mask[local] = False
-    fill = np.flatnonzero(fill_mask)[:fill_count]
-    chosen = shortlist[np.concatenate((local, fill))]
+        diverse = np.empty(0, dtype=np.int64)
+    fill_count = batch_size - len(diverse)
+    fill_mask = np.ones(len(pairs), dtype=bool)
+    fill_mask[diverse] = False
+    fill = ranked[fill_mask[ranked]][:fill_count]
+    chosen = np.concatenate((diverse, fill))
     chosen_pairs = pairs[chosen]
     return AcquisitionBatch(
         state_indices=chosen_pairs[:, 0],
         line_indices=chosen_pairs[:, 1],
         acquisition_score=score[chosen],
+        predictive_entropy=entropy[chosen],
+        ensemble_disagreement=disagreement[chosen],
+        physics_severity=severity[chosen],
+    )
+
+
+def select_quota_active_query_batch(
+    member_probability: np.ndarray,
+    x_gcn: np.ndarray,
+    valid_mask: np.ndarray,
+    queried_mask: np.ndarray,
+    feature_names: Iterable[str],
+    batch_size: int,
+    *,
+    risk_fraction: float = 0.35,
+    uncertainty_fraction: float = 0.45,
+    random_fraction: float = 0.0,
+    shortlist_multiplier: int = 10,
+    max_diversity_selections: int = 500,
+    random_seed: int = 0,
+) -> AcquisitionBatch:
+    """Acquire separate risk, uncertainty, random-anchor, and diversity cohorts."""
+    member_probability = np.asarray(member_probability, dtype=np.float64)
+    valid_mask = np.asarray(valid_mask, dtype=bool)
+    queried_mask = np.asarray(queried_mask, dtype=bool)
+    if member_probability.ndim != 3:
+        raise ValueError("member_probability must have shape members x states x lines.")
+    if member_probability.shape[1:] != valid_mask.shape:
+        raise ValueError("member probabilities must match valid_mask state/line dimensions.")
+    if risk_fraction < 0.0 or uncertainty_fraction < 0.0 or random_fraction < 0.0:
+        raise ValueError("Quota fractions must be non-negative.")
+    quota_sum = risk_fraction + uncertainty_fraction + random_fraction
+    if quota_sum > 1.0:
+        raise ValueError("Risk, uncertainty, and random quota fractions cannot sum above one.")
+    if shortlist_multiplier <= 0:
+        raise ValueError("shortlist_multiplier must be positive.")
+    if max_diversity_selections < 0:
+        raise ValueError("max_diversity_selections must be non-negative.")
+
+    pairs = candidate_pairs(valid_mask, queried_mask)
+    batch_size = min(max(int(batch_size), 0), len(pairs))
+    if batch_size == 0:
+        empty = np.empty(0, dtype=np.float64)
+        return AcquisitionBatch(
+            np.empty(0, dtype=np.int64),
+            np.empty(0, dtype=np.int64),
+            empty,
+            empty,
+            empty,
+            empty,
+        )
+    state_idx, line_idx = pairs[:, 0], pairs[:, 1]
+    mean_matrix = member_probability.mean(axis=0)
+    entropy_matrix = binary_entropy(mean_matrix)
+    disagreement_matrix = ensemble_disagreement(member_probability)
+    mean_probability = mean_matrix[state_idx, line_idx]
+    entropy = entropy_matrix[state_idx, line_idx]
+    disagreement = disagreement_matrix[state_idx, line_idx]
+    severity = candidate_physics_severity(x_gcn, pairs, feature_names)
+    uncertainty = 0.7 * _rank01(entropy) + 0.3 * _rank01(disagreement)
+    risk = 0.8 * _rank01(mean_probability) + 0.2 * _rank01(severity)
+    combined = 0.45 * uncertainty + 0.35 * risk + 0.20 * _rank01(severity)
+
+    selected = np.zeros(len(pairs), dtype=bool)
+
+    def take_ranked(values: np.ndarray, count: int) -> np.ndarray:
+        order = np.argsort(-values, kind="stable")
+        available = order[~selected[order]]
+        chosen_local = available[: max(int(count), 0)]
+        selected[chosen_local] = True
+        return chosen_local
+
+    risk_count = int(round(batch_size * risk_fraction))
+    uncertainty_count = int(round(batch_size * uncertainty_fraction))
+    if risk_count + uncertainty_count > batch_size:
+        uncertainty_count = batch_size - risk_count
+    risk_indices = take_ranked(risk, risk_count)
+    uncertainty_indices = take_ranked(uncertainty, uncertainty_count)
+    random_count = min(
+        int(round(batch_size * random_fraction)),
+        batch_size - int(selected.sum()),
+    )
+    if random_count:
+        rng = np.random.default_rng(random_seed)
+        random_available = np.flatnonzero(~selected)
+        random_indices = rng.choice(
+            random_available,
+            size=random_count,
+            replace=False,
+        ).astype(np.int64)
+        selected[random_indices] = True
+    else:
+        random_indices = np.empty(0, dtype=np.int64)
+
+    diversity_target = min(
+        int(round(batch_size * max(1.0 - quota_sum, 0.0))),
+        batch_size - int(selected.sum()),
+        int(max_diversity_selections),
+    )
+    if diversity_target:
+        remaining = np.flatnonzero(~selected)
+        remaining_order = remaining[
+            np.argsort(-combined[remaining], kind="stable")
+        ]
+        pool_size = min(
+            len(remaining_order),
+            max(diversity_target, diversity_target * int(shortlist_multiplier)),
+        )
+        pool = remaining_order[:pool_size]
+        descriptors = build_candidate_descriptors(x_gcn, pairs[pool])
+        local = farthest_first_indices(
+            descriptors,
+            diversity_target,
+            priority=combined[pool],
+        )
+        diverse_indices = pool[local]
+        selected[diverse_indices] = True
+    else:
+        diverse_indices = np.empty(0, dtype=np.int64)
+    fill_indices = take_ranked(combined, batch_size - int(selected.sum()))
+    chosen = np.concatenate(
+        (
+            risk_indices,
+            uncertainty_indices,
+            random_indices,
+            diverse_indices,
+            fill_indices,
+        )
+    )
+    if len(chosen) != batch_size or len(np.unique(chosen)) != batch_size:
+        raise RuntimeError("Quota acquisition did not produce the requested unique batch.")
+    chosen_pairs = pairs[chosen]
+    return AcquisitionBatch(
+        state_indices=chosen_pairs[:, 0],
+        line_indices=chosen_pairs[:, 1],
+        acquisition_score=combined[chosen],
         predictive_entropy=entropy[chosen],
         ensemble_disagreement=disagreement[chosen],
         physics_severity=severity[chosen],
