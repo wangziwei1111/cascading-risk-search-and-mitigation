@@ -70,6 +70,18 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--dataset-npz", type=Path, default=DEFAULT_DATASET)
     parser.add_argument("--run-root", type=Path, default=DEFAULT_RUN_ROOT)
+    parser.add_argument(
+        "--anchor-run-root",
+        type=Path,
+        default=None,
+        help="Optional run root for the representative anchor model.",
+    )
+    parser.add_argument(
+        "--active-run-root",
+        type=Path,
+        default=None,
+        help="Optional run root for the target-focused active model.",
+    )
     parser.add_argument("--anchor-method", default="random")
     parser.add_argument("--active-method", default="pmf_hybrid_prior_corrected")
     parser.add_argument(
@@ -102,6 +114,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--k-gcn", type=int, default=6)
     parser.add_argument("--first-layer-channels", type=int, default=16)
     parser.add_argument("--second-layer-channels", type=int, default=4)
+    parser.add_argument(
+        "--experiment-prefix",
+        default="ieee118_phase2_dual_anchor",
+        help="Prefix used for compact output filenames.",
+    )
+    parser.add_argument(
+        "--research-stage",
+        default="Phase 2 exploratory dual-anchor score fusion",
+    )
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
     return parser.parse_args(argv)
 
@@ -213,6 +234,22 @@ def _oracle_costs(
     )
 
 
+def _single_oracle_cost(
+    checkpoint: dict[str, np.ndarray],
+    full_split: np.ndarray,
+) -> int:
+    source_indices = np.asarray(checkpoint["source_indices"], dtype=np.int64)
+    query_mask = np.asarray(checkpoint["query_mask"], dtype=bool)
+    if query_mask.ndim != 2 or query_mask.shape[0] != len(source_indices):
+        raise ValueError(
+            "Active-replay query mask rows must match its source indices."
+        )
+    if np.any(source_indices < 0) or np.any(source_indices >= len(full_split)):
+        raise ValueError("Active-replay source indices are outside the full split.")
+    train_rows = np.asarray(full_split).astype(str)[source_indices] == "train"
+    return int(query_mask[train_rows].sum())
+
+
 def _validation_s1_ap(
     dataset: Any,
     local: dict[str, np.ndarray],
@@ -296,9 +333,11 @@ def evaluate_dual_anchor(args: argparse.Namespace) -> dict[str, Any]:
     train_rows = split == "train"
     num_available = int(dataset["loss_mask"][train_rows].sum())
     records: list[dict[str, Any]] = []
+    anchor_root = args.anchor_run_root or args.run_root
+    active_root = args.active_run_root or args.run_root
     for acquisition_seed in args.acquisition_seeds:
-        anchor_dir = args.run_root / f"{args.anchor_method}_seed_{acquisition_seed}"
-        active_dir = args.run_root / f"{args.active_method}_seed_{acquisition_seed}"
+        anchor_dir = anchor_root / f"{args.anchor_method}_seed_{acquisition_seed}"
+        active_dir = active_root / f"{args.active_method}_seed_{acquisition_seed}"
         anchor_s0, anchor_s1 = _ensemble_predictions(
             anchor_dir / "active_label_replay_checkpoint.pt",
             x_s0,
@@ -337,7 +376,7 @@ def evaluate_dual_anchor(args: argparse.Namespace) -> dict[str, Any]:
             "geometric_mean",
         )
         variants = {
-            "random_anchor_standalone": (
+            "anchor_standalone": (
                 anchor_s0,
                 anchor_s1,
                 anchor_cost,
@@ -419,8 +458,8 @@ def evaluate_dual_anchor(args: argparse.Namespace) -> dict[str, Any]:
         ascending=[False, True],
     ).iloc[0]
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    by_seed_name = "ieee118_phase2_dual_anchor_by_seed.csv"
-    aggregate_name = "ieee118_phase2_dual_anchor_summary.csv"
+    by_seed_name = f"{args.experiment_prefix}_by_seed.csv"
+    aggregate_name = f"{args.experiment_prefix}_summary.csv"
     by_seed.to_csv(
         args.output_dir / by_seed_name,
         index=False,
@@ -433,11 +472,13 @@ def evaluate_dual_anchor(args: argparse.Namespace) -> dict[str, Any]:
     )
     summary = {
         "status": "complete",
-        "research_stage": "Phase 2 exploratory dual-anchor score fusion",
+        "research_stage": str(args.research_stage),
         "model_class": "PaperStyleRts79Gcn",
         "model_core_modified": False,
         "anchor_method": args.anchor_method,
         "active_method": args.active_method,
+        "anchor_run_root": str(anchor_root),
+        "active_run_root": str(active_root),
         "num_acquisition_seeds": len(args.acquisition_seeds),
         "methods": aggregate.to_dict(orient="records"),
         "validation_selected_fusion": str(selected["method"]),
@@ -459,7 +500,7 @@ def evaluate_dual_anchor(args: argparse.Namespace) -> dict[str, Any]:
             "aggregate": aggregate_name,
         },
     }
-    summary_name = "ieee118_phase2_dual_anchor_summary.json"
+    summary_name = f"{args.experiment_prefix}_summary.json"
     summary["output_files"]["summary"] = summary_name
     (args.output_dir / summary_name).write_text(
         json.dumps(summary, indent=2),

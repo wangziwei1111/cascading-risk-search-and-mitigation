@@ -35,6 +35,14 @@ from active_replay_search_metrics import (
     active_replay_search_thresholds,
     load_active_replay_search_context,
 )
+from propensity_debiased_active_learning import (
+    PropensityQueryBatch,
+    effective_sample_size,
+    lure_weight_matrix,
+    physics_guided_lure_utility,
+    sample_propensity_batch,
+)
+from dc_lodf_low_fidelity import binary_low_fidelity_target
 from train_ieee118_paper_aligned_gcn import predict_probability, split_metrics
 from train_ieee118_with_original_rts79_gcn import (
     build_branch_graph_adjacency_from_endpoints,
@@ -72,6 +80,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
             "pmf_quota",
             "pmf_hybrid",
             "pmf_hybrid_prior_corrected",
+            "lure_entropy",
+            "pg_lure",
+            "pg_lure_blend",
+            "pg_lure_unweighted",
         ],
         default="pmf_bal",
     )
@@ -99,6 +111,46 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--initial-pool-multiplier", type=int, default=10)
     parser.add_argument("--shortlist-multiplier", type=int, default=10)
     parser.add_argument("--max-diversity-selections", type=int, default=500)
+    parser.add_argument(
+        "--lure-exploration-mass",
+        type=float,
+        default=0.50,
+        help=(
+            "Uniform proposal mass for randomized LURE modes. A positive value "
+            "keeps support over every remaining training candidate."
+        ),
+    )
+    parser.add_argument("--lure-utility-power", type=float, default=1.0)
+    parser.add_argument(
+        "--lure-loss-mix",
+        type=float,
+        default=0.50,
+        help=(
+            "For pg_lure_blend, fraction of LURE-corrected population risk; "
+            "the remainder is the enriched active-sample risk."
+        ),
+    )
+    parser.add_argument("--lure-uncertainty-weight", type=float, default=0.45)
+    parser.add_argument("--lure-risk-weight", type=float, default=0.35)
+    parser.add_argument("--lure-physics-weight", type=float, default=0.20)
+    parser.add_argument(
+        "--low-fidelity-target-npz",
+        type=Path,
+        default=None,
+        help=(
+            "Optional local DC/LODF proxy target file. It is used only for "
+            "pretraining and never replaces high-fidelity evaluation labels."
+        ),
+    )
+    parser.add_argument("--low-fidelity-pretrain-epochs", type=int, default=0)
+    parser.add_argument(
+        "--low-fidelity-target-mode",
+        choices=["overload", "top_quantile", "per_state_top_quantile"],
+        default="top_quantile",
+    )
+    parser.add_argument("--low-fidelity-overload-threshold", type=float, default=1.2)
+    parser.add_argument("--low-fidelity-upper-quantile", type=float, default=0.95)
+    parser.add_argument("--low-fidelity-positive-weight", type=float, default=5.0)
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--learning-rate", type=float, default=0.005)
     parser.add_argument("--positive-weight", type=float, default=20.0)
@@ -183,8 +235,10 @@ def _validate_data(data: Any) -> None:
         "x_gcn",
         "y_gcn",
         "loss_mask",
+        "seed",
         "split",
         "sample_type",
+        "active_first_line",
         "line_labels",
         "branch_from_bus",
         "branch_to_bus",
@@ -200,6 +254,116 @@ def _validate_data(data: Any) -> None:
     assert_no_label_leakage(data["feature_names"].astype(str).tolist())
 
 
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _input_content_digests(args: argparse.Namespace) -> dict[str, str | None]:
+    paths = {
+        "dataset_npz": args.dataset_npz,
+        "low_fidelity_target_npz": args.low_fidelity_target_npz,
+        "search_eval_dataset_npz": args.search_eval_dataset_npz,
+        "search_fulltruth_csv": args.search_fulltruth_csv,
+        "search_first_step_summary_csv": args.search_first_step_summary_csv,
+        "search_feature_normalizer_json": args.search_feature_normalizer_json,
+    }
+    return {
+        name: _file_sha256(Path(path)) if path is not None else None
+        for name, path in paths.items()
+    }
+
+
+def sample_order_sha256(data: Any, original_indices: np.ndarray) -> str:
+    required = ("seed", "split", "sample_type", "active_first_line")
+    missing = [name for name in required if name not in data]
+    if missing:
+        raise ValueError(
+            f"Cannot fingerprint sample order; missing identity arrays: {missing}"
+        )
+    indices = np.asarray(original_indices, dtype=np.int64)
+    digest = hashlib.sha256()
+    digest.update(indices.astype("<i8", copy=False).tobytes())
+    for name in required:
+        values = np.asarray(data[name])[indices].astype(str).reshape(-1)
+        digest.update(name.encode("ascii"))
+        digest.update(np.asarray(values.shape, dtype="<i8").tobytes())
+        for value in values:
+            encoded = value.encode("utf-8")
+            digest.update(len(encoded).to_bytes(8, byteorder="little"))
+            digest.update(encoded)
+    return digest.hexdigest()
+
+
+def high_fidelity_data_cost_summary(
+    query_mask: np.ndarray,
+    valid_mask: np.ndarray,
+    split: np.ndarray,
+    *,
+    policy_selection_label_count: int = 0,
+    policy_selection_reuses_validation: bool = True,
+    formal_search_audit_label_count: int = 0,
+) -> dict[str, Any]:
+    query = np.asarray(query_mask, dtype=bool)
+    valid = np.asarray(valid_mask, dtype=bool)
+    split_names = np.asarray(split).astype(str)
+    if query.shape != valid.shape or query.shape[0] != len(split_names):
+        raise ValueError("Query mask, valid mask, and split dimensions must match.")
+    if policy_selection_label_count < 0:
+        raise ValueError("Policy-selection label count must be non-negative.")
+    if formal_search_audit_label_count < 0:
+        raise ValueError("Formal search-audit label count must be non-negative.")
+
+    train = valid & (split_names == "train")[:, None]
+    validation = valid & (split_names == "validation")[:, None]
+    test = valid & (split_names == "test")[:, None]
+    training_available = int(train.sum())
+    training_queried = int((query & train).sum())
+    validation_labels = int(validation.sum())
+    test_labels = int(test.sum())
+    if policy_selection_reuses_validation and policy_selection_label_count > validation_labels:
+        raise ValueError(
+            "Policy-selection labels cannot exceed validation labels when they are reused."
+        )
+    additional_policy_labels = (
+        0 if policy_selection_reuses_validation else int(policy_selection_label_count)
+    )
+    unique_development = (
+        training_queried + validation_labels + additional_policy_labels
+    )
+    full_reference = (
+        training_available + validation_labels + additional_policy_labels
+    )
+    return {
+        "num_available_training_high_fidelity_labels": training_available,
+        "num_training_query_labels": training_queried,
+        "num_validation_model_selection_labels": validation_labels,
+        "num_calibration_labels": validation_labels,
+        "calibration_reuses_validation_labels": True,
+        "num_policy_selection_labels": int(policy_selection_label_count),
+        "policy_selection_reuses_validation_labels": bool(
+            policy_selection_reuses_validation
+        ),
+        "num_unique_development_high_fidelity_labels": unique_development,
+        "num_test_audit_labels": test_labels,
+        "num_formal_search_audit_path_labels": int(
+            formal_search_audit_label_count
+        ),
+        "test_audit_labels_excluded_from_development_cost": True,
+        "formal_search_audit_labels_excluded_from_development_cost": True,
+        "num_full_label_reference_development_labels": full_reference,
+        "training_query_reduction_fraction": float(
+            1.0 - training_queried / max(training_available, 1)
+        ),
+        "total_development_label_reduction_fraction": float(
+            1.0 - unique_development / max(full_reference, 1)
+        ),
+    }
+
+
 def _fit_one_model(
     x: np.ndarray,
     y: np.ndarray,
@@ -213,6 +377,8 @@ def _fit_one_model(
     member_seed: int,
     initial_state: dict[str, Any] | None = None,
     positive_weight_override: float | None = None,
+    label_weight: np.ndarray | None = None,
+    epochs_override: int | None = None,
 ) -> tuple[Any, list[dict[str, Any]]]:
     torch = symbols["torch"]
     nn = symbols["nn"]
@@ -227,8 +393,22 @@ def _fit_one_model(
         raise ValueError("No queried training labels are available.")
     if len(validation_rows) == 0:
         raise ValueError("Active replay requires a non-empty validation scenario split.")
+    if label_weight is None:
+        label_weight = query_mask.astype(np.float32)
+    else:
+        label_weight = np.asarray(label_weight, dtype=np.float32)
+        if label_weight.shape != query_mask.shape:
+            raise ValueError("label_weight must match the state-by-line query mask.")
+        if np.any(label_weight < 0.0) or not np.isfinite(label_weight).all():
+            raise ValueError("label_weight must be finite and non-negative.")
+        if np.any(label_weight[query_mask] <= 0.0):
+            raise ValueError("Every queried label must have positive training weight.")
     config = PaperGcnTrainConfig(
-        epochs=int(args.epochs_per_round),
+        epochs=int(
+            args.epochs_per_round
+            if epochs_override is None
+            else epochs_override
+        ),
         batch_size=int(args.batch_size),
         learning_rate=float(args.learning_rate),
         k_gcn=int(args.k_gcn),
@@ -257,6 +437,7 @@ def _fit_one_model(
             torch.tensor(x[train_rows], dtype=torch.float32),
             torch.tensor(y[train_rows], dtype=torch.long),
             torch.tensor(query_mask[train_rows], dtype=torch.bool),
+            torch.tensor(label_weight[train_rows], dtype=torch.float32),
         ),
         batch_size=config.batch_size,
         shuffle=True,
@@ -296,15 +477,16 @@ def _fit_one_model(
         model.train()
         total_loss = 0.0
         total_count = 0
-        for xb, yb, mb in loader:
+        for xb, yb, mb, wb in loader:
             optimizer.zero_grad()
             logits = model(xb, adjacency_powers)
             loss_matrix = loss_fn(logits.reshape(-1, 2), yb.reshape(-1)).reshape_as(yb)
-            loss = loss_matrix[mb].mean()
+            weighted_loss = loss_matrix[mb] * wb[mb]
+            loss = weighted_loss.sum() / max(int(mb.sum()), 1)
             loss.backward()
             optimizer.step()
             count = int(mb.sum())
-            total_loss += float(loss.detach()) * count
+            total_loss += float(weighted_loss.detach().sum())
             total_count += count
         validation_probability = predict_probability(
             model,
@@ -411,7 +593,7 @@ def _retrieval_rows(
 
 def _append_query_log(
     rows: list[dict[str, Any]],
-    batch: AcquisitionBatch | np.ndarray,
+    batch: AcquisitionBatch | PropensityQueryBatch | np.ndarray,
     y: np.ndarray,
     original_indices: np.ndarray,
     line_labels: np.ndarray,
@@ -422,25 +604,38 @@ def _append_query_log(
 ) -> None:
     if max_rows <= 0:
         return
-    pairs = batch.pairs() if isinstance(batch, AcquisitionBatch) else np.asarray(batch, dtype=np.int64)
+    pairs = (
+        batch.pairs()
+        if isinstance(batch, (AcquisitionBatch, PropensityQueryBatch))
+        else np.asarray(batch, dtype=np.int64)
+    )
     score = (
         batch.acquisition_score
         if isinstance(batch, AcquisitionBatch)
-        else np.full(len(pairs), np.nan)
+        else (
+            batch.acquisition_utility
+            if isinstance(batch, PropensityQueryBatch)
+            else np.full(len(pairs), np.nan)
+        )
     )
     entropy = (
         batch.predictive_entropy
-        if isinstance(batch, AcquisitionBatch)
+        if isinstance(batch, (AcquisitionBatch, PropensityQueryBatch))
         else np.full(len(pairs), np.nan)
     )
     disagreement = (
         batch.ensemble_disagreement
-        if isinstance(batch, AcquisitionBatch)
+        if isinstance(batch, (AcquisitionBatch, PropensityQueryBatch))
         else np.full(len(pairs), np.nan)
     )
     severity = (
         batch.physics_severity
-        if isinstance(batch, AcquisitionBatch)
+        if isinstance(batch, (AcquisitionBatch, PropensityQueryBatch))
+        else np.full(len(pairs), np.nan)
+    )
+    proposal_probability = (
+        batch.proposal_probability
+        if isinstance(batch, PropensityQueryBatch)
         else np.full(len(pairs), np.nan)
     )
     limit = min(len(pairs), int(max_rows))
@@ -449,6 +644,7 @@ def _append_query_log(
     entropy = entropy[:limit]
     disagreement = disagreement[:limit]
     severity = severity[:limit]
+    proposal_probability = proposal_probability[:limit]
     for position, pair in enumerate(pairs):
         state_idx, line_idx = int(pair[0]), int(pair[1])
         rows.append(
@@ -464,6 +660,7 @@ def _append_query_log(
                 "predictive_entropy": float(entropy[position]),
                 "ensemble_disagreement": float(disagreement[position]),
                 "physics_severity": float(severity[position]),
+                "proposal_probability": float(proposal_probability[position]),
             }
         )
 
@@ -525,12 +722,22 @@ def _checkpoint_fingerprint(
     args: argparse.Namespace,
     original_indices: np.ndarray,
     budget_schedule: list[int],
+    *,
+    sample_order_digest: str,
+    input_content_digests: dict[str, str | None] | None = None,
 ) -> str:
+    content_digests = (
+        _input_content_digests(args)
+        if input_content_digests is None
+        else dict(input_content_digests)
+    )
     payload = {
         "dataset_npz": str(args.dataset_npz.resolve()),
+        "input_content_sha256": content_digests,
         "subset_indices_sha256": hashlib.sha256(
             np.asarray(original_indices, dtype=np.int64).tobytes()
         ).hexdigest(),
+        "subset_sample_order_sha256": str(sample_order_digest),
         "acquisition_mode": str(args.acquisition_mode),
         "label_budget_schedule": budget_schedule,
         "epochs_per_round": int(args.epochs_per_round),
@@ -539,6 +746,28 @@ def _checkpoint_fingerprint(
         "initial_pool_multiplier": int(args.initial_pool_multiplier),
         "shortlist_multiplier": int(args.shortlist_multiplier),
         "max_diversity_selections": int(args.max_diversity_selections),
+        "lure_exploration_mass": float(args.lure_exploration_mass),
+        "lure_utility_power": float(args.lure_utility_power),
+        "lure_loss_mix": float(args.lure_loss_mix),
+        "lure_uncertainty_weight": float(args.lure_uncertainty_weight),
+        "lure_risk_weight": float(args.lure_risk_weight),
+        "lure_physics_weight": float(args.lure_physics_weight),
+        "low_fidelity_target_npz": (
+            str(args.low_fidelity_target_npz.resolve())
+            if args.low_fidelity_target_npz is not None
+            else None
+        ),
+        "low_fidelity_pretrain_epochs": int(args.low_fidelity_pretrain_epochs),
+        "low_fidelity_target_mode": str(args.low_fidelity_target_mode),
+        "low_fidelity_overload_threshold": float(
+            args.low_fidelity_overload_threshold
+        ),
+        "low_fidelity_upper_quantile": float(
+            args.low_fidelity_upper_quantile
+        ),
+        "low_fidelity_positive_weight": float(
+            args.low_fidelity_positive_weight
+        ),
         "batch_size": int(args.batch_size),
         "learning_rate": float(args.learning_rate),
         "positive_weight": float(args.positive_weight),
@@ -595,6 +824,8 @@ def _save_checkpoint(
     query_log_rows: list[dict[str, Any]],
     final_probability: np.ndarray,
     reference_positive_prior: float,
+    acquisition_position: np.ndarray,
+    acquisition_probability: np.ndarray,
 ) -> None:
     temporary = path.with_suffix(path.suffix + ".tmp")
     torch.save(
@@ -609,10 +840,114 @@ def _save_checkpoint(
             "query_log_rows": query_log_rows,
             "final_probability": np.asarray(final_probability, dtype=np.float32),
             "reference_positive_prior": float(reference_positive_prior),
+            "acquisition_position": np.asarray(
+                acquisition_position,
+                dtype=np.int64,
+            ),
+            "acquisition_probability": np.asarray(
+                acquisition_probability,
+                dtype=np.float64,
+            ),
         },
         temporary,
     )
     temporary.replace(path)
+
+
+def _load_low_fidelity_targets(
+    path: Path,
+    *,
+    original_indices: np.ndarray,
+    full_shape: tuple[int, int],
+    expected_line_labels: np.ndarray,
+    expected_seed: np.ndarray,
+    expected_split: np.ndarray,
+    expected_sample_type: np.ndarray,
+    expected_active_first_line: np.ndarray,
+    split: np.ndarray,
+    args: argparse.Namespace,
+) -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Missing local IEEE118 low-fidelity target file: {path}. "
+            "Run build_ieee118_dc_lodf_low_fidelity_targets.py first; "
+            "active replay will not regenerate cascade truth."
+        )
+    low_fidelity = np.load(path, allow_pickle=True)
+    required = {
+        "proxy_score",
+        "proxy_mask",
+        "line_labels",
+        "seed",
+        "split",
+        "sample_type",
+        "active_first_line",
+    }
+    missing = sorted(required - set(low_fidelity.files))
+    if missing:
+        raise ValueError(
+            f"Low-fidelity target NPZ is missing arrays: {missing}"
+        )
+    if low_fidelity["proxy_score"].shape != full_shape:
+        raise ValueError(
+            "Low-fidelity proxy score shape does not match the source GCN dataset."
+        )
+    if low_fidelity["proxy_mask"].shape != full_shape:
+        raise ValueError(
+            "Low-fidelity proxy mask shape does not match the source GCN dataset."
+        )
+    if not np.array_equal(
+        low_fidelity["line_labels"].astype(str),
+        expected_line_labels.astype(str),
+    ):
+        raise ValueError(
+            "Low-fidelity line labels do not match the source GCN dataset."
+        )
+    expected_identity = {
+        "seed": np.asarray(expected_seed),
+        "split": np.asarray(expected_split).astype(str),
+        "sample_type": np.asarray(expected_sample_type).astype(str),
+        "active_first_line": np.asarray(expected_active_first_line).astype(str),
+    }
+    for name, expected in expected_identity.items():
+        actual = np.asarray(low_fidelity[name])
+        if actual.dtype.kind in {"U", "S", "O"}:
+            actual = actual.astype(str)
+        if not np.array_equal(actual, expected):
+            raise ValueError(
+                f"Low-fidelity {name} sample order does not match the source GCN dataset."
+            )
+    score = low_fidelity["proxy_score"][original_indices].astype(np.float32)
+    mask = (
+        low_fidelity["proxy_mask"][original_indices].astype(bool)
+        & np.isfinite(score)
+    )
+    target, threshold = binary_low_fidelity_target(
+        score,
+        mask,
+        split,
+        mode=str(args.low_fidelity_target_mode),
+        overload_threshold=float(args.low_fidelity_overload_threshold),
+        upper_quantile=float(args.low_fidelity_upper_quantile),
+    )
+    train_mask = mask & (split == "train")[:, None]
+    validation_mask = mask & (split == "validation")[:, None]
+    metadata = {
+        "target_npz": str(path),
+        "target_mode": str(args.low_fidelity_target_mode),
+        "frozen_training_proxy_threshold": float(threshold),
+        "num_training_proxy_labels": int(train_mask.sum()),
+        "num_training_proxy_positive": int(target[train_mask].sum()),
+        "training_proxy_positive_ratio": float(target[train_mask].mean()),
+        "num_validation_proxy_labels": int(validation_mask.sum()),
+        "num_validation_proxy_positive": int(
+            target[validation_mask].sum()
+        ),
+        "validation_proxy_positive_ratio": float(
+            target[validation_mask].mean()
+        ),
+    }
+    return target, mask, metadata
 
 
 def replay(args: argparse.Namespace) -> dict[str, Any]:
@@ -629,6 +964,41 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError("--positive-weight must be positive.")
     if args.max_query_log_rows < 0:
         raise ValueError("--max-query-log-rows must be non-negative.")
+    if args.low_fidelity_pretrain_epochs < 0:
+        raise ValueError("--low-fidelity-pretrain-epochs must be non-negative.")
+    if args.low_fidelity_positive_weight <= 0.0:
+        raise ValueError("--low-fidelity-positive-weight must be positive.")
+    if args.low_fidelity_pretrain_epochs > 0 and args.low_fidelity_target_npz is None:
+        raise ValueError(
+            "--low-fidelity-pretrain-epochs requires "
+            "--low-fidelity-target-npz."
+        )
+    if args.reinitialize_each_round and args.low_fidelity_pretrain_epochs > 0:
+        raise ValueError(
+            "Low-fidelity pretraining is incompatible with "
+            "--reinitialize-each-round."
+        )
+    if not 0.0 < args.lure_exploration_mass <= 1.0:
+        raise ValueError("--lure-exploration-mass must be in (0, 1].")
+    if args.lure_utility_power <= 0.0:
+        raise ValueError("--lure-utility-power must be positive.")
+    if not 0.0 <= args.lure_loss_mix <= 1.0:
+        raise ValueError("--lure-loss-mix must be in [0, 1].")
+    lure_utility_weights = (
+        args.lure_uncertainty_weight,
+        args.lure_risk_weight,
+        args.lure_physics_weight,
+    )
+    if min(lure_utility_weights) < 0.0 or sum(lure_utility_weights) <= 0.0:
+        raise ValueError(
+            "LURE utility weights must be non-negative with a positive sum."
+        )
+    lure_mode = args.acquisition_mode in {
+        "lure_entropy",
+        "pg_lure",
+        "pg_lure_blend",
+        "pg_lure_unweighted",
+    }
     search_paths = (
         args.search_eval_dataset_npz,
         args.search_fulltruth_csv,
@@ -661,6 +1031,33 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
         args,
         num_available_training_labels,
     )
+    low_fidelity_target = None
+    low_fidelity_mask = None
+    low_fidelity_metadata: dict[str, Any] = {
+        "enabled": False,
+        "pretrain_epochs": 0,
+    }
+    if args.low_fidelity_pretrain_epochs > 0:
+        low_fidelity_target, low_fidelity_mask, loaded_metadata = (
+            _load_low_fidelity_targets(
+                args.low_fidelity_target_npz,
+                original_indices=original_indices,
+                full_shape=tuple(data["y_gcn"].shape),
+                expected_line_labels=line_labels,
+                expected_seed=data["seed"],
+                expected_split=data["split"],
+                expected_sample_type=data["sample_type"],
+                expected_active_first_line=data["active_first_line"],
+                split=split,
+                args=args,
+            )
+        )
+        low_fidelity_metadata = {
+            "enabled": True,
+            "pretrain_epochs": int(args.low_fidelity_pretrain_epochs),
+            "positive_weight": float(args.low_fidelity_positive_weight),
+            **loaded_metadata,
+        }
 
     symbols = load_original_rts79_gcn_symbols()
     torch = symbols["torch"]
@@ -687,12 +1084,18 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
         )
 
     checkpoint_path = args.output_dir / "active_label_replay_checkpoint.pt"
+    input_content_digests = _input_content_digests(args)
+    subset_sample_order_digest = sample_order_sha256(data, original_indices)
     checkpoint_fingerprint = _checkpoint_fingerprint(
         args,
         original_indices,
         budget_schedule,
+        sample_order_digest=subset_sample_order_digest,
+        input_content_digests=input_content_digests,
     )
     query_mask = np.zeros_like(valid_mask, dtype=bool)
+    acquisition_position = np.full(query_mask.shape, -1, dtype=np.int64)
+    acquisition_probability = np.zeros(query_mask.shape, dtype=np.float64)
     round_rows: list[dict[str, Any]] = []
     training_log_rows: list[dict[str, Any]] = []
     retrieval_rows: list[dict[str, Any]] = []
@@ -716,6 +1119,27 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
         query_mask = np.asarray(checkpoint["query_mask"], dtype=bool)
         if query_mask.shape != valid_mask.shape:
             raise ValueError("Active-label replay checkpoint query mask has the wrong shape.")
+        if lure_mode:
+            if not {
+                "acquisition_position",
+                "acquisition_probability",
+            }.issubset(checkpoint):
+                raise ValueError(
+                    "LURE checkpoint is missing its recorded acquisition propensities."
+                )
+            acquisition_position = np.asarray(
+                checkpoint["acquisition_position"],
+                dtype=np.int64,
+            )
+            acquisition_probability = np.asarray(
+                checkpoint["acquisition_probability"],
+                dtype=np.float64,
+            )
+            if (
+                acquisition_position.shape != valid_mask.shape
+                or acquisition_probability.shape != valid_mask.shape
+            ):
+                raise ValueError("LURE checkpoint acquisition history has the wrong shape.")
         member_states = checkpoint["member_states"]
         round_rows = list(checkpoint["round_rows"])
         training_log_rows = list(checkpoint["training_log_rows"])
@@ -745,7 +1169,72 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
             flush=True,
         )
     else:
-        if args.acquisition_mode in {
+        if low_fidelity_target is not None and low_fidelity_mask is not None:
+            pretrain_query_mask = (
+                low_fidelity_mask
+                & (split == "train")[:, None]
+            )
+            pretrain_best_ap: list[float] = []
+            for member in range(args.ensemble_members):
+                member_seed = int(args.random_seed + member)
+                model, logs = _fit_one_model(
+                    x,
+                    low_fidelity_target,
+                    pretrain_query_mask,
+                    low_fidelity_mask,
+                    split,
+                    adjacency_powers,
+                    symbols,
+                    args,
+                    member_seed=member_seed,
+                    positive_weight_override=float(
+                        args.low_fidelity_positive_weight
+                    ),
+                    epochs_override=int(args.low_fidelity_pretrain_epochs),
+                )
+                member_states[member] = {
+                    name: value.detach().cpu().clone()
+                    for name, value in model.state_dict().items()
+                }
+                for row in logs:
+                    row["active_round"] = -1
+                    row["training_stage"] = "low_fidelity_pretrain"
+                    training_log_rows.append(row)
+                pretrain_best_ap.append(
+                    max(
+                        float(row["validation_average_precision"])
+                        for row in logs
+                    )
+                )
+            low_fidelity_metadata[
+                "validation_proxy_ap_best_member_mean"
+            ] = float(np.mean(pretrain_best_ap))
+            print(
+                "[active-label-replay] "
+                f"low_fidelity_pretrain epochs={args.low_fidelity_pretrain_epochs} "
+                f"threshold={low_fidelity_metadata['frozen_training_proxy_threshold']:.6f} "
+                f"validation_proxy_ap={np.mean(pretrain_best_ap):.6f}",
+                flush=True,
+            )
+        if lure_mode:
+            initial_pairs = candidate_pairs(train_candidate_mask)
+            initial = sample_propensity_batch(
+                initial_pairs,
+                np.ones(len(initial_pairs), dtype=np.float64),
+                budget_schedule[0],
+                exploration_mass=1.0,
+                random_seed=args.random_seed,
+            )
+            initial_pair_values = initial.pairs()
+            acquisition_position[
+                initial_pair_values[:, 0],
+                initial_pair_values[:, 1],
+            ] = np.arange(initial.size, dtype=np.int64)
+            acquisition_probability[
+                initial_pair_values[:, 0],
+                initial_pair_values[:, 1],
+            ] = initial.proposal_probability
+        elif args.acquisition_mode in {
             "random",
             "entropy",
             "pmf_quota",
@@ -768,7 +1257,10 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
                 max_diversity_selections=args.max_diversity_selections,
                 random_seed=args.random_seed,
             )
-        query_mask = update_query_mask(query_mask, initial)
+        query_mask = update_query_mask(
+            query_mask,
+            initial.pairs() if isinstance(initial, PropensityQueryBatch) else initial,
+        )
         _append_query_log(
             query_log_rows,
             initial,
@@ -804,6 +1296,27 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
                 reference_positive_prior,
                 current_positive_ratio,
             )
+        label_weight = None
+        lure_weight = None
+        if lure_mode:
+            lure_weight = lure_weight_matrix(
+                acquisition_position,
+                acquisition_probability,
+                pool_size=num_available_training_labels,
+                num_acquired=current_budget,
+            )
+            lure_loss_mix = (
+                0.0
+                if args.acquisition_mode == "pg_lure_unweighted"
+                else args.lure_loss_mix
+                if args.acquisition_mode == "pg_lure_blend"
+                else 1.0
+            )
+            if lure_loss_mix > 0.0:
+                label_weight = (
+                    lure_loss_mix * lure_weight
+                    + (1.0 - lure_loss_mix) * query_mask.astype(np.float32)
+                )
         member_probability: list[np.ndarray] = []
         member_eval_probability: list[np.ndarray] = []
         for member in range(args.ensemble_members):
@@ -833,6 +1346,7 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
                 member_seed=member_seed,
                 initial_state=warm_state,
                 positive_weight_override=effective_positive_weight,
+                label_weight=label_weight,
             )
             member_states[member] = {
                 name: value.detach().cpu().clone()
@@ -840,6 +1354,7 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
             }
             for row in logs:
                 row["active_round"] = int(active_round)
+                row["training_stage"] = "high_fidelity_active"
                 training_log_rows.append(row)
             member_probability.append(
                 predict_probability(model, x, adjacency_powers, torch)
@@ -899,6 +1414,26 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
             "reference_positive_prior": reference_positive_prior,
             "effective_positive_weight": effective_positive_weight,
         }
+        if lure_weight is not None:
+            selected_lure_weight = lure_weight[query_mask & train_candidate_mask]
+            round_row.update(
+                {
+                    "lure_training_correction_enabled": (
+                        lure_loss_mix > 0.0
+                    ),
+                    "lure_loss_mix": float(lure_loss_mix),
+                    "lure_weight_min": float(selected_lure_weight.min()),
+                    "lure_weight_mean": float(selected_lure_weight.mean()),
+                    "lure_weight_max": float(selected_lure_weight.max()),
+                    "lure_weight_effective_sample_size": effective_sample_size(
+                        selected_lure_weight
+                    ),
+                    "lure_weight_effective_sample_fraction": (
+                        effective_sample_size(selected_lure_weight)
+                        / max(len(selected_lure_weight), 1)
+                    ),
+                }
+            )
         for split_name, split_rows in (
             ("validation", validation_rows),
             ("test", test_rows),
@@ -995,8 +1530,54 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
         )
         if active_round + 1 < len(budget_schedule):
             next_batch_size = budget_schedule[active_round + 1] - queried_train_labels
-            if args.acquisition_mode == "random":
-                new_batch: AcquisitionBatch | np.ndarray = select_random_batch(
+            if lure_mode:
+                remaining_pairs = candidate_pairs(
+                    train_candidate_mask,
+                    query_mask,
+                )
+                utility, entropy, disagreement, severity = (
+                    physics_guided_lure_utility(
+                        probability_stack,
+                        x,
+                        remaining_pairs,
+                        feature_names,
+                        mode=(
+                            "entropy"
+                            if args.acquisition_mode == "lure_entropy"
+                            else "physics_guided"
+                        ),
+                        uncertainty_weight=args.lure_uncertainty_weight,
+                        risk_weight=args.lure_risk_weight,
+                        physics_weight=args.lure_physics_weight,
+                    )
+                )
+                new_batch: AcquisitionBatch | PropensityQueryBatch | np.ndarray = (
+                    sample_propensity_batch(
+                        remaining_pairs,
+                        utility,
+                        next_batch_size,
+                        exploration_mass=args.lure_exploration_mass,
+                        random_seed=args.random_seed + active_round + 1,
+                        utility_power=args.lure_utility_power,
+                        predictive_entropy=entropy,
+                        disagreement=disagreement,
+                        physics_severity=severity,
+                    )
+                )
+                new_pairs = new_batch.pairs()
+                acquisition_position[
+                    new_pairs[:, 0],
+                    new_pairs[:, 1],
+                ] = queried_train_labels + np.arange(
+                    new_batch.size,
+                    dtype=np.int64,
+                )
+                acquisition_probability[
+                    new_pairs[:, 0],
+                    new_pairs[:, 1],
+                ] = new_batch.proposal_probability
+            elif args.acquisition_mode == "random":
+                new_batch = select_random_batch(
                     train_candidate_mask,
                     next_batch_size,
                     queried_mask=query_mask,
@@ -1056,7 +1637,12 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
                     max_diversity_selections=args.max_diversity_selections,
                     random_seed=args.random_seed + active_round + 1,
                 )
-            query_mask = update_query_mask(query_mask, new_batch)
+            query_mask = update_query_mask(
+                query_mask,
+                new_batch.pairs()
+                if isinstance(new_batch, PropensityQueryBatch)
+                else new_batch,
+            )
             _append_query_log(
                 query_log_rows,
                 new_batch,
@@ -1080,6 +1666,8 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
             query_log_rows=query_log_rows,
             final_probability=final_probability,
             reference_positive_prior=reference_positive_prior,
+            acquisition_position=acquisition_position,
+            acquisition_probability=acquisition_probability,
         )
 
     round_table = pd.DataFrame(round_rows)
@@ -1111,6 +1699,8 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
         subset_source_state_indices=original_indices,
         query_mask=query_mask,
         mean_probability=final_probability,
+        acquisition_position=acquisition_position,
+        acquisition_probability=acquisition_probability,
     )
 
     final_round = round_rows[-1]
@@ -1123,10 +1713,22 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
         for name, value in final_round.items()
         if name.startswith("search_")
     }
+    high_fidelity_costs = high_fidelity_data_cost_summary(
+        query_mask,
+        valid_mask,
+        split,
+        formal_search_audit_label_count=(
+            len(search_context.truth) if search_context is not None else 0
+        ),
+    )
     summary = {
         "status": "complete",
         "research_stage": (
-            "Phase 2 retrospective label-efficiency and formal search evaluation"
+            "Phase 3 DC/LODF multi-fidelity active-label evaluation"
+            if low_fidelity_metadata["enabled"]
+            else "Phase 3 propensity-debiased retrospective search evaluation"
+            if lure_mode
+            else "Phase 2 retrospective label-efficiency and formal search evaluation"
             if search_context is not None
             else "Phase 1 retrospective hidden-label replay"
         ),
@@ -1135,6 +1737,7 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
         "source_model_file": "src/gcn_search/legacy_rts79/train_rts79_paper_gcn.py",
         "model_core_modified": False,
         "hidden_outcome_labels_used_as_features": False,
+        "low_fidelity_pretraining": low_fidelity_metadata,
         "dataset_npz": str(args.dataset_npz),
         "num_subset_states": int(len(x)),
         "num_train_states": int((split == "train").sum()),
@@ -1144,8 +1747,14 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
         "num_queried_training_oracle_labels": int(final_round["queried_training_labels"]),
         "queried_training_oracle_fraction": float(final_round["queried_training_label_fraction"]),
         "num_queried_positive_labels": int(final_round["queried_positive_labels"]),
+        "high_fidelity_label_costs": high_fidelity_costs,
         "label_budget_schedule": budget_schedule,
         "resumed_from_checkpoint": resumed_from_checkpoint,
+        "input_integrity": {
+            "content_sha256": input_content_digests,
+            "subset_sample_order_sha256": subset_sample_order_digest,
+            "checkpoint_fingerprint": checkpoint_fingerprint,
+        },
         "formal_search_evaluation_enabled": search_context is not None,
         "final_formal_search_thresholds": final_search,
         "final_validation_average_precision": float(final_round["validation_average_precision"]),
@@ -1185,6 +1794,42 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
             "initial_pool_multiplier": int(args.initial_pool_multiplier),
             "shortlist_multiplier": int(args.shortlist_multiplier),
             "max_diversity_selections": int(args.max_diversity_selections),
+            "lure_training_correction_enabled": (
+                lure_mode
+                and (
+                    args.acquisition_mode != "pg_lure_unweighted"
+                    and (
+                        args.acquisition_mode != "pg_lure_blend"
+                        or args.lure_loss_mix > 0.0
+                    )
+                )
+            ),
+            "lure_exploration_mass": float(args.lure_exploration_mass),
+            "lure_utility_power": float(args.lure_utility_power),
+            "lure_loss_mix": float(
+                0.0
+                if args.acquisition_mode == "pg_lure_unweighted"
+                else args.lure_loss_mix
+                if args.acquisition_mode == "pg_lure_blend"
+                else 1.0
+                if lure_mode
+                else 0.0
+            ),
+            "lure_uncertainty_weight": float(args.lure_uncertainty_weight),
+            "lure_risk_weight": float(args.lure_risk_weight),
+            "lure_physics_weight": float(args.lure_physics_weight),
+            "low_fidelity_pretraining_enabled": bool(
+                low_fidelity_metadata["enabled"]
+            ),
+            "low_fidelity_pretrain_epochs": int(
+                args.low_fidelity_pretrain_epochs
+            ),
+            "low_fidelity_target_mode": str(
+                args.low_fidelity_target_mode
+            ),
+            "low_fidelity_positive_weight": float(
+                args.low_fidelity_positive_weight
+            ),
             "k_gcn": int(args.k_gcn),
             "first_layer_channels": int(args.first_layer_channels),
             "second_layer_channels": int(args.second_layer_channels),
@@ -1193,7 +1838,9 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
         },
         "phase_boundary": (
             "This replay estimates label efficiency using labels that were already generated in the past. "
-            "A prospective run must call the physical cascade oracle only for selected candidates."
+            "The low-fidelity proxy uses no N-2 outcomes, but a prospective run "
+            "must still call the physical cascade oracle only for selected "
+            "high-fidelity candidates."
         ),
         "output_files": {
             "round_metrics": "active_label_replay_round_metrics.csv",
@@ -1216,8 +1863,18 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
         f"- Queried labels: {summary['num_queried_training_oracle_labels']} / "
         f"{summary['num_available_training_oracle_labels']} "
         f"({100.0 * summary['queried_training_oracle_fraction']:.4f}%)\n"
+        f"- Complete validation labels used for model selection/calibration: "
+        f"{high_fidelity_costs['num_validation_model_selection_labels']}\n"
+        f"- Unique development high-fidelity labels: "
+        f"{high_fidelity_costs['num_unique_development_high_fidelity_labels']}\n"
+        f"- Test labels used only for retrospective audit: "
+        f"{high_fidelity_costs['num_test_audit_labels']}\n"
+        f"- Formal path-ranking truth rows used only for retrospective audit: "
+        f"{high_fidelity_costs['num_formal_search_audit_path_labels']}\n"
         f"- Validation AP: {summary['final_validation_average_precision']:.6f}\n"
-        f"- Test AP: {summary['final_test_average_precision']:.6f}\n\n"
+        f"- Test AP: {summary['final_test_average_precision']:.6f}\n"
+        f"- DC/LODF low-fidelity pretraining: "
+        f"{'enabled' if low_fidelity_metadata['enabled'] else 'disabled'}\n\n"
         "This smoke/replay result is not yet evidence that a prospective physical-oracle run "
         "will achieve the same savings.\n",
         encoding="utf-8",

@@ -1,0 +1,66 @@
+{
+  "status": "complete",
+  "research_stage": "Phase 3 validation-only adaptive probe selection",
+  "num_validation_seeds": 8,
+  "gate_sizes": [
+    26,
+    76
+  ],
+  "probe_counts": [
+    1,
+    3,
+    5
+  ],
+  "selection": [
+    {
+      "gate_size": 26.0,
+      "probes_per_second_line": 5.0,
+      "promotion_min_positives": 1.0,
+      "num_validation_scenarios": 8.0,
+      "num_complete_subset_validation_path_labels": 108410.0,
+      "gate_critical_recall_mean": 0.9800510633141858,
+      "gate_critical_recall_std": 0.022622172102528766,
+      "gate_critical_recall_min": 0.9306930693069307,
+      "complete_subset_critical_recall_mean": 0.7196202641559107,
+      "complete_first_line_fraction_of_source_s1_mean": 0.7325,
+      "complete_first_line_fraction_of_system_mean": 0.39381720430107525,
+      "high_impact_line_recall_mean": 1.0,
+      "high_impact_line_recall_min": 1.0,
+      "num_promoted_second_lines_mean": 7.375,
+      "estimated_n2_queries_mean": 641.0,
+      "estimated_n2_queries_max": 930.0,
+      "selection_feasible": true,
+      "minimum_mean_gate_recall": 0.9,
+      "minimum_worst_gate_recall": 0.8
+    },
+    {
+      "gate_size": 76.0,
+      "probes_per_second_line": 5.0,
+      "promotion_min_positives": 1.0,
+      "num_validation_scenarios": 8.0,
+      "num_complete_subset_validation_path_labels": 108410.0,
+      "gate_critical_recall_mean": 0.9672214588969337,
+      "gate_critical_recall_std": 0.01309947608989922,
+      "gate_critical_recall_min": 0.9501039501039501,
+      "complete_subset_critical_recall_mean": 0.8837861459705342,
+      "complete_first_line_fraction_of_source_s1_mean": 0.7325,
+      "complete_first_line_fraction_of_system_mean": 0.39381720430107525,
+      "high_impact_line_recall_mean": 1.0,
+      "high_impact_line_recall_min": 1.0,
+      "num_promoted_second_lines_mean": 10.75,
+      "estimated_n2_queries_mean": 1115.25,
+      "estimated_n2_queries_max": 1260.0,
+      "selection_feasible": true,
+      "minimum_mean_gate_recall": 0.9,
+      "minimum_worst_gate_recall": 0.8
+    }
+  ],
+  "selection_uses_test_seed_outcomes": false,
+  "selection_uses_validation_n2_outcomes": true,
+  "num_policy_selection_high_fidelity_labels": 108410,
+  "policy_selection_labels_are_subset_of_training_validation_labels": true,
+  "policy_input_contains_high_fidelity_labels": false,
+  "validation_outcomes_visible_only_after_probe_query": true,
+  "validation_recall_scope": "Recall is computed only over fully labeled validation S1 states. Coverage fractions are reported against source validation S1 states and all IEEE118 first-line candidates; it is not global full-system recall.",
+  "cost_definition": "Unique N-2 probes plus all unprobed paths under promoted second lines, before unchanged-GCN fallback."
+}

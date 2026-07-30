@@ -1,0 +1,131 @@
+{
+  "status": "complete",
+  "research_stage": "Phase 3 cheap DC/LODF multi-fidelity target construction",
+  "source_dataset_npz": "results\\gcn_search\\ieee118_n1_residual_scaleup\\paper_8000_residual\\ieee118_residual_reachable_gcn_dataset.npz",
+  "output_npz_local_not_for_git": "results\\gcn_search\\ieee118_simulation_efficient_gcn\\phase3_dc_lodf_low_fidelity_all_candidates\\ieee118_dc_lodf_low_fidelity_targets.npz",
+  "num_state_samples": 8000,
+  "num_proxy_candidates": 1480080,
+  "num_proxy_overload_positive": 619413,
+  "proxy_overload_positive_ratio": 0.4184996756932058,
+  "num_unique_load_scenarios": 80,
+  "num_cached_dc_topologies": 184,
+  "num_nonunity_transformer_taps": 9,
+  "topology_mode": "active_first_only",
+  "proxy_score_describe": {
+    "count": 1480080,
+    "mean": 2.2152117674453877,
+    "p50": 1.0994378328323364,
+    "p95": 6.747796559333819,
+    "p99": 21.611168079376213,
+    "max": 194.30809020996094
+  },
+  "proxy_label_alignment_by_split_and_state": [
+    {
+      "split": "train",
+      "sample_type": "S0",
+      "num_state_samples": 71,
+      "num_proxy_candidates": 13206,
+      "num_proxy_overload_positive": 3762,
+      "proxy_overload_positive_ratio": 0.2848705134029986,
+      "num_high_fidelity_labels_for_alignment": 7020,
+      "proxy_ap_against_high_fidelity_label": 0.8994311832917234,
+      "proxy_mean_score_high_fidelity_positive": 1.6178662038841216,
+      "proxy_mean_score_high_fidelity_negative": 0.9729605109838957,
+      "proxy_positive_negative_score_gap": 0.6449056929002259
+    },
+    {
+      "split": "train",
+      "sample_type": "S1",
+      "num_state_samples": 7020,
+      "num_proxy_candidates": 1298700,
+      "num_proxy_overload_positive": 544731,
+      "proxy_overload_positive_ratio": 0.41944328944328946,
+      "num_high_fidelity_labels_for_alignment": 1232432,
+      "proxy_ap_against_high_fidelity_label": 0.07492876141910726,
+      "proxy_mean_score_high_fidelity_positive": 9.370644607223252,
+      "proxy_mean_score_high_fidelity_negative": 2.0370184100113993,
+      "proxy_positive_negative_score_gap": 7.333626197211853
+    },
+    {
+      "split": "validation",
+      "sample_type": "S0",
+      "num_state_samples": 8,
+      "num_proxy_candidates": 1488,
+      "num_proxy_overload_positive": 435,
+      "proxy_overload_positive_ratio": 0.2923387096774194,
+      "num_high_fidelity_labels_for_alignment": 800,
+      "proxy_ap_against_high_fidelity_label": 0.9085445337516592,
+      "proxy_mean_score_high_fidelity_positive": 1.6898281696581945,
+      "proxy_mean_score_high_fidelity_negative": 0.7703991757821192,
+      "proxy_positive_negative_score_gap": 0.9194289938760752
+    },
+    {
+      "split": "validation",
+      "sample_type": "S1",
+      "num_state_samples": 800,
+      "num_proxy_candidates": 148000,
+      "num_proxy_overload_positive": 61877,
+      "proxy_overload_positive_ratio": 0.4180878378378378,
+      "num_high_fidelity_labels_for_alignment": 140319,
+      "proxy_ap_against_high_fidelity_label": 0.0641845108286701,
+      "proxy_mean_score_high_fidelity_positive": 8.659863221949788,
+      "proxy_mean_score_high_fidelity_negative": 2.03575277066899,
+      "proxy_positive_negative_score_gap": 6.624110451280798
+    },
+    {
+      "split": "test",
+      "sample_type": "S0",
+      "num_state_samples": 1,
+      "num_proxy_candidates": 186,
+      "num_proxy_overload_positive": 63,
+      "proxy_overload_positive_ratio": 0.3387096774193548,
+      "num_high_fidelity_labels_for_alignment": 100,
+      "proxy_ap_against_high_fidelity_label": 0.8598702815053176,
+      "proxy_mean_score_high_fidelity_positive": 2.5156412760953644,
+      "proxy_mean_score_high_fidelity_negative": 0.6260126811953691,
+      "proxy_positive_negative_score_gap": 1.8896285948999951
+    },
+    {
+      "split": "test",
+      "sample_type": "S1",
+      "num_state_samples": 100,
+      "num_proxy_candidates": 18500,
+      "num_proxy_overload_positive": 8545,
+      "proxy_overload_positive_ratio": 0.4618918918918919,
+      "num_high_fidelity_labels_for_alignment": 17432,
+      "proxy_ap_against_high_fidelity_label": 0.057331191801969536,
+      "proxy_mean_score_high_fidelity_positive": 8.265848610617898,
+      "proxy_mean_score_high_fidelity_negative": 2.2227790351125813,
+      "proxy_positive_negative_score_gap": 6.043069575505316
+    }
+  ],
+  "physics_cost": {
+    "base_dcopf_calls": 80,
+    "n1_cascade_calls": 0,
+    "n2_cascade_calls": 0,
+    "topology_linear_algebra_builds": 184
+  },
+  "cost_disclosure": {
+    "incremental_target_builder_n1_cascade_calls": 0,
+    "incremental_target_builder_n2_cascade_calls": 0,
+    "source_state_cost_reclaimed": false,
+    "source_state_dependency": "The builder reads pre-existing S0/S1 graph states and their branch flows from --dataset-npz. Its zero N-1/N-2 call count covers only incremental proxy-target construction and does not reclaim the historical physical cost of generating those source states."
+  },
+  "configuration": {
+    "load_scale": 1.1,
+    "load_random_low": 0.9,
+    "load_random_high": 1.1,
+    "limit_mode": "flow_scaled",
+    "flow_limit_scale": 8.0,
+    "min_rate_a": 1.0,
+    "beta": 1.2
+  },
+  "outcome_label_leakage": false,
+  "interpretation_limit": "The proxy is a DC redistribution screen, not cascade ground truth. It ignores protection timing, redispatch, island load shedding, and other nonlinear cascade mechanisms.",
+  "output_files": {
+    "local_targets_npz_not_for_git": "ieee118_dc_lodf_low_fidelity_targets.npz",
+    "label_summary": "ieee118_dc_lodf_low_fidelity_label_summary.csv",
+    "metadata": "ieee118_dc_lodf_low_fidelity_metadata.json",
+    "readme": "ieee118_dc_lodf_low_fidelity_readme.md"
+  }
+}

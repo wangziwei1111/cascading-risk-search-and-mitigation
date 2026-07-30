@@ -568,16 +568,156 @@ and train a debiased representative loss, or retain a stronger passive anchor
 model for residual ranking. It must compare against random labeling at equal
 oracle cost.
 
-## 15. Current Boundary
+## 15. Phase 3: Multi-Fidelity Feedback Search
 
-Phase 1 and the five-seed Phase-2 retrospective budget study are complete.
-Checkpoint/resume, exact budget schedules, large-pool acquisition, and formal
-path-level evaluation are implemented. Existing truth is still used as a
-hidden retrospective oracle, so the 95% label reduction does not reclaim past
-compute and is not yet a prospective simulator saving.
+### 15.1 Literature-driven hypotheses
 
-No current result supports a real-grid or general N-k deployment claim. The
-next valid stage is propensity-debiased replay followed by a prospective
-builder that calls the physical cascade simulator only for selected
-candidates. N-3/N-4 best-first prefix expansion remains a later sampled
-experiment.
+Phase 3 tested three ideas without changing `PaperStyleRts79Gcn`:
+
+1. propensity-recorded active sampling, motivated by UPAL and LURE-style
+   unbiased risk estimation;
+2. DC/LODF low-fidelity pretraining, motivated by multi-fidelity power-flow
+   learning;
+3. cached ordered-prefix expansion with a small physical-feedback probe set,
+   motivated by Markovian tree search and line-status dictionaries.
+
+Every high-fidelity training label and every online N-2 probe is counted. A
+low-fidelity DCOPF or LODF calculation is reported separately and is never
+called cascade ground truth.
+
+### 15.2 Propensity correction result
+
+The active learner records a non-zero proposal probability for every queried
+candidate and implements levelled unbiased risk weights. Five paired 5% runs
+gave the following results:
+
+| Training rule | Test AP | Gated K90 | Gated K99 |
+|---|---:|---:|---:|
+| Phase-2 active, unweighted | 0.5579 | 1,891.2 | 21,806.2 |
+| propensity sampled, unweighted | 0.4285 | 1,954.0 | 14,099.6 |
+| pure LURE correction | 0.3602 | 2,046.6 | 12,066.6 |
+| 25% LURE blend | 0.4129 | 1,945.4 | 13,416.4 |
+| entropy LURE | 0.3344 | 1,985.2 | 11,492.0 |
+
+The correction is statistically better founded than the Phase-2 prior
+heuristic, but it did not improve this overparameterized GCN. This is a
+published negative-result pattern for deep active learning and is retained as
+an ablation, not promoted as the core method.
+
+### 15.3 Low-fidelity pretraining result
+
+A label-free builder computes DC/LODF next-outage proxies for 1,480,080
+candidate positions over 8,000 pre-existing states. Incremental proxy-target
+construction requires 80 base DCOPF calls and no new high-fidelity N-1 or N-2
+cascade calls. The source NPZ already contains S0/S1 states and branch flows,
+so this count does not reclaim their historical physical construction cost.
+The DC model includes all nine IEEE118 non-unity transformer taps and matches
+PYPOWER `makePTDF/makeLODF` on finite reference entries.
+Pretraining the unchanged GCN on the per-state top-5% proxy target and then
+fine-tuning on 5% high-fidelity active labels gave:
+
+- test AP `0.5617 +/- 0.0163`;
+- S1 test AP `0.4927 +/- 0.0119`, versus `0.4713` without pretraining;
+- exact-N1-gated K90 `1,842.2`;
+- exact-N1-gated K99 `21,148.2`.
+
+Low fidelity improves the S1 conditional representation and K90, but it does
+not repair the high-recall tail by itself. Direct S1 proxy AP is only 0.0573,
+so the proxy must not replace the physical cascade oracle.
+
+### 15.4 Label-free N-1 proxy and validation-frozen policy
+
+An iterative LODF relay proxy was selected using eight validation operating
+scenarios. Its inputs contain no high-fidelity outcome fields. On deployment
+seed `20260708`, post-selection truth audit gives N-1 AP `0.5673` for ten
+N-1-critical lines. Validation selected:
+
+- primary second-line gate: 26 lines, the median K needed for 90% validation
+  N-1 recall;
+- conservative gate: 76 lines, the maximum K needed for 90% validation N-1
+  recall;
+- feedback rule: five N-2 probes per gated second line and promotion after one
+  positive probe.
+
+The feedback rule was selected by worst-scenario validation recall before
+cost. Mean validation gate recall is 0.9801 and worst-scenario recall is
+0.9307. These figures cover 108,410 labels from fully labeled validation S1
+states. That subset covers 39.38% of all first-line candidates on average, so
+the figures are not global IEEE118 recall. No frozen-test outcome is used to
+choose the rule.
+
+### 15.5 Main adaptive-prefix result
+
+The main method combines:
+
+1. cheap DC/LODF pretraining;
+2. 61,973 high-fidelity labels, exactly 5% of the available training pool;
+3. 130 online N-2 feedback probes;
+4. on-demand S1 construction with an ordered-prefix cache;
+5. fallback to the unchanged original GCN ranking.
+
+| Method | Training HF labels | Critical K90 | K95 | K99 | Total physical K90 |
+|---|---:|---:|---:|---:|---:|
+| full-label GCN + exact N-1 gate | 1,239,452 | 1,793.0 | 2,263.0 | 4,305.0 | 1,979.0 |
+| no gate, 5% multi-fidelity GCN | 61,973 | 25,231.6 | 27,701.2 | 31,084.2 | 25,407.6 |
+| static proxy gate-26 | 61,973 | 4,529.2 | 5,450.8 | 19,109.0 | 4,699.8 |
+| adaptive feedback gate-26 | 61,973 | **1,897.0** | 3,608.8 | 19,039.6 | **2,073.0** |
+| adaptive Phase-2 model control | 61,973 | 1,918.8 | 3,877.4 | 21,167.8 | 2,094.8 |
+| adaptive random-label control | 61,973 | 1,952.4 | 4,158.0 | 11,193.4 | 2,128.4 |
+| adaptive multi-fidelity + random anchor | 118,075.0 | 1,918.2 | 3,678.2 | **11,320.2** | 2,094.2 |
+
+The primary result queries 95% fewer retrospective high-fidelity training
+labels. Complete model-selection/calibration validation adds 141,119 labels;
+the 108,410 policy-selection labels are a subset of those validation labels.
+Unique development-data cost is therefore 203,092 versus 1,380,571 for the
+full-label reference, an 85.29% reduction. The 17,532 held-out graph labels
+and 32,560 full-truth path rows are audit-only and excluded from development
+cost. Its N-2 K90 is 5.80% above the
+full-label ceiling, and its total K90 physical cost is 4.75% above the
+full-label exact-gate cost. Relative to no gate it reduces K90 by 92.48%;
+relative to a static low-fidelity gate it reduces K90 by 58.12%.
+
+The representative random anchor is a separate tail-oriented operating point.
+It cuts K99 by 7,719.4 candidates relative to the primary method, at the cost
+of 21.2 extra K90 candidates and roughly twice the queried training labels. It is
+not reported as a universal improvement.
+
+### 15.6 What the N-1 cost statement means
+
+The adaptive method does not run an exhaustive exact N-1 criticality prescreen
+before ranking. It constructs and caches S1 states only when an ordered prefix
+is reached. Nevertheless, promoted second lines span all 176 valid first-line
+states by K90, so the audit reports:
+
+- ranked N-2 candidate verifications at K90: `1,897.0`;
+- cached S1 constructions at K90: `176`;
+- total physical operations under this accounting: `2,073.0`.
+
+For a PPT-style search count, use the first number and display the S1 cost next
+to it. Do not silently subtract S1 construction from total physical cost.
+
+### 15.7 Decision gates
+
+- Gate 1 remains failed because K95/K99 and validation AP do not match the
+  full-label baseline, even though K90 and label cost are favorable.
+- Gate 2 remains open because Phase 3 replays already generated hidden labels.
+  It demonstrates the query policy but does not reclaim historical simulation
+  cost.
+- No real-grid, IEEE300, ACTIVSg2000, N-3, or N-4 scalability claim is made.
+
+## 16. Current Boundary and Next Experiment
+
+Phase 1, Phase 2, and the retrospective Phase-3 ablations are complete. The
+next valid experiment is a prospective simulator callback on new operating
+scenarios:
+
+1. build only label-free S0 and low-fidelity proxy data;
+2. request high-fidelity N-2 outcomes only when selected by the frozen policy;
+3. cache each stabilized S1 and longer prefix once;
+4. evaluate on independent load/topology scenarios;
+5. then extend the same budgeted tree search to sampled N-3/N-4 paths.
+
+The target for the next gate is to retain the present K90 gain while reducing
+the K95/K99 gap with validation-selected tail anchoring or risk-controlled
+fallback. Until that prospective experiment passes, this is an IEEE118
+retrospective study, not evidence of deployment on a real utility grid.

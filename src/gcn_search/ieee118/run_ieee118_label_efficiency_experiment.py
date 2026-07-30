@@ -45,6 +45,12 @@ DEFAULT_OUTPUT = (
     / "ieee118_simulation_efficient_gcn"
     / "phase2_multibudget"
 )
+PROPENSITY_MODES = {
+    "lure_entropy",
+    "pg_lure",
+    "pg_lure_blend",
+    "pg_lure_unweighted",
+}
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -67,6 +73,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
             "pmf_quota",
             "pmf_hybrid",
             "pmf_hybrid_prior_corrected",
+            "lure_entropy",
+            "pg_lure",
+            "pg_lure_blend",
+            "pg_lure_unweighted",
         ],
         default=[
             "random",
@@ -94,6 +104,22 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--initial-pool-multiplier", type=int, default=10)
     parser.add_argument("--shortlist-multiplier", type=int, default=10)
     parser.add_argument("--max-diversity-selections", type=int, default=500)
+    parser.add_argument("--lure-exploration-mass", type=float, default=0.50)
+    parser.add_argument("--lure-utility-power", type=float, default=1.0)
+    parser.add_argument("--lure-loss-mix", type=float, default=0.50)
+    parser.add_argument("--lure-uncertainty-weight", type=float, default=0.45)
+    parser.add_argument("--lure-risk-weight", type=float, default=0.35)
+    parser.add_argument("--lure-physics-weight", type=float, default=0.20)
+    parser.add_argument("--low-fidelity-target-npz", type=Path, default=None)
+    parser.add_argument("--low-fidelity-pretrain-epochs", type=int, default=0)
+    parser.add_argument(
+        "--low-fidelity-target-mode",
+        choices=["overload", "top_quantile", "per_state_top_quantile"],
+        default="top_quantile",
+    )
+    parser.add_argument("--low-fidelity-overload-threshold", type=float, default=1.2)
+    parser.add_argument("--low-fidelity-upper-quantile", type=float, default=0.95)
+    parser.add_argument("--low-fidelity-positive-weight", type=float, default=5.0)
     parser.add_argument("--max-query-log-rows", type=int, default=500)
     parser.add_argument("--risk-alpha", type=float, default=0.05)
     parser.add_argument(
@@ -161,6 +187,28 @@ def _replay_arguments(
         str(args.shortlist_multiplier),
         "--max-diversity-selections",
         str(args.max_diversity_selections),
+        "--lure-exploration-mass",
+        str(args.lure_exploration_mass),
+        "--lure-utility-power",
+        str(args.lure_utility_power),
+        "--lure-loss-mix",
+        str(args.lure_loss_mix),
+        "--lure-uncertainty-weight",
+        str(args.lure_uncertainty_weight),
+        "--lure-risk-weight",
+        str(args.lure_risk_weight),
+        "--lure-physics-weight",
+        str(args.lure_physics_weight),
+        "--low-fidelity-pretrain-epochs",
+        str(args.low_fidelity_pretrain_epochs),
+        "--low-fidelity-target-mode",
+        str(args.low_fidelity_target_mode),
+        "--low-fidelity-overload-threshold",
+        str(args.low_fidelity_overload_threshold),
+        "--low-fidelity-upper-quantile",
+        str(args.low_fidelity_upper_quantile),
+        "--low-fidelity-positive-weight",
+        str(args.low_fidelity_positive_weight),
         "--max-query-log-rows",
         str(args.max_query_log_rows),
         "--risk-alpha",
@@ -178,6 +226,13 @@ def _replay_arguments(
         "--search-test-seed",
         str(args.search_test_seed),
     ]
+    if args.low_fidelity_target_npz is not None:
+        values.extend(
+            [
+                "--low-fidelity-target-npz",
+                str(args.low_fidelity_target_npz),
+            ]
+        )
     if args.resume:
         values.append("--resume")
     return values
@@ -227,7 +282,13 @@ def run_experiment(args: argparse.Namespace) -> dict[str, Any]:
     comparison = summarize(args.output_root, aggregate_dir, run_glob="*_seed_*")
     manifest = {
         "status": "complete",
-        "research_stage": "Phase 2 retrospective multi-budget label-efficiency experiment",
+        "research_stage": (
+            "Phase 3 DC/LODF multi-fidelity active-label experiment"
+            if args.low_fidelity_pretrain_epochs > 0
+            else "Phase 3 propensity-aware retrospective label-efficiency experiment"
+            if any(mode in PROPENSITY_MODES for mode, _ in combinations)
+            else "Phase 2 retrospective multi-budget label-efficiency experiment"
+        ),
         "dataset_npz": str(args.dataset_npz),
         "label_budget_fractions": [float(value) for value in args.label_budget_fractions],
         "num_runs": len(completed),

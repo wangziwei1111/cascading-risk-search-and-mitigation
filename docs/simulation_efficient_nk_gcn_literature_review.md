@@ -241,3 +241,150 @@ The application improvement is **Risk-Controlled Selective Verification**:
 The papers support the individual ingredients. Whether their cascade-specific
 combination reduces oracle calls without sacrificing rare-path recall is the
 hypothesis that the systematic experiments must test.
+
+## 7. Phase-3 Literature Reproduction and Gap Audit
+
+Phase 3 implements literature-derived components as controlled ablations. It
+does not claim to reproduce each paper's complete task, because the final
+target here is OPA-style ordered cascade criticality rather than generic
+classification or static power-flow feasibility.
+
+### 7.1 Probabilistic active learning and unbiased risk
+
+- [UPAL](https://proceedings.mlr.press/v22/ganti12.html) motivates randomized
+  uncertainty sampling with non-zero support over the pool and an unbiased
+  risk estimator.
+- [On Statistical Bias in Active Learning](https://openreview.net/forum?id=JiYq3eqTKY)
+  develops levelled unbiased risk estimation and reports that bias correction
+  may be ineffective or harmful for overparameterized neural networks.
+
+Repository reproduction:
+
+- every sampled candidate records its conditional proposal probability;
+- the queried loss can use levelled unbiased risk weights;
+- pure, blended, entropy, and unweighted controls use five paired seeds and
+  identical 5% high-fidelity budgets.
+
+Observed gap:
+
+- pure correction lowers mean test AP from 0.5579 for the Phase-2 active model
+  to 0.3602 and worsens K90 from 1,891.2 to 2,046.6;
+- the effective weighted sample fraction is 0.5697;
+- unweighted and blended propensity samples improve over pure correction but
+  still do not beat the Phase-2 active model at K90.
+
+This negative result is consistent with the cited deep-network caveat. It
+means that a formally corrected loss is not automatically a better retrieval
+model for this rare-path task.
+
+### 7.2 DC/LODF multi-fidelity transfer
+
+The [multi-fidelity power-flow solver](https://arxiv.org/abs/2205.13362) couples
+DC low-fidelity data with scarce high-fidelity data and evaluates N-k
+contingencies on IEEE118. The repository adapts only this fidelity principle:
+
+1. run base DCOPF and compute LODF-based next-outage severity;
+2. create a label-free per-state proxy target;
+3. pretrain the unchanged `PaperStyleRts79Gcn`;
+4. fine-tune on the same 5% high-fidelity queried labels.
+
+The present retrospective builder reads pre-existing S0/S1 graph states and
+branch flows. Its zero additional cascade-call count applies to proxy-target
+construction only and does not erase the source states' historical physical
+cost. IEEE118's nine non-unity transformer taps are included in branch
+susceptance, and the finite LODF entries are regression-tested against
+PYPOWER `makePTDF/makeLODF`.
+
+The adaptation improves S1 AP from 0.4713 to 0.4927 and exact-gated K90 from
+1,891.2 to 1,842.2. Its exact-gated K99 remains poor at 21,148.2. Direct proxy
+AP is only 0.0573,
+confirming the literature gap: a DC power-flow surrogate does not encode
+relay propagation, islands, redispatch, or load shedding.
+
+### 7.3 Markovian tree search and state dictionaries
+
+[Risk Assessment of Multi-timescale Cascading Outages based on Markovian Tree
+Search](https://arxiv.org/abs/1603.03935) uses risk-guided tree expansion to
+avoid duplicated prefix simulations. [Fast Power System Cascading Failure
+Path Searching with High Wind Power
+Penetration](https://arxiv.org/abs/1911.09848) adds a line-status dictionary for
+repeated DCPF/DCOPF calculations.
+
+Repository adaptation:
+
+- a stabilized first-outage prefix is keyed and constructed once;
+- the low-fidelity gate chooses second-line families to probe;
+- five real N-2 feedback outcomes per gated second line decide promotion;
+- unpromoted paths fall back to the unchanged GCN ranking;
+- N-2 verification and S1 construction costs are recorded separately.
+
+This is the application-oriented improvement. It removes the requirement for
+an upfront exhaustive exact N-1 criticality screen, but it does not make S1
+physics free: all 176 valid S1 states have been reached and cached by K90 in
+the current test scenario.
+
+### 7.4 Safety-first selection versus formal guarantees
+
+[Fast and Reliable N-k Contingency Screening with Input-Convex Neural
+Networks](https://arxiv.org/abs/2410.00796) motivates prioritizing false
+negative control. Its guarantee is for a different DC-feasibility target and
+cannot be transferred to OPA-style cascading outcomes.
+
+The repository therefore uses a weaker, explicit claim:
+
+- select probe count and promotion threshold only on eight validation
+  scenarios;
+- sort feasible rules by worst-scenario gate recall, then mean recall, then
+  estimated physical cost;
+- audit but do not tune on deployment seed `20260708`.
+
+The selected rule has mean validation gate recall 0.9801 and minimum recall
+0.9307 on 108,410 labels from fully labeled validation S1 states. That subset
+covers 39.38% of all first-line candidates on average. These are subset-level
+empirical statistics, not global IEEE118 recall or a zero-false-negative
+certificate. The labels are a subset of the 141,119 validation labels already
+used for model selection and calibration, so they are disclosed but not
+double-counted.
+
+## 8. Core and Application Improvements After Experimentation
+
+The evidence-supported method is now more specific than the initial proposal.
+
+### Core improvement
+
+**Multi-fidelity active pretraining with an unchanged GCN**:
+
+- use cheap DC/LODF targets to initialize topology and loading representations;
+- fine-tune on 5% physics-stratified high-fidelity labels;
+- preserve a random-label model as an optional representative tail anchor;
+- do not use pure LURE correction as the primary training objective.
+
+### Application improvement
+
+**Validation-frozen feedback prefix search**:
+
+- rank second-line families with a label-free iterative LODF proxy;
+- query a small number of physical N-2 outcomes;
+- expand only families with observed positives;
+- construct and cache S1 states on demand;
+- fall back to the original GCN over the remaining candidates.
+
+At K90 this method needs 1,897.0 N-2 candidate evaluations on average, versus
+1,793 for the full-label model with an exact N-1 gate. Including 176 cached S1
+states gives 2,073.0 physical operations versus 1,979 for the full-label
+baseline. The head of the curve is close; K95/K99 are not.
+
+The 5% label statement applies to queried training labels. Counting complete
+validation/model-selection data, the method uses 203,092 unique development
+labels versus 1,380,571 for the full-label reference, an 85.29% reduction.
+
+## 9. Remaining Literature Gap
+
+The next contribution cannot be another retrospective ranking tweak. It must
+connect the frozen query policy to the real cascade callback on unseen
+operating scenarios and show that unqueried labels are never generated.
+
+For N-3/N-4, the natural next experiment combines the implemented prefix cache
+with sampled Markovian tree expansion. Nonlocal or sequence-aware cascade GNNs
+may later be compared, but they must be treated as new model ablations rather
+than silently replacing the reproduced RTS-79 architecture.

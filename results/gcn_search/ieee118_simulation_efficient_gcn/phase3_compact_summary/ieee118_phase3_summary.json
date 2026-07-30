@@ -1,0 +1,156 @@
+{
+  "status": "complete",
+  "research_stage": "Phase 3 retrospective simulation-efficient GCN and adaptive prefix-search experiment",
+  "model_class": "PaperStyleRts79Gcn",
+  "model_core_modified": false,
+  "main_method": "MF_active_GCN_adaptive_probe_gate26",
+  "main_result": {
+    "training_high_fidelity_labels": 61973,
+    "training_high_fidelity_fraction": 0.0500003227,
+    "unique_development_high_fidelity_labels": 203092,
+    "feedback_probe_n2_calls": 130,
+    "critical_K90": 1897.0,
+    "critical_K90_std": 21.30727575266252,
+    "critical_K90_n1_state_constructions": 176,
+    "critical_K90_total_physical": 2073.0,
+    "critical_K95": 3608.8,
+    "critical_K99": 19039.6,
+    "relay_K90": 1827.0
+  },
+  "relative_results": {
+    "critical_K90_over_full_label": 1.0580033463469047,
+    "total_physical_K90_over_full_label": 1.0474987367357251,
+    "critical_K90_reduction_vs_no_gate": 0.924816499944514,
+    "critical_K90_reduction_vs_static_proxy_gate": 0.5811622361564956,
+    "high_fidelity_training_label_reduction_vs_full": 0.9499996773,
+    "high_fidelity_total_development_label_reduction_vs_full": 0.8528927523466739
+  },
+  "high_fidelity_cost_accounting": {
+    "training_query_high_fidelity_labels": 61973,
+    "training_query_fraction": 0.050000322723268,
+    "training_query_label_reduction_fraction": 0.949999677276732,
+    "validation_model_selection_high_fidelity_labels": 141119,
+    "calibration_high_fidelity_labels": 141119,
+    "calibration_reuses_model_selection_validation": true,
+    "policy_selection_high_fidelity_labels": 108410,
+    "policy_selection_reuses_model_selection_validation": true,
+    "policy_selection_incremental_unique_labels": 0,
+    "unique_development_high_fidelity_labels": 203092,
+    "full_label_reference_development_high_fidelity_labels": 1380571,
+    "total_development_label_reduction_fraction": 0.8528927523466739,
+    "test_audit_labels_not_counted_as_development_data": 17532,
+    "formal_search_audit_path_labels_not_counted_as_development": 32560,
+    "online_probe_n2_calls_included_in_ranked_candidate_count": 130
+  },
+  "matched_control_comparisons": {
+    "main_vs_full_label": {
+      "critical_K90_increase": 104.0,
+      "critical_K90_ratio": 1.0580033463469047,
+      "total_physical_K90_ratio": 1.0474987367357251
+    },
+    "main_vs_phase2_active": {
+      "critical_K90_reduction": 21.799999999999955,
+      "critical_K90_relative_reduction": 0.011361267458828372
+    },
+    "main_vs_random_label": {
+      "critical_K90_reduction": 55.40000000000009,
+      "critical_K90_relative_reduction": 0.028375332923581298
+    },
+    "tail_anchor_tradeoff": {
+      "critical_K90_increase": 21.200000000000045,
+      "critical_K99_reduction": 7719.399999999998,
+      "critical_K99_relative_reduction": 0.40543918989894734
+    }
+  },
+  "validation_selected_policy": {
+    "gate_size": 26.0,
+    "probes_per_second_line": 5.0,
+    "promotion_min_positives": 1.0,
+    "num_validation_scenarios": 8.0,
+    "num_complete_subset_validation_path_labels": 108410.0,
+    "gate_critical_recall_mean": 0.9800510633141858,
+    "gate_critical_recall_std": 0.022622172102528766,
+    "gate_critical_recall_min": 0.9306930693069307,
+    "complete_subset_critical_recall_mean": 0.7196202641559107,
+    "complete_first_line_fraction_of_source_s1_mean": 0.7325,
+    "complete_first_line_fraction_of_system_mean": 0.39381720430107525,
+    "high_impact_line_recall_mean": 1.0,
+    "high_impact_line_recall_min": 1.0,
+    "num_promoted_second_lines_mean": 7.375,
+    "estimated_n2_queries_mean": 641.0,
+    "estimated_n2_queries_max": 930.0,
+    "selection_feasible": true,
+    "minimum_mean_gate_recall": 0.9,
+    "minimum_worst_gate_recall": 0.8
+  },
+  "low_fidelity_proxy": {
+    "status": "complete",
+    "research_stage": "Phase 3 validation-frozen low-fidelity N-1 proxy",
+    "num_validation_seeds": 8,
+    "num_test_seeds": 1,
+    "candidate_metrics": {
+      "iterative_num_relay_trips": 0.22935593189207257,
+      "iterative_max_event_loading_ratio": 0.24959081276309258,
+      "iterative_composite_score": 0.4077917071194729
+    },
+    "selected_metric_by_validation_mean_ap": "iterative_composite_score",
+    "training_distribution_test_average_precision": 0.5292622809289476,
+    "deployment_load_scale": 1.0,
+    "deployment_seed": 20260708,
+    "deployment_num_n1_critical": 10,
+    "deployment_average_precision": 0.5673232323232323,
+    "validation_selected_proxy_gate_size_for_100pct_n1_recall": 81,
+    "validation_selected_primary_gate_size_median_K_for_90pct_n1_recall": 26,
+    "validation_selected_conservative_gate_size_max_K_for_90pct_n1_recall": 76,
+    "validation_proxy_gate_size_summary": [
+      {
+        "target_n1_recall": 0.9,
+        "mean": 38.375,
+        "max": 76
+      },
+      {
+        "target_n1_recall": 0.95,
+        "mean": 45.25,
+        "max": 81
+      },
+      {
+        "target_n1_recall": 1.0,
+        "mean": 45.25,
+        "max": 81
+      }
+    ],
+    "num_cached_topologies": 546,
+    "physics_cost": {
+      "base_dcopf_calls": 10,
+      "high_fidelity_n1_cascade_calls": 0,
+      "high_fidelity_n2_cascade_calls": 0
+    },
+    "model_limit": "The iterative proxy trips overloaded lines with LODF updates but does not solve islands, redispatch generation, or shed load.",
+    "deployment_score_file_has_high_fidelity_labels": false,
+    "validation_score_file_has_high_fidelity_labels": false,
+    "configuration": {
+      "limit_mode": "flow_scaled",
+      "flow_limit_scale": 8.0,
+      "min_rate_a": 1.0,
+      "beta": 1.2,
+      "max_rounds": 20
+    }
+  },
+  "formal_limitations": [
+    "The experiment replays already generated labels; it does not reclaim their historical simulation cost.",
+    "The 95% reduction applies to queried training labels only; complete validation/model-selection labels reduce the total development-data saving.",
+    "Adaptive-policy recall is measured only on fully labeled validation S1 states, covering about 39.38% of all IEEE118 first-line candidates on average; it is not global recall.",
+    "No exhaustive high-fidelity N-1 prescreen is required before search, but 176 cached S1 states have been constructed by K90.",
+    "K95 and K99 remain materially worse than the full-label exact-N1 baseline.",
+    "The selected policy has been audited on one frozen deployment seed; additional independent operating scenarios are required.",
+    "No IEEE300, ACTIVSg2000, utility-grid, or N-3/N-4 deployment claim is made."
+  ],
+  "negative_results": {
+    "pure_propensity_correction": "LURE-style pure correction reduced mean test AP and did not pass the full-label gate.",
+    "dual_anchor_mean_fusion": "The representative anchor improved K99 but worsened K90, so it remains a tail sensitivity rather than the main method."
+  },
+  "outputs": {
+    "method_comparison": "ieee118_phase3_method_comparison.csv",
+    "training_ablation": "ieee118_phase3_training_ablation.csv"
+  }
+}

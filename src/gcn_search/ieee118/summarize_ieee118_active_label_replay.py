@@ -5,11 +5,18 @@ import json
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pandas as pd
 
 
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_INPUT = ROOT / "results" / "gcn_search" / "ieee118_simulation_efficient_gcn"
+PROPENSITY_MODES = {
+    "lure_entropy",
+    "pg_lure",
+    "pg_lure_blend",
+    "pg_lure_unweighted",
+}
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -35,16 +42,45 @@ def summarize(
         if not summary_path.exists() or not rounds_path.exists():
             continue
         run_summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        low_fidelity = run_summary.get("low_fidelity_pretraining", {})
+        high_fidelity_costs = run_summary.get("high_fidelity_label_costs", {})
+        validation_label_count = float(
+            high_fidelity_costs.get(
+                "num_validation_model_selection_labels",
+                float("nan"),
+            )
+        )
+        full_reference_label_count = float(
+            high_fidelity_costs.get(
+                "num_full_label_reference_development_labels",
+                float("nan"),
+            )
+        )
+        formal_search_audit_label_count = float(
+            high_fidelity_costs.get(
+                "num_formal_search_audit_path_labels",
+                run_summary.get("final_formal_search_thresholds", {}).get(
+                    "search_num_valid_paths",
+                    float("nan"),
+                ),
+            )
+        )
         acquisition_seed = int(
             run_summary.get("train_config", {}).get("random_seed", 0)
         )
         rounds = pd.read_csv(rounds_path, encoding="utf-8-sig")
         for row in rounds.to_dict(orient="records"):
+            queried_training_labels = int(row["queried_training_labels"])
+            unique_development_labels = (
+                queried_training_labels + validation_label_count
+                if np.isfinite(validation_label_count)
+                else float("nan")
+            )
             record = {
                 "method": str(run_summary["acquisition_mode"]),
                 "acquisition_seed": acquisition_seed,
                 "active_round": int(row["active_round"]),
-                "queried_training_labels": int(row["queried_training_labels"]),
+                "queried_training_labels": queried_training_labels,
                 "queried_training_label_fraction": float(
                     row["queried_training_label_fraction"]
                 ),
@@ -65,6 +101,48 @@ def summarize(
                 "test_verification_positive_recall": float(
                     row.get("test_verification_positive_recall", float("nan"))
                 ),
+                "low_fidelity_pretraining_enabled": bool(
+                    low_fidelity.get("enabled", False)
+                ),
+                "low_fidelity_pretrain_epochs": int(
+                    low_fidelity.get("pretrain_epochs", 0)
+                ),
+                "low_fidelity_proxy_threshold": float(
+                    low_fidelity.get(
+                        "frozen_training_proxy_threshold",
+                        float("nan"),
+                    )
+                ),
+                "validation_model_selection_labels": validation_label_count,
+                "calibration_labels": float(
+                    high_fidelity_costs.get(
+                        "num_calibration_labels",
+                        validation_label_count,
+                    )
+                ),
+                "test_audit_labels": float(
+                    high_fidelity_costs.get(
+                        "num_test_audit_labels",
+                        float("nan"),
+                    )
+                ),
+                "formal_search_audit_path_labels": (
+                    formal_search_audit_label_count
+                ),
+                "unique_development_high_fidelity_labels": (
+                    unique_development_labels
+                ),
+                "full_label_reference_development_labels": (
+                    full_reference_label_count
+                ),
+                "total_development_label_reduction_fraction": (
+                    1.0
+                    - unique_development_labels / full_reference_label_count
+                    if np.isfinite(unique_development_labels)
+                    and np.isfinite(full_reference_label_count)
+                    and full_reference_label_count > 0.0
+                    else float("nan")
+                ),
             }
             record.update(
                 {
@@ -73,6 +151,7 @@ def summarize(
                     if str(name).startswith("search_")
                     or str(name).endswith("_s0_average_precision")
                     or str(name).endswith("_s1_average_precision")
+                    or str(name).startswith("lure_")
                 }
             )
             records.append(record)
@@ -105,6 +184,7 @@ def summarize(
             if name.startswith("search_")
             or name.endswith("_s0_average_precision")
             or name.endswith("_s1_average_precision")
+            or name.startswith("lure_")
         ),
     )
     for (method, labels), group in table.groupby(
@@ -119,6 +199,19 @@ def summarize(
                 group["queried_training_label_fraction"].mean()
             ),
         }
+        for cost_name in (
+            "validation_model_selection_labels",
+            "calibration_labels",
+            "test_audit_labels",
+            "formal_search_audit_path_labels",
+            "unique_development_high_fidelity_labels",
+            "full_label_reference_development_labels",
+            "total_development_label_reduction_fraction",
+        ):
+            values = pd.to_numeric(group[cost_name], errors="coerce").dropna()
+            record[cost_name] = (
+                float(values.mean()) if len(values) else float("nan")
+            )
         for metric in metric_names:
             values = group[metric].astype(float).to_numpy()
             record[f"{metric}_mean"] = float(values.mean())
@@ -150,6 +243,7 @@ def summarize(
         if name.startswith("search_")
         or name.endswith("_s0_average_precision")
         or name.endswith("_s1_average_precision")
+        or name.startswith("lure_")
     )
     for method in sorted(table["method"].unique()):
         final = final_rows.loc[final_rows["method"] == method]
@@ -166,6 +260,12 @@ def summarize(
                 "final_queried_training_labels": int(final_labels[0]),
                 "final_queried_training_label_fraction_mean": float(
                     final["queried_training_label_fraction"].mean()
+                ),
+                "final_unique_development_high_fidelity_labels_mean": float(
+                    final["unique_development_high_fidelity_labels"].mean()
+                ),
+                "final_total_development_label_reduction_fraction_mean": float(
+                    final["total_development_label_reduction_fraction"].mean()
                 ),
                 "final_queried_positive_labels_mean": float(
                     final["queried_positive_labels"].mean()
@@ -210,7 +310,11 @@ def summarize(
     summary = {
         "status": "complete",
         "research_stage": (
-            "Phase 2 retrospective label-efficiency and formal search comparison"
+            "Phase 3 DC/LODF multi-fidelity active-label comparison"
+            if table["low_fidelity_pretraining_enabled"].astype(bool).any()
+            else "Phase 3 propensity-aware retrospective search comparison"
+            if set(table["method"].astype(str)) & PROPENSITY_MODES
+            else "Phase 2 retrospective label-efficiency and formal search comparison"
             if formal_search_enabled
             else "Phase 1 retrospective hidden-label replay smoke comparison"
         ),
