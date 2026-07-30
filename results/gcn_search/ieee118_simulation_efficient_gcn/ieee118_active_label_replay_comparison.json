@@ -1,0 +1,72 @@
+{
+  "status": "complete",
+  "research_stage": "Phase 1 retrospective hidden-label replay smoke comparison",
+  "num_methods": 4,
+  "methods": [
+    {
+      "method": "entropy",
+      "num_acquisition_seeds": 1,
+      "final_queried_training_labels": 300,
+      "final_queried_training_label_fraction_mean": 0.0144071459443884,
+      "final_queried_positive_labels_mean": 3.0,
+      "final_queried_positive_labels_std": 0.0,
+      "final_validation_average_precision_mean": 0.0149851043033461,
+      "final_validation_average_precision_std": 0.0,
+      "final_test_average_precision_mean": 0.0106357041049563,
+      "final_test_average_precision_std": 0.0,
+      "best_validation_average_precision_mean": 0.0149851043033461,
+      "test_average_precision_at_best_validation_round_mean": 0.0106357041049563,
+      "final_test_verification_budget_ratio_mean": 0.9920143884892086,
+      "final_test_verification_positive_recall_mean": 0.9891891891891892
+    },
+    {
+      "method": "physics_kcenter",
+      "num_acquisition_seeds": 1,
+      "final_queried_training_labels": 300,
+      "final_queried_training_label_fraction_mean": 0.0144071459443884,
+      "final_queried_positive_labels_mean": 5.0,
+      "final_queried_positive_labels_std": 0.0,
+      "final_validation_average_precision_mean": 0.1969322050162576,
+      "final_validation_average_precision_std": 0.0,
+      "final_test_average_precision_mean": 0.0799483217774327,
+      "final_test_average_precision_std": 0.0,
+      "best_validation_average_precision_mean": 0.1969322050162576,
+      "test_average_precision_at_best_validation_round_mean": 0.0799483217774327,
+      "final_test_verification_budget_ratio_mean": 0.8017985611510792,
+      "final_test_verification_positive_recall_mean": 0.8162162162162162
+    },
+    {
+      "method": "pmf_bal",
+      "num_acquisition_seeds": 1,
+      "final_queried_training_labels": 300,
+      "final_queried_training_label_fraction_mean": 0.0144071459443884,
+      "final_queried_positive_labels_mean": 9.0,
+      "final_queried_positive_labels_std": 0.0,
+      "final_validation_average_precision_mean": 0.1969322050162576,
+      "final_validation_average_precision_std": 0.0,
+      "final_test_average_precision_mean": 0.0799483217774327,
+      "final_test_average_precision_std": 0.0,
+      "best_validation_average_precision_mean": 0.1969322050162576,
+      "test_average_precision_at_best_validation_round_mean": 0.0799483217774327,
+      "final_test_verification_budget_ratio_mean": 0.8017985611510792,
+      "final_test_verification_positive_recall_mean": 0.8162162162162162
+    },
+    {
+      "method": "random",
+      "num_acquisition_seeds": 1,
+      "final_queried_training_labels": 300,
+      "final_queried_training_label_fraction_mean": 0.0144071459443884,
+      "final_queried_positive_labels_mean": 3.0,
+      "final_queried_positive_labels_std": 0.0,
+      "final_validation_average_precision_mean": 0.0184863871066903,
+      "final_validation_average_precision_std": 0.0,
+      "final_test_average_precision_mean": 0.0117308679490324,
+      "final_test_average_precision_std": 0.0,
+      "best_validation_average_precision_mean": 0.0184863871066903,
+      "test_average_precision_at_best_validation_round_mean": 0.0117308679490324,
+      "final_test_verification_budget_ratio_mean": 0.8516546762589928,
+      "final_test_verification_positive_recall_mean": 0.8324324324324325
+    }
+  ],
+  "interpretation_limit": "These runs hide previously generated labels. They compare acquisition logic but do not yet demonstrate prospective savings from calling a physical simulator online."
+}

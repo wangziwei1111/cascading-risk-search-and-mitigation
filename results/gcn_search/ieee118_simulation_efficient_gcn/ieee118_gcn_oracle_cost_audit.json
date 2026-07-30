@@ -1,0 +1,67 @@
+{
+  "status": "complete",
+  "dataset_npz": "results\\gcn_search\\ieee118_n1_residual_scaleup\\paper_8000_residual\\ieee118_residual_reachable_gcn_dataset.npz",
+  "num_graph_states": 8000,
+  "num_lines": 186,
+  "num_source_high_fidelity_labels": 1470463,
+  "num_active_target_high_fidelity_labels": 1398103,
+  "num_active_training_high_fidelity_labels": 1239452,
+  "num_positive_target_labels": 22045,
+  "positive_target_label_ratio": 0.01576779393220671,
+  "estimated_n1_oracle_calls_for_s0_labels": 14880,
+  "estimated_n2_oracle_calls_for_s1_labels": 1455583,
+  "estimated_residual_n2_target_calls": 1390183,
+  "ten_percent_training_oracle_budget": 123945,
+  "one_percent_training_oracle_budget": 12395,
+  "counts_by_split_and_sample_type": [
+    {
+      "split": "test",
+      "sample_type": "S0",
+      "num_states": 1,
+      "num_source_high_fidelity_labels": 186,
+      "num_target_high_fidelity_labels": 100,
+      "num_positive_target_labels": 74
+    },
+    {
+      "split": "test",
+      "sample_type": "S1",
+      "num_states": 100,
+      "num_source_high_fidelity_labels": 18332,
+      "num_target_high_fidelity_labels": 17432,
+      "num_positive_target_labels": 165
+    },
+    {
+      "split": "train",
+      "sample_type": "S0",
+      "num_states": 71,
+      "num_source_high_fidelity_labels": 13206,
+      "num_target_high_fidelity_labels": 7020,
+      "num_positive_target_labels": 6130
+    },
+    {
+      "split": "train",
+      "sample_type": "S1",
+      "num_states": 7020,
+      "num_source_high_fidelity_labels": 1290332,
+      "num_target_high_fidelity_labels": 1232432,
+      "num_positive_target_labels": 13501
+    },
+    {
+      "split": "validation",
+      "sample_type": "S0",
+      "num_states": 8,
+      "num_source_high_fidelity_labels": 1488,
+      "num_target_high_fidelity_labels": 800,
+      "num_positive_target_labels": 687
+    },
+    {
+      "split": "validation",
+      "sample_type": "S1",
+      "num_states": 800,
+      "num_source_high_fidelity_labels": 146919,
+      "num_target_high_fidelity_labels": 140319,
+      "num_positive_target_labels": 1488
+    }
+  ],
+  "interpretation": "Candidate-label entries are high-fidelity physical-oracle targets in the current exhaustive builder. Retrospective active-learning replay hides these labels and counts only queried entries."
+}
