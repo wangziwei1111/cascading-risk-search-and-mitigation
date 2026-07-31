@@ -342,6 +342,46 @@ def test_label_free_iterative_proxy_forwards_transformer_taps(monkeypatch) -> No
     assert table["iterative_max_event_loading_ratio"].eq(1.25).all()
 
 
+def test_label_free_iterative_proxy_skips_already_open_branch(monkeypatch) -> None:
+    called_indices: list[int] = []
+
+    def fake_proxy(
+        signed_flow,
+        rate_a,
+        initial_branch_status,
+        initial_outage_index,
+        **kwargs,
+    ):
+        called_indices.append(int(initial_outage_index))
+        return iterative_proxy_module.IterativeRelayProxyResult(
+            num_relay_trips=0,
+            max_event_loading_ratio=0.5,
+            num_singular_outages=0,
+            final_branch_status=np.asarray(initial_branch_status, dtype=bool),
+        )
+
+    monkeypatch.setattr(
+        iterative_proxy_module,
+        "iterative_dc_lodf_relay_proxy",
+        fake_proxy,
+    )
+    table = iterative_proxy_module.compute_label_free_iterative_proxy_scores(
+        signed_flow=np.asarray([0.0, 8.0, 2.0]),
+        rate_a=np.asarray([20.0, 20.0, 20.0]),
+        line_labels=np.asarray(["L001", "L002", "L003"]),
+        branch_from_bus=np.asarray([1, 2, 1]),
+        branch_to_bus=np.asarray([2, 3, 3]),
+        branch_x=np.asarray([0.1, 0.1, 0.2]),
+        branch_tap_ratio=np.ones(3),
+        beta=1.2,
+        max_rounds=5,
+        initial_branch_status=np.asarray([False, True, True]),
+    )
+
+    assert called_indices == [1, 2]
+    assert table.loc[0, "iterative_composite_score"] == 0.0
+
+
 def test_low_fidelity_quantile_is_frozen_on_training_scores_only() -> None:
     score = np.asarray(
         [

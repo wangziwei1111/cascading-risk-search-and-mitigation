@@ -82,3 +82,9 @@ results/gcn_search/ieee118_simulation_efficient_gcn/phase4_prospective_posthoc_a
 !results/gcn_search/ieee118_simulation_efficient_gcn/phase4_prospective_posthoc_audit_seed20260709/ieee118_prospective_posthoc_curve.csv
 !results/gcn_search/ieee118_simulation_efficient_gcn/phase4_prospective_posthoc_audit_seed20260709/ieee118_prospective_missed_critical_top.csv
 !results/gcn_search/ieee118_simulation_efficient_gcn/phase4_prospective_posthoc_audit_seed20260709/ieee118_prospective_posthoc_readme.md
+
+# Tail-critical GCN experiments: checkpoints, query logs, full predictions, and
+# local audits stay local. Version only the compact cross-run evidence.
+results/gcn_search/ieee118_tail_critical_gcn/*
+!results/gcn_search/ieee118_tail_critical_gcn/compact/
+!results/gcn_search/ieee118_tail_critical_gcn/compact/**
