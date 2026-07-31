@@ -19,7 +19,10 @@ sys.path.insert(0, str(LEGACY_DIR))
 
 from build_ieee118_paper_gcn_training_dataset import apply_load_scenario
 from case_adapter import build_case_adapter
-from dc_lodf_low_fidelity import iterative_dc_lodf_relay_proxy
+from dc_lodf_low_fidelity import (
+    IterativeRelayProxyResult,
+    iterative_dc_lodf_relay_proxy,
+)
 from generate_ieee118_ordered_n2_fulltruth import apply_thermal_limit_mode
 from run_ieee118_active_label_replay import DEFAULT_DATASET
 
@@ -151,6 +154,76 @@ def prepare_proxy_score_export(
     audit = policy.copy()
     audit["n1_critical"] = ranked["n1_critical"].astype(int).to_numpy()
     return policy, audit
+
+
+def compute_label_free_iterative_proxy_scores(
+    *,
+    signed_flow: np.ndarray,
+    rate_a: np.ndarray,
+    line_labels: np.ndarray,
+    branch_from_bus: np.ndarray,
+    branch_to_bus: np.ndarray,
+    branch_x: np.ndarray,
+    branch_tap_ratio: np.ndarray,
+    beta: float,
+    max_rounds: int,
+    topology_cache: dict[bytes, Any] | None = None,
+) -> pd.DataFrame:
+    """Compute deployable N-1 proxy scores without reading cascade labels."""
+
+    labels = np.asarray(line_labels, dtype=str)
+    flow = np.asarray(signed_flow, dtype=np.float64)
+    limits = np.asarray(rate_a, dtype=np.float64)
+    taps = np.asarray(branch_tap_ratio, dtype=np.float64)
+    num_lines = len(labels)
+    arrays = (
+        flow,
+        limits,
+        np.asarray(branch_from_bus),
+        np.asarray(branch_to_bus),
+        np.asarray(branch_x),
+        taps,
+    )
+    if any(value.shape != (num_lines,) for value in arrays):
+        raise ValueError("Iterative proxy branch arrays and line labels must align.")
+    if len(set(labels.tolist())) != num_lines:
+        raise ValueError("Iterative proxy line labels must be unique.")
+
+    cache = topology_cache if topology_cache is not None else {}
+    records = []
+    for line_idx, line_label in enumerate(labels):
+        result = iterative_dc_lodf_relay_proxy(
+            flow,
+            limits,
+            np.ones(num_lines, dtype=bool),
+            line_idx,
+            branch_from_bus=branch_from_bus,
+            branch_to_bus=branch_to_bus,
+            branch_x=branch_x,
+            branch_tap_ratio=taps,
+            beta=float(beta),
+            max_rounds=int(max_rounds),
+            topology_cache=cache,
+        )
+        records.append(
+            {
+                "line_label": str(line_label),
+                "iterative_num_relay_trips": int(result.num_relay_trips),
+                "iterative_max_event_loading_ratio": float(
+                    result.max_event_loading_ratio
+                ),
+                "iterative_num_singular_outages": int(
+                    result.num_singular_outages
+                ),
+            }
+        )
+    table = pd.DataFrame(records)
+    table["iterative_composite_score"] = (
+        np.log1p(table["iterative_max_event_loading_ratio"])
+        + table["iterative_num_relay_trips"]
+        + 5.0 * table["iterative_num_singular_outages"]
+    )
+    return table
 
 
 def evaluate_proxy(args: argparse.Namespace) -> dict[str, Any]:
@@ -353,39 +426,19 @@ def evaluate_proxy(args: argparse.Namespace) -> dict[str, Any]:
     )
     deployment_flow = deployment_scenario["branch"][:, PF].astype(np.float64)
     deployment_rate = deployment_scenario["branch"][:, RATE_A].astype(np.float64)
-    deployment_records = []
-    for line_idx, line_label in enumerate(line_labels):
-        result = iterative_dc_lodf_relay_proxy(
-            deployment_flow,
-            deployment_rate,
-            np.ones(len(line_labels), dtype=bool),
-            line_idx,
-            branch_from_bus=data["branch_from_bus"],
-            branch_to_bus=data["branch_to_bus"],
-            branch_x=branch_x,
-            beta=float(args.beta),
-            max_rounds=int(args.max_rounds),
-            topology_cache=topology_cache,
-        )
-        deployment_records.append(
-            {
-                "seed": int(args.deployment_seed),
-                "line_label": str(line_label),
-                "iterative_num_relay_trips": int(result.num_relay_trips),
-                "iterative_max_event_loading_ratio": float(
-                    result.max_event_loading_ratio
-                ),
-                "iterative_num_singular_outages": int(
-                    result.num_singular_outages
-                ),
-            }
-        )
-    deployment = pd.DataFrame(deployment_records)
-    deployment["iterative_composite_score"] = (
-        np.log1p(deployment["iterative_max_event_loading_ratio"])
-        + deployment["iterative_num_relay_trips"]
-        + 5.0 * deployment["iterative_num_singular_outages"]
+    deployment = compute_label_free_iterative_proxy_scores(
+        signed_flow=deployment_flow,
+        rate_a=deployment_rate,
+        line_labels=line_labels,
+        branch_from_bus=data["branch_from_bus"],
+        branch_to_bus=data["branch_to_bus"],
+        branch_x=branch_x,
+        branch_tap_ratio=branch_tap,
+        beta=float(args.beta),
+        max_rounds=int(args.max_rounds),
+        topology_cache=topology_cache,
     )
+    deployment.insert(0, "seed", int(args.deployment_seed))
     deployment["selected_proxy_score"] = deployment[selected_metric]
     deployment["selected_proxy_metric"] = selected_metric
     deployment = deployment.sort_values(

@@ -87,6 +87,7 @@ from evaluate_ieee118_iterative_lodf_n1_proxy import (
     parse_args as parse_iterative_proxy_args,
     prepare_proxy_score_export,
 )
+import evaluate_ieee118_iterative_lodf_n1_proxy as iterative_proxy_module
 from select_ieee118_adaptive_probe_policy import (
     ValidationProbeScenario,
     evaluate_validation_probe_grid,
@@ -296,6 +297,49 @@ def test_dc_lodf_with_transformer_taps_matches_pypower_ieee118() -> None:
     finite = np.isfinite(reference) & np.isfinite(matrix.lodf)
     assert finite.any()
     assert np.max(np.abs(reference[finite] - matrix.lodf[finite])) < 1e-8
+
+
+def test_label_free_iterative_proxy_forwards_transformer_taps(monkeypatch) -> None:
+    observed_taps: list[np.ndarray] = []
+
+    def fake_proxy(
+        signed_flow,
+        rate_a,
+        initial_branch_status,
+        initial_outage_index,
+        *,
+        branch_tap_ratio,
+        **kwargs,
+    ):
+        observed_taps.append(np.asarray(branch_tap_ratio, dtype=float).copy())
+        return iterative_proxy_module.IterativeRelayProxyResult(
+            num_relay_trips=0,
+            max_event_loading_ratio=float(branch_tap_ratio[0]),
+            num_singular_outages=0,
+            final_branch_status=np.asarray(initial_branch_status, dtype=bool),
+        )
+
+    monkeypatch.setattr(
+        iterative_proxy_module,
+        "iterative_dc_lodf_relay_proxy",
+        fake_proxy,
+    )
+    taps = np.asarray([1.25, 1.0, 1.0])
+    table = iterative_proxy_module.compute_label_free_iterative_proxy_scores(
+        signed_flow=np.asarray([10.0, 8.0, 2.0]),
+        rate_a=np.asarray([20.0, 20.0, 20.0]),
+        line_labels=np.asarray(["L001", "L002", "L003"]),
+        branch_from_bus=np.asarray([1, 2, 1]),
+        branch_to_bus=np.asarray([2, 3, 3]),
+        branch_x=np.asarray([0.1, 0.1, 0.2]),
+        branch_tap_ratio=taps,
+        beta=1.2,
+        max_rounds=5,
+    )
+
+    assert len(observed_taps) == 3
+    assert all(np.array_equal(value, taps) for value in observed_taps)
+    assert table["iterative_max_event_loading_ratio"].eq(1.25).all()
 
 
 def test_low_fidelity_quantile_is_frozen_on_training_scores_only() -> None:
