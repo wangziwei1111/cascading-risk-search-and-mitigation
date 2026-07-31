@@ -184,3 +184,28 @@ def test_prospective_fallback_fusion_cli_is_explicit() -> None:
     )
     assert args.fallback_score_mode == "rrf_gcn_proxy_uncertainty"
     assert args.rrf_k == 60.0
+
+
+def test_gcn_ucb_rewards_ensemble_disagreement_without_labels() -> None:
+    import numpy as np
+
+    from tail_rank_fusion import gcn_upper_confidence_scores
+
+    members = np.asarray([[0.4, 0.1], [0.4, 0.7]])
+    mean_only = gcn_upper_confidence_scores(
+        members, uncertainty_weight=0.0
+    )
+    ucb = gcn_upper_confidence_scores(members, uncertainty_weight=0.25)
+
+    assert ucb[0] == pytest.approx(mean_only[0])
+    assert ucb[1] > mean_only[1]
+
+
+def test_prospective_gcn_ucb_cli_uses_validation_frozen_weight() -> None:
+    from run_ieee118_prospective_oracle import parse_args
+
+    args = parse_args(
+        ["--seed", "20260726", "--fallback-score-mode", "gcn_ucb"]
+    )
+    assert args.fallback_score_mode == "gcn_ucb"
+    assert args.gcn_uncertainty_weight == pytest.approx(0.25)

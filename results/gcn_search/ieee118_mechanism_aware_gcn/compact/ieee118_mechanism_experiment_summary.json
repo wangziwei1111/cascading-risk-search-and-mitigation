@@ -1,0 +1,37 @@
+{
+  "status": "complete",
+  "model_class": "PaperStyleRts79Gcn",
+  "model_core_modified": false,
+  "primary_checkpoint_retained": "tail_hard_pairwise_checkpoint",
+  "weighted_sum": {
+    "num_seeds": 5,
+    "num_informative_fallback_seeds": 5,
+    "critical_delta": -7,
+    "relay_delta": -8,
+    "load_shed_delta_mw": -471.1011276754798,
+    "informative_critical_wins": 1,
+    "informative_critical_ties": 2,
+    "informative_critical_losses": 2
+  },
+  "pcgrad_primary": {
+    "num_seeds": 10,
+    "num_informative_fallback_seeds": 6,
+    "critical_delta": 2,
+    "relay_delta": -9,
+    "load_shed_delta_mw": -183.9714230581012,
+    "informative_critical_wins": 3,
+    "informative_critical_ties": 1,
+    "informative_critical_losses": 2
+  },
+  "gcn_ucb": {
+    "num_seeds": 5,
+    "num_informative_fallback_seeds": 3,
+    "critical_delta": 0,
+    "relay_delta": 2,
+    "load_shed_delta_mw": 142.43888719236566,
+    "informative_critical_wins": 2,
+    "informative_critical_ties": 0,
+    "informative_critical_losses": 1
+  },
+  "conclusion": "Mechanism-aware weighted sum, primary-protected PCGrad, and GCN UCB produced mixed seed-level gains and do not replace the tail hard-pairwise GCN."
+}
