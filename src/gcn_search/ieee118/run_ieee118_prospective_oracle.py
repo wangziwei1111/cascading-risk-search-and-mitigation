@@ -42,7 +42,10 @@ from prospective_physical_oracle import (
     ProspectiveSearchResult,
     run_frozen_adaptive_ordered_n2,
 )
-from tail_rank_fusion import reciprocal_rank_fusion_scores
+from tail_rank_fusion import (
+    gcn_upper_confidence_scores,
+    reciprocal_rank_fusion_scores,
+)
 from train_ieee118_with_original_rts79_gcn import (
     build_branch_graph_adjacency_from_endpoints,
     load_original_rts79_gcn_symbols,
@@ -109,12 +112,18 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--fallback-score-mode",
-        choices=["gcn", "rrf_gcn_proxy", "rrf_gcn_proxy_uncertainty"],
+        choices=[
+            "gcn",
+            "gcn_ucb",
+            "rrf_gcn_proxy",
+            "rrf_gcn_proxy_uncertainty",
+        ],
         default="gcn",
         help="Label-free ranking used only by the final fallback stage.",
     )
     parser.add_argument("--rrf-k", type=float, default=60.0)
     parser.add_argument("--rrf-uncertainty-weight", type=float, default=0.25)
+    parser.add_argument("--gcn-uncertainty-weight", type=float, default=0.25)
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--run-dir", type=Path, default=DEFAULT_RUN_DIR)
     parser.add_argument(
@@ -314,6 +323,7 @@ def _configuration(args: argparse.Namespace, checkpoint_path: Path) -> dict[str,
         "fallback_score_mode": str(args.fallback_score_mode),
         "rrf_k": float(args.rrf_k),
         "rrf_uncertainty_weight": float(args.rrf_uncertainty_weight),
+        "gcn_uncertainty_weight": float(args.gcn_uncertainty_weight),
         "model_class": "PaperStyleRts79Gcn",
         "model_core_modified": False,
         "checkpoint": portable_result_path(checkpoint_path),
@@ -348,6 +358,8 @@ def run_prospective_oracle(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError("--rrf-k must be positive.")
     if args.rrf_uncertainty_weight < 0:
         raise ValueError("--rrf-uncertainty-weight must be non-negative.")
+    if args.gcn_uncertainty_weight < 0:
+        raise ValueError("--gcn-uncertainty-weight must be non-negative.")
     checkpoint_path = (
         args.gcn_checkpoint
         if args.gcn_checkpoint is not None
@@ -591,7 +603,12 @@ def run_prospective_oracle(args: argparse.Namespace) -> dict[str, Any]:
             dtype=bool,
         )
         selected_score = probability
-        if args.fallback_score_mode != "gcn":
+        if args.fallback_score_mode == "gcn_ucb":
+            selected_score = gcn_upper_confidence_scores(
+                member_probability,
+                uncertainty_weight=float(args.gcn_uncertainty_weight),
+            )
+        elif args.fallback_score_mode != "gcn":
             first_branch = first_state["case"]["branch"]
             physical_proxy = compute_label_free_iterative_proxy_scores(
                 signed_flow=first_branch[:, PF],

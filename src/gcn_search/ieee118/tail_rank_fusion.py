@@ -3,6 +3,21 @@ from __future__ import annotations
 import numpy as np
 
 
+def gcn_upper_confidence_scores(
+    member_probability: np.ndarray,
+    *,
+    uncertainty_weight: float,
+) -> np.ndarray:
+    """Rank uncertain high-risk candidates without reading outcome labels."""
+
+    members = np.asarray(member_probability, dtype=np.float64)
+    if members.ndim < 2 or members.shape[0] < 2:
+        raise ValueError("GCN UCB requires at least two ensemble members.")
+    if uncertainty_weight < 0:
+        raise ValueError("GCN uncertainty weight must be non-negative.")
+    return members.mean(axis=0) + float(uncertainty_weight) * members.std(axis=0)
+
+
 def _descending_ranks(
     score: np.ndarray,
     line_labels: np.ndarray,
