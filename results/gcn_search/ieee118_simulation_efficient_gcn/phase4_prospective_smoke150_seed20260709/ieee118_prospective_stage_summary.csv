@@ -1,0 +1,4 @@
+﻿search_stage,num_queries,num_critical,critical_precision,num_relay_cascade,num_overload_relay_activity,num_errors,captured_load_shed_mw
+probe,130,51,0.3923076923076923,6,26,0,1622.94690898483
+promoted_line_expansion,1866,1548,0.8295819935691319,1468,1786,0,51517.28367563448
+unchanged_gcn_fallback,104,14,0.1346153846153846,13,77,0,303.47933136158997
