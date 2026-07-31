@@ -42,6 +42,7 @@ from prospective_physical_oracle import (
     ProspectiveSearchResult,
     run_frozen_adaptive_ordered_n2,
 )
+from tail_rank_fusion import reciprocal_rank_fusion_scores
 from train_ieee118_with_original_rts79_gcn import (
     build_branch_graph_adjacency_from_endpoints,
     load_original_rts79_gcn_symbols,
@@ -100,6 +101,20 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--promotion-min-positives", type=int, default=1)
     parser.add_argument("--max-n2-queries", type=int, default=200)
     parser.add_argument("--checkpoint-every", type=int, default=25)
+    parser.add_argument(
+        "--gcn-checkpoint",
+        type=Path,
+        default=None,
+        help="Optional PaperStyleRts79Gcn ensemble checkpoint override.",
+    )
+    parser.add_argument(
+        "--fallback-score-mode",
+        choices=["gcn", "rrf_gcn_proxy", "rrf_gcn_proxy_uncertainty"],
+        default="gcn",
+        help="Label-free ranking used only by the final fallback stage.",
+    )
+    parser.add_argument("--rrf-k", type=float, default=60.0)
+    parser.add_argument("--rrf-uncertainty-weight", type=float, default=0.25)
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--run-dir", type=Path, default=DEFAULT_RUN_DIR)
     parser.add_argument(
@@ -178,18 +193,23 @@ class OriginalRts79GcnProspectiveScorer:
             model.load_state_dict(state)
             self.models.append(model)
 
-    def predict(self, x_state: np.ndarray) -> np.ndarray:
+    def predict_members(self, x_state: np.ndarray) -> np.ndarray:
         batch = np.asarray(x_state, dtype=np.float32)[None, :, :]
-        members = [
-            predict_probability(
-                model,
-                batch,
-                self.adjacency_powers,
-                self.torch,
-            )[0]
-            for model in self.models
-        ]
-        return np.mean(members, axis=0)
+        return np.stack(
+            [
+                predict_probability(
+                    model,
+                    batch,
+                    self.adjacency_powers,
+                    self.torch,
+                )[0]
+                for model in self.models
+            ],
+            axis=0,
+        )
+
+    def predict(self, x_state: np.ndarray) -> np.ndarray:
+        return np.mean(self.predict_members(x_state), axis=0)
 
 
 def _atomic_csv(rows: list[dict[str, Any]], path: Path) -> None:
@@ -291,6 +311,9 @@ def _configuration(args: argparse.Namespace, checkpoint_path: Path) -> dict[str,
         "gate_size": int(args.gate_size),
         "probes_per_second_line": int(args.probes_per_second_line),
         "promotion_min_positives": int(args.promotion_min_positives),
+        "fallback_score_mode": str(args.fallback_score_mode),
+        "rrf_k": float(args.rrf_k),
+        "rrf_uncertainty_weight": float(args.rrf_uncertainty_weight),
         "model_class": "PaperStyleRts79Gcn",
         "model_core_modified": False,
         "checkpoint": portable_result_path(checkpoint_path),
@@ -321,7 +344,15 @@ def run_prospective_oracle(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError("--checkpoint-every must be non-negative.")
     if args.gate_size <= 0 or args.gate_size > 186:
         raise ValueError("--gate-size must be between 1 and 186.")
-    checkpoint_path = args.run_dir / "active_label_replay_checkpoint.pt"
+    if args.rrf_k <= 0:
+        raise ValueError("--rrf-k must be positive.")
+    if args.rrf_uncertainty_weight < 0:
+        raise ValueError("--rrf-uncertainty-weight must be non-negative.")
+    checkpoint_path = (
+        args.gcn_checkpoint
+        if args.gcn_checkpoint is not None
+        else args.run_dir / "active_label_replay_checkpoint.pt"
+    )
     for path, label in (
         (checkpoint_path, "active-replay GCN checkpoint"),
         (args.feature_normalizer_json, "paper-feature normalizer"),
@@ -552,10 +583,45 @@ def run_prospective_oracle(args: argparse.Namespace) -> dict[str, Any]:
             normalizer,
             PAPER_FEATURE_NAMES,
         )[0]
-        probability = scorer.predict(x)
+        member_probability = scorer.predict_members(x)
+        probability = np.mean(member_probability, axis=0)
         valid = set(description["valid_second_lines"])
+        valid_mask = np.asarray(
+            [label in valid for label in line_labels],
+            dtype=bool,
+        )
+        selected_score = probability
+        if args.fallback_score_mode != "gcn":
+            first_branch = first_state["case"]["branch"]
+            physical_proxy = compute_label_free_iterative_proxy_scores(
+                signed_flow=first_branch[:, PF],
+                rate_a=first_branch[:, RATE_A],
+                line_labels=line_labels,
+                branch_from_bus=first_branch[:, F_BUS],
+                branch_to_bus=first_branch[:, T_BUS],
+                branch_x=first_branch[:, BR_X],
+                branch_tap_ratio=first_branch[:, TAP],
+                beta=float(args.beta),
+                max_rounds=int(args.proxy_max_rounds),
+                initial_branch_status=first_branch[:, BR_STATUS] > 0,
+            )["iterative_composite_score"].to_numpy(dtype=float)
+            uncertainty = (
+                np.std(member_probability, axis=0)
+                if args.fallback_score_mode
+                == "rrf_gcn_proxy_uncertainty"
+                else None
+            )
+            selected_score = reciprocal_rank_fusion_scores(
+                probability,
+                physical_proxy,
+                line_labels,
+                valid_mask,
+                uncertainty=uncertainty,
+                rrf_k=float(args.rrf_k),
+                uncertainty_weight=float(args.rrf_uncertainty_weight),
+            )
         scores = {
-            label: float(probability[index]) if label in valid else 0.0
+            label: float(selected_score[index]) if label in valid else 0.0
             for index, label in enumerate(line_labels)
             if label != first_line
         }
@@ -607,6 +673,11 @@ def run_prospective_oracle(args: argparse.Namespace) -> dict[str, Any]:
             probes_per_second_line=int(args.probes_per_second_line),
             promotion_min_positives=int(args.promotion_min_positives),
             max_n2_queries=int(args.max_n2_queries),
+            fallback_stage_name=(
+                "unchanged_gcn_fallback"
+                if args.fallback_score_mode == "gcn"
+                else f"{args.fallback_score_mode}_fallback"
+            ),
         )
     _atomic_csv(oracle.query_rows, query_path)
     _atomic_csv(oracle.first_step_rows, first_step_path)

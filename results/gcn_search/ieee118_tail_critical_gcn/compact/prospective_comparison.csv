@@ -1,0 +1,6 @@
+seed,method,n2_queries,critical_found,relay_found,captured_load_shed_mw,critical_recall,relay_recall,load_shed_capture_ratio,fallback_critical,fallback_relay
+20260709,phase3_gcn,2100,1613,1487,53443.709916,0.864415863,0.861529548,0.866041111,14,13
+20260709,tail_hard_pairwise_gcn,2100,1614,1489,53538.487452,0.864951768,0.862688297,0.867576955,15,15
+20260709,tail_gcn_rrf_proxy_uncertainty,2100,1614,1487,53571.009406,0.864951768,0.861529548,0.868103965,15,13
+20260710,phase3_gcn,2100,1414,1312,45460.705432,,,,14,12
+20260710,tail_hard_pairwise_gcn,2100,1415,1312,45451.589904,,,,15,12

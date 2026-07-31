@@ -1,0 +1,36 @@
+{
+  "status": "complete_exploratory",
+  "model_class": "PaperStyleRts79Gcn",
+  "model_core_modified": false,
+  "selection_seed": 20260708,
+  "prospective_seeds_used_for_training_or_selection": false,
+  "training": {
+    "original_high_fidelity_queries": 61973,
+    "additional_label_free_selected_queries": 6197,
+    "additional_positive_labels_observed_after_query": 236,
+    "selected_objective": "hard_pairwise",
+    "formal_path_K95_baseline": 4294,
+    "formal_path_K95_tail": 4026,
+    "formal_path_K95_reduction_ratio": 0.0624126688,
+    "test_K95_baseline": 12413,
+    "test_K95_tail": 11844,
+    "test_K95_reduction_ratio": 0.0458390397,
+    "residual_second_K95_baseline": 24405,
+    "residual_second_K95_tail": 23278,
+    "residual_second_K95_reduction_ratio": 0.0461790617
+  },
+  "prospective_equal_budget": {
+    "n2_queries_per_run": 2100,
+    "seed_20260709_critical_gain": 1,
+    "seed_20260709_relay_gain": 2,
+    "seed_20260709_load_shed_gain_mw": 94.777536,
+    "seed_20260710_critical_gain": 1,
+    "seed_20260710_relay_gain": 0,
+    "seed_20260710_load_shed_gain_mw": -9.115527
+  },
+  "rrf_ablation": {
+    "retained_as_primary": false,
+    "reason": "Equal critical count but two fewer relay-cascade hits than tail GCN on seed 20260709; it only improved load-shed capture."
+  },
+  "claim_boundary": "The full adaptive policy recall is not a standalone GCN result. Tail-GCN gains are modest and exploratory."
+}

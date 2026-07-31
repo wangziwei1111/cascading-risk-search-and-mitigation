@@ -248,6 +248,7 @@ def run_frozen_adaptive_ordered_n2(
     probes_per_second_line: int,
     promotion_min_positives: int,
     max_n2_queries: int,
+    fallback_stage_name: str = "unchanged_gcn_fallback",
 ) -> ProspectiveSearchResult:
     """Run the frozen Phase-3 policy against a query-only physical oracle."""
 
@@ -341,7 +342,7 @@ def run_frozen_adaptive_ordered_n2(
             oracle.query(
                 candidate.first_line,
                 candidate.second_line,
-                stage="unchanged_gcn_fallback",
+                stage=str(fallback_stage_name),
             )
         if oracle.num_policy_queries >= budget or requested >= num_available:
             break

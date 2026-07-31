@@ -187,6 +187,7 @@ def test_frozen_adaptive_search_uses_only_queried_oracle_outcomes() -> None:
         probes_per_second_line=2,
         promotion_min_positives=1,
         max_n2_queries=5,
+        fallback_stage_name="rrf_gcn_proxy_uncertainty_fallback",
     )
 
     assert result.promoted_second_lines == ("L002",)
@@ -195,6 +196,9 @@ def test_frozen_adaptive_search_uses_only_queried_oracle_outcomes() -> None:
     assert result.query_rows[0]["critical"] is True
     assert oracle.num_new_n2_simulations == 5
     assert all("critical" in row for row in result.query_rows)
+    assert result.query_rows[-1]["search_stage"] == (
+        "rrf_gcn_proxy_uncertainty_fallback"
+    )
 
 
 def test_completed_resume_replays_policy_and_preserves_promotions() -> None:

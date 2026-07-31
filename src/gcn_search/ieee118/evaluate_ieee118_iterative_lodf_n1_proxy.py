@@ -167,6 +167,7 @@ def compute_label_free_iterative_proxy_scores(
     branch_tap_ratio: np.ndarray,
     beta: float,
     max_rounds: int,
+    initial_branch_status: np.ndarray | None = None,
     topology_cache: dict[bytes, Any] | None = None,
 ) -> pd.DataFrame:
     """Compute deployable N-1 proxy scores without reading cascade labels."""
@@ -188,14 +189,31 @@ def compute_label_free_iterative_proxy_scores(
         raise ValueError("Iterative proxy branch arrays and line labels must align.")
     if len(set(labels.tolist())) != num_lines:
         raise ValueError("Iterative proxy line labels must be unique.")
+    status = (
+        np.ones(num_lines, dtype=bool)
+        if initial_branch_status is None
+        else np.asarray(initial_branch_status, dtype=bool)
+    )
+    if status.shape != (num_lines,):
+        raise ValueError("Initial branch status and line labels must align.")
 
     cache = topology_cache if topology_cache is not None else {}
     records = []
     for line_idx, line_label in enumerate(labels):
+        if not status[line_idx]:
+            records.append(
+                {
+                    "line_label": str(line_label),
+                    "iterative_num_relay_trips": 0,
+                    "iterative_max_event_loading_ratio": 0.0,
+                    "iterative_num_singular_outages": 0,
+                }
+            )
+            continue
         result = iterative_dc_lodf_relay_proxy(
             flow,
             limits,
-            np.ones(num_lines, dtype=bool),
+            status,
             line_idx,
             branch_from_bus=branch_from_bus,
             branch_to_bus=branch_to_bus,
