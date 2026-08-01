@@ -1,0 +1,25 @@
+{
+  "status": "complete",
+  "model_class": "PaperStyleRts79Gcn",
+  "model_core_modified": false,
+  "selection_rule": "Minimum validation K95; formal and prospective truth not used for selection.",
+  "selected_method": "dense_state_hard_pairwise",
+  "rejected_method": "dense_state_smooth_ap",
+  "aggregate_prospective": {
+    "num_prospective_seeds": 5,
+    "n2_budget_per_seed": 2100,
+    "gcn_fallback_reserve_per_seed": 500,
+    "old_fallback_queries": 2500,
+    "dense_fallback_queries": 2500,
+    "old_fallback_critical": 380,
+    "dense_fallback_critical": 409,
+    "old_fallback_critical_precision": 0.152,
+    "dense_fallback_critical_precision": 0.1636,
+    "delta_critical": 29,
+    "delta_relay": 28,
+    "delta_load_shed_mw": 609.5790805332217,
+    "num_seeds_with_negative_critical_delta": 1,
+    "errors": 0
+  },
+  "claim_boundary": "Prospective improvement is aggregate, not uniform: one of five seeds regressed."
+}

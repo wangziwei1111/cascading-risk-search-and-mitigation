@@ -29,8 +29,12 @@ from run_ieee118_active_label_replay import DEFAULT_DATASET  # noqa: E402
 from tail_aware_gcn_loss import (  # noqa: E402
     hard_bipartite_tail_ranking_loss,
     masked_focal_cross_entropy,
+    smooth_average_precision_loss,
 )
-from tail_active_acquisition import select_tail_disagreement_batch  # noqa: E402
+from tail_active_acquisition import (  # noqa: E402
+    select_groupwise_dense_batch,
+    select_tail_disagreement_batch,
+)
 from train_ieee118_paper_aligned_gcn import (  # noqa: E402
     predict_probability,
     split_metrics,
@@ -96,6 +100,7 @@ class Objective:
     name: str
     focal_gamma: float
     tail_pairwise_weight: float
+    listwise_ap_weight: float = 0.0
 
 
 OBJECTIVES = {
@@ -103,6 +108,7 @@ OBJECTIVES = {
     "focal": Objective("focal", 2.0, 0.0),
     "hard_pairwise": Objective("hard_pairwise", 0.0, 0.25),
     "focal_hard_pairwise": Objective("focal_hard_pairwise", 2.0, 0.25),
+    "groupwise_smooth_ap": Objective("groupwise_smooth_ap", 0.0, 0.25, 0.25),
 }
 
 
@@ -160,7 +166,18 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Additional label-free tail query budget as a fraction of train candidates.",
     )
     parser.add_argument(
+        "--tail-acquisition-mode",
+        choices=["scattered", "dense_state"],
+        default="scattered",
+        help="Allocate extra queries one per state or to nearly complete S1 lists.",
+    )
+    parser.add_argument(
         "--low-fidelity-target-npz", type=Path, default=DEFAULT_LOW_FIDELITY
+    )
+    parser.add_argument("--listwise-temperature", type=float, default=0.05)
+    parser.add_argument("--listwise-min-list-size", type=int, default=128)
+    parser.add_argument(
+        "--listwise-ap-weight-override", type=float, default=None
     )
     parser.add_argument(
         "--search-eval-dataset-npz",
@@ -210,13 +227,16 @@ def _resolved_objective(
 ) -> Objective:
     gamma = objective.focal_gamma
     pairwise = objective.tail_pairwise_weight
+    listwise = objective.listwise_ap_weight
     if gamma > 0.0 and args.focal_gamma_override is not None:
         gamma = float(args.focal_gamma_override)
     if pairwise > 0.0 and args.tail_pairwise_weight_override is not None:
         pairwise = float(args.tail_pairwise_weight_override)
-    if gamma < 0.0 or pairwise < 0.0:
-        raise ValueError("Focal gamma and tail pairwise weight must be non-negative.")
-    return Objective(objective.name, gamma, pairwise)
+    if listwise > 0.0 and args.listwise_ap_weight_override is not None:
+        listwise = float(args.listwise_ap_weight_override)
+    if gamma < 0.0 or pairwise < 0.0 or listwise < 0.0:
+        raise ValueError("Objective weights must be non-negative.")
+    return Objective(objective.name, gamma, pairwise, listwise)
 
 
 def critical_retrieval_k(
@@ -338,7 +358,20 @@ def _fit_member(
                 max_hard_positives=int(args.max_hard_positives),
                 max_hard_negatives=int(args.max_hard_negatives),
             )
-            loss = classification + objective.tail_pairwise_weight * tail
+            listwise = logits.sum() * 0.0
+            if objective.listwise_ap_weight > 0.0:
+                listwise = smooth_average_precision_loss(
+                    logits,
+                    yb,
+                    mb,
+                    temperature=float(args.listwise_temperature),
+                    min_list_size=int(args.listwise_min_list_size),
+                )
+            loss = (
+                classification
+                + objective.tail_pairwise_weight * tail
+                + objective.listwise_ap_weight * listwise
+            )
             loss.backward()
             optimizer.step()
             total += float(loss.detach())
@@ -530,12 +563,23 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             )
         )
         batch_size = min(max(batch_size, 1), int(train_pool.sum()))
-        selected = select_tail_disagreement_batch(
+        selector = (
+            select_groupwise_dense_batch
+            if args.tail_acquisition_mode == "dense_state"
+            else select_tail_disagreement_batch
+        )
+        selector_kwargs = (
+            {"group_ids": seed}
+            if args.tail_acquisition_mode == "dense_state"
+            else {}
+        )
+        selected = selector(
             baseline_stack.mean(axis=0),
             baseline_stack.std(axis=0),
             low_fidelity["proxy_score"].astype(np.float64),
             train_pool,
             batch_size=batch_size,
+            **selector_kwargs,
         )
         query_mask[selected[:, 0], selected[:, 1]] = True
         for rank, (state_index, line_index) in enumerate(selected, start=1):
@@ -670,6 +714,13 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             y[query_mask & ~original_query_mask].sum()
         ),
         "tail_acquisition_fraction": float(args.tail_acquisition_fraction),
+        "tail_acquisition_mode": str(args.tail_acquisition_mode),
+        "num_states_receiving_additional_queries": int(
+            np.any(query_mask & ~original_query_mask, axis=1).sum()
+        ),
+        "num_nearly_complete_queried_states": int(
+            ((query_mask & valid_mask).sum(axis=1) >= args.listwise_min_list_size).sum()
+        ),
         "results": metrics.to_dict(orient="records"),
         "selection_rule": (
             "Maximum validation average precision"
@@ -699,6 +750,10 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                 "random_seed": int(args.random_seed),
                 "selection_metric": str(args.selection_metric),
                 "tail_acquisition_fraction": float(args.tail_acquisition_fraction),
+                "tail_acquisition_mode": str(args.tail_acquisition_mode),
+                "listwise_temperature": float(args.listwise_temperature),
+                "listwise_min_list_size": int(args.listwise_min_list_size),
+                "listwise_ap_weight_override": args.listwise_ap_weight_override,
                 "low_fidelity_target_npz": str(args.low_fidelity_target_npz),
             },
             indent=2,

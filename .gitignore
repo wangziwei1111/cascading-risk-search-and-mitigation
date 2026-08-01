@@ -94,3 +94,9 @@ results/gcn_search/ieee118_tail_critical_gcn/*
 results/gcn_search/ieee118_mechanism_aware_gcn/*
 !results/gcn_search/ieee118_mechanism_aware_gcn/compact/
 !results/gcn_search/ieee118_mechanism_aware_gcn/compact/**
+
+# Groupwise/listwise GCN: retain local checkpoints and physical query logs;
+# version only compact diagnosis and cross-seed evidence.
+results/gcn_search/ieee118_groupwise_listwise_gcn/*
+!results/gcn_search/ieee118_groupwise_listwise_gcn/compact/
+!results/gcn_search/ieee118_groupwise_listwise_gcn/compact/**

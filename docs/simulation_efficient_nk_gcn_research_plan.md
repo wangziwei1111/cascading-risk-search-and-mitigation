@@ -721,3 +721,11 @@ The target for the next gate is to retain the present K90 gain while reducing
 the K95/K99 gap with validation-selected tail anchoring or risk-controlled
 fallback. Until that prospective experiment passes, this is an IEEE118
 retrospective study, not evidence of deployment on a real utility grid.
+# Latest controlled extension
+
+The groupwise-supervision experiment and its prospective results are documented
+in [ieee118_groupwise_listwise_gcn.md](ieee118_groupwise_listwise_gcn.md).
+It reallocates the existing tail-label budget to nearly complete S1 candidate
+lists, keeps `PaperStyleRts79Gcn` unchanged, and adds an optional deployment
+budget reserve for the learned fallback. The Smooth-AP ablation was not selected
+by validation and remains a recorded negative result.
