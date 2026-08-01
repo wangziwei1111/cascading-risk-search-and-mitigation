@@ -1,0 +1,8 @@
+method,fallback_critical,fallback_relay,fallback_load_shed_mw,num_seeds_below_baseline,minimum_critical_delta
+frozen_gcn,409,386,11395.74342364967,0,0
+global_rrf_050,443,418,12442.467323640853,1,-2
+global_rrf_070,460,424,12916.497971988723,0,6
+global_rrf_085,452,420,12807.704265201355,1,-4
+local_rrf_070,244,208,7015.429226628564,5,-54
+local_rrf_085,242,197,6944.264591551593,5,-57
+pair_relation,448,425,12863.033789316492,2,-4

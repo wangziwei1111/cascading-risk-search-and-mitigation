@@ -105,3 +105,9 @@ results/gcn_search/ieee118_groupwise_listwise_gcn/*
 results/gcn_search/ieee118_pair_interaction_gcn/*
 !results/gcn_search/ieee118_pair_interaction_gcn/compact/
 !results/gcn_search/ieee118_pair_interaction_gcn/compact/**
+
+# Robust global rank fusion: physical query logs remain local; only the frozen
+# development selection and untouched prospective comparison are versioned.
+results/gcn_search/ieee118_global_rank_fusion/*
+!results/gcn_search/ieee118_global_rank_fusion/compact/
+!results/gcn_search/ieee118_global_rank_fusion/compact/**

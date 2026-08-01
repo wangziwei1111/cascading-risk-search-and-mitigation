@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+import pandas as pd
 
 
 def gcn_upper_confidence_scores(
@@ -63,3 +64,80 @@ def reciprocal_rank_fusion_scores(
             float(rrf_k) + uncertainty_rank[valid]
         )
     return fused
+
+
+def weighted_two_ranker_rrf_scores(
+    first_score: np.ndarray,
+    second_score: np.ndarray,
+    line_labels: np.ndarray,
+    valid_mask: np.ndarray,
+    *,
+    second_weight: float = 0.5,
+    rrf_k: float = 60.0,
+) -> np.ndarray:
+    """Fuse two candidate rankings without depending on score calibration."""
+
+    if rrf_k <= 0:
+        raise ValueError("RRF k must be positive.")
+    if not 0.0 <= second_weight <= 1.0:
+        raise ValueError("Second-ranker weight must be between zero and one.")
+    valid = np.asarray(valid_mask, dtype=bool)
+    first_rank = _descending_ranks(first_score, line_labels, valid)
+    second_rank = _descending_ranks(second_score, line_labels, valid)
+    fused = np.zeros(len(valid), dtype=np.float64)
+    fused[valid] = (
+        (1.0 - float(second_weight))
+        / (float(rrf_k) + first_rank[valid])
+        + float(second_weight)
+        / (float(rrf_k) + second_rank[valid])
+    )
+    return fused
+
+
+def weighted_global_path_rrf_ranking(
+    primary: pd.DataFrame,
+    secondary: pd.DataFrame,
+    *,
+    primary_weight: float = 0.5,
+    rrf_k: float = 60.0,
+) -> pd.DataFrame:
+    """Fuse global path rankings while retaining each ranker's score scale."""
+
+    if not 0.0 <= primary_weight <= 1.0:
+        raise ValueError("Primary-ranker weight must be between zero and one.")
+    if rrf_k <= 0.0:
+        raise ValueError("RRF k must be positive.")
+    required = {"path", "first_line", "second_line"}
+    if required - set(primary) or required - set(secondary):
+        raise ValueError("Global RRF rankings are missing path identity columns.")
+    if primary["path"].duplicated().any() or secondary["path"].duplicated().any():
+        raise ValueError("Global RRF input rankings must contain unique paths.")
+
+    first = primary.reset_index(drop=True).copy()
+    second = secondary.reset_index(drop=True).copy()
+    first_rank = dict(zip(first["path"].astype(str), np.arange(1, len(first) + 1)))
+    second_rank = dict(zip(second["path"].astype(str), np.arange(1, len(second) + 1)))
+    union = pd.concat([first, second], ignore_index=True).drop_duplicates(
+        "path", keep="first"
+    )
+    missing_first = len(first) + 1
+    missing_second = len(second) + 1
+    union["primary_global_rank"] = union["path"].astype(str).map(
+        lambda value: first_rank.get(value, missing_first)
+    )
+    union["secondary_global_rank"] = union["path"].astype(str).map(
+        lambda value: second_rank.get(value, missing_second)
+    )
+    union["global_rrf_score"] = (
+        float(primary_weight)
+        / (float(rrf_k) + union["primary_global_rank"].to_numpy(dtype=float))
+        + (1.0 - float(primary_weight))
+        / (float(rrf_k) + union["secondary_global_rank"].to_numpy(dtype=float))
+    )
+    union = union.sort_values(
+        ["global_rrf_score", "path"],
+        ascending=[False, True],
+        kind="stable",
+    ).reset_index(drop=True)
+    union["rank"] = np.arange(1, len(union) + 1)
+    return union

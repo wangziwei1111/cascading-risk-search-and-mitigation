@@ -46,6 +46,7 @@ from pair_interaction_reranker import FrozenPairInteractionReranker
 from tail_rank_fusion import (
     gcn_upper_confidence_scores,
     reciprocal_rank_fusion_scores,
+    weighted_two_ranker_rrf_scores,
 )
 from train_ieee118_with_original_rts79_gcn import (
     build_branch_graph_adjacency_from_endpoints,
@@ -122,6 +123,24 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=None,
         help="Optional frozen first-line/candidate relation head over GCN scores.",
+    )
+    parser.add_argument(
+        "--interaction-fusion-mode",
+        choices=("none", "local_rrf", "global_rrf"),
+        default="none",
+        help="Optionally fuse frozen GCN and pair-head rankings at deployment.",
+    )
+    parser.add_argument(
+        "--interaction-fusion-weight",
+        type=float,
+        default=0.5,
+        help="Pair-head contribution to weighted RRF; the GCN receives 1-weight.",
+    )
+    parser.add_argument(
+        "--interaction-fusion-rrf-k",
+        type=float,
+        default=60.0,
+        help="RRF rank constant for pair-head deployment fusion.",
     )
     parser.add_argument(
         "--fallback-score-mode",
@@ -353,6 +372,9 @@ def _configuration(args: argparse.Namespace, checkpoint_path: Path) -> dict[str,
             if args.interaction_head_checkpoint is not None
             else None
         ),
+        "interaction_fusion_mode": str(args.interaction_fusion_mode),
+        "interaction_fusion_weight": float(args.interaction_fusion_weight),
+        "interaction_fusion_rrf_k": float(args.interaction_fusion_rrf_k),
         "feature_normalizer": portable_result_path(
             args.feature_normalizer_json
         ),
@@ -404,6 +426,15 @@ def run_prospective_oracle(args: argparse.Namespace) -> dict[str, Any]:
             "Missing local pair interaction head: "
             f"{args.interaction_head_checkpoint}"
         )
+    if (
+        args.interaction_fusion_mode != "none"
+        and args.interaction_head_checkpoint is None
+    ):
+        raise ValueError("Interaction fusion requires --interaction-head-checkpoint.")
+    if not 0.0 <= float(args.interaction_fusion_weight) <= 1.0:
+        raise ValueError("--interaction-fusion-weight must be between zero and one.")
+    if float(args.interaction_fusion_rrf_k) <= 0.0:
+        raise ValueError("--interaction-fusion-rrf-k must be positive.")
 
     output_dir = args.output_dir or (
         DEFAULT_OUTPUT_ROOT / f"seed_{int(args.seed)}"
@@ -607,9 +638,11 @@ def run_prospective_oracle(args: argparse.Namespace) -> dict[str, Any]:
         resume_first_step_rows=resume_first_step_rows,
         checkpoint_callback=checkpoint_callback,
     )
-    second_score_cache: dict[str, dict[str, float]] = {}
+    second_score_cache: dict[str, dict[str, dict[str, float]]] = {}
 
-    def second_score_provider(first_line: str) -> dict[str, float]:
+    def build_second_score_bundle(
+        first_line: str,
+    ) -> dict[str, dict[str, float]]:
         if first_line in second_score_cache:
             return second_score_cache[first_line]
         first_state, description = oracle.get_first_state(first_line)
@@ -619,8 +652,9 @@ def run_prospective_oracle(args: argparse.Namespace) -> dict[str, Any]:
             scores = {
                 label: 0.0 for label in line_labels if label != first_line
             }
-            second_score_cache[first_line] = scores
-            return scores
+            bundle = {"selected": scores, "base": scores.copy()}
+            second_score_cache[first_line] = bundle
+            return bundle
         outages = final_outage_set(first_state) | {first_line}
         x_raw, feature_labels, _, _ = state_features(
             first_state["case"],
@@ -650,8 +684,20 @@ def run_prospective_oracle(args: argparse.Namespace) -> dict[str, Any]:
                 raise ValueError(
                     "Pair interaction reranking currently requires --fallback-score-mode gcn."
                 )
-            selected_score = interaction_reranker.predict(
+            interaction_score = interaction_reranker.predict(
                 probability, x, first_line
+            )
+            selected_score = (
+                weighted_two_ranker_rrf_scores(
+                    probability,
+                    interaction_score,
+                    line_labels,
+                    valid_mask,
+                    second_weight=float(args.interaction_fusion_weight),
+                    rrf_k=float(args.interaction_fusion_rrf_k),
+                )
+                if args.interaction_fusion_mode == "local_rrf"
+                else interaction_score
             )
         elif args.fallback_score_mode == "gcn_ucb":
             selected_score = gcn_upper_confidence_scores(
@@ -692,8 +738,20 @@ def run_prospective_oracle(args: argparse.Namespace) -> dict[str, Any]:
             for index, label in enumerate(line_labels)
             if label != first_line
         }
-        second_score_cache[first_line] = scores
-        return scores
+        base_scores = {
+            label: float(probability[index]) if label in valid else 0.0
+            for index, label in enumerate(line_labels)
+            if label != first_line
+        }
+        bundle = {"selected": scores, "base": base_scores}
+        second_score_cache[first_line] = bundle
+        return bundle
+
+    def second_score_provider(first_line: str) -> dict[str, float]:
+        return build_second_score_bundle(first_line)["selected"]
+
+    def baseline_second_score_provider(first_line: str) -> dict[str, float]:
+        return build_second_score_bundle(first_line)["base"]
 
     if len(resume_rows) > int(args.max_n2_queries):
         raise ValueError("Resume rows already exceed --max-n2-queries.")
@@ -742,12 +800,25 @@ def run_prospective_oracle(args: argparse.Namespace) -> dict[str, Any]:
             max_n2_queries=int(args.max_n2_queries),
             fallback_reserve_queries=int(args.fallback_reserve_queries),
             fallback_stage_name=(
-                "gcn_pair_interaction_fallback"
+                "gcn_pair_interaction_global_rrf_fallback"
+                if args.interaction_head_checkpoint is not None
+                and args.interaction_fusion_mode == "global_rrf"
+                else "gcn_pair_interaction_local_rrf_fallback"
+                if args.interaction_head_checkpoint is not None
+                and args.interaction_fusion_mode == "local_rrf"
+                else "gcn_pair_interaction_fallback"
                 if args.interaction_head_checkpoint is not None
                 else "unchanged_gcn_fallback"
                 if args.fallback_score_mode == "gcn"
                 else f"{args.fallback_score_mode}_fallback"
             ),
+            fallback_secondary_score_provider=(
+                baseline_second_score_provider
+                if args.interaction_fusion_mode == "global_rrf"
+                else None
+            ),
+            fallback_primary_rrf_weight=float(args.interaction_fusion_weight),
+            fallback_global_rrf_k=float(args.interaction_fusion_rrf_k),
         )
     _atomic_csv(oracle.query_rows, query_path)
     _atomic_csv(oracle.first_step_rows, first_step_path)

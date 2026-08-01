@@ -736,3 +736,9 @@ The next frozen-baseline extension is documented in
 the active first outage and candidate second outage. Simple calibration,
 candidate-only features, and checkpoint probability blending are retained as
 negative controls.
+
+The scenario-robust deployment extension is documented in
+[ieee118_robust_global_rank_fusion.md](ieee118_robust_global_rank_fusion.md).
+It freezes both learned scorers and fuses their global candidate-path rankings.
+Per-S1 local RRF is retained as a failed ablation because it destroys score
+comparability between different first-outage states.

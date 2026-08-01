@@ -110,3 +110,61 @@ def test_prospective_cli_accepts_explicit_interaction_head() -> None:
         ]
     )
     assert args.interaction_head_checkpoint == Path("head.pt")
+
+
+def test_weighted_rrf_preserves_both_rankers_and_valid_mask() -> None:
+    from tail_rank_fusion import weighted_two_ranker_rrf_scores
+
+    labels = np.asarray(["L001", "L002", "L003", "L004"])
+    valid = np.asarray([True, True, True, False])
+    first = np.asarray([0.9, 0.1, 0.5, 1.0])
+    second = np.asarray([0.1, 0.9, 0.5, 1.0])
+
+    fused = weighted_two_ranker_rrf_scores(
+        first, second, labels, valid, second_weight=0.5, rrf_k=60.0
+    )
+
+    assert fused[0] == pytest.approx(fused[1])
+    assert fused[2] < fused[0]
+    assert fused[3] == 0.0
+
+
+def test_interaction_fusion_cli_is_explicit() -> None:
+    from run_ieee118_prospective_oracle import parse_args
+
+    args = parse_args(
+        [
+            "--seed",
+            "20261211",
+            "--interaction-head-checkpoint",
+            "head.pt",
+            "--interaction-fusion-mode",
+            "global_rrf",
+            "--interaction-fusion-weight",
+            "0.7",
+        ]
+    )
+    assert args.interaction_fusion_mode == "global_rrf"
+    assert args.interaction_fusion_weight == pytest.approx(0.7)
+
+
+def test_global_path_rrf_fuses_complete_path_rankings() -> None:
+    import pandas as pd
+
+    from tail_rank_fusion import weighted_global_path_rrf_ranking
+
+    primary = pd.DataFrame(
+        [
+            {"path": "L001->L002", "first_line": "L001", "second_line": "L002"},
+            {"path": "L001->L003", "first_line": "L001", "second_line": "L003"},
+        ]
+    )
+    secondary = primary.iloc[::-1].reset_index(drop=True)
+
+    fused = weighted_global_path_rrf_ranking(
+        primary, secondary, primary_weight=0.5, rrf_k=60.0
+    )
+
+    assert set(fused["path"]) == set(primary["path"])
+    assert fused["global_rrf_score"].nunique() == 1
+    assert fused["path"].tolist() == sorted(primary["path"].tolist())
