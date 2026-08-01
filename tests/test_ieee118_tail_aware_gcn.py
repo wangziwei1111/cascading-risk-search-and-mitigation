@@ -19,8 +19,12 @@ torch = pytest.importorskip("torch")
 from tail_aware_gcn_loss import (  # noqa: E402
     hard_bipartite_tail_ranking_loss,
     masked_focal_cross_entropy,
+    smooth_average_precision_loss,
 )
-from tail_active_acquisition import select_tail_disagreement_batch  # noqa: E402
+from tail_active_acquisition import (  # noqa: E402
+    select_groupwise_dense_batch,
+    select_tail_disagreement_batch,
+)
 from train_rts79_paper_gcn import PaperStyleRts79Gcn  # noqa: E402
 
 
@@ -149,6 +153,51 @@ def test_tail_acquisition_is_reproducible_and_covers_states() -> None:
 
     assert np.array_equal(first, second)
     assert sorted(first[:, 0].tolist()) == [0, 1, 2]
+
+
+def test_groupwise_acquisition_completes_a_state_before_next() -> None:
+    import numpy as np
+
+    probability = np.full((3, 4), 0.2)
+    disagreement = np.zeros_like(probability)
+    proxy = np.asarray(
+        [[4.0, 3.0, 2.0, 1.0], [1.0, 2.0, 3.0, 4.0], [2.0] * 4]
+    )
+    candidate = np.ones_like(probability, dtype=bool)
+
+    selected = select_groupwise_dense_batch(
+        probability,
+        disagreement,
+        proxy,
+        candidate,
+        batch_size=6,
+        group_ids=np.asarray([10, 11, 12]),
+    )
+
+    counts = np.bincount(selected[:, 0], minlength=3)
+    assert sorted(counts.tolist()) == [0, 2, 4]
+    assert len({tuple(row) for row in selected.tolist()}) == 6
+
+
+def test_smooth_ap_prefers_correct_complete_list_and_skips_sparse_rows() -> None:
+    labels = torch.tensor([[1, 0, 1, 0]], dtype=torch.long)
+    complete = torch.ones_like(labels, dtype=torch.bool)
+    sparse = torch.tensor([[True, True, False, False]])
+    ordered = _binary_logits([[3.0, -2.0, 2.0, -1.0]])
+    reversed_order = _binary_logits([[-2.0, 3.0, -1.0, 2.0]])
+
+    good = smooth_average_precision_loss(
+        ordered, labels, complete, min_list_size=4
+    )
+    bad = smooth_average_precision_loss(
+        reversed_order, labels, complete, min_list_size=4
+    )
+    skipped = smooth_average_precision_loss(
+        reversed_order, labels, sparse, min_list_size=4
+    )
+
+    assert bad > good
+    assert skipped == pytest.approx(0.0)
 
 
 def test_rrf_combines_complementary_label_free_rankings() -> None:

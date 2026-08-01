@@ -17,6 +17,7 @@ from prospective_physical_oracle import (
     run_frozen_adaptive_ordered_n2,
 )
 from run_ieee118_prospective_oracle import (
+    _configuration_fingerprint,
     build_prospective_stage_summary,
     parse_args,
 )
@@ -201,6 +202,40 @@ def test_frozen_adaptive_search_uses_only_queried_oracle_outcomes() -> None:
     )
 
 
+def test_fallback_reserve_prevents_promotions_from_consuming_budget() -> None:
+    labels = ("L001", "L002", "L003", "L004")
+    oracle = OnDemandCascadeOracle(
+        line_labels=labels,
+        first_state_builder=lambda first: {"first_line": first, "line_labels": labels},
+        first_state_describer=_first_description,
+        second_state_builder=lambda state, second: {
+            "path": f"{state['first_line']}->{second}"
+        },
+        second_state_describer=_second_description,
+    )
+    conditional = {
+        first: {second: 0.5 for second in labels if second != first}
+        for first in labels
+    }
+
+    result = run_frozen_adaptive_ordered_n2(
+        first_line_scores=dict(zip(labels, (1.0, 0.8, 0.6, 0.4))),
+        line_labels=labels,
+        gate_second_lines=("L002",),
+        second_score_provider=lambda first: conditional[first],
+        oracle=oracle,
+        probes_per_second_line=2,
+        promotion_min_positives=1,
+        max_n2_queries=5,
+        fallback_reserve_queries=2,
+    )
+
+    stages = [row["search_stage"] for row in result.query_rows]
+    assert stages.count("probe") == 2
+    assert stages.count("promoted_line_expansion") <= 1
+    assert stages.count("unchanged_gcn_fallback") >= 2
+
+
 def test_completed_resume_replays_policy_and_preserves_promotions() -> None:
     labels = ("L001", "L002", "L003", "L004")
 
@@ -253,13 +288,32 @@ def test_completed_resume_replays_policy_and_preserves_promotions() -> None:
 
 
 def test_prospective_cli_has_no_fulltruth_input() -> None:
-    args = parse_args(["--seed", "20260709", "--max-n2-queries", "5"])
+    args = parse_args(
+        [
+            "--seed",
+            "20260709",
+            "--max-n2-queries",
+            "5",
+            "--fallback-reserve-queries",
+            "2",
+        ]
+    )
     assert args.seed == 20260709
     assert args.max_n2_queries == 5
     assert not any("fulltruth" in name for name in vars(args))
     assert args.gate_size == 26
     assert args.probes_per_second_line == 5
     assert args.promotion_min_positives == 1
+    assert args.fallback_reserve_queries == 2
+
+
+def test_search_budget_changes_configuration_fingerprint() -> None:
+    base = {"seed": 1, "max_n2_queries": 200, "fallback_reserve_queries": 0}
+    larger = {**base, "max_n2_queries": 2100}
+    reserved = {**larger, "fallback_reserve_queries": 500}
+
+    assert _configuration_fingerprint(base) != _configuration_fingerprint(larger)
+    assert _configuration_fingerprint(larger) != _configuration_fingerprint(reserved)
 
 
 def test_prospective_stage_summary_separates_relay_activity_from_label() -> None:

@@ -248,6 +248,7 @@ def run_frozen_adaptive_ordered_n2(
     probes_per_second_line: int,
     promotion_min_positives: int,
     max_n2_queries: int,
+    fallback_reserve_queries: int = 0,
     fallback_stage_name: str = "unchanged_gcn_fallback",
 ) -> ProspectiveSearchResult:
     """Run the frozen Phase-3 policy against a query-only physical oracle."""
@@ -263,10 +264,14 @@ def run_frozen_adaptive_ordered_n2(
     probes = int(probes_per_second_line)
     minimum = int(promotion_min_positives)
     budget = int(max_n2_queries)
+    fallback_reserve = int(fallback_reserve_queries)
     if probes <= 0 or minimum <= 0 or minimum > probes:
         raise ValueError("Probe and promotion counts are inconsistent.")
     if budget < oracle.num_unique_n2_queries:
         raise ValueError("Resume rows already exceed max_n2_queries.")
+    if fallback_reserve < 0 or fallback_reserve > budget:
+        raise ValueError("Fallback reserve must be between zero and the N-2 budget.")
+    heuristic_budget = budget - fallback_reserve
 
     first_order = tuple(sorted(first, key=lambda label: (-first[label], label)))
     gate = tuple(dict.fromkeys(str(label) for label in gate_second_lines))
@@ -279,7 +284,7 @@ def run_frozen_adaptive_ordered_n2(
 
     for second_line in gate:
         for first_line in first_order:
-            if oracle.num_policy_queries >= budget:
+            if oracle.num_policy_queries >= heuristic_budget:
                 break
             if first_line == second_line or probe_counts[second_line] >= probes:
                 continue
@@ -291,7 +296,7 @@ def run_frozen_adaptive_ordered_n2(
                 probe_paths.append(path)
             probe_counts[second_line] += 1
             positive_counts[second_line] += int(bool(row.get("critical", False)))
-        if oracle.num_policy_queries >= budget:
+        if oracle.num_policy_queries >= heuristic_budget:
             break
 
     promoted = tuple(
@@ -309,14 +314,18 @@ def run_frozen_adaptive_ordered_n2(
             ),
         )
     )
+    promotion_budget = max(
+        oracle.num_policy_queries,
+        heuristic_budget,
+    )
     for second_line in promoted:
         for first_line in first_order:
-            if oracle.num_policy_queries >= budget:
+            if oracle.num_policy_queries >= promotion_budget:
                 break
             if first_line == second_line:
                 continue
             oracle.query(first_line, second_line, stage="promoted_line_expansion")
-        if oracle.num_policy_queries >= budget:
+        if oracle.num_policy_queries >= promotion_budget:
             break
 
     num_available = len(labels) * (len(labels) - 1)

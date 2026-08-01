@@ -103,6 +103,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--probes-per-second-line", type=int, default=5)
     parser.add_argument("--promotion-min-positives", type=int, default=1)
     parser.add_argument("--max-n2-queries", type=int, default=200)
+    parser.add_argument(
+        "--fallback-reserve-queries",
+        type=int,
+        default=0,
+        help="Reserve this many N-2 queries for the learned fallback ranking.",
+    )
     parser.add_argument("--checkpoint-every", type=int, default=25)
     parser.add_argument(
         "--gcn-checkpoint",
@@ -320,6 +326,8 @@ def _configuration(args: argparse.Namespace, checkpoint_path: Path) -> dict[str,
         "gate_size": int(args.gate_size),
         "probes_per_second_line": int(args.probes_per_second_line),
         "promotion_min_positives": int(args.promotion_min_positives),
+        "max_n2_queries": int(args.max_n2_queries),
+        "fallback_reserve_queries": int(args.fallback_reserve_queries),
         "fallback_score_mode": str(args.fallback_score_mode),
         "rrf_k": float(args.rrf_k),
         "rrf_uncertainty_weight": float(args.rrf_uncertainty_weight),
@@ -690,6 +698,7 @@ def run_prospective_oracle(args: argparse.Namespace) -> dict[str, Any]:
             probes_per_second_line=int(args.probes_per_second_line),
             promotion_min_positives=int(args.promotion_min_positives),
             max_n2_queries=int(args.max_n2_queries),
+            fallback_reserve_queries=int(args.fallback_reserve_queries),
             fallback_stage_name=(
                 "unchanged_gcn_fallback"
                 if args.fallback_score_mode == "gcn"

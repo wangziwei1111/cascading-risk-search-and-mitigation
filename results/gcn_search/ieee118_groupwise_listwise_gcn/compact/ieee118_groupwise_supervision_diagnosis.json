@@ -1,0 +1,32 @@
+{
+  "status": "complete",
+  "selection_reads_labels": false,
+  "labels_used_only_for_post_selection_audit": true,
+  "num_train_states": 7091,
+  "num_available_train_candidates": 1239452,
+  "num_available_train_positives": 19631,
+  "phase3_num_queried_candidates": 58846,
+  "phase3_median_queries_per_train_state": 8.0,
+  "additional_query_budget": 6197,
+  "strategies": [
+    {
+      "strategy": "scattered_round_robin",
+      "num_additional_queries": 6197,
+      "num_states_receiving_queries": 6197,
+      "median_queries_per_selected_state": 1.0,
+      "max_queries_per_state": 1,
+      "num_states_with_at_least_128_queries": 0,
+      "revealed_positives_after_selection": 236
+    },
+    {
+      "strategy": "dense_state",
+      "num_additional_queries": 6197,
+      "num_states_receiving_queries": 37,
+      "median_queries_per_selected_state": 168.0,
+      "max_queries_per_state": 176,
+      "num_states_with_at_least_128_queries": 37,
+      "revealed_positives_after_selection": 49
+    }
+  ],
+  "diagnosis": "The scattered selector adds one label to thousands of S1 states, while deployment ranks a complete candidate list within each S1 state."
+}
