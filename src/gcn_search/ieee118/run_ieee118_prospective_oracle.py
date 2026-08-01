@@ -42,6 +42,7 @@ from prospective_physical_oracle import (
     ProspectiveSearchResult,
     run_frozen_adaptive_ordered_n2,
 )
+from pair_interaction_reranker import FrozenPairInteractionReranker
 from tail_rank_fusion import (
     gcn_upper_confidence_scores,
     reciprocal_rank_fusion_scores,
@@ -115,6 +116,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=None,
         help="Optional PaperStyleRts79Gcn ensemble checkpoint override.",
+    )
+    parser.add_argument(
+        "--interaction-head-checkpoint",
+        type=Path,
+        default=None,
+        help="Optional frozen first-line/candidate relation head over GCN scores.",
     )
     parser.add_argument(
         "--fallback-score-mode",
@@ -336,6 +343,16 @@ def _configuration(args: argparse.Namespace, checkpoint_path: Path) -> dict[str,
         "model_core_modified": False,
         "checkpoint": portable_result_path(checkpoint_path),
         "checkpoint_sha256": _file_sha256(checkpoint_path),
+        "interaction_head_checkpoint": (
+            portable_result_path(args.interaction_head_checkpoint)
+            if args.interaction_head_checkpoint is not None
+            else None
+        ),
+        "interaction_head_sha256": (
+            _file_sha256(args.interaction_head_checkpoint)
+            if args.interaction_head_checkpoint is not None
+            else None
+        ),
         "feature_normalizer": portable_result_path(
             args.feature_normalizer_json
         ),
@@ -379,6 +396,14 @@ def run_prospective_oracle(args: argparse.Namespace) -> dict[str, Any]:
     ):
         if not path.exists():
             raise FileNotFoundError(f"Missing local {label}: {path}")
+    if (
+        args.interaction_head_checkpoint is not None
+        and not args.interaction_head_checkpoint.exists()
+    ):
+        raise FileNotFoundError(
+            "Missing local pair interaction head: "
+            f"{args.interaction_head_checkpoint}"
+        )
 
     output_dir = args.output_dir or (
         DEFAULT_OUTPUT_ROOT / f"seed_{int(args.seed)}"
@@ -483,6 +508,15 @@ def run_prospective_oracle(args: argparse.Namespace) -> dict[str, Any]:
         first_layer_channels=int(args.first_layer_channels),
         second_layer_channels=int(args.second_layer_channels),
     )
+    interaction_reranker = None
+    if args.interaction_head_checkpoint is not None:
+        interaction_reranker = FrozenPairInteractionReranker(
+            args.interaction_head_checkpoint,
+            adjacency=build_branch_graph_adjacency_from_endpoints(
+                branch[:, F_BUS], branch[:, T_BUS]
+            ),
+            line_labels=line_labels,
+        )
 
     def build_first(first_line: str) -> dict[str, Any]:
         try:
@@ -611,7 +645,15 @@ def run_prospective_oracle(args: argparse.Namespace) -> dict[str, Any]:
             dtype=bool,
         )
         selected_score = probability
-        if args.fallback_score_mode == "gcn_ucb":
+        if interaction_reranker is not None:
+            if args.fallback_score_mode != "gcn":
+                raise ValueError(
+                    "Pair interaction reranking currently requires --fallback-score-mode gcn."
+                )
+            selected_score = interaction_reranker.predict(
+                probability, x, first_line
+            )
+        elif args.fallback_score_mode == "gcn_ucb":
             selected_score = gcn_upper_confidence_scores(
                 member_probability,
                 uncertainty_weight=float(args.gcn_uncertainty_weight),
@@ -700,7 +742,9 @@ def run_prospective_oracle(args: argparse.Namespace) -> dict[str, Any]:
             max_n2_queries=int(args.max_n2_queries),
             fallback_reserve_queries=int(args.fallback_reserve_queries),
             fallback_stage_name=(
-                "unchanged_gcn_fallback"
+                "gcn_pair_interaction_fallback"
+                if args.interaction_head_checkpoint is not None
+                else "unchanged_gcn_fallback"
                 if args.fallback_score_mode == "gcn"
                 else f"{args.fallback_score_mode}_fallback"
             ),

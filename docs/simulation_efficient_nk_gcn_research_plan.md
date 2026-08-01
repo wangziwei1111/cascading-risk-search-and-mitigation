@@ -729,3 +729,10 @@ It reallocates the existing tail-label budget to nearly complete S1 candidate
 lists, keeps `PaperStyleRts79Gcn` unchanged, and adds an optional deployment
 budget reserve for the learned fallback. The Smooth-AP ablation was not selected
 by validation and remains a recorded negative result.
+
+The next frozen-baseline extension is documented in
+[ieee118_pair_interaction_gcn.md](ieee118_pair_interaction_gcn.md). It keeps
+`PaperStyleRts79Gcn` unchanged and adds a small, leakage-free relation head for
+the active first outage and candidate second outage. Simple calibration,
+candidate-only features, and checkpoint probability blending are retained as
+negative controls.
