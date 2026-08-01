@@ -100,3 +100,8 @@ results/gcn_search/ieee118_mechanism_aware_gcn/*
 results/gcn_search/ieee118_groupwise_listwise_gcn/*
 !results/gcn_search/ieee118_groupwise_listwise_gcn/compact/
 !results/gcn_search/ieee118_groupwise_listwise_gcn/compact/**
+
+# Pair-interaction reranker: keep frozen heads and physical query logs local.
+results/gcn_search/ieee118_pair_interaction_gcn/*
+!results/gcn_search/ieee118_pair_interaction_gcn/compact/
+!results/gcn_search/ieee118_pair_interaction_gcn/compact/**

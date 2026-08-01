@@ -1,0 +1,33 @@
+{
+  "status": "complete",
+  "gcn_core_class": "PaperStyleRts79Gcn",
+  "gcn_core_modified": false,
+  "selected_method": "gcn_pair_relation",
+  "selection_rule": "Minimum validation K95 with validation AP tie-break.",
+  "formal_seed_used_for_selection": false,
+  "simple_checkpoint_probability_ensemble": "rejected_by_validation",
+  "aggregate_prospective": {
+    "num_prospective_seeds": 5,
+    "prospective_seeds": [
+      20261206,
+      20261207,
+      20261208,
+      20261209,
+      20261210
+    ],
+    "n2_budget_per_seed": 2100,
+    "fallback_reserve_per_seed": 500,
+    "baseline_fallback_queries": 2611,
+    "relation_fallback_queries": 2611,
+    "baseline_fallback_critical": 382,
+    "relation_fallback_critical": 417,
+    "baseline_critical_precision": 0.1463040980467254,
+    "relation_critical_precision": 0.15970892378399082,
+    "delta_critical": 35,
+    "delta_relay": 30,
+    "delta_load_shed_mw": 1175.4843154103073,
+    "num_negative_critical_seeds": 1,
+    "errors": 0
+  },
+  "claim_boundary": "Aggregate improvement with one of five prospective seeds regressing."
+}
