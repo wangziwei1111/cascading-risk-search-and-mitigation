@@ -7,6 +7,7 @@ from simulation_efficient_prefix_search import (
     OrderedPrefixStateCache,
     lazy_best_first_ordered_n2,
 )
+from tail_rank_fusion import weighted_global_path_rrf_ranking
 
 
 FirstStateBuilder = Callable[[str], Any]
@@ -250,6 +251,9 @@ def run_frozen_adaptive_ordered_n2(
     max_n2_queries: int,
     fallback_reserve_queries: int = 0,
     fallback_stage_name: str = "unchanged_gcn_fallback",
+    fallback_secondary_score_provider: SecondScoreProvider | None = None,
+    fallback_primary_rrf_weight: float = 0.5,
+    fallback_global_rrf_k: float = 60.0,
 ) -> ProspectiveSearchResult:
     """Run the frozen Phase-3 policy against a query-only physical oracle."""
 
@@ -334,6 +338,7 @@ def run_frozen_adaptive_ordered_n2(
         max(budget + oracle.num_unique_n2_queries + len(labels), 1),
     )
     score_cache = OrderedPrefixStateCache()
+    secondary_score_cache = OrderedPrefixStateCache()
     while oracle.num_policy_queries < budget:
         fallback = lazy_best_first_ordered_n2(
             first_line_scores=first,
@@ -343,6 +348,21 @@ def run_frozen_adaptive_ordered_n2(
             scenario_id="prospective",
             cache=score_cache,
         ).ranking
+        if fallback_secondary_score_provider is not None:
+            secondary = lazy_best_first_ordered_n2(
+                first_line_scores=first,
+                line_labels=labels,
+                second_score_provider=fallback_secondary_score_provider,
+                max_candidates=requested,
+                scenario_id="prospective_secondary",
+                cache=secondary_score_cache,
+            ).ranking
+            fallback = weighted_global_path_rrf_ranking(
+                fallback,
+                secondary,
+                primary_weight=float(fallback_primary_rrf_weight),
+                rrf_k=float(fallback_global_rrf_k),
+            )
         for candidate in fallback.itertuples(index=False):
             if oracle.num_policy_queries >= budget:
                 break

@@ -236,6 +236,44 @@ def test_fallback_reserve_prevents_promotions_from_consuming_budget() -> None:
     assert stages.count("unchanged_gcn_fallback") >= 2
 
 
+def test_fallback_can_fuse_two_global_rankings_without_extra_n2_queries() -> None:
+    labels = ("L001", "L002", "L003", "L004")
+    oracle = OnDemandCascadeOracle(
+        line_labels=labels,
+        first_state_builder=lambda first: {"first_line": first, "line_labels": labels},
+        first_state_describer=_first_description,
+        second_state_builder=lambda state, second: {
+            "path": f"{state['first_line']}->{second}"
+        },
+        second_state_describer=_second_description,
+    )
+    primary = {
+        first: {second: float(j + 1) / len(labels) for j, second in enumerate(labels) if second != first}
+        for first in labels
+    }
+    secondary = {
+        first: {second: 1.0 - primary[first][second] / 2.0 for second in labels if second != first}
+        for first in labels
+    }
+
+    result = run_frozen_adaptive_ordered_n2(
+        first_line_scores=dict(zip(labels, (1.0, 0.8, 0.6, 0.4))),
+        line_labels=labels,
+        gate_second_lines=("L002",),
+        second_score_provider=lambda first: primary[first],
+        fallback_secondary_score_provider=lambda first: secondary[first],
+        fallback_primary_rrf_weight=0.5,
+        oracle=oracle,
+        probes_per_second_line=2,
+        promotion_min_positives=1,
+        max_n2_queries=5,
+        fallback_reserve_queries=2,
+    )
+
+    assert len(result.query_rows) == 5
+    assert oracle.num_new_n2_simulations == 5
+
+
 def test_completed_resume_replays_policy_and_preserves_promotions() -> None:
     labels = ("L001", "L002", "L003", "L004")
 

@@ -1,0 +1,32 @@
+{
+  "status": "complete",
+  "gcn_core_class": "PaperStyleRts79Gcn",
+  "gcn_core_modified": false,
+  "additional_n2_training_labels": 0,
+  "selection_phase": "development seeds 20261201-20261205",
+  "selection_rule": "Maximize aggregate fallback critical hits subject to no development seed falling below frozen GCN; tie-break by relay hits and shed.",
+  "selected_method": "global_rrf_070",
+  "selected_pair_weight": 0.7,
+  "prospective_seeds": [
+    20261211,
+    20261212,
+    20261213,
+    20261214,
+    20261215
+  ],
+  "prospective_used_for_selection": false,
+  "prospective_delta_vs_frozen_gcn": {
+    "critical": 34,
+    "relay": 30,
+    "load_shed_mw": 1265.4905252916506,
+    "fallback_critical": 34,
+    "fallback_relay": 30,
+    "num_seeds_below_baseline": 0
+  },
+  "prospective_errors": 0,
+  "claim_boundary": "Validated on five untouched synthetic load scenarios; this is not utility-grid deployment evidence or a worst-case guarantee.",
+  "rejected_methods": {
+    "local_rrf": "Destroyed cross-S1 score comparability and regressed all development seeds.",
+    "equal_weight_global_rrf": "Valid but lower aggregate development critical hits than weight 0.70."
+  }
+}
