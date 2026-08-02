@@ -141,3 +141,60 @@ def weighted_global_path_rrf_ranking(
     ).reset_index(drop=True)
     union["rank"] = np.arange(1, len(union) + 1)
     return union
+
+
+def weighted_multi_global_path_rrf_ranking(
+    rankings: list[pd.DataFrame],
+    weights: list[float],
+    *,
+    rrf_k: float = 60.0,
+) -> pd.DataFrame:
+    """Fuse several global candidate-path rankings with fixed nonnegative weights."""
+
+    if not rankings or len(rankings) != len(weights):
+        raise ValueError("Rankings and weights must be non-empty and aligned.")
+    if any(float(weight) < 0.0 for weight in weights):
+        raise ValueError("Global RRF weights must be non-negative.")
+    total = float(sum(weights))
+    if total <= 0.0:
+        raise ValueError("At least one global RRF weight must be positive.")
+    if rrf_k <= 0.0:
+        raise ValueError("RRF k must be positive.")
+    required = {"path", "first_line", "second_line"}
+    union = rankings[0].loc[:, sorted(required)].copy().reset_index(drop=True)
+    union = union.drop_duplicates("path", keep="first")
+    path_scores = pd.Series(0.0, index=union.index, dtype=float)
+    all_paths = set(union["path"].astype(str))
+    for ranking, weight in zip(rankings, weights):
+        if required - set(ranking):
+            raise ValueError("Global RRF rankings are missing path identity columns.")
+        if ranking["path"].duplicated().any():
+            raise ValueError("Global RRF input rankings must contain unique paths.")
+        table = ranking.reset_index(drop=True)
+        ranks = dict(zip(table["path"].astype(str), range(1, len(table) + 1)))
+        all_paths.update(ranks)
+        if len(union) < len(all_paths):
+            union = pd.concat(
+                [
+                    union,
+                    table.loc[
+                        ~table["path"].astype(str).isin(union["path"].astype(str)),
+                        sorted(required),
+                    ],
+                ],
+                ignore_index=True,
+            )
+            path_scores = path_scores.reindex(union.index, fill_value=0.0)
+        missing_rank = len(table) + 1
+        contribution = union["path"].astype(str).map(
+            lambda path: 1.0 / (float(rrf_k) + ranks.get(path, missing_rank))
+        )
+        path_scores = path_scores + float(weight) / total * contribution
+    union["global_rrf_score"] = path_scores.to_numpy(dtype=float)
+    union = union.sort_values(
+        ["global_rrf_score", "path"],
+        ascending=[False, True],
+        kind="stable",
+    ).reset_index(drop=True)
+    union["rank"] = np.arange(1, len(union) + 1)
+    return union

@@ -126,7 +126,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--interaction-fusion-mode",
-        choices=("none", "local_rrf", "global_rrf"),
+        choices=("none", "local_rrf", "global_rrf", "global_rrf_uncertainty"),
         default="none",
         help="Optionally fuse frozen GCN and pair-head rankings at deployment.",
     )
@@ -135,6 +135,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=float,
         default=0.5,
         help="Pair-head contribution to weighted RRF; the GCN receives 1-weight.",
+    )
+    parser.add_argument(
+        "--interaction-uncertainty-weight",
+        type=float,
+        default=0.10,
+        help="Uncertainty-ranker contribution for global_rrf_uncertainty.",
     )
     parser.add_argument(
         "--interaction-fusion-rrf-k",
@@ -375,6 +381,7 @@ def _configuration(args: argparse.Namespace, checkpoint_path: Path) -> dict[str,
         "interaction_fusion_mode": str(args.interaction_fusion_mode),
         "interaction_fusion_weight": float(args.interaction_fusion_weight),
         "interaction_fusion_rrf_k": float(args.interaction_fusion_rrf_k),
+        "interaction_uncertainty_weight": float(args.interaction_uncertainty_weight),
         "feature_normalizer": portable_result_path(
             args.feature_normalizer_json
         ),
@@ -435,6 +442,15 @@ def run_prospective_oracle(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError("--interaction-fusion-weight must be between zero and one.")
     if float(args.interaction_fusion_rrf_k) <= 0.0:
         raise ValueError("--interaction-fusion-rrf-k must be positive.")
+    if float(args.interaction_uncertainty_weight) < 0.0:
+        raise ValueError("--interaction-uncertainty-weight must be non-negative.")
+    if (
+        args.interaction_fusion_mode == "global_rrf_uncertainty"
+        and float(args.interaction_fusion_weight)
+        + float(args.interaction_uncertainty_weight)
+        > 1.0
+    ):
+        raise ValueError("Risk and uncertainty RRF weights cannot exceed one together.")
 
     output_dir = args.output_dir or (
         DEFAULT_OUTPUT_ROOT / f"seed_{int(args.seed)}"
@@ -652,7 +668,11 @@ def run_prospective_oracle(args: argparse.Namespace) -> dict[str, Any]:
             scores = {
                 label: 0.0 for label in line_labels if label != first_line
             }
-            bundle = {"selected": scores, "base": scores.copy()}
+            bundle = {
+                "selected": scores,
+                "base": scores.copy(),
+                "uncertainty": scores.copy(),
+            }
             second_score_cache[first_line] = bundle
             return bundle
         outages = final_outage_set(first_state) | {first_line}
@@ -743,7 +763,16 @@ def run_prospective_oracle(args: argparse.Namespace) -> dict[str, Any]:
             for index, label in enumerate(line_labels)
             if label != first_line
         }
-        bundle = {"selected": scores, "base": base_scores}
+        uncertainty_scores = {
+            label: float(np.std(member_probability[:, index])) if label in valid else 0.0
+            for index, label in enumerate(line_labels)
+            if label != first_line
+        }
+        bundle = {
+            "selected": scores,
+            "base": base_scores,
+            "uncertainty": uncertainty_scores,
+        }
         second_score_cache[first_line] = bundle
         return bundle
 
@@ -752,6 +781,9 @@ def run_prospective_oracle(args: argparse.Namespace) -> dict[str, Any]:
 
     def baseline_second_score_provider(first_line: str) -> dict[str, float]:
         return build_second_score_bundle(first_line)["base"]
+
+    def uncertainty_second_score_provider(first_line: str) -> dict[str, float]:
+        return build_second_score_bundle(first_line)["uncertainty"]
 
     if len(resume_rows) > int(args.max_n2_queries):
         raise ValueError("Resume rows already exceed --max-n2-queries.")
@@ -803,6 +835,9 @@ def run_prospective_oracle(args: argparse.Namespace) -> dict[str, Any]:
                 "gcn_pair_interaction_global_rrf_fallback"
                 if args.interaction_head_checkpoint is not None
                 and args.interaction_fusion_mode == "global_rrf"
+                else "gcn_pair_interaction_global_rrf_uncertainty_fallback"
+                if args.interaction_head_checkpoint is not None
+                and args.interaction_fusion_mode == "global_rrf_uncertainty"
                 else "gcn_pair_interaction_local_rrf_fallback"
                 if args.interaction_head_checkpoint is not None
                 and args.interaction_fusion_mode == "local_rrf"
@@ -814,7 +849,24 @@ def run_prospective_oracle(args: argparse.Namespace) -> dict[str, Any]:
             ),
             fallback_secondary_score_provider=(
                 baseline_second_score_provider
-                if args.interaction_fusion_mode == "global_rrf"
+                if args.interaction_fusion_mode
+                in {"global_rrf", "global_rrf_uncertainty"}
+                else None
+            ),
+            fallback_additional_score_providers=(
+                (uncertainty_second_score_provider,)
+                if args.interaction_fusion_mode == "global_rrf_uncertainty"
+                else ()
+            ),
+            fallback_global_rrf_weights=(
+                (
+                    float(args.interaction_fusion_weight),
+                    1.0
+                    - float(args.interaction_fusion_weight)
+                    - float(args.interaction_uncertainty_weight),
+                    float(args.interaction_uncertainty_weight),
+                )
+                if args.interaction_fusion_mode == "global_rrf_uncertainty"
                 else None
             ),
             fallback_primary_rrf_weight=float(args.interaction_fusion_weight),

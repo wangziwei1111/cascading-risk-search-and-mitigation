@@ -111,3 +111,9 @@ results/gcn_search/ieee118_pair_interaction_gcn/*
 results/gcn_search/ieee118_global_rank_fusion/*
 !results/gcn_search/ieee118_global_rank_fusion/compact/
 !results/gcn_search/ieee118_global_rank_fusion/compact/**
+
+# Uncertainty fusion ablations: keep local query logs and only retain compact
+# comparison evidence.
+results/gcn_search/ieee118_uncertainty_global_fusion/*
+!results/gcn_search/ieee118_uncertainty_global_fusion/compact/
+!results/gcn_search/ieee118_uncertainty_global_fusion/compact/**
