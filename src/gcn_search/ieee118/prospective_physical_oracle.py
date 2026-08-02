@@ -8,6 +8,7 @@ from simulation_efficient_prefix_search import (
     lazy_best_first_ordered_n2,
 )
 from tail_rank_fusion import weighted_global_path_rrf_ranking
+from tail_rank_fusion import weighted_multi_global_path_rrf_ranking
 
 
 FirstStateBuilder = Callable[[str], Any]
@@ -252,6 +253,8 @@ def run_frozen_adaptive_ordered_n2(
     fallback_reserve_queries: int = 0,
     fallback_stage_name: str = "unchanged_gcn_fallback",
     fallback_secondary_score_provider: SecondScoreProvider | None = None,
+    fallback_additional_score_providers: tuple[SecondScoreProvider, ...] = (),
+    fallback_global_rrf_weights: tuple[float, ...] | None = None,
     fallback_primary_rrf_weight: float = 0.5,
     fallback_global_rrf_k: float = 60.0,
 ) -> ProspectiveSearchResult:
@@ -357,12 +360,37 @@ def run_frozen_adaptive_ordered_n2(
                 scenario_id="prospective_secondary",
                 cache=secondary_score_cache,
             ).ranking
-            fallback = weighted_global_path_rrf_ranking(
-                fallback,
-                secondary,
-                primary_weight=float(fallback_primary_rrf_weight),
-                rrf_k=float(fallback_global_rrf_k),
-            )
+            if fallback_additional_score_providers:
+                rankings = [fallback, secondary]
+                for index, provider in enumerate(fallback_additional_score_providers):
+                    additional = lazy_best_first_ordered_n2(
+                        first_line_scores=first,
+                        line_labels=labels,
+                        second_score_provider=provider,
+                        max_candidates=requested,
+                        scenario_id=f"prospective_additional_{index}",
+                        cache=OrderedPrefixStateCache(),
+                    ).ranking
+                    rankings.append(additional)
+                weights = (
+                    tuple(float(value) for value in fallback_global_rrf_weights)
+                    if fallback_global_rrf_weights is not None
+                    else (float(fallback_primary_rrf_weight),)
+                )
+                if len(weights) != len(rankings):
+                    raise ValueError("Global RRF weights do not match ranking providers.")
+                fallback = weighted_multi_global_path_rrf_ranking(
+                    rankings,
+                    list(weights),
+                    rrf_k=float(fallback_global_rrf_k),
+                )
+            else:
+                fallback = weighted_global_path_rrf_ranking(
+                    fallback,
+                    secondary,
+                    primary_weight=float(fallback_primary_rrf_weight),
+                    rrf_k=float(fallback_global_rrf_k),
+                )
         for candidate in fallback.itertuples(index=False):
             if oracle.num_policy_queries >= budget:
                 break

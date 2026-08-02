@@ -1,0 +1,93 @@
+{
+  "status": "complete",
+  "gcn_core_class": "PaperStyleRts79Gcn",
+  "gcn_core_modified": false,
+  "main_method_unchanged": "global_rrf_070",
+  "uncertainty_method": "global_rrf_uncertainty",
+  "development_seeds": [
+    20261216,
+    20261217,
+    20261218,
+    20261219,
+    20261220
+  ],
+  "prospective_seeds": [
+    20261221,
+    20261222,
+    20261223,
+    20261224,
+    20261225
+  ],
+  "uncertainty_weight": 0.1,
+  "development_aggregate": [
+    {
+      "method": "global_rrf_070",
+      "critical": 6375,
+      "relay": 5867,
+      "load_shed_mw": 218667.12340741133,
+      "fallback_critical": 352,
+      "fallback_relay": 329,
+      "fallback_load_shed_mw": 10220.016082882463,
+      "errors": 0
+    },
+    {
+      "method": "uncertainty_002",
+      "critical": 6382,
+      "relay": 5878,
+      "load_shed_mw": 218822.83836102756,
+      "fallback_critical": 359,
+      "fallback_relay": 340,
+      "fallback_load_shed_mw": 10375.731036498677,
+      "errors": 0
+    },
+    {
+      "method": "uncertainty_005",
+      "critical": 6382,
+      "relay": 5877,
+      "load_shed_mw": 219025.03921780127,
+      "fallback_critical": 359,
+      "fallback_relay": 339,
+      "fallback_load_shed_mw": 10577.931893272395,
+      "errors": 0
+    },
+    {
+      "method": "uncertainty_010",
+      "critical": 6392,
+      "relay": 5883,
+      "load_shed_mw": 219592.4832106484,
+      "fallback_critical": 369,
+      "fallback_relay": 345,
+      "fallback_load_shed_mw": 11145.375886119526,
+      "errors": 0
+    }
+  ],
+  "prospective_aggregate": [
+    {
+      "method": "global_rrf_070",
+      "critical": 6642,
+      "relay": 6212,
+      "load_shed_mw": 233130.63063447826,
+      "fallback_critical": 405,
+      "fallback_relay": 370,
+      "fallback_load_shed_mw": 10767.03564055647,
+      "errors": 0
+    },
+    {
+      "method": "uncertainty_010",
+      "critical": 6653,
+      "relay": 6222,
+      "load_shed_mw": 233308.6618691539,
+      "fallback_critical": 416,
+      "fallback_relay": 380,
+      "fallback_load_shed_mw": 10945.0668752321,
+      "errors": 0
+    }
+  ],
+  "prospective_delta_uncertainty_vs_main": {
+    "critical": 11,
+    "relay": 10,
+    "load_shed_mw": 178.03123467564
+  },
+  "decision": "retain_global_rrf_070_as_main; uncertainty_is_ablation_only",
+  "reason": "Aggregate gain but seed-level regressions and no stable dominance."
+}

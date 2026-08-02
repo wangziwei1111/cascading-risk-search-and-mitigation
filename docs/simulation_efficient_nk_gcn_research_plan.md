@@ -742,3 +742,8 @@ The scenario-robust deployment extension is documented in
 It freezes both learned scorers and fuses their global candidate-path rankings.
 Per-S1 local RRF is retained as a failed ablation because it destroys score
 comparability between different first-outage states.
+
+An uncertainty-aware three-way global fusion ablation is documented in
+[ieee118_uncertainty_global_fusion.md](ieee118_uncertainty_global_fusion.md).
+It remains optional because it improves aggregate discovery but still regresses
+some independent seeds; the PR #28 global RRF 0.70 policy remains the default.

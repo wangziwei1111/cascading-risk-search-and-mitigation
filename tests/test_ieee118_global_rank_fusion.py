@@ -13,6 +13,7 @@ sys.path.insert(0, str(IEEE118))
 
 from summarize_ieee118_global_rank_fusion import summarize_query_table  # noqa: E402
 from tail_rank_fusion import weighted_global_path_rrf_ranking  # noqa: E402
+from tail_rank_fusion import weighted_multi_global_path_rrf_ranking  # noqa: E402
 
 
 def test_global_rrf_keeps_partial_union_unique_and_deterministic() -> None:
@@ -44,6 +45,25 @@ def test_global_rrf_rejects_invalid_weight() -> None:
     )
     with pytest.raises(ValueError, match="between zero and one"):
         weighted_global_path_rrf_ranking(table, table, primary_weight=1.1)
+
+
+def test_multi_global_rrf_uses_all_rankings() -> None:
+    first = pd.DataFrame(
+        [{"path": "A->B", "first_line": "A", "second_line": "B"}]
+    )
+    second = pd.DataFrame(
+        [{"path": "A->C", "first_line": "A", "second_line": "C"}]
+    )
+    third = pd.DataFrame(
+        [{"path": "B->C", "first_line": "B", "second_line": "C"}]
+    )
+
+    fused = weighted_multi_global_path_rrf_ranking(
+        [first, second, third], [0.7, 0.2, 0.1]
+    )
+
+    assert set(fused["path"]) == {"A->B", "A->C", "B->C"}
+    assert fused.iloc[0]["path"] == "A->B"
 
 
 def test_compact_summary_counts_only_fallback_stage() -> None:
